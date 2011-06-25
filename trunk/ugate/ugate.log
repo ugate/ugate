@@ -1,0 +1,1256 @@
+ INFO 19 Jun 2011 07:06:01 [JavaFX Application Thread] (UGateMain.java:375) - Connecting to XBee...
+ INFO 19 Jun 2011 07:06:02 [JavaFX Application Thread] (UGateMain.java:381) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 08:06:23 [JavaFX Application Thread] (UGateMain.java:381) - Disconnecting from Mail...
+ INFO 19 Jun 2011 08:06:07 [JavaFX Application Thread] (UGateMain.java:383) - Disconnecting from Mail...
+ INFO 19 Jun 2011 10:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connecting to XBee
+ INFO 19 Jun 2011 10:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:105) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 10:06:39 [JavaFX Application Thread] (MailView.java:55) - Connecting to Mail
+ INFO 19 Jun 2011 10:06:53 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 10:06:56 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 10:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connecting to XBee
+ INFO 19 Jun 2011 10:06:10 [JavaFX Application Thread] (XBeeConnectionView.java:105) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 10:06:10 [JavaFX Application Thread] (MailView.java:55) - Connecting to Mail
+ INFO 19 Jun 2011 10:06:20 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 10:06:28 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 10:06:53 [JavaFX Application Thread] (MailView.java:67) - Disconnecting from Mail
+ INFO 19 Jun 2011 10:06:27 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 10:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Connecting to XBee
+ INFO 19 Jun 2011 10:06:31 [JavaFX Application Thread] (XBeeConnectionView.java:108) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 10:06:31 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 10:06:41 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 10:06:43 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 11:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:108) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 11:06:22 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 11:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:108) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 11:06:40 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 11:06:50 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 11:06:52 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 11:06:21 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 11:06:22 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 11:06:34 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 11:06:35 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 11:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 11:06:49 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 11:06:50 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 11:06:32 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:33 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 11:06:33 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 11:06:46 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 11:06:48 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 11:06:24 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 11:06:24 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 11:06:26 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 11:06:34 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:34 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 11:06:47 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -47, CREATED: 2011-06-19 11:45:47, 2' 0") =======
+ INFO 19 Jun 2011 11:06:11 [pool-3-thread-1] (TrippedImage.java:63) - Writting (20311) bytes from (318) image chunks to "C:\ugate\2011-06-19 11-45-47.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 24 secs)
+ INFO 19 Jun 2011 11:06:11 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (20311) Total Image Bytes [RSSI: -45] =======
+ INFO 19 Jun 2011 11:06:23 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -43, CREATED: 2011-06-19 11:48:23, 2' 3") =======
+ INFO 19 Jun 2011 11:06:50 [pool-3-thread-1] (TrippedImage.java:63) - Writting (22682) bytes from (355) image chunks to "C:\ugate\2011-06-19 11-48-23.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 26 secs)
+ INFO 19 Jun 2011 11:06:50 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (22682) Total Image Bytes [RSSI: -44] =======
+ INFO 19 Jun 2011 11:06:56 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -44, CREATED: 2011-06-19 11:48:56, 2' 2") =======
+ INFO 19 Jun 2011 11:06:31 [pool-3-thread-1] (TrippedImage.java:63) - Writting (29786) bytes from (466) image chunks to "C:\ugate\2011-06-19 11-48-56.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 35 secs)
+ INFO 19 Jun 2011 11:06:31 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (29786) Total Image Bytes [RSSI: -43] =======
+ INFO 19 Jun 2011 11:06:39 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -44, CREATED: 2011-06-19 11:50:39, 3' 0") =======
+ INFO 19 Jun 2011 11:06:06 [pool-3-thread-1] (TrippedImage.java:63) - Writting (23219) bytes from (363) image chunks to "C:\ugate\2011-06-19 11-50-39.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 27 secs)
+ INFO 19 Jun 2011 11:06:06 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (23219) Total Image Bytes [RSSI: -42] =======
+ INFO 19 Jun 2011 11:06:50 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -43, CREATED: 2011-06-19 11:51:50, 2' 4") =======
+ INFO 19 Jun 2011 11:06:17 [pool-3-thread-1] (TrippedImage.java:63) - Writting (23091) bytes from (361) image chunks to "C:\ugate\2011-06-19 11-51-50.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 27 secs)
+ INFO 19 Jun 2011 11:06:17 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (23091) Total Image Bytes [RSSI: -44] =======
+ INFO 19 Jun 2011 11:06:48 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -45, CREATED: 2011-06-19 11:52:48, 6' 1") =======
+ INFO 19 Jun 2011 11:06:10 [pool-3-thread-1] (TrippedImage.java:63) - Writting (18150) bytes from (284) image chunks to "C:\ugate\2011-06-19 11-52-48.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 21 secs)
+ INFO 19 Jun 2011 11:06:10 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (18150) Total Image Bytes [RSSI: -45] =======
+ INFO 19 Jun 2011 11:06:39 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -43, CREATED: 2011-06-19 11:53:39, 7' 7") =======
+ INFO 19 Jun 2011 11:06:01 [pool-3-thread-1] (TrippedImage.java:63) - Writting (19021) bytes from (298) image chunks to "C:\ugate\2011-06-19 11-53-39.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 22 secs)
+ INFO 19 Jun 2011 11:06:01 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (19021) Total Image Bytes [RSSI: -45] =======
+ INFO 19 Jun 2011 11:06:10 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -48, CREATED: 2011-06-19 11:54:10, 3' 11") =======
+ INFO 19 Jun 2011 11:06:37 [pool-3-thread-1] (TrippedImage.java:63) - Writting (23356) bytes from (365) image chunks to "C:\ugate\2011-06-19 11-54-10.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 27 secs)
+ INFO 19 Jun 2011 11:06:37 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (23356) Total Image Bytes [RSSI: -45] =======
+ INFO 19 Jun 2011 11:06:20 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -44, CREATED: 2011-06-19 11:55:20, 2' 1") =======
+ INFO 19 Jun 2011 11:06:42 [pool-3-thread-1] (TrippedImage.java:63) - Writting (18739) bytes from (293) image chunks to "C:\ugate\2011-06-19 11-55-20.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 22 secs)
+ INFO 19 Jun 2011 11:06:42 [pool-3-thread-1] (UGateXBeePacketListener.java:61) - ======= (18739) Total Image Bytes [RSSI: -48] =======
+ INFO 19 Jun 2011 11:06:42 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ERROR 19 Jun 2011 11:06:43 [pool-3-thread-1] (MailProvider.java:174) - Unable to send mail message
+java.lang.NullPointerException
+	at org.ugate.mail.MailProvider.sendMailMessage(MailProvider.java:168)
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:63)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 19 Jun 2011 11:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:23 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 11:06:19 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 11:06:20 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 16:06:03 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 16:06:04 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 16:06:11 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 16:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 16:06:16 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 16:06:33 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 16:06:35 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 16:06:45 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -46, CREATED: 2011-06-19 04:37:45, 2' 2") =======
+ INFO 19 Jun 2011 16:06:09 [pool-3-thread-1] (TrippedImage.java:63) - Writting (20538) bytes from (321) image chunks to "C:\ugate\2011-06-19 04-37-45.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 24 secs)
+ INFO 19 Jun 2011 16:06:09 [pool-3-thread-1] (UGateXBeePacketListener.java:61) - ======= (20538) Total Image Bytes [RSSI: -45] =======
+ INFO 19 Jun 2011 16:06:09 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 16:06:59 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@137ef34
+ INFO 19 Jun 2011 16:06:05 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -40, CREATED: 2011-06-19 04:40:05, 6' 8") =======
+ INFO 19 Jun 2011 16:06:29 [pool-3-thread-1] (TrippedImage.java:63) - Writting (20667) bytes from (323) image chunks to "C:\ugate\2011-06-19 04-40-05.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 24 secs)
+ INFO 19 Jun 2011 16:06:29 [pool-3-thread-1] (UGateXBeePacketListener.java:61) - ======= (20667) Total Image Bytes [RSSI: -39] =======
+ INFO 19 Jun 2011 16:06:29 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 16:06:03 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@16523ab
+ INFO 19 Jun 2011 16:06:31 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -41, CREATED: 2011-06-19 04:41:31, 4' 4") =======
+ INFO 19 Jun 2011 16:06:55 [pool-3-thread-1] (TrippedImage.java:63) - Writting (19901) bytes from (311) image chunks to "C:\ugate\2011-06-19 04-41-31.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 23 secs)
+ INFO 19 Jun 2011 16:06:55 [pool-3-thread-1] (UGateXBeePacketListener.java:61) - ======= (19901) Total Image Bytes [RSSI: -42] =======
+ INFO 19 Jun 2011 16:06:55 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 16:06:26 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@e88e24
+ INFO 19 Jun 2011 19:06:06 [JavaFX Application Thread] (UGateGUI.java:91) - /C:/eclipse-workspace/ugate/bin/org/ugate/gui/x_confirm.wav
+ INFO 19 Jun 2011 19:06:57 [JavaFX Application Thread] (UGateGUI.java:91) - /C:/eclipse-workspace/ugate/bin/org/ugate/gui/x_confirm.wav
+ INFO 19 Jun 2011 19:06:59 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 19:06:00 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 19:06:00 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 19:06:12 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 19:06:13 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 19:06:04 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 19:06:04 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 19:06:07 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 19:06:14 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 19:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 19:06:15 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 19:06:24 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 19:06:25 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 19:06:36 [pool-3-thread-1] (UGateXBeePacketListener.java:93) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:36 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:42 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 07:07:42, 25' 1") =======
+ INFO 19 Jun 2011 19:06:50 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6954) bytes from (109) image chunks to "C:\ugate\2011-06-19 07-07-42.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:50 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6954) Total Image Bytes [RSSI: -38] =======
+ INFO 19 Jun 2011 19:06:50 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:12 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@10285d8
+ INFO 19 Jun 2011 19:06:38 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 19:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 19:06:39 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 19:06:51 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 19:06:54 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 19:06:08 [pool-3-thread-1] (UGateXBeePacketListener.java:93) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:08 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:14 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-19 07:35:14, 25' 1") =======
+ INFO 19 Jun 2011 19:06:22 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6977) bytes from (110) image chunks to "C:\ugate\2011-06-19 07-35-14.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:22 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6977) Total Image Bytes [RSSI: -37] =======
+ INFO 19 Jun 2011 19:06:22 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:50 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@1224b90
+ INFO 19 Jun 2011 19:06:57 [pool-3-thread-1] (UGateXBeePacketListener.java:93) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:57 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:03 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -38, CREATED: 2011-06-19 07:37:03, 25' 1") =======
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6601) bytes from (104) image chunks to "C:\ugate\2011-06-19 07-37-03.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 7 secs)
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6601) Total Image Bytes [RSSI: -37] =======
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:29 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@ba8af9
+ INFO 19 Jun 2011 19:06:11 [pool-3-thread-1] (UGateXBeePacketListener.java:93) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:11 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:14 [pool-3-thread-1] (UGateXBeePacketListener.java:79) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 07:45:14, 25' 1") =======
+ INFO 19 Jun 2011 19:06:23 [pool-3-thread-1] (TrippedImage.java:63) - Writting (7468) bytes from (117) image chunks to "C:\ugate\2011-06-19 07-45-14.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:23 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (7468) Total Image Bytes [RSSI: -37] =======
+ INFO 19 Jun 2011 19:06:23 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:48 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@2de41d
+ INFO 19 Jun 2011 19:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 19:06:49 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 19:06:49 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 19:06:26 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 19:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 19:06:27 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 19:06:38 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 19:06:40 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 19:06:59 [pool-3-thread-1] (UGateXBeePacketListener.java:94) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:59 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:02 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -39, CREATED: 2011-06-19 07:52:02, 25' 1") =======
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6922) bytes from (109) image chunks to "C:\ugate\2011-06-19 07-52-02.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6922) Total Image Bytes [RSSI: -38] =======
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:37 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@39b27b
+ INFO 19 Jun 2011 19:06:47 [pool-3-thread-1] (UGateXBeePacketListener.java:94) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:47 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:50 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -38, CREATED: 2011-06-19 07:55:50, 25' 1") =======
+ INFO 19 Jun 2011 19:06:58 [pool-3-thread-1] (TrippedImage.java:63) - Writting (7385) bytes from (116) image chunks to "C:\ugate\2011-06-19 07-55-50.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:58 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (7385) Total Image Bytes [RSSI: -37] =======
+ INFO 19 Jun 2011 19:06:59 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:24 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@ae00e3
+ INFO 19 Jun 2011 19:06:05 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 19:06:05 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 19:06:07 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 19:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 19:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 19:06:22 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 19:06:35 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 19:06:36 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 19:06:41 [pool-3-thread-1] (UGateXBeePacketListener.java:94) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:41 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:44 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 07:57:44, 25' 1") =======
+ INFO 19 Jun 2011 19:06:53 [pool-3-thread-1] (TrippedImage.java:63) - Writting (7541) bytes from (118) image chunks to "C:\ugate\2011-06-19 07-57-44.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:53 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (7541) Total Image Bytes [RSSI: -37] =======
+ INFO 19 Jun 2011 19:06:53 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:23 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@1fc6dc6
+ INFO 19 Jun 2011 19:06:01 [pool-3-thread-1] (UGateXBeePacketListener.java:94) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 19:06:01 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 19:06:02 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 07:59:02, 25' 1") =======
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (TrippedImage.java:63) - Writting (7048) bytes from (111) image chunks to "C:\ugate\2011-06-19 07-59-02.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (7048) Total Image Bytes [RSSI: -37] =======
+ INFO 19 Jun 2011 19:06:10 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 19:06:35 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@1b4ee5e
+ INFO 19 Jun 2011 20:06:07 [pool-3-thread-1] (UGateXBeePacketListener.java:94) - Transmission response: STATUS: SUCCESS
+ INFO 19 Jun 2011 20:06:07 [JavaFX Application Thread] (UGateKeeper.java:88) - Data successfully sent
+ INFO 19 Jun 2011 20:06:08 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 08:02:08, 25' 1") =======
+ INFO 19 Jun 2011 20:06:16 [pool-3-thread-1] (TrippedImage.java:63) - Writting (7246) bytes from (114) image chunks to "C:\ugate\2011-06-19 08-02-08.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 19 Jun 2011 20:06:16 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (7246) Total Image Bytes [RSSI: -38] =======
+ INFO 19 Jun 2011 20:06:16 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 20:06:39 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@10f7612
+ INFO 19 Jun 2011 20:06:27 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 08:03:27, 3' 6") =======
+ INFO 19 Jun 2011 20:06:02 [pool-3-thread-1] (TrippedImage.java:63) - Writting (25152) bytes from (394) image chunks to "C:\ugate\2011-06-19 08-03-27.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 34 secs)
+ INFO 19 Jun 2011 20:06:02 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (25152) Total Image Bytes [RSSI: -36] =======
+ INFO 19 Jun 2011 20:06:02 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 20:06:30 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@14021a9
+ INFO 19 Jun 2011 20:06:30 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-19 08:04:30, 4' 10") =======
+ INFO 19 Jun 2011 20:06:37 [pool-3-thread-1] (TrippedImage.java:63) - Writting (29014) bytes from (454) image chunks to "C:\ugate\2011-06-19 08-04-30.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 7 secs)
+ INFO 19 Jun 2011 20:06:37 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (29014) Total Image Bytes [RSSI: -36] =======
+ INFO 19 Jun 2011 20:06:37 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 20:06:04 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@15f6479
+ INFO 19 Jun 2011 20:06:25 [pool-3-thread-1] (UGateXBeePacketListener.java:80) - ======= Receiving chunked image data (RSSI: -37, CREATED: 2011-06-19 08:14:25, 3' 5") =======
+ INFO 19 Jun 2011 20:06:48 [pool-3-thread-1] (TrippedImage.java:63) - Writting (19058) bytes from (298) image chunks to "C:\ugate\2011-06-19 08-14-25.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 22 secs)
+ INFO 19 Jun 2011 20:06:48 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (19058) Total Image Bytes [RSSI: -36] =======
+ INFO 19 Jun 2011 20:06:48 [pool-3-thread-1] (MailProvider.java:136) - Sending message...
+ INFO 19 Jun 2011 20:06:16 [pool-3-thread-1] (MailProvider.java:172) - Message sent: javax.mail.internet.MimeMessage@ac8360
+ INFO 19 Jun 2011 20:06:25 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 20:06:25 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 20:06:25 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 20:06:34 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 20:06:35 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 20:06:35 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 20:06:47 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 20:06:03 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/pop.gmail.com
+ INFO 19 Jun 2011 20:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 20:06:47 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 20:06:47 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 20:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 20:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 20:06:54 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 20:06:55 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 20:06:55 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 19 Jun 2011 20:06:07 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 19 Jun 2011 20:06:08 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/imap.gmail.com
+ INFO 19 Jun 2011 21:06:05 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 21:06:05 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 19 Jun 2011 21:06:05 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 19 Jun 2011 21:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 19 Jun 2011 21:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 19 Jun 2011 21:06:15 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ERROR 19 Jun 2011 21:06:22 [JavaFX Application Thread] (MailProvider.java:130) - MAIL:  Error during setup
+javax.mail.MessagingException: +OK Gpop ready for requests from 75.107.32.72 x6pf7119204anb.2;
+  nested exception is:
+	com.sun.mail.iap.ConnectionException: +OK Gpop ready for requests from 75.107.32.72 x6pf7119204anb.2
+	at com.sun.mail.imap.IMAPStore.protocolConnect(IMAPStore.java:663)
+	at javax.mail.Service.connect(Service.java:295)
+	at org.ugate.mail.MailProvider.setupMail(MailProvider.java:98)
+	at org.ugate.mail.MailProvider.connect(MailProvider.java:48)
+	at org.ugate.gui.MailConnectionView.connect(MailConnectionView.java:60)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:41)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:1)
+	at org.ugate.gui.UGateGUI$5$1.run(UGateGUI.java:177)
+	at com.sun.javafx.application.PlatformImpl$2.run(PlatformImpl.java:65)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.access$100(WinApplication.java:29)
+	at com.sun.glass.ui.win.WinApplication$1$1.run(WinApplication.java:49)
+	at java.lang.Thread.run(Thread.java:662)
+Caused by: com.sun.mail.iap.ConnectionException: +OK Gpop ready for requests from 75.107.32.72 x6pf7119204anb.2
+	at com.sun.mail.imap.protocol.IMAPProtocol.processGreeting(IMAPProtocol.java:236)
+	at com.sun.mail.iap.Protocol.<init>(Protocol.java:120)
+	at com.sun.mail.imap.protocol.IMAPProtocol.<init>(IMAPProtocol.java:110)
+	at com.sun.mail.imap.IMAPStore.protocolConnect(IMAPStore.java:632)
+	... 12 more
+ INFO 19 Jun 2011 21:06:05 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 19 Jun 2011 21:06:05 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 08:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 08:06:29 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 08:06:29 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ERROR 20 Jun 2011 08:06:37 [JavaFX Application Thread] (MailProvider.java:130) - MAIL:  Error during setup
+javax.mail.MessagingException: +OK Gpop ready for requests from 75.107.32.72 a1pf646963ybc.1;
+  nested exception is:
+	com.sun.mail.iap.ConnectionException: +OK Gpop ready for requests from 75.107.32.72 a1pf646963ybc.1
+	at com.sun.mail.imap.IMAPStore.protocolConnect(IMAPStore.java:663)
+	at javax.mail.Service.connect(Service.java:295)
+	at org.ugate.mail.MailProvider.setupMail(MailProvider.java:98)
+	at org.ugate.mail.MailProvider.connect(MailProvider.java:48)
+	at org.ugate.gui.MailConnectionView.connect(MailConnectionView.java:60)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:41)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:1)
+	at org.ugate.gui.UGateGUI$5$1.run(UGateGUI.java:177)
+	at com.sun.javafx.application.PlatformImpl$2.run(PlatformImpl.java:65)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.access$100(WinApplication.java:29)
+	at com.sun.glass.ui.win.WinApplication$1$1.run(WinApplication.java:49)
+	at java.lang.Thread.run(Thread.java:662)
+Caused by: com.sun.mail.iap.ConnectionException: +OK Gpop ready for requests from 75.107.32.72 a1pf646963ybc.1
+	at com.sun.mail.imap.protocol.IMAPProtocol.processGreeting(IMAPProtocol.java:236)
+	at com.sun.mail.iap.Protocol.<init>(Protocol.java:120)
+	at com.sun.mail.imap.protocol.IMAPProtocol.<init>(IMAPProtocol.java:110)
+	at com.sun.mail.imap.IMAPStore.protocolConnect(IMAPStore.java:632)
+	... 12 more
+ INFO 20 Jun 2011 08:06:13 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 08:06:13 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 08:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 08:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 08:06:28 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ERROR 20 Jun 2011 08:06:37 [JavaFX Application Thread] (MailProvider.java:130) - MAIL:  Error during setup
+javax.mail.MessagingException: +OK Gpop ready for requests from 75.107.32.72 v9pf7317166ybe.6;
+  nested exception is:
+	com.sun.mail.iap.ConnectionException: +OK Gpop ready for requests from 75.107.32.72 v9pf7317166ybe.6
+	at com.sun.mail.imap.IMAPStore.protocolConnect(IMAPStore.java:663)
+	at javax.mail.Service.connect(Service.java:295)
+	at org.ugate.mail.MailProvider.setupMail(MailProvider.java:98)
+	at org.ugate.mail.MailProvider.connect(MailProvider.java:48)
+	at org.ugate.gui.MailConnectionView.connect(MailConnectionView.java:60)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:41)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:1)
+	at org.ugate.gui.UGateGUI$5$1.run(UGateGUI.java:177)
+	at com.sun.javafx.application.PlatformImpl$2.run(PlatformImpl.java:65)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.access$100(WinApplication.java:29)
+	at com.sun.glass.ui.win.WinApplication$1$1.run(WinApplication.java:49)
+	at java.lang.Thread.run(Thread.java:662)
+Caused by: com.sun.mail.iap.ConnectionException: +OK Gpop ready for requests from 75.107.32.72 v9pf7317166ybe.6
+	at com.sun.mail.imap.protocol.IMAPProtocol.processGreeting(IMAPProtocol.java:236)
+	at com.sun.mail.iap.Protocol.<init>(Protocol.java:120)
+	at com.sun.mail.imap.protocol.IMAPProtocol.<init>(IMAPProtocol.java:110)
+	at com.sun.mail.imap.IMAPStore.protocolConnect(IMAPStore.java:632)
+	... 12 more
+ INFO 20 Jun 2011 08:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 08:06:27 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 08:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 08:06:03 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 08:06:03 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 08:06:18 [JavaMail-EventQueue] (MailProvider.java:85) - Mail Store opened
+ INFO 20 Jun 2011 08:06:50 [JavaFX Application Thread] (MailProvider.java:128) - Connected to smtp.gmail.com/imap.gmail.com
+ INFO 20 Jun 2011 08:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 08:06:09 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 08:06:12 [JavaMail-EventQueue] (MailProvider.java:95) - Mail Store closed
+ INFO 20 Jun 2011 08:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 08:06:23 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 08:06:23 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 08:06:36 [JavaMail-EventQueue] (MailProvider.java:86) - Mail Store opened
+ INFO 20 Jun 2011 08:06:38 [JavaFX Application Thread] (MailProvider.java:129) - Connected to smtp.gmail.com/imap.gmail.com
+ INFO 20 Jun 2011 09:06:18 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 09:06:18 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 09:06:22 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store closed
+ INFO 20 Jun 2011 09:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 09:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 09:06:47 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 09:06:59 [JavaMail-EventQueue] (MailProvider.java:88) - Mail Store opened
+ INFO 20 Jun 2011 09:06:09 [JavaFX Application Thread] (MailProvider.java:132) - Connected to smtp.gmail.com/imap.gmail.com
+ INFO 20 Jun 2011 09:06:06 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 09:06:06 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 09:06:08 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store closed
+ INFO 20 Jun 2011 09:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 09:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 09:06:40 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 09:06:53 [JavaMail-EventQueue] (MailProvider.java:88) - Mail Store opened
+ INFO 20 Jun 2011 09:06:00 [JavaFX Application Thread] (MailProvider.java:132) - Connected to smtp.gmail.com/imap.gmail.com
+ INFO 20 Jun 2011 09:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 09:06:50 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 09:06:53 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store closed
+ INFO 20 Jun 2011 09:06:13 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 09:06:13 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 09:06:13 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 09:06:23 [JavaMail-EventQueue] (MailProvider.java:88) - Mail Store opened
+ERROR 20 Jun 2011 09:06:24 [JavaFX Application Thread] (MailProvider.java:134) - MAIL:  Error during setup
+java.lang.IllegalStateException: This operation is not allowed on a closed folder
+	at com.sun.mail.imap.IMAPFolder.checkOpened(IMAPFolder.java:404)
+	at com.sun.mail.imap.IMAPFolder.idle(IMAPFolder.java:2271)
+	at com.sun.mail.imap.IMAPFolder.idle(IMAPFolder.java:2252)
+	at org.ugate.mail.MailProvider.setupMail(MailProvider.java:130)
+	at org.ugate.mail.MailProvider.connect(MailProvider.java:50)
+	at org.ugate.gui.MailConnectionView.connect(MailConnectionView.java:60)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:41)
+	at org.ugate.gui.MailConnectionView$1.handle(MailConnectionView.java:1)
+	at org.ugate.gui.UGateGUI$5$1.run(UGateGUI.java:177)
+	at com.sun.javafx.application.PlatformImpl$2.run(PlatformImpl.java:65)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.access$100(WinApplication.java:29)
+	at com.sun.glass.ui.win.WinApplication$1$1.run(WinApplication.java:49)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 09:06:33 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 09:06:33 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 09:06:36 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 09:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 09:06:37 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 09:06:54 [JavaMail-EventQueue] (MailProvider.java:92) - Mail Store opened
+ INFO 20 Jun 2011 09:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 09:06:39 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 09:06:43 [pool-2-thread-1] (MailProvider.java:136) - Connected to smtp.gmail.com/imap.gmail.com
+ INFO 20 Jun 2011 09:06:45 [JavaMail-EventQueue] (MailProvider.java:102) - Mail Store closed
+ INFO 20 Jun 2011 09:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 09:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 09:06:30 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 09:06:46 [JavaMail-EventQueue] (MailProvider.java:92) - Mail Store opened
+ INFO 20 Jun 2011 09:06:05 [JavaFX Application Thread] (MailProvider.java:136) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 10:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 10:06:02 [JavaFX Application Thread] (MailConnectionView.java:71) - Disconnecting from Mail
+ INFO 20 Jun 2011 10:06:06 [JavaMail-EventQueue] (MailProvider.java:102) - Mail Store closed
+ INFO 20 Jun 2011 10:06:33 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 10:06:34 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 10:06:34 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 10:06:48 [JavaMail-EventQueue] (MailProvider.java:92) - Mail Store opened
+ INFO 20 Jun 2011 10:06:43 [pool-2-thread-1] (MailProvider.java:136) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 10:06:52 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 10:06:52 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 10:06:03 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 10:06:04 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 10:06:04 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 10:06:24 [JavaMail-EventQueue] (MailProvider.java:92) - Mail Store opened
+ INFO 20 Jun 2011 10:06:26 [pool-2-thread-1] (MailProvider.java:140) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 10:06:53 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 10:06:53 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 10:06:58 [JavaMail-EventQueue] (MailProvider.java:102) - Mail Store closed
+ERROR 20 Jun 2011 10:06:59 [JavaMail-EventQueue] (MailProvider.java:130) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadBODYSTRUCTURE(IMAPMessage.java:1279)
+	at com.sun.mail.imap.IMAPMessage.getDataHandler(IMAPMessage.java:623)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:122)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 10:06:16 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 10:06:16 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 10:06:16 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 10:06:29 [JavaMail-EventQueue] (MailProvider.java:92) - Mail Store opened
+ INFO 20 Jun 2011 10:06:31 [pool-2-thread-1] (MailProvider.java:141) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 10:06:55 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 10:06:55 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 10:06:59 [JavaMail-EventQueue] (MailProvider.java:102) - Mail Store closed
+ERROR 20 Jun 2011 10:06:00 [JavaMail-EventQueue] (MailProvider.java:130) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadBODYSTRUCTURE(IMAPMessage.java:1279)
+	at com.sun.mail.imap.IMAPMessage.getDataHandler(IMAPMessage.java:623)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:122)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 10:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 10:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 10:06:15 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 10:06:29 [JavaMail-EventQueue] (MailProvider.java:92) - Mail Store opened
+ INFO 20 Jun 2011 10:06:31 [pool-2-thread-1] (MailProvider.java:141) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 10:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 10:06:15 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 10:06:21 [JavaMail-EventQueue] (MailProvider.java:102) - Mail Store closed
+ INFO 20 Jun 2011 13:06:35 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 13:06:35 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 13:06:35 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 13:06:50 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store opened
+ INFO 20 Jun 2011 13:06:52 [pool-2-thread-1] (MailProvider.java:164) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 13:06:26 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 13:06:26 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 13:06:29 [JavaMail-EventQueue] (MailProvider.java:106) - Mail Store closed
+ INFO 20 Jun 2011 13:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 13:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 13:06:50 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 13:06:01 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store opened
+ INFO 20 Jun 2011 13:06:03 [pool-2-thread-1] (MailProvider.java:164) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ WARN 20 Jun 2011 13:06:45 [JavaMail-EventQueue] (MailProvider.java:124) - No listeners available for executing remote commands
+ WARN 20 Jun 2011 13:06:55 [JavaMail-EventQueue] (MailProvider.java:124) - No listeners available for executing remote commands
+ WARN 20 Jun 2011 13:06:41 [JavaMail-EventQueue] (MailProvider.java:124) - No listeners available for executing remote commands
+ INFO 20 Jun 2011 13:06:43 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 13:06:43 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 13:06:48 [JavaMail-EventQueue] (MailProvider.java:106) - Mail Store closed
+ INFO 20 Jun 2011 14:06:29 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 14:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 14:06:30 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 14:06:43 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store opened
+ INFO 20 Jun 2011 14:06:45 [pool-2-thread-1] (MailProvider.java:166) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 14:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 14:06:47 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 14:06:50 [JavaMail-EventQueue] (MailProvider.java:106) - Mail Store closed
+ INFO 20 Jun 2011 14:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 14:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 14:06:02 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 14:06:14 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store opened
+ INFO 20 Jun 2011 14:06:16 [pool-2-thread-1] (MailProvider.java:166) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 14:06:48 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 14:06:48 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 14:06:51 [JavaMail-EventQueue] (MailProvider.java:106) - Mail disconnected
+ INFO 20 Jun 2011 14:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 14:06:51 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 14:06:51 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 14:06:04 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store opened
+ INFO 20 Jun 2011 14:06:07 [pool-2-thread-1] (MailProvider.java:166) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 14:06:58 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 14:06:58 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 14:06:02 [JavaMail-EventQueue] (MailProvider.java:106) - Mail disconnected
+ INFO 20 Jun 2011 14:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 14:06:31 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 14:06:31 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 14:06:43 [JavaMail-EventQueue] (MailProvider.java:96) - Mail Store opened
+ INFO 20 Jun 2011 14:06:44 [pool-2-thread-1] (MailProvider.java:166) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 14:06:07 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 14:06:07 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 14:06:11 [JavaMail-EventQueue] (MailProvider.java:107) - Mail disconnected
+ INFO 20 Jun 2011 14:06:23 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 14:06:24 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 14:06:24 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 14:06:36 [JavaMail-EventQueue] (MailProvider.java:97) - Mail Store opened
+ INFO 20 Jun 2011 14:06:38 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 15:06:03 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 15:06:04 [JavaFX Application Thread] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 15:06:05 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 15:06:05 [JavaFX Application Thread] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 15:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 15:06:28 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 15:06:32 [JavaMail-EventQueue] (MailProvider.java:107) - Mail disconnected
+ INFO 20 Jun 2011 15:06:17 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 15:06:17 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 15:06:17 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 15:06:29 [JavaMail-EventQueue] (MailProvider.java:97) - Mail Store opened
+ INFO 20 Jun 2011 15:06:31 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 15:06:43 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 15:06:43 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 15:06:46 [JavaMail-EventQueue] (MailProvider.java:107) - Mail disconnected
+ INFO 20 Jun 2011 15:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 15:06:38 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 15:06:38 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 15:06:53 [JavaMail-EventQueue] (MailProvider.java:97) - Mail Store opened
+ INFO 20 Jun 2011 15:06:55 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 15:06:55 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 15:06:55 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 15:06:59 [JavaMail-EventQueue] (MailProvider.java:111) - Mail disconnected
+ INFO 20 Jun 2011 15:06:17 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 15:06:18 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 15:06:18 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 15:06:30 [JavaMail-EventQueue] (MailProvider.java:101) - Mail Store opened
+ INFO 20 Jun 2011 15:06:31 [pool-2-thread-1] (MailProvider.java:172) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 15:06:28 [JavaMail-EventQueue] (MailProvider.java:154) - Received raw commands: [1] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 15:06:28 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 15:06:28 [JavaMail-EventQueue] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 15:06:28 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 03:58:28, 25' 1") =======
+ INFO 20 Jun 2011 15:06:37 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6957) bytes from (109) image chunks to "C:\ugate\2011-06-20 03-58-28.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 20 Jun 2011 15:06:37 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6957) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 15:06:37 [pool-3-thread-1] (MailProvider.java:181) - Sending message...
+ INFO 20 Jun 2011 15:06:03 [pool-3-thread-1] (MailProvider.java:232) - Message sent: javax.mail.internet.MimeMessage@1a5ee7c
+ INFO 20 Jun 2011 15:06:03 [pool-3-thread-1] (MailProvider.java:213) - Message sent: javax.mail.internet.MimeMessage@1a5ee7c
+ INFO 20 Jun 2011 16:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 16:06:37 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ERROR 20 Jun 2011 16:06:40 [JavaMail-EventQueue] (MailProvider.java:167) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getSubject(IMAPMessage.java:335)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:141)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 16:06:41 [JavaMail-EventQueue] (MailProvider.java:111) - Mail disconnected
+ INFO 20 Jun 2011 16:06:59 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:00 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:00 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:11 [JavaMail-EventQueue] (MailProvider.java:101) - Mail Store opened
+ INFO 20 Jun 2011 16:06:13 [pool-2-thread-1] (MailProvider.java:172) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 16:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 16:06:49 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 16:06:54 [JavaMail-EventQueue] (MailProvider.java:111) - Mail disconnected
+ INFO 20 Jun 2011 16:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:28 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:40 [JavaMail-EventQueue] (MailProvider.java:97) - Mail Store opened
+ INFO 20 Jun 2011 16:06:42 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 16:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 16:06:37 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 16:06:41 [JavaMail-EventQueue] (MailProvider.java:107) - Mail disconnected
+ INFO 20 Jun 2011 16:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:31 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:31 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:42 [JavaMail-EventQueue] (MailProvider.java:99) - Mail Store opened
+ INFO 20 Jun 2011 16:06:44 [JavaFX Application Thread] (MailProvider.java:166) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 16:06:31 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:31 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:31 [JavaFX Application Thread] (MailConnectionView.java:60) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:42 [JavaMail-EventQueue] (MailProvider.java:99) - Mail Store opened
+ INFO 20 Jun 2011 16:06:43 [JavaFX Application Thread] (MailProvider.java:166) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 16:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:02 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:14 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store opened
+ INFO 20 Jun 2011 16:06:15 [pool-2-thread-1] (MailProvider.java:165) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 16:06:47 [JavaMail-EventQueue] (MailProvider.java:150) - Received raw commands: [] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 16:06:04 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 16:06:04 [JavaFX Application Thread] (MailConnectionView.java:79) - Disconnecting from Mail
+ERROR 20 Jun 2011 16:06:07 [JavaMail-EventQueue] (MailProvider.java:160) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getFrom(IMAPMessage.java:237)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:138)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 16:06:09 [JavaMail-EventQueue] (MailProvider.java:108) - Mail disconnected
+ INFO 20 Jun 2011 16:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:12 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:25 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 16:06:27 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 16:06:27 [pool-2-thread-1] (MailProvider.java:172) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 16:06:16 [JavaMail-EventQueue] (MailProvider.java:152) - Received raw commands: [] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 16:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 16:06:49 [JavaFX Application Thread] (MailConnectionView.java:79) - Disconnecting from Mail
+ INFO 20 Jun 2011 16:06:52 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 16:06:53 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 16:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 16:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 16:06:09 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 16:06:19 [JavaMail-EventQueue] (MailProvider.java:101) - Mail Store/Folder opened
+ INFO 20 Jun 2011 16:06:21 [JavaMail-EventQueue] (MailProvider.java:101) - Mail Store/Folder opened
+ INFO 20 Jun 2011 16:06:21 [pool-2-thread-1] (MailProvider.java:175) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 17:06:10 [JavaMail-EventQueue] (MailProvider.java:155) - Received raw commands: [1] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 17:06:10 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 17:06:10 [JavaMail-EventQueue] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 17:06:11 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 05:01:11, 25' 1") =======
+ INFO 20 Jun 2011 17:06:19 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6812) bytes from (107) image chunks to "C:\ugate\2011-06-20 05-01-11.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 20 Jun 2011 17:06:19 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6812) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 17:06:19 [pool-3-thread-1] (MailProvider.java:184) - Sending message...
+ INFO 20 Jun 2011 17:06:40 [pool-3-thread-1] (MailProvider.java:236) - Message sent: javax.mail.internet.MimeMessage@afb650
+ INFO 20 Jun 2011 17:06:40 [pool-3-thread-1] (MailProvider.java:216) - Message sent: javax.mail.internet.MimeMessage@afb650
+ INFO 20 Jun 2011 17:06:58 [JavaMail-EventQueue] (MailProvider.java:149) - Invalid command(s) received from: [Candice Hoover <candicemhoover@gmail.com>]
+ERROR 20 Jun 2011 17:06:23 [JavaMail-EventQueue] (MailProvider.java:238) - Unable to send message
+javax.mail.MessagingException: No MimeMessage content
+	at javax.mail.internet.MimeMessage.getContentStream(MimeMessage.java:1333)
+	at javax.mail.internet.MimeBodyPart.writeTo(MimeBodyPart.java:1464)
+	at javax.mail.internet.MimeMessage.writeTo(MimeMessage.java:1772)
+	at com.sun.mail.smtp.SMTPTransport.sendMessage(SMTPTransport.java:1099)
+	at org.ugate.mail.MailProvider.send(MailProvider.java:234)
+	at org.ugate.mail.MailProvider.sendReply(MailProvider.java:246)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:151)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 17:06:43 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 17:06:43 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ERROR 20 Jun 2011 17:06:46 [JavaMail-EventQueue] (MailProvider.java:164) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getFrom(IMAPMessage.java:237)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:143)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 17:06:46 [JavaMail-EventQueue] (MailProvider.java:111) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:48 [JavaMail-EventQueue] (MailProvider.java:111) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:00 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 17:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 17:06:01 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 17:06:14 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:15 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:15 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 17:06:08 [JavaMail-EventQueue] (MailProvider.java:152) - Received raw commands: [1] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 17:06:08 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 17:06:08 [JavaMail-EventQueue] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 17:06:09 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 05:13:09, 25' 1") =======
+ INFO 20 Jun 2011 17:06:17 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6894) bytes from (108) image chunks to "C:\ugate\2011-06-20 05-13-09.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 20 Jun 2011 17:06:17 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6894) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 17:06:17 [pool-3-thread-1] (MailProvider.java:177) - Sending message...
+ INFO 20 Jun 2011 17:06:39 [pool-3-thread-1] (MailProvider.java:228) - Message sent: javax.mail.internet.MimeMessage@17d26fc
+ INFO 20 Jun 2011 17:06:37 [pool-3-thread-1] (MailProvider.java:209) - Message sent: javax.mail.internet.MimeMessage@17d26fc
+ INFO 20 Jun 2011 17:06:42 [JavaMail-EventQueue] (MailProvider.java:152) - Received raw commands: [1] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 17:06:42 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 17:06:42 [JavaMail-EventQueue] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 17:06:43 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 05:14:43, 25' 1") =======
+ INFO 20 Jun 2011 17:06:51 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6761) bytes from (106) image chunks to "C:\ugate\2011-06-20 05-14-43.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 7 secs)
+ INFO 20 Jun 2011 17:06:51 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6761) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 17:06:51 [pool-3-thread-1] (MailProvider.java:177) - Sending message...
+ INFO 20 Jun 2011 17:06:16 [pool-3-thread-1] (MailProvider.java:228) - Message sent: javax.mail.internet.MimeMessage@16523ab
+ INFO 20 Jun 2011 17:06:20 [pool-3-thread-1] (MailProvider.java:209) - Message sent: javax.mail.internet.MimeMessage@16523ab
+ INFO 20 Jun 2011 17:06:33 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 17:06:33 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ERROR 20 Jun 2011 17:06:36 [JavaMail-EventQueue] (MailProvider.java:162) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getFrom(IMAPMessage.java:237)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:140)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 17:06:36 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:38 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 17:06:29 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 17:06:29 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 17:06:39 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:40 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:41 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 17:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 17:06:39 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 17:06:43 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ERROR 20 Jun 2011 17:06:44 [JavaMail-EventQueue] (MailProvider.java:162) - MAIL:  Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getFrom(IMAPMessage.java:237)
+	at org.ugate.mail.MailProvider$2.messagesAdded(MailProvider.java:140)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 17:06:44 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 17:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 17:06:15 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 17:06:27 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:28 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:28 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 17:06:26 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 17:06:26 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 17:06:29 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:30 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 17:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 17:06:47 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 17:06:58 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:00 [JavaMail-EventQueue] (MailProvider.java:98) - Mail Store/Folder opened
+ INFO 20 Jun 2011 17:06:00 [pool-2-thread-1] (MailProvider.java:168) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 17:06:55 [JavaMail-EventQueue] (MailProvider.java:152) - Received raw commands: [1] from: [9048660888@mymetropcs.com]
+ INFO 20 Jun 2011 17:06:55 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 17:06:56 [JavaMail-EventQueue] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 17:06:56 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 05:31:56, 25' 1") =======
+ INFO 20 Jun 2011 17:06:04 [pool-3-thread-1] (TrippedImage.java:63) - Writting (7085) bytes from (111) image chunks to "C:\ugate\2011-06-20 05-31-56.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 8 secs)
+ INFO 20 Jun 2011 17:06:04 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (7085) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 17:06:04 [pool-3-thread-1] (MailProvider.java:177) - Sending message...
+ INFO 20 Jun 2011 17:06:28 [pool-3-thread-1] (MailProvider.java:227) - Message sent
+ INFO 20 Jun 2011 17:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 17:06:39 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 17:06:42 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:44 [JavaMail-EventQueue] (MailProvider.java:108) - Mail Store/Folder disconnected
+ INFO 20 Jun 2011 17:06:14 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 17:06:14 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 17:06:14 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 17:06:25 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 17:06:26 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 17:06:26 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 17:06:31 [JavaMail-EventQueue] (MailProvider.java:94) - Received raw commands: [1] from: [Candice Hoover <candicemhoover@gmail.com>]
+ INFO 20 Jun 2011 17:06:31 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 17:06:32 [JavaMail-EventQueue] (UGateKeeper.java:113) - Data successfully sent
+ INFO 20 Jun 2011 17:06:32 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 05:49:32, 25' 1") =======
+ INFO 20 Jun 2011 17:06:40 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6541) bytes from (103) image chunks to "C:\ugate\2011-06-20 05-49-32.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 7 secs)
+ INFO 20 Jun 2011 17:06:40 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6541) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 17:06:40 [pool-3-thread-1] (MailProvider.java:182) - Sending message...
+ INFO 20 Jun 2011 17:06:04 [pool-3-thread-1] (MailProvider.java:232) - Message sent
+ INFO 20 Jun 2011 18:06:06 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:06 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:10 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:14 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:16 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:16 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:27 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:28 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:28 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:47 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:52 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ERROR 20 Jun 2011 18:06:26 [JavaMail-EventQueue] (MailProvider.java:104) - Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getFrom(IMAPMessage.java:237)
+	at org.ugate.mail.MailProvider$1.messagesAdded(MailProvider.java:82)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ERROR 20 Jun 2011 18:06:29 [JavaMail-EventQueue] (MailProvider.java:104) - Error when processing incoming message
+javax.mail.FolderClosedException
+	at com.sun.mail.imap.IMAPMessage.getProtocol(IMAPMessage.java:145)
+	at com.sun.mail.imap.IMAPMessage.loadEnvelope(IMAPMessage.java:1199)
+	at com.sun.mail.imap.IMAPMessage.getFrom(IMAPMessage.java:237)
+	at org.ugate.mail.MailProvider$1.messagesAdded(MailProvider.java:82)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 20 Jun 2011 18:06:29 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:16 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:16 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:26 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:27 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:27 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:03 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:03 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:06 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:09 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:29 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:30 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:30 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:39 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:41 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:41 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:46 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:46 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:50 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:52 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:08 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:09 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:18 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:21 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:21 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:32 [JavaMail-EventQueue] (MailProvider.java:100) - ["Hoover, William" <whoover@nemours.org>] does not have permission to execute commands
+ INFO 20 Jun 2011 18:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:12 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:17 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:19 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:26 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:27 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:37 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:39 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:39 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ WARN 20 Jun 2011 18:06:14 [JavaMail-EventQueue] (MailProvider.java:267) - Commands being ignored for content type: TEXT/PLAIN; charset=iso-8859-1
+ INFO 20 Jun 2011 18:06:14 [JavaMail-EventQueue] (MailProvider.java:94) - Received raw commands: [] from: ["Hoover, William" <whoover@nemours.org>]
+ INFO 20 Jun 2011 18:06:10 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:10 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:16 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:19 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:50 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:02 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:04 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:04 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ WARN 20 Jun 2011 18:06:40 [JavaMail-EventQueue] (MailProvider.java:267) - Commands being ignored for content type: TEXT/PLAIN; charset=iso-8859-1
+ INFO 20 Jun 2011 18:06:40 [JavaMail-EventQueue] (MailProvider.java:94) - Received raw commands: [] from: ["Hoover, William" <whoover@nemours.org>]
+ INFO 20 Jun 2011 18:06:05 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:05 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:09 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:12 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 20 Jun 2011 18:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 20 Jun 2011 18:06:40 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 20 Jun 2011 18:06:50 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:51 [pool-2-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 20 Jun 2011 18:06:51 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 20 Jun 2011 18:06:33 [JavaMail-EventQueue] (MailProvider.java:94) - Received raw commands: [1] from: ["Hoover, William" <whoover@nemours.org>]
+ INFO 20 Jun 2011 18:06:33 [pool-3-thread-1] (UGateXBeePacketListener.java:96) - Transmission response: STATUS: SUCCESS
+ INFO 20 Jun 2011 18:06:34 [JavaMail-EventQueue] (UGateKeeper.java:122) - Data successfully sent
+ INFO 20 Jun 2011 18:06:34 [pool-3-thread-1] (UGateXBeePacketListener.java:82) - ======= Receiving chunked image data (RSSI: -36, CREATED: 2011-06-20 06:27:34, 25' 1") =======
+ INFO 20 Jun 2011 18:06:42 [pool-3-thread-1] (TrippedImage.java:63) - Writting (6603) bytes from (104) image chunks to "C:\ugate\2011-06-20 06-27-34.jpg" (took: 0 years, 0 days, 0 hrs, 0 mins, 7 secs)
+ INFO 20 Jun 2011 18:06:42 [pool-3-thread-1] (UGateXBeePacketListener.java:60) - ======= (6603) Total Image Bytes [RSSI: -36] =======
+ INFO 20 Jun 2011 18:06:42 [pool-3-thread-1] (MailProvider.java:182) - Sending message...
+ INFO 20 Jun 2011 18:06:16 [pool-3-thread-1] (MailProvider.java:232) - Message sent
+ INFO 20 Jun 2011 18:06:05 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 20 Jun 2011 18:06:05 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 20 Jun 2011 18:06:08 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 20 Jun 2011 18:06:11 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 21 Jun 2011 18:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 21 Jun 2011 18:06:51 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 21 Jun 2011 18:06:51 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 21 Jun 2011 18:06:10 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 21 Jun 2011 18:06:12 [pool-1-thread-1] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 21 Jun 2011 18:06:12 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 21 Jun 2011 18:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 21 Jun 2011 18:06:09 [JavaFX Application Thread] (MailConnectionView.java:78) - Disconnecting from Mail
+ INFO 21 Jun 2011 18:06:13 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 21 Jun 2011 18:06:16 [JavaMail-EventQueue] (MailProvider.java:124) - Mail Store/Folder disconnected: 3
+ INFO 21 Jun 2011 18:06:32 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 21 Jun 2011 18:06:32 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 21 Jun 2011 18:06:32 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 21 Jun 2011 18:06:46 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 21 Jun 2011 18:06:48 [JavaFX Application Thread] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 21 Jun 2011 18:06:48 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 21 Jun 2011 18:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 21 Jun 2011 18:06:28 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 21 Jun 2011 18:06:28 [JavaFX Application Thread] (MailConnectionView.java:59) - Connecting to Mail
+ INFO 21 Jun 2011 18:06:41 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 21 Jun 2011 18:06:43 [JavaFX Application Thread] (MailProvider.java:173) - Connected to smtp.gmail.com/imap.gmail.com listening for incoming messages that contain commands
+ INFO 21 Jun 2011 18:06:43 [JavaMail-EventQueue] (MailProvider.java:114) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:21 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 19:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 19:06:22 [JavaFX Application Thread] (MailConnectionView.java:61) - Connecting to Mail
+ INFO 22 Jun 2011 19:06:36 [JavaMail-EventQueue] (EmailAgent.java:325) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:37 [JavaMail-EventQueue] (EmailAgent.java:325) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:37 [EmailAgent-main] (EmailAgent.java:156) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 19:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 19:06:07 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 19:06:07 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 19:06:07 [JavaFX Application Thread] (MailConnectionView.java:61) - Connecting to Mail
+ INFO 22 Jun 2011 19:06:22 [JavaMail-EventQueue] (EmailAgent.java:347) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:24 [JavaMail-EventQueue] (EmailAgent.java:347) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:24 [EmailAgent-main] (EmailAgent.java:156) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 19:06:42 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 19:06:33 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 19:06:34 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 19:06:46 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:47 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:47 [EmailAgent-main] (EmailAgent.java:156) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 19:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 19:06:35 [JavaMail-EventQueue] (EmailAgent.java:356) - Mail Store/Folder disconnected: 3
+ERROR 22 Jun 2011 19:06:35 [EmailAgent-main] (EmailAgent.java:174) - Unable to connect
+javax.mail.FolderClosedException: * BYE System error
+	at com.sun.mail.imap.IMAPFolder.throwClosedException(IMAPFolder.java:2538)
+	at com.sun.mail.imap.IMAPFolder.idle(IMAPFolder.java:2336)
+	at com.sun.mail.imap.IMAPFolder.idle(IMAPFolder.java:2252)
+	at org.ugate.mail.EmailAgent.doRun(EmailAgent.java:169)
+	at org.ugate.thread.UGateThread.run(UGateThread.java:62)
+	at org.ugate.thread.UGateThread.run(UGateThread.java:60)
+ INFO 22 Jun 2011 19:06:47 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:50 [EmailAgent-main] (EmailAgent.java:156) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 19:06:50 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:31 [JavaMail-EventQueue] (EmailAgent.java:356) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 19:06:31 [EmailAgent-main] (EmailAgent.java:187) - Disconnected from folder
+ INFO 22 Jun 2011 19:06:34 [JavaMail-EventQueue] (EmailAgent.java:356) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 19:06:34 [EmailAgent-main] (EmailAgent.java:191) - Disconnected from store
+ INFO 22 Jun 2011 19:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 19:06:27 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 19:06:39 [JavaMail-EventQueue] (EmailAgent.java:351) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:41 [JavaMail-EventQueue] (EmailAgent.java:351) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 19:06:41 [EmailAgent-main] (EmailAgent.java:157) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 19:06:35 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:58 [JavaMail-EventQueue] (EmailAgent.java:351) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:00 [JavaMail-EventQueue] (EmailAgent.java:351) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:00 [EmailAgent-main] (EmailAgent.java:157) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:17 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:10 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:22 [JavaMail-EventQueue] (EmailAgent.java:348) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:23 [JavaMail-EventQueue] (EmailAgent.java:348) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:23 [EmailAgent-main] (EmailAgent.java:154) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:48 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:56 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:57 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:10 [JavaMail-EventQueue] (EmailAgent.java:341) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:12 [JavaMail-EventQueue] (EmailAgent.java:341) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:12 [EmailAgent-main] (EmailAgent.java:157) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:19 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:20 [EmailAgent-main] (EmailAgent.java:171) - Done listening for incoming messages
+ INFO 22 Jun 2011 20:06:25 [EmailAgent-main] (EmailAgent.java:171) - Done listening for incoming messages
+ INFO 22 Jun 2011 20:06:26 [JavaMail-EventQueue] (EmailAgent.java:362) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:26 [JavaFX Application Thread] (EmailAgent.java:193) - Disconnected from folder
+ERROR 22 Jun 2011 20:06:26 [EmailAgent-main] (EmailAgent.java:179) - Unable to connect
+java.lang.IllegalStateException: This operation is not allowed on a closed folder
+	at com.sun.mail.imap.IMAPFolder.checkOpened(IMAPFolder.java:404)
+	at com.sun.mail.imap.IMAPFolder.idle(IMAPFolder.java:2271)
+	at com.sun.mail.imap.IMAPFolder.idle(IMAPFolder.java:2252)
+	at org.ugate.mail.EmailAgent.run(EmailAgent.java:170)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 22 Jun 2011 20:06:30 [JavaMail-EventQueue] (EmailAgent.java:362) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:30 [JavaFX Application Thread] (EmailAgent.java:197) - Disconnected from store
+ INFO 22 Jun 2011 20:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:51 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:03 [JavaMail-EventQueue] (EmailAgent.java:341) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:04 [JavaMail-EventQueue] (EmailAgent.java:341) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:04 [EmailAgent-main] (EmailAgent.java:157) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:25 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:25 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 22 Jun 2011 20:06:26 [EmailAgent-main] (EmailAgent.java:171) - Done listening for incoming messages
+ INFO 22 Jun 2011 20:06:29 [JavaMail-EventQueue] (EmailAgent.java:362) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:29 [JavaFX Application Thread] (EmailAgent.java:193) - Disconnected from folder
+ERROR 22 Jun 2011 20:06:29 [EmailAgent-main] (EmailAgent.java:200) - Unable to disconnect
+java.lang.IllegalStateException: This operation is not allowed on a closed folder
+	at com.sun.mail.imap.IMAPFolder.close(IMAPFolder.java:1074)
+	at com.sun.mail.imap.IMAPFolder.close(IMAPFolder.java:1050)
+	at org.ugate.mail.EmailAgent.disconnect(EmailAgent.java:192)
+	at org.ugate.mail.EmailAgent.run(EmailAgent.java:173)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 22 Jun 2011 20:06:33 [JavaMail-EventQueue] (EmailAgent.java:362) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:33 [JavaFX Application Thread] (EmailAgent.java:197) - Disconnected from store
+ INFO 22 Jun 2011 20:06:25 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:26 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:39 [JavaMail-EventQueue] (EmailAgent.java:342) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:40 [JavaMail-EventQueue] (EmailAgent.java:342) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:40 [EmailAgent-main] (EmailAgent.java:159) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:49 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 22 Jun 2011 20:06:51 [EmailAgent-main] (EmailAgent.java:173) - Done listening for incoming messages
+ INFO 22 Jun 2011 20:06:55 [JavaFX Application Thread] (EmailAgent.java:194) - Disconnected from folder
+ INFO 22 Jun 2011 20:06:55 [JavaMail-EventQueue] (EmailAgent.java:363) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:59 [JavaMail-EventQueue] (EmailAgent.java:363) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:59 [JavaFX Application Thread] (EmailAgent.java:198) - Disconnected from store
+ INFO 22 Jun 2011 20:06:44 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:45 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:57 [JavaMail-EventQueue] (EmailAgent.java:333) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:59 [JavaMail-EventQueue] (EmailAgent.java:333) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:59 [EmailAgent-main] (EmailAgent.java:152) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:40 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 22 Jun 2011 20:06:44 [EmailAgent-main] (EmailAgent.java:158) - Stopped listening for incoming messages (from disconnect)
+ INFO 22 Jun 2011 20:06:47 [JavaMail-EventQueue] (EmailAgent.java:365) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:47 [JavaFX Application Thread] (EmailAgent.java:185) - Disconnected from folder
+ INFO 22 Jun 2011 20:06:50 [JavaMail-EventQueue] (EmailAgent.java:365) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:50 [JavaFX Application Thread] (EmailAgent.java:189) - Disconnected from store
+ INFO 22 Jun 2011 20:06:24 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:24 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:36 [JavaMail-EventQueue] (EmailAgent.java:333) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:36 [EmailAgent-main] (EmailAgent.java:152) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:48 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:48 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 22 Jun 2011 20:06:49 [EmailAgent-main] (EmailAgent.java:158) - Stopped listening for incoming messages (from disconnect)
+ INFO 22 Jun 2011 20:06:52 [JavaMail-EventQueue] (EmailAgent.java:365) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:52 [JavaFX Application Thread] (EmailAgent.java:185) - Disconnected from folder
+ INFO 22 Jun 2011 20:06:56 [JavaFX Application Thread] (EmailAgent.java:189) - Disconnected from store
+ INFO 22 Jun 2011 20:06:12 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 22 Jun 2011 20:06:13 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 22 Jun 2011 20:06:26 [JavaMail-EventQueue] (EmailAgent.java:336) - Mail Store/Folder opened: 1
+ INFO 22 Jun 2011 20:06:26 [EmailAgent-main] (EmailAgent.java:152) - Connected to imap.gmail.com waiting for messages...
+ INFO 22 Jun 2011 20:06:06 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 22 Jun 2011 20:06:06 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 22 Jun 2011 20:06:07 [EmailAgent-main] (EmailAgent.java:158) - Stopped listening for incoming messages (from disconnect)
+ INFO 22 Jun 2011 20:06:10 [JavaMail-EventQueue] (EmailAgent.java:368) - Mail Store/Folder disconnected: 3
+ INFO 22 Jun 2011 20:06:10 [JavaFX Application Thread] (EmailAgent.java:185) - Disconnected from folder
+ INFO 22 Jun 2011 20:06:13 [JavaFX Application Thread] (EmailAgent.java:189) - Disconnected from store
+ INFO 23 Jun 2011 18:06:13 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 23 Jun 2011 18:06:14 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 18:06:31 [JavaMail-EventQueue] (EmailAgent.java:336) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 18:06:31 [EmailAgent-main] (EmailAgent.java:152) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 18:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 23 Jun 2011 18:06:01 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 23 Jun 2011 18:06:02 [EmailAgent-main] (EmailAgent.java:158) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 18:06:05 [JavaMail-EventQueue] (EmailAgent.java:368) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 18:06:05 [JavaFX Application Thread] (EmailAgent.java:185) - Disconnected from folder
+ INFO 23 Jun 2011 18:06:08 [JavaFX Application Thread] (EmailAgent.java:189) - Disconnected from store
+ INFO 23 Jun 2011 18:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 23 Jun 2011 18:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 18:06:16 [JavaMail-EventQueue] (EmailAgent.java:336) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 18:06:16 [EmailAgent-main] (EmailAgent.java:152) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 18:06:26 [JavaFX Application Thread] (EmailAgent.java:198) - Sending message...
+ INFO 23 Jun 2011 18:06:45 [JavaFX Application Thread] (EmailAgent.java:250) - Message sent
+ERROR 23 Jun 2011 18:06:47 [JavaMail-EventQueue] (EmailAgent.java:148) - Error when processing incoming message
+java.lang.ClassCastException: [Ljavax.mail.Message; cannot be cast to [Lcom.sun.mail.imap.IMAPMessage;
+	at org.ugate.mail.EmailAgent$1.messagesAdded(EmailAgent.java:116)
+	at javax.mail.event.MessageCountEvent.dispatch(MessageCountEvent.java:150)
+	at javax.mail.EventQueue.run(EventQueue.java:134)
+	at java.lang.Thread.run(Thread.java:662)
+ INFO 23 Jun 2011 18:06:24 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 23 Jun 2011 18:06:24 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 23 Jun 2011 18:06:25 [EmailAgent-main] (EmailAgent.java:158) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 18:06:27 [JavaMail-EventQueue] (EmailAgent.java:368) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 18:06:27 [JavaFX Application Thread] (EmailAgent.java:185) - Disconnected from folder
+ INFO 23 Jun 2011 18:06:31 [JavaFX Application Thread] (EmailAgent.java:189) - Disconnected from store
+ INFO 23 Jun 2011 18:06:14 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 23 Jun 2011 18:06:15 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 18:06:28 [JavaMail-EventQueue] (EmailAgent.java:343) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 18:06:28 [EmailAgent-main] (EmailAgent.java:159) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 18:06:32 [JavaFX Application Thread] (EmailAgent.java:205) - Sending message...
+ INFO 23 Jun 2011 18:06:52 [JavaFX Application Thread] (EmailAgent.java:257) - Message sent
+ INFO 23 Jun 2011 18:06:55 [EmailAgent-main] (EmailAgent.java:163) - Unexpectedly stopped listening for incoming messages... attempting to reconnect...
+ INFO 23 Jun 2011 18:06:58 [JavaMail-EventQueue] (EmailAgent.java:151) - [ugate.relay@gmail.com] does not have permission to execute commands
+ INFO 23 Jun 2011 18:06:04 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 23 Jun 2011 18:06:04 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 23 Jun 2011 18:06:06 [EmailAgent-main] (EmailAgent.java:165) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 18:06:09 [JavaMail-EventQueue] (EmailAgent.java:375) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 18:06:09 [JavaFX Application Thread] (EmailAgent.java:192) - Disconnected from folder
+ INFO 23 Jun 2011 18:06:12 [JavaFX Application Thread] (EmailAgent.java:196) - Disconnected from store
+ INFO 23 Jun 2011 18:06:22 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 23 Jun 2011 18:06:23 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 18:06:23 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 18:06:36 [JavaMail-EventQueue] (EmailAgent.java:344) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 18:06:36 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 18:06:41 [JavaFX Application Thread] (EmailAgent.java:206) - Sending message...
+ INFO 23 Jun 2011 18:06:03 [JavaFX Application Thread] (EmailAgent.java:258) - Message sent
+ INFO 23 Jun 2011 18:06:05 [EmailAgent-main] (EmailAgent.java:164) - Stopped listening for incoming messages... attempting to reconnect...
+ INFO 23 Jun 2011 18:06:06 [JavaMail-EventQueue] (EmailAgent.java:152) - [ugate.relay@gmail.com] does not have permission to execute commands
+ INFO 23 Jun 2011 18:06:29 [JavaFX Application Thread] (EmailAgent.java:206) - Sending message...
+ INFO 23 Jun 2011 18:06:53 [JavaFX Application Thread] (EmailAgent.java:258) - Message sent
+ INFO 23 Jun 2011 18:06:55 [EmailAgent-main] (EmailAgent.java:164) - Stopped listening for incoming messages... attempting to reconnect...
+ INFO 23 Jun 2011 18:06:56 [JavaMail-EventQueue] (EmailAgent.java:152) - [ugate.relay@gmail.com] does not have permission to execute commands
+ INFO 23 Jun 2011 19:06:10 [JavaFX Application Thread] (EmailAgent.java:206) - Sending message...
+ INFO 23 Jun 2011 19:06:35 [JavaFX Application Thread] (EmailAgent.java:258) - Message sent
+ INFO 23 Jun 2011 19:06:36 [EmailAgent-main] (EmailAgent.java:164) - Stopped listening for incoming messages... attempting to reconnect...
+ INFO 23 Jun 2011 19:06:38 [JavaMail-EventQueue] (EmailAgent.java:152) - [ugate.relay@gmail.com] does not have permission to execute commands
+ INFO 23 Jun 2011 19:06:41 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 23 Jun 2011 19:06:41 [JavaFX Application Thread] (MailConnectionView.java:85) - Disconnecting from Email
+ INFO 23 Jun 2011 19:06:42 [EmailAgent-main] (EmailAgent.java:166) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 19:06:46 [JavaMail-EventQueue] (EmailAgent.java:376) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 19:06:46 [JavaFX Application Thread] (EmailAgent.java:193) - Disconnected from folder
+ INFO 23 Jun 2011 19:06:49 [JavaFX Application Thread] (EmailAgent.java:197) - Disconnected from store
+ INFO 23 Jun 2011 19:06:38 [JavaFX Application Thread] (XBeeConnectionView.java:88) - Connecting to XBee
+ INFO 23 Jun 2011 19:06:39 [JavaFX Application Thread] (XBeeConnectionView.java:94) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 19:06:39 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 19:06:54 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 19:06:54 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 19:06:36 [JavaFX Application Thread] (XBeeConnectionView.java:102) - Disconnecting from XBee
+ INFO 23 Jun 2011 19:06:36 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 19:06:37 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 19:06:40 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 19:06:40 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 19:06:44 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 19:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 19:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 19:06:02 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 19:06:15 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 19:06:15 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 19:06:19 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 19:06:19 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 19:06:21 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 19:06:23 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 19:06:23 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 19:06:27 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 19:06:49 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 19:06:50 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 19:06:50 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 19:06:02 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 19:06:02 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 19:06:18 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 19:06:18 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 19:06:20 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 19:06:22 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 19:06:22 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 19:06:26 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 19:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 19:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 19:06:37 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 19:06:50 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 19:06:50 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 19:06:21 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 19:06:21 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 19:06:22 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 19:06:25 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 19:06:25 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 19:06:28 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 19:06:06 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 19:06:06 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 19:06:06 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 19:06:20 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 19:06:20 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 19:06:53 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 19:06:53 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 19:06:57 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 19:06:00 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 19:06:00 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 19:06:03 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 19:06:44 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 19:06:44 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 19:06:44 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 19:06:56 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 19:06:56 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:09 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:09 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:12 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:16 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:16 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:20 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:33 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:34 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:34 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:49 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:49 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:05 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:05 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:07 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:10 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:10 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:13 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:01 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:02 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:13 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:13 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:59 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:59 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:00 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:03 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:03 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:05 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:56 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:57 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:57 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:10 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:10 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:19 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:19 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:20 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:24 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:24 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:26 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:37 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:37 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:48 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:48 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:20 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:20 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:21 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:24 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:24 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:27 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:42 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:42 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:43 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:54 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:54 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:24 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:24 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:25 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:28 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:28 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:30 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:41 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:41 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:54 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:54 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:47 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:47 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:48 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:51 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:51 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:54 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:40 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:41 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:51 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:51 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:02 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:02 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:03 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:05 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:05 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:08 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 20:06:20 [JavaFX Application Thread] (XBeeConnectionView.java:91) - Connecting to XBee
+ INFO 23 Jun 2011 20:06:20 [JavaFX Application Thread] (XBeeConnectionView.java:99) - Connected to "COM5" at 19200
+ INFO 23 Jun 2011 20:06:20 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 20:06:32 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 20:06:32 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 20:06:45 [JavaFX Application Thread] (XBeeConnectionView.java:109) - Disconnecting from XBee
+ INFO 23 Jun 2011 20:06:45 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 20:06:46 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 20:06:51 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 20:06:51 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 20:06:56 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 21:06:23 [JavaFX Application Thread] (UGateKeeper.java:154) - Connecting to local XBee
+ INFO 23 Jun 2011 21:06:24 [JavaFX Application Thread] (UGateKeeper.java:158) - Connected to local XBee: "COM5" at 19200
+ INFO 23 Jun 2011 21:06:24 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 21:06:36 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 21:06:36 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 21:06:11 [JavaFX Application Thread] (UGateKeeper.java:172) - Disconnecting from XBee
+ INFO 23 Jun 2011 21:06:11 [JavaFX Application Thread] (UGateKeeper.java:174) - Disconnected from XBee
+ INFO 23 Jun 2011 21:06:11 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 21:06:12 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 21:06:15 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 21:06:15 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 21:06:18 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
+ INFO 23 Jun 2011 21:06:26 [JavaFX Application Thread] (UGateKeeper.java:159) - Connecting to local XBee
+ INFO 23 Jun 2011 21:06:27 [JavaFX Application Thread] (UGateKeeper.java:163) - Connected to local XBee: "COM5" at 19200
+ INFO 23 Jun 2011 21:06:27 [JavaFX Application Thread] (UGateKeeper.java:95) - Connecting to email
+ INFO 23 Jun 2011 21:06:27 [EmailAgent-main] (EmailAgent.java:95) - Connecting to store/floder...
+ INFO 23 Jun 2011 21:06:43 [EmailAgent-main] (EmailAgent.java:160) - Connected to imap.gmail.com waiting for messages...
+ INFO 23 Jun 2011 21:06:43 [JavaMail-EventQueue] (EmailAgent.java:346) - Mail Store/Folder opened: 1
+ INFO 23 Jun 2011 21:06:30 [JavaFX Application Thread] (UGateKeeper.java:176) - Disconnecting from XBee
+ INFO 23 Jun 2011 21:06:30 [JavaFX Application Thread] (UGateKeeper.java:178) - Disconnected from XBee
+ INFO 23 Jun 2011 21:06:30 [JavaFX Application Thread] (MailConnectionView.java:94) - Disconnecting from Email
+ INFO 23 Jun 2011 21:06:32 [EmailAgent-main] (EmailAgent.java:168) - Stopped listening for incoming messages (from disconnect)
+ INFO 23 Jun 2011 21:06:37 [JavaMail-EventQueue] (EmailAgent.java:378) - Mail Store/Folder disconnected: 3
+ INFO 23 Jun 2011 21:06:37 [JavaFX Application Thread] (EmailAgent.java:195) - Disconnected from folder
+ INFO 23 Jun 2011 21:06:40 [JavaFX Application Thread] (EmailAgent.java:199) - Disconnected from store
