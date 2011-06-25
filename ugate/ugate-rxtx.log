@@ -1,0 +1,239 @@
+ WARN 19 Jun 2011 11:06:47 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:54 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:07 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:11 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:23 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:27 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:31 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:50 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:56 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:56 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:23 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:24 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:27 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:30 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:30 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:32 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:39 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:43 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:44 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:44 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:47 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:57 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:59 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:00 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:00 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:06 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:50 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:51 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:57 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:59 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:16 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:17 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:48 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:51 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:09 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:10 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:39 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:57 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:00 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:01 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:10 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:80)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:37 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 11:06:37 [pool-3-thread-1] (com.rapplogic.xbee.api.InputStreamThread$1:116) - Exception in packet listener
+java.lang.NullPointerException
+	at org.ugate.xbee.UGateXBeePacketListener.processResponse(UGateXBeePacketListener.java:61)
+	at com.rapplogic.xbee.api.InputStreamThread$1.run(InputStreamThread.java:111)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+ WARN 19 Jun 2011 11:06:29 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:47 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:47 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:48 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:56 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:09 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:09 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:08 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:12 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:14 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:22 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:31 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:43 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 16:06:44 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:46 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:47 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:47 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:49 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:14 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:17 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:20 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:20 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:16 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:23 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:03 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:08 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:03 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:07 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 19:06:09 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:10 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:15 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:48 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:10 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:13 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:23 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:23 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:24 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:26 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:28 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:39 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 19 Jun 2011 20:06:42 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 15:06:17 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 15:06:31 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 15:06:32 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 16:06:09 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 17:06:14 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 17:06:12 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 17:06:47 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 17:06:48 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 17:06:59 [Thread-7] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 18:06:35 [Thread-8] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
+ WARN 20 Jun 2011 18:06:38 [Thread-8] (com.rapplogic.xbee.RxTxSerialComm:163) - We were notified of new data but available() is returning 0
