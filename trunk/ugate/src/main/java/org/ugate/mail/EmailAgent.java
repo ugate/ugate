@@ -30,6 +30,7 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateUtil;
 
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
@@ -281,7 +282,7 @@ public class EmailAgent implements Runnable {
 			List<String> rawCommands = new ArrayList<String>();
 			if (msg.getSubject() != null && !msg.getSubject().isEmpty()) {
 				log.debug("Checking message subject for commands");
-				rawCommands.addAll(Arrays.asList(msg.getSubject().replace("Re:", "").replace("RE:", "").trim().split(UGateKeeper.MAIL_COMMAND_DELIMITER)));
+				rawCommands.addAll(Arrays.asList(msg.getSubject().replace("Re:", "").replace("RE:", "").trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
 			}
 			log.debug("Checking message body for commands");
 			String msgRawContent = null;
@@ -295,10 +296,10 @@ public class EmailAgent implements Runnable {
 				log.warn("Commands being ignored for content type: " + msg.getContentType());
 			}
 			if (msgRawContent != null) {
-				rawCommands.addAll(Arrays.asList(msgRawContent.trim().split(UGateKeeper.MAIL_COMMAND_DELIMITER)));
+				rawCommands.addAll(Arrays.asList(msgRawContent.trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
 			}
 			for (String command : rawCommands) {
-				if (UGateKeeper.GATE_COMMANDS.values().contains(command)) {
+				if (UGateUtil.GATE_COMMANDS.values().contains(command)) {
 					validCommands.add(command);
 				} else if (invalidCommandErrors != null) {
 					invalidCommandErrors.append("Invalid Command \"" + command + "\"\n");
@@ -311,7 +312,7 @@ public class EmailAgent implements Runnable {
 	}
 	
 	protected boolean hasCommandPermission(Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY, UGateKeeper.MAIL_RECIPIENTS_DELIMITER);
+		List<String> authRecipients = UGateKeeper.DEFAULT.preferences.get(UGateUtil.MAIL_RECIPIENTS_KEY, UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {

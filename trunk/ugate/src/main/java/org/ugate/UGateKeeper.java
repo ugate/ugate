@@ -5,7 +5,6 @@ import gnu.io.CommPortIdentifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,30 +34,8 @@ public enum UGateKeeper {
 	DEFAULT;
 
 	private static final Logger log = Logger.getLogger(UGateKeeper.class);
-	/**
-	 * Commands that can be sent to the remote micro controller
-	 */
-	public static final HashMap<String, String> GATE_COMMANDS = new HashMap<String, String>();
-	static {
-		GATE_COMMANDS.put("Get QVGA Image", "1");
-		GATE_COMMANDS.put("Get VGA Image", "2");
-	}
-	/**
-	 * Available XBee baud rates
-	 */
-	public static final Integer[] XBEE_BAUD_RATES = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400};
 	private static final List<IEmailListener> REQUESTS = new CopyOnWriteArrayList<IEmailListener>();
-	public static final String XBEE_COM_PORT_KEY = "xbee.com.port";
-	public static final String XBEE_BAUD_RATE_KEY = "xbee.baud.rate";
-	public static final String MAIL_COMMAND_DELIMITER = ";";
-	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
-	public static final String MAIL_RECIPIENTS_KEY = "mail.recipients";
-	public static final String MAIL_SMTP_HOST_KEY = "mail.smtp.host";
-	public static final String MAIL_SMTP_PORT_KEY = "mail.smtp.port";
-	public static final String MAIL_IMAP_HOST_KEY = "mail.imap.host";
-	public static final String MAIL_IMAP_PORT_KEY = "mail.imap.port";
-	public static final String MAIL_USERNAME_KEY = "mail.username";
-	public static final String MAIL_PASSWORD_KEY = "mail.password";
+
 	/**
 	 * Remote XBee radio used for gate operations using a 16-bit address: 3333 
 	 * (XBee must NOT be configured with "MY" set to FFFF)
@@ -68,6 +45,7 @@ public enum UGateKeeper {
 	public final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
 	private final XBee xbee;
 	private EmailAgent emailAgent;
+	private boolean isEmailConnected;
 	
 	private UGateKeeper() {
 		preferences = new Preferences("ugate");
@@ -91,6 +69,13 @@ public enum UGateKeeper {
 	 */
 	public void emailConnect(String smtpHost, String smtpPort, String imapHost, String imapPort, String username, 
 			String password, String mainFolderName, boolean debug, IEmailListener... listener) {
+		// test email connection
+		isEmailConnected = true;
+		listener[0].handle(new EmailEvent(EmailEvent.TYPE_CONNECT, null));
+		if (true) {
+			return;
+		}
+		// connect to email
 		emailDisconnect();
 		log.info("Connecting to email");
 		final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
@@ -99,7 +84,7 @@ public enum UGateKeeper {
 			@Override
 			public void handle(EmailEvent event) {
 				if (event.type == EmailEvent.TYPE_EXECUTE_COMMAND) {
-					if (xbeeIsConnected()) {
+					if (isXbeeConnected()) {
 						for (String command : event.commands) {
 							xbeeSendData(GATE_XBEE_ADDRESS, command);
 						}
@@ -107,15 +92,17 @@ public enum UGateKeeper {
 						log.warn("Incoming mail command received, but an XBee connection has not been made");
 					}
 				} else if (event.type == EmailEvent.TYPE_CONNECT) {
+					isEmailConnected = true;
 					log.info("Connected to email");
 				} else if (event.type == EmailEvent.TYPE_DISCONNECT) {
+					isEmailConnected = false;
 					log.info("Disconnected from email");
 				}
 			}
 		});
 		listeners.addAll(Arrays.asList(listener));
 		this.emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, 
-				username, password, mainFolderName, debug, listener);
+				username, password, mainFolderName, debug, listeners.toArray(new IEmailListener[0]));
 	}
 	
 	/**
@@ -172,7 +159,7 @@ public enum UGateKeeper {
 	 * Disconnects from the local XBee
 	 */
 	public void xbeeDisconnect() {
-		if (xbeeIsConnected()) {
+		if (isXbeeConnected()) {
 			log.info("Disconnecting from XBee");
 			xbee.close();
 			log.info("Disconnected from XBee");
@@ -182,7 +169,7 @@ public enum UGateKeeper {
 	/**
 	 * @return true if the local XBee is connected
 	 */
-	public boolean xbeeIsConnected() {
+	public boolean isXbeeConnected() {
 		return xbee != null && xbee.isConnected();
 	}
 
@@ -224,12 +211,22 @@ public enum UGateKeeper {
 	}
 
 	/**
-	 * Gets the address of a local or remote XBee
+	 * Sends a wireless command to the specified address
 	 * 
-	 * @param isRemote true when getting an address for a remote XBee
-	 * @return the address
+	 * @param address the address of the device to send the command to
+	 * @param commands the commands to send
 	 */
-	public String xbeeGetAddress(Boolean isRemote) {
+	public void wirelessSendCommands(final String address, final int[] commands) {
+		
+	}
+
+	/**
+	 * Gets the address of a local or remote device
+	 * 
+	 * @param isRemote true when getting an address for a remote device
+	 * @return the address of the device (if found)
+	 */
+	public String wirelessGetAddress(final Boolean isRemote) {
 		String address = null;
 		try {
 			AtCommandResponse response;
@@ -283,5 +280,12 @@ public enum UGateKeeper {
 			}
 		}
 		return ports;
+	}
+
+	/**
+	 * @return true if the email agent is connected
+	 */
+	public boolean isEmailConnected() {
+		return isEmailConnected;
 	}
 }

@@ -23,7 +23,7 @@
 	<appender name="RxTxLogFile" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="ugate-rxtx.log" />
 		<param name="MaxFileSize" value="100KB"/>
-		<param name="MaxBackupIndex" value="50"/>
+		<param name="MaxBackupIndex" value="10"/>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%5p %d{dd MMM yyyy HH:MM:ss} [%t] (%C:%L) - %m%n" />
 		</layout>

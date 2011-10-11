@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,11 +18,56 @@ import javax.imageio.stream.ImageInputStream;
 
 public class UGateUtil {
 
+	public static final int CMD_CAM_OR_SONAR_MOVE_UP = 16;
+	public static final int CMD_CAM_OR_SONAR_MOVE_DOWN = 17;
+	public static final int CMD_CAM_OR_SONAR_MOVE_RIGHT = 18;
+	public static final int CMD_CAM_OR_SONAR_MOVE_LEFT = 19;
+	public static final int CMD_IR_REMOTE_SESSION_RESET = 20;
+	public static final int CMD_SONAR_TRIP_TOGGLE = 21;
+	public static final int CMD_CAM_TAKE_VGA_PIC = 29;
+	public static final int CMD_CAM_TAKE_QVGA_PIC = 30;
+	public static final int CMD_IR_GET_ACCESS_CODE = 36;
+	public static final int CMD_IR_SET_ACCESS_CODE = 37;
+	public static final int CMD_CAM_OR_SONAR_MOVE_TOGGLE = 58;
+	public static final int CMD_SENSOR_GET_READINGS = 60;
+	public static final int CMD_SENSOR_SET_READINGS = 61;
+	
+	/**
+	 * Commands that can be sent to the remote micro controller
+	 */
+	public static final HashMap<String, Integer> GATE_COMMANDS = new HashMap<String, Integer>();
+	static {
+		GATE_COMMANDS.put("Move Cam/Sonar", CMD_CAM_TAKE_QVGA_PIC);
+		GATE_COMMANDS.put("Get/Take Image", CMD_CAM_TAKE_VGA_PIC);
+		GATE_COMMANDS.put("Sensor Readings (Distance & Speed)", CMD_SENSOR_SET_READINGS);
+		GATE_COMMANDS.put("Access Code", CMD_IR_SET_ACCESS_CODE);
+	}
+	/**
+	 * Available XBee baud rates
+	 */
+	public static final Integer[] XBEE_BAUD_RATES = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400};
+	public static final String XBEE_COM_PORT_KEY = "xbee.com.port";
+	public static final String XBEE_BAUD_RATE_KEY = "xbee.baud.rate";
+	public static final String MAIL_COMMAND_DELIMITER = ";";
+	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
+	public static final String MAIL_RECIPIENTS_KEY = "mail.recipients";
+	public static final String MAIL_RECIPIENTS_ON_KEY = "mail.recipients.on";
+	public static final String MAIL_SMTP_HOST_KEY = "mail.smtp.host";
+	public static final String MAIL_SMTP_PORT_KEY = "mail.smtp.port";
+	public static final String MAIL_IMAP_HOST_KEY = "mail.imap.host";
+	public static final String MAIL_IMAP_PORT_KEY = "mail.imap.port";
+	public static final String MAIL_USERNAME_KEY = "mail.username";
+	public static final String MAIL_PASSWORD_KEY = "mail.password";
+	public static final String MAIL_ALARM_ON_KEY = "mail.alarm.on";
+	public static final String SONAR_ALARM_ON_KEY = "sonar.alarm.on";
+	public static final String IR_ALARM_ON_KEY = "ir.alarm.on";
+	public static final String MICROWAVE_ALARM_ON_KEY = "microwave.alarm.on";
+	public static final String GATE_ACCESS_ON_KEY = "gate.access.on";
+
+	private static final String CAPTURE_PATH = "/ugate";
 	public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd hh:mm:ss";
-	public static final int CMD_TAKE_QVGA_PIC = 49; // ASCII 49 is sent as character 1
-	public static final int CMD_TAKE_VGA_PIC = 50; // ASCII 50 is sent as character 2
-	public static final String CAPTURE_PATH = "/ugate";
+	
 	private static final long K = 1024;
 	private static final long M = K * K;
 	private static final long G = M * K;

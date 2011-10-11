@@ -1,11 +1,10 @@
 package org.ugate.gui;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextArea;
 
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
-
-import com.javafx.preview.control.TextArea;
 
 /**
  * Log4j TextArea appender for JavaFX
@@ -33,7 +32,7 @@ public class TextAreaAppender extends WriterAppender {
 						if (textArea.getText().length() == 0) {
 							textArea.setText(message);
 						} else {
-							textArea.clearSelection();
+							textArea.selectEnd();
 							textArea.insertText(textArea.getText().length(), message);
 						}
 					}
