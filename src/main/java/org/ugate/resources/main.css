@@ -1,0 +1,184 @@
+/*******************************************************************************
+ *      http://download.oracle.com/javafx/2.0/api/javafx/scene/doc-files/cssref.html                                                                       *
+ * Toolbar                                                                     *
+ *                                                                             *
+ * Corresponding hex values for the color derivations used below are:          *
+ * derive(-fx-base,-20%); #a6a6a6                                              *
+ * derive(-fx-base,-30%); #929292                                              *
+ * derive(-fx-base,-35%); #878787                                              *
+ * derive(-fx-base,-50%); #686868                                              *
+ * derive(-fx-base,-60%); #535353                                              *
+ * derive(-fx-base,65%); #efefef                                               *
+ *                                                                             *
+ ******************************************************************************/
+.scene {
+    -fx-dark-text-color: black;
+    -fx-mid-text-color: #292929;
+    -fx-light-text-color: white;
+}
+#title-bar-left {
+	-fx-background-color: transparent;
+	-fx-background-image: url("ugskin-tl90x80.png");
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: right;
+	-fx-background-size: 90 80;
+}
+#title-bar {
+	-fx-background-color: transparent;
+	-fx-background-image: url("ugskin-tc1x80.png");
+	-fx-background-repeat: repeat-x;
+	/*-fx-background-position: bottom;*/
+	-fx-background-size: 1 80;
+	/*-fx-background-size: 34 50, 1 50;*/
+}
+#title-bar-right {
+	-fx-background-color: transparent;
+	-fx-background-image: url("ugskin-tr140x80.png");
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: bottom;
+	-fx-background-size: 144 80; /* bug with background repeat where the last few pixels will not be filled */
+}
+#status-bar-left {
+	-fx-background-color: transparent;
+	-fx-background-image: url("ugskin-bl70x40.png");
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: right;
+	-fx-background-size: 70 40;
+}
+#status-bar {
+	-fx-background-color: transparent;
+	-fx-background-image: url("ugskin-bc1x40.png");
+	-fx-background-repeat: repeat-x;
+	/*-fx-background-position: bottom;*/
+	-fx-background-size: 1 40;
+	/*-fx-background-size: 34 50, 1 50;*/
+}
+#status-bar-right {
+	-fx-background-color: transparent;
+	-fx-background-image: url("ugskin-br70x40.png");
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: bottom;
+	-fx-background-size: 74 40; /* bug with background repeat where the last few pixels will not be filled */
+}
+#border-left {
+	-fx-background-color: #A3A3A3;
+}
+#border-right {
+	-fx-background-color: #A3A3A3;
+}
+#title-menu:hover {
+	-fx-cursor: hand;
+}
+#window-resize-button {
+	/*-fx-background-color: #A3A3A3;*/
+    -fx-background-image: url("ugskin-resize11x11.png");
+    -fx-background-position: right 1px bottom 1px;
+    -fx-background-repeat: no-repeat;
+}
+
+#content {
+	-fx-background-color: #D3D3D3;
+}
+#center-view {
+	-fx-background-color: #ffffff;
+	-fx-text-fill: #000000;
+	-fx-spacing: 10 10 70 10;
+}
+#taskbar {
+	-fx-spacing: 10 10 50 10;
+}
+
+.tool-bar {
+    -fx-skin: "com.sun.javafx.scene.control.skin.ToolBarSkin";
+}
+
+.tool-bar:vertical {
+    -fx-background: derive(-fx-base,-20%);
+    -fx-background-color:
+        /*linear (0%,0%) to (100%,0%) stops (0%,derive(-fx-base,-30%)) (100%,derive(-fx-base,-60%)),*/
+        linear-gradient(from 0% 0% to 100% 0%, derive(-fx-base,-30%) 0%, derive(-fx-base,-60%) 100%),
+        /*linear (0%,0%) to (100%,0%) stops (2%,derive(-fx-base,65%)) (95%,derive(-fx-base,-20%));*/
+        linear-gradient(from 0% 0% to 100% 0%, derive(-fx-base,-65%) 2%, derive(-fx-base,-20%) 95%);
+    -fx-background-insets: 0, 0 1 0 1;
+    -fx-background-radius: 0 ;
+    -fx-padding: 0.833em 0.416667em 0.833em 0.416667em; /* 10 5 10 5 */
+    -fx-spacing: 0.333em; /* 4 */
+    -fx-alignment: TOP_LEFT;
+}
+
+.tool-bar .separator:vertical .line {
+    -fx-border-style: solid;
+    -fx-background-color: null;
+    -fx-border-color:  transparent derive(-fx-base,-35%) transparent transparent;
+}
+
+.tool-bar .separator:horizontal .line {
+    -fx-border-style: solid;
+    -fx-background-color: null;
+    -fx-border-color:  transparent transparent derive(-fx-base,-35%) transparent;
+}
+
+.tool-bar:vertical .separator {
+    -fx-orientation: horizontal;    
+    -fx-padding: 0.0em 0.0835em 0.0em 0.0835em; /* 0 1 0 1 */
+}
+
+.tool-bar:horizontal {
+    -fx-background: derive(-fx-base,-30%);
+    -fx-background-color:
+        /*linear (0%,0%) to (0%,100%) stops (0%,derive(-fx-base,-30%)) (100%, derive(-fx-base,-60%)),*/
+        /*linear (0%,0%) to (0%,100%) stops (2%,derive(-fx-base,65%)) (95%,derive(-fx-base,-20%));*/
+        linear-gradient(from 0% 0% to 0% 100%, derive(-fx-base,-30%), derive(-fx-base,65%) 2%, derive(-fx-base,-20%) 95%, derive(-fx-base,-60%));
+    -fx-background-insets: 0, 1 0 1 0;
+    -fx-background-radius: 0, 0 ;
+    -fx-padding: 0.416667em 0.833em 0.416667em 0.833em; /* 5 10 5 10 */
+    -fx-spacing: 0.333em; /* 4 */
+    -fx-alignment: CENTER_LEFT;
+}
+
+.tool-bar:horizontal .separator {
+    -fx-orientation: vertical;
+    -fx-padding: 0.0835em 0.0em 0.0835em 0.0em; /* 1 0 1 0 */
+}
+
+.tool-bar-overflow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0.666667em 0.916667em 0em 0em; /* 8 11 0 0 */
+}
+
+.tool-bar-overflow-button .arrow {
+    -fx-background-color: -fx-mark-highlight-color, -fx-mark-color;
+    -fx-background-insets: 1 0 -1 0, 0;
+    -fx-padding: 0.666667em 0.916667em 0em 0em; /* 8 11 0 0 */
+    -fx-shape: "M337.273,297.622l-0.016,1.069l2.724,2.639l-2.723,2.628l0.015,1.048h0.881l3.81-3.685l-3.788-3.699H337.273z M343.783,297.622h-0.902l-0.015,1.069l2.724,2.639l-2.724,2.628l0.015,1.048h0.882l3.809-3.685L343.783,297.622z" ;
+}
+
+.tool-bar-overflow-button:hover .arrow {
+    -fx-background-color: -fx-mark-highlight-color, derive(-fx-hover-base,-50%);
+    -fx-background-insets: 1 0 -1 0, 0;
+}
+/* ====== CUSTOM ============================================================== */
+.rxtx {
+    -fx-background-color: #666970;
+}
+.rxtx-toolbar .button, .rxtx-toolbar .toggle-button, .rxtx-toolbar .label {
+    -fx-text-fill: white;
+    -fx-background-radius: 0;
+}
+.rxtx-toolbar {
+    -fx-base: #505359;
+    -fx-background: #505359;
+    -fx-shadow-highlight-color: transparent;
+    -fx-spacing: 5;
+    -fx-padding: 4 4 4 4;
+    -fx-background-color: 
+ 		linear-gradient(from 0% 0% to 0% 100%, #919398, #919398 4%, #666970 4.1%, #494d53 66%, #3c3f46 94%, #515151);
+}
+.gauge {
+	-fx-background: #000000;
+	-fx-alignment: CENTER_RIGHT;
+	-fx-spacing: 5;
+	-fx-padding: 4 4 4 4;
+    -fx-background-color: 
+    	linear-gradient(from 0% 0% to 0% 100%, #505050 10%, #303030 25%, #000000 95%, #DFDFDF 100%);
+}
