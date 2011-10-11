@@ -1,0 +1,21 @@
+.displayshelf {
+	-fx-text-fill: #FFFFFF;
+    -fx-base: #202020;
+    -fx-background: #202020;
+    -fx-background-color: 
+    	linear-gradient(from 0% 0% to 0% 100%, #000000 60%, #141414 60.1%, #000000);
+}
+.displayshelf .scroll-bar {
+    -fx-background-radius: 7, 6;
+}
+.displayshelf .scroll-bar .increment-button {
+    -fx-padding: 3 3 3 10;
+}
+.displayshelf .scroll-bar .decrement-button {
+    -fx-padding: 3 10 3 3;
+}
+.displayshelfpopup {
+    -fx-border-style: solid;
+    -fx-background-color: white;
+    -fx-border-color:  derive(-fx-base,-35%) derive(-fx-base,-35%) derive(-fx-base,-35%) derive(-fx-base,-35%);
+}
