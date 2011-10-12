@@ -22,132 +22,9 @@ Sonar, IR, and microwave are constantly checking the corresponding distance/spee
 on-board camera to take a picture and start streaming the JPEG compressed data over XBee 
 until the EOF (0xFF, 0xD9).
 */
-#define NUMOFELEM(a) (sizeof(a)/sizeof(a[0]))
-//======= Exception Handlers =======
-#include <exceptions.h>
-//======= XBee (XBee Adapter with XBee Pro 60mW Chip Antenna [~1 Mile Range]) =======
-// unless you have MY on the receiving radio set to FFFF, receives will be RX16 packets
-#include <XBee.h>
-XBee xbee = XBee();
-//======= LEDs =======
-#define LED_RED_PIN 11
-#define LED_GREEN_PIN 12
-#define LED_BLUE_PIN 13
-// Turns the LED indicator on/off (LOW is on)
-#define LEDWRITE(red, green, blue) digitalWrite(LED_RED_PIN, (red)); digitalWrite(LED_GREEN_PIN, (green)); digitalWrite(LED_BLUE_PIN, (blue));
-// gives any previously lit LEDs time to show before turning them off
-//#define LEDOFF() if((long)(millis() - irWaitFor) >= 3){LEDWRITE(HIGH, HIGH, HIGH);}
-#define LEDOFF() LEDWRITE(HIGH, HIGH, HIGH);
-//======= Executing COMMANDS =======
-#define CMD_SESSION_RESET 20
-#define CMD_TAKE_SEND_PIC 29
-#define CMD_CHG_KEYS 37
-#define CMD_TOOGLE_SERVO 58
-#define CMD_SERVO_CAM 103 // flag to indicate cam servo selection
-#define CMD_SERVO_SONAR_IR 104 // flag to indicate sonar/IR servo selection
-#define CMD_SERVO_MOICROWAVE 105 // flag to indicate microwave servo selection
-int cmdNA = -1; // invalid command indicator
-volatile int cmdBuffer[] = {cmdNA,cmdNA,cmdNA}; // commands waiting to be executed
-byte key0 = 1, key1 = 2, key2 = 3; // default access key codes
-int tripCmd = CMD_TAKE_SEND_PIC; // default trip command is to take a pic and send to host
-//======= Camera (Serial CCD Electronic Brick Camera [Seed Studio]) =======
-#define CAM_BUF_LEN 64
-#define CAM_SHIFT_BIT 6
-#define CAMSENDCMD(cmd) {int t = 0; for(t = 0; t < 11; t++) Serial1.print(cmd[t]);}
-#define CAM_VGA 0
-#define CAM_QVGA 1
-byte camResSelect = CAM_VGA;
-// commands for capturing VGA/QVGA and getting the data
-byte camVGA[] = {0x55,0x41,0x52,0x54,0xCA,0x00,0x00,0x00,0x00,0x00,0x00};
-byte camQVGA[] = {0x55,0x41,0x52,0x54,0xCA,0x00,0x00,0x00,0xFF,0x00,0x00};
-byte camData[] = {0x55,0x41,0x52,0x54,0xC7,0x00,0x00,0x00,0x00,0x00,0x00};
-//======= Sonar (XL-MaxSonar EZ3 MB1230 [~25ft Range]) =======
-#define SONAR_PIN 4
-unsigned long sonarLimitInches = 60; // default inches that will cause a sonar alarm trip
-int sonarFeet, sonarInches, sonarTripDelay; // current or last sonar distance reading, sonar delay between alarm trips (in minutes)
-int sonarTripOn = 1; // sonar alarm trip on/off
-//======= IR Remote Control Receiver (TSOP38238) =======
-// uno ::: IR must be on Pin 2 (INT0), Pin 3 (INT1) for hardware interrupt
-// uno32 ::: IR must be on Pin 38 (INT0), Pin 2 (INT1), Pin 7 (INT2), Pin 8 (INT3), Pin 35 (INT4) for hardware interrupt
-#define IR_REMOTE_PIN 2
-#define IR_PULSE_THRESHOLD_US 2400 // start bit for start of command
-#define IR_PULSE_ONE_US 1000 // logical one denoted by 1.2 ms
-#define IR_PULSE_ZERO_US 400 // logical zero denoted by 0.6 ms
-#define IR_KEY_WAIT_MS 100 // prevent unintentional duplicate key entry by only capturing a key every 
-#define IR_KEY_SESSION_TIMEOUT_MS 30000 // reset when no keys are pressed within 30 seconds
-#define IR_KEY_COMMAND_BITS 7 // Sony has a 7 bit command
-#define IRISAUTH() (irKeys[0] == key0 && irKeys[1] == key1 && irKeys[2] == key2)
-#define IRISKEYNAN(key) ((key) < 0 || (key) > 9) // indicates if numeric keys have been pressed
-volatile unsigned long irWaitFor; // millis period place-holder to indicate how long its been since last key pulse (used to prevent duplicate keys when keys are briefly held down) 
-volatile byte irKeyChange = false; // flag that indicates when the access key codes are being changed via IR remote
-volatile int irKeys[] = {cmdNA,cmdNA,cmdNA}; // access key codes entered by the user - reset when the IR remote session expires
-unsigned long irLimitInches = 60; // default inches that will cause a sonar alarm trip
-int irFeet, irInches, irTripDelay; // current or last IR distance reading, IR delay between alarm trips (in minutes)
-int irTripOn = 1; // IR alarm trip on/off
-//======= Microwave (X-Band 10.525 GHz Microwave Motion/Speed Sensor [~30ft Range]) =======
-#define MW_EN_PIN 6
-#define MW_PIN 7
-unsigned int mwLimitCycles = 25; // default num of cycles/sec for alarm trip
-volatile byte mwTrigger; // flag to indicate if the microwave read should be performed - INTERRUPT ONLY!
-int mwCycleCnt, mwTripDelay; // current or last microwave cycle count reading, microwave delay between alarm trips (in minutes)
-int mwTripOn = 1; // microwave alarm trip on/off
-//======= Servos =======
 #include <Servo.h>
-Servo servoTiltSonar;
-Servo servoPanSonar;
-Servo servoTiltCam;
-Servo servoPanCam;
-Servo servoPanMw;
-volatile byte servoSelect = CMD_SERVO_CAM; // current servo selection
-#define SERVO_CAM_PAN_PIN 32
-#define SERVO_CAM_TILT_PIN 33
-#define SERVO_SONAR_PAN_PIN 6
-#define SERVO_SONAR_TILT_PIN 7
-#define SERVO_MICROWAVE_PAN_PIN 31
-#define SERVO_MIN_ANGLE 0
-#define SERVO_MAX_ANGLE 179
-#define SERVO_INC_ANGLE 10
-#define SERVOISCMD(cmd) ((cmd) == 16 || (cmd) == 17 || (cmd) == 18 || (cmd) == 19) // is cmd for a servo movement
-#define SERVOTOGGLE() servoSelect = servoSelect == CMD_SERVO_SONAR_IR ? CMD_SERVO_CAM : CMD_SERVO_SONAR_IR; // toggle between cam and sonar/IR servos- excludes microwave
-#define SERVODETACH() \
-if (servoTiltCam.attached()) { \
-  servoTiltCam.detach(); \
-} \
-if (servoPanCam.attached()) { \
-  servoPanCam.detach(); \
-} \
-if (servoTiltSonar.attached()) { \
-  servoTiltSonar.detach(); \
-} \
-if (servoPanSonar.attached()) { \
-  servoPanSonar.detach(); \
-} \
-if (servoPanMw.attached()) { \
-  servoPanMw.detach(); \
-}
-#define SERVOMOVE(cmd) \
-if (servoSelect == CMD_SERVO_SONAR_IR) { \
-  if ((cmd) == 16 || (cmd) == 17) { \
-    servoTiltSonar.attach(SERVO_SONAR_TILT_PIN, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE); \
-    servoTiltSonar.write(servoTiltSonar.read() + ((cmd) == 16 ? SERVO_INC_ANGLE : SERVO_INC_ANGLE * -1)); \
-  } else if ((cmd) == 18 || (cmd) == 19) { \
-    servoPanSonar.attach(SERVO_SONAR_PAN_PIN, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE); \
-    servoPanSonar.write(servoPanSonar.read() + ((cmd) == 18 ? SERVO_INC_ANGLE : SERVO_INC_ANGLE * -1)); \
-  } \
-} else if (servoSelect == CMD_SERVO_MICROWAVE) { \
-  if ((cmd) == 18 || (cmd) == 19) { \
-    servoPanMw.attach(SERVO_MICROWAVE_PAN_PIN, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE); \
-    servoPanMw.write(servoPanMw.read() + ((cmd) == 18 ? SERVO_INC_ANGLE : SERVO_INC_ANGLE * -1)); \
-  } \
-} else { \
-  if ((cmd) == 16 || (cmd) == 17) { \
-    servoTiltCam.attach(SERVO_CAM_TILT_PIN, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE); \
-    servoTiltCam.write(servoTiltCam.read() + ((cmd) == 16 ? SERVO_INC_ANGLE : SERVO_INC_ANGLE * -1)); \
-  } else if ((cmd) == 18 || (cmd) == 19) { \
-    servoPanCam.attach(SERVO_CAM_PAN_PIN, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE); \
-    servoPanCam.write(servoPanCam.read() + ((cmd) == 18 ? SERVO_INC_ANGLE : SERVO_INC_ANGLE * -1)); \
-  } \
-}
+#include <XBee.h>
+#include "Ugate.h"
 //======= Arduino Main =======
 void setup() {
   // Indicator RGB LED (LOW is on)
@@ -185,7 +62,7 @@ int pressBuffer(int buffer[], int numElem, int* press) {
   memcpy(buffer + (numElem - 1), press, sz);
   return pop;
 }
-// Executes all of the buffered commands in the order they are recieved
+// Executes the buffered commands in the order they are recieved
 void execBufferCmds() {
   LEDOFF();
   int cmd;
@@ -194,79 +71,59 @@ void execBufferCmds() {
     cmd = pressBuffer((int*) &cmdBuffer, numElem, (int*) &cmdNA);
     if (cmd > 0 && cmd != cmdNA) {
       LEDWRITE(HIGH, HIGH, LOW);
-      if (cmd == CMD_TAKE_SEND_PIC) {
-        // take/send pic in QVGA (320x240) or VGA (640x480) over xbee using param1=sonarFeet, param2=sonarInches
-        camTakeSendPic(cmd);
-      } else if (SERVOISCMD(cmd)) {
-        // cmds: 16-19 - move the camera, sonar/IR armature, or microwave (which one depends on servoSelect)
+      if (SERVOISCMD(cmd)) {
+        // move the camera, sonar/IR armature, or microwave (which one depends on servoSelect)
         SERVOMOVE(cmd);
       } else if (cmd == CMD_SESSION_RESET) {
         // reset session
         irKeys[0] = irKeys[1] = irKeys[2] = cmdNA;
+      } else if (cmd == CMD_TAKE_SEND_PIC) {
+        // take/send picture in the predefined resolution and sends the data over xbee (along with sensor readings)
+        camTakeSendPic(cmd);
+      } else if (cmd == CMD_TOGGLE_ALARMS) {
+        // TODO : turn alarms on/off
       } else if (cmd == CMD_TOOGLE_SERVO) {
         // toggle between camera and sonar/IR armature servos
         SERVOTOGGLE();
-      } else if (cmd == 59) {
-        // TODO : need to impl gate open/close
-      } else if (cmd == 100) {
-        // send access code
-        byte payload[5];
-        payload[0] = cmd;
-        payload[1] = 0; // failure flag
-        payload[2] = key0;
-        payload[3] = key1;
-        payload[4] = key2;
-        xbeeSend(payload);
-      } else if (cmd == 101) {
-        // TODO : send "cam follow sensor angles on trip"
-      } else if (cmd == 106) {
-        // send the camera resolution
-        byte payload[3];
-        payload[0] = cmd;
-        payload[1] = 0; // failure flag
-        payload[2] = camResSelect;
-        xbeeSend(payload);
-      } else if (cmd == 108) {
+      } else if (cmd == CMD_TOOGLE_GATE) {
+        // TODO :  open/close gate (if applicable)
+      } else if (cmd == CMD_SENSOR_READINGS_SEND) {
         // send sensor readings
-        sonarRead(false);
-        irRead(false);
-        mwReadFreq(false);
+        //sonarRead(false);
+        //irRead(false);
+        //mwReadFreq(false);
         byte payload[7];
         payload[0] = cmd;
-        payload[1] = 0; // failure flag
-        payload[2] = sonarFeet;
-        payload[3] = sonarInches;
-        payload[4] = irFeet;
-        payload[5] = irInches;
+        payload[1] = 0; // index of reading failure (zero if no failures)
+        payload[2] = (int) sonarReadInches / 12;
+        payload[3] = (int) sonarReadInches % 12;
+        payload[4] = (int) irReadInches / 12;
+        payload[5] = (int) irReadInches % 12;
         payload[6] = mwCycleCnt;
         xbeeSend(payload);
-      } else if (cmd == 109) {
+      } else if (cmd == CMD_SENSOR_SETTINGS_SEND) {
         // send sensor settings
-        byte payload[10];
-        payload[0] = cmd;
-        payload[1] = 0; // failure flag
-        payload[2] = (int) sonarLimitInches / 12; // feet
-        payload[3] = (int) sonarLimitInches % 12; // inches
-        payload[4] = sonarTripDelay;
-        payload[5] = (int) irLimitInches / 12; // feet
-        payload[6] = (int) irLimitInches % 12; // inches
-        payload[7] = irTripDelay;
-        payload[8] = mwLimitCycles;
-        payload[9] = mwTripDelay;
+        byte payload[19];
+        payload[0] = cmd; // return the same command so the host will know what command response it's dealing with
+        payload[1] = 0; // 1=failures, 0=no failures
+        payload[2] = key0; // 1st IR remote access key code digit
+        payload[3] = key1; // 2nd IR remote access key code digit
+        payload[4] = key2; // 3rd IR remote access key code digit
+        payload[5] = camResSelect; // camera resolution selection
+        payload[6] = sonarTripOn; // is sonar alarm trip on
+        payload[7] = irTripOn; // is IR alarm trip on
+        payload[8] = mwTripOn; // is Microwave alarm trip on
+        payload[9] = gateOpen; // is the Gate open
+        payload[10] = (int) sonarLimitInches / 12; // feet before sonar alarm is tripped
+        payload[11] = (int) sonarLimitInches % 12; // inches before sonar alarm is tripped
+        payload[12] = sonarTripDelay; // delay between sonar alarm trips
+        payload[13] = (int) irLimitInches / 12; // feet before IR alarm is tripped
+        payload[14] = (int) irLimitInches % 12; // inches before IR alarm is tripped
+        payload[15] = irTripDelay; // delay between sonar alarm trips
+        payload[16] = mwLimitCycles; // cycles/second before microwave alarm is tripped
+        payload[17] = mwTripDelay; // delay between sonar alarm trips
+        payload[18] = alarmState; // state in which an alarm is triggered relative to each sensor
         xbeeSend(payload);
-      } else if (cmd == 113) {
-        // sends the on/off flag for the alarm trips
-        byte payload[5];
-        payload[0] = cmd;
-        payload[1] = 0; // failure flag
-        payload[2] = sonarTripOn;
-        payload[3] = irTripOn;
-        payload[4] = mwTripOn;
-        xbeeSend(payload);
-      } else if (cmd == 115) {
-        // TODO : send the current state of the gate (0=open, 1=closed);
-      } else if (cmd == 117) {
-        // TODO : send the current multi-alarm trip state (what alarm trip combination will trigger a trip)
       }
       LEDWRITE(HIGH, HIGH, HIGH);
     }
@@ -290,38 +147,29 @@ int xbeeRead() {
       // uint8_t xbeeOption = rx16.getOption();
       // execute all RX data as command(s)
       // getData(0) == zero indicates the data at the supplied index does not exist
-      int cmd = rx16.getData(0); // 0=command, 1=failures exist (value 0=false, 1=true)
-      if (cmd == CMD_CHG_KEYS) {
-          key0 = rx16.getData(2);
-          key1 = rx16.getData(3);
-          key2 = rx16.getData(4);
-      } else if (cmd == 102) {
-        // TODO : set "cam follow sensor angles on trip"
-      } else if (cmd == CMD_SERVO_CAM || cmd == CMD_SERVO_SONAR_IR || cmd == CMD_SERVO_MICROWAVE) {
+      int cmd = rx16.getData(0); // index 0=command, index 1=failures exist (value 0=false, 1=true)
+      if (cmd == CMD_SERVO_CAM || cmd == CMD_SERVO_SONAR_IR || cmd == CMD_SERVO_MICROWAVE) {
         // set the servo selection and move the camera
         servoSelect = cmd;
         SERVOMOVE(rx16.getData(2));
-      } else if (cmd == 107) {
-        // set the camera resolution
-        camResSelect = rx16.getData(2);
-      } else if (cmd == 110) {
-        // set sensor settings
-        sonarLimitInches = (rx16.getData(2) * 12) + rx16.getData(3);
-        sonarTripDelay = rx16.getData(4);
-        irLimitInches = (rx16.getData(5) * 12) + rx16.getData(6);
-        irTripDelay = rx16.getData(7);
-        mwLimitCycles = rx16.getData(8);
-        mwTripDelay = rx16.getData(9);
-      } else if (cmd == 114) {
-        // sets the on/off flag for the alarm trips
-        sonarTripOn = rx16.getData(2);
-        irTripOn = rx16.getData(3);
-        mwTripOn = rx16.getData(4);
-        xbeeSend(payload);
-      } else if (cmd == 116) {
-        // TODO : set the current state of the gate (0=open, 1=closed);
-      } else if (cmd == 118) {
-        // TODO : set the current multi-alarm trip state (what alarm trip combination will trigger a trip)
+      } else if (cmd == CMD_CHG_KEYS || cmd == CMD_SENSOR_SETTINGS_SET) {
+          key0 = rx16.getData(2); // 1st IR remote access key code digit
+          key1 = rx16.getData(3); // 2nd IR remote access key code digit
+          key2 = rx16.getData(4); // 3rd IR remote access key code digit
+          if (cmd == CMD_SENSOR_SETTINGS_SET) {
+            camResSelect = rx16.getData(5); // camera resolution selection
+            sonarTripOn = rx16.getData(6); // is sonar alarm trip on
+            irTripOn = rx16.getData(7); // is IR alarm trip on
+            mwTripOn = rx16.getData(8); // is Microwave alarm trip on
+            gateOpen = rx16.getData(9); // is the Gate open
+            sonarLimitInches = (rx16.getData(10) * 12) + rx16.getData(11); // total inches before sonar alarm is tripped
+            sonarTripDelay = rx16.getData(12); // delay between sonar alarm trips
+            irLimitInches = (rx16.getData(13) * 12) + rx16.getData(14); // total inches before IR alarm is tripped
+            irTripDelay = rx16.getData(15); // delay between sonar alarm trips
+            mwLimitCycles = rx16.getData(16); // cycles/second before microwave alarm is tripped
+            mwTripDelay = rx16.getData(17); // delay between sonar alarm trips
+            alarmState = rx16.getData(18); // state in which an alarm is triggered relative to each sensor
+          }
       } else {
         // all other commands can be buffered
         pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &cmd);
@@ -354,6 +202,7 @@ int xbeeSend(byte payload[]) {
   while ((xbeeRtn = xbeeRead()) < 0);
   return xbeeRtn;
 }
+//============ Camera ============//
 // takes a picture and sends the bytes over xbee in 64-byte chunks
 // NOTE: Interrupts have to be disabled to prevent 
 // interference with serial interrupt used by Arduino
@@ -415,15 +264,14 @@ boolean camReadXBeeSend(int cmd, boolean hasFailures, int index, int toBeReadLen
   byte payload[toBeReadLen + infoSegCnt];
   payload[0] = cmd;
   payload[1] = (unsigned char) hasFailures;
-  payload[2] = sonarFeet;
-  payload[3] = sonarInches;
-  payload[4] = mwCycleCnt;
-  payload[5] = 0; // reserved for possible IR or PIR reading
-  payload[6] = 0; // reserved for possible IR or PIR reading
+  payload[2] = (int) sonarReadInches / 12; // feet
+  payload[3] = (int) sonarReadInches % 12; // inches
+  payload[4] = (int) irReadInches / 12; // feet
+  payload[5] = (int) irReadInches % 12; // inches
+  payload[6] = mwCycleCnt;
   if (toBeReadLen > 0) {
     while (readLen < toBeReadLen) {
       if (Serial1.available() > 0) {
-        // first 3 bytes of payload are sonarFeet, sonarInches, number of bytes
         payload[readLen + infoSegCnt] = Serial1.read();
         readLen++;
       }
@@ -451,11 +299,11 @@ byte sonarRead(byte isTrip) {
   // pulse width representation with a scale factor of 147 uS per inch.
   long pulse = pulseIn(SONAR_PIN, HIGH);
   // 147uS per inch (58uS per cm)
-  long totalInches = pulse / 147.32;
-  // change inches to centimetres
-  long cm = totalInches * 2.54;
-  sonarFeet = (int) totalInches / 12;
-  sonarInches = (int) totalInches % 12;
+  sonarReadInches = pulse / 147.32;
+  //long cm = sonarReadInches * 2.54;
+  //int sonarFeet = (int) sonarReadInches / 12;
+  //int sonarInches = (int) sonarReadInches % 12;
+  
   // allocate two bytes for to hold a 10-bit analog reading
   // uint8_t payload[] = {0, 0};
   // int analogRead = analogRead(SONAR_PIN);
@@ -470,7 +318,7 @@ byte sonarRead(byte isTrip) {
 
   // sonarFeet will never be > 25' (range of the sonar)
   // sonarInches will never be > 11" (converted to feet)
-  if (isTrip && sonarTripOn && totalInches >= sonarLimitInches) {
+  if (isTrip && ALRMISTRIPPED(ALRM_SONAR)) {
     // buffer trip command (default takes a picture and send the data over xbee)
     pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &tripCmd);
     return 1;
@@ -503,7 +351,7 @@ void irInterrupt(boolean on) {
 // true the trip command will be entered into the command buffer.
 byte irRead(byte isTrip) {
   // TODO : impl IR LED pulse and read to values
-  if (irTripOn) {
+  if (isTrip && ALRMISTRIPPED(ALRM_IR)) {
     
   }
 }
@@ -661,7 +509,7 @@ byte mwReadFreq(byte isTrip) {
       mwCycleCnt++;
     }
   }
-  if (mwCycleCnt >= mwLimitCycles) {
+  if (ALRMISTRIPPED(ALRM_MW)) {
     //long speedMM = mwChgCnt * 30000 / 2105; // mm/second
     //long speedIN = mwChgCnt * 30000 / 53467; // inches/second
     //Serial.print(" Speed (changes/sec): ");
@@ -672,7 +520,7 @@ byte mwReadFreq(byte isTrip) {
     //Serial.print(speedIN);
     //Serial.print(" MPH: ");
     //Serial.println(speedIN / 17.5999999982);
-    if (isTrip && mwTripOn) {
+    if (isTrip) {
       // buffer trip command (default takes a picture and send the data over xbee)
       pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &tripCmd);
     }
