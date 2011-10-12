@@ -18,29 +18,44 @@ import javax.imageio.stream.ImageInputStream;
 
 public class UGateUtil {
 
-	public static final int CMD_CAM_OR_SONAR_MOVE_UP = 16;
-	public static final int CMD_CAM_OR_SONAR_MOVE_DOWN = 17;
-	public static final int CMD_CAM_OR_SONAR_MOVE_RIGHT = 18;
-	public static final int CMD_CAM_OR_SONAR_MOVE_LEFT = 19;
+	public static final int CMD_SERVO_TILT_UP = 16;
+	public static final int CMD_SERVO_TILT_DOWN = 17;
+	public static final int CMD_SERVO_PAN_RIGHT = 18;
+	public static final int CMD_SERVO_PAN_LEFT = 19;
 	public static final int CMD_IR_REMOTE_SESSION_RESET = 20;
-	public static final int CMD_SONAR_TRIP_TOGGLE = 21;
-	public static final int CMD_CAM_TAKE_VGA_PIC = 29;
-	public static final int CMD_CAM_TAKE_QVGA_PIC = 30;
-	public static final int CMD_IR_GET_ACCESS_CODE = 36;
-	public static final int CMD_IR_SET_ACCESS_CODE = 37;
-	public static final int CMD_CAM_OR_SONAR_MOVE_TOGGLE = 58;
-	public static final int CMD_SENSOR_GET_READINGS = 60;
-	public static final int CMD_SENSOR_SET_READINGS = 61;
+	public static final int CMD_SENSOR_ALARM_TOGGLE = 21;
+	public static final int CMD_CAM_TAKE_PIC = 29;
+	public static final int CMD_ACCESS_CODE_CHANGE = 37;
+	public static final int CMD_SERVO_TOGGLE_CAM_SONARIR = 58;
+	public static final int CMD_GATE_TOGGLE_OPEN_CLOSE = 59;
+	public static final int CMD_SERVO_CAM_MOVE = 100;
+	public static final int CMD_SERVO_SONAR_MOVE = 101;
+	public static final int CMD_SERVO_MICROWAVE_MOVE = 102;
+	public static final int CMD_SENSOR_GET_READINGS = 103;
+	public static final int CMD_SENSOR_GET_SETTINGS = 104;
+	public static final int CMD_SENSOR_SET_SETTINGS = 105;
 	
 	/**
 	 * Commands that can be sent to the remote micro controller
 	 */
 	public static final HashMap<String, Integer> GATE_COMMANDS = new HashMap<String, Integer>();
 	static {
-		GATE_COMMANDS.put("Move Cam/Sonar", CMD_CAM_TAKE_QVGA_PIC);
-		GATE_COMMANDS.put("Get/Take Image", CMD_CAM_TAKE_VGA_PIC);
-		GATE_COMMANDS.put("Sensor Readings (Distance & Speed)", CMD_SENSOR_SET_READINGS);
-		GATE_COMMANDS.put("Access Code", CMD_IR_SET_ACCESS_CODE);
+		GATE_COMMANDS.put("Tilts the selected servo up", CMD_SERVO_TILT_UP);
+		GATE_COMMANDS.put("Tilts the selected servo down", CMD_SERVO_TILT_DOWN);
+		GATE_COMMANDS.put("Pans the selected servo to the right", CMD_SERVO_PAN_RIGHT);
+		GATE_COMMANDS.put("Pans the selected servo to the left", CMD_SERVO_PAN_LEFT);
+		GATE_COMMANDS.put("Resets the universal remote control session", CMD_IR_REMOTE_SESSION_RESET);
+		GATE_COMMANDS.put("Turns the sensor alarms on and off", CMD_SENSOR_ALARM_TOGGLE);
+		GATE_COMMANDS.put("Takes a picture at a predefined resolution", CMD_CAM_TAKE_PIC);
+		GATE_COMMANDS.put("Changes the access code", CMD_ACCESS_CODE_CHANGE);
+		GATE_COMMANDS.put("Toggle between the camera and sonar/IR servo", CMD_SERVO_TOGGLE_CAM_SONARIR);
+		GATE_COMMANDS.put("Toggle opening and closing the gate (if applicable)", CMD_GATE_TOGGLE_OPEN_CLOSE);
+		GATE_COMMANDS.put("Moves the camera (followed by a servo movement command)", CMD_SERVO_CAM_MOVE);
+		GATE_COMMANDS.put("Moves the sonar/IR armature (followed by a servo movement command)", CMD_SERVO_SONAR_MOVE);
+		GATE_COMMANDS.put("Moves the microwave armature (followed by a servo movement command)", CMD_SERVO_MICROWAVE_MOVE);
+		GATE_COMMANDS.put("Retrieves the current sensor readings", CMD_SENSOR_GET_READINGS);
+		GATE_COMMANDS.put("Gets all of the settings variables from the remote device", CMD_SENSOR_GET_SETTINGS);
+		GATE_COMMANDS.put("Sets all of the settings variables on the remote device", CMD_SENSOR_SET_SETTINGS);
 	}
 	/**
 	 * Available XBee baud rates
