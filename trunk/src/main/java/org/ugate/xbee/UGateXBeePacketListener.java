@@ -86,7 +86,7 @@ public class UGateXBeePacketListener implements PacketListener {
 	
 	protected void handleRxResponse16(final RxResponse16 rxResponse) {
 		final int command = rxResponse.getData()[0];
-		if (command == UGateUtil.CMD_CAM_TAKE_QVGA_PIC || command == UGateUtil.CMD_CAM_TAKE_VGA_PIC) {
+		if (command == UGateUtil.CMD_CAM_TAKE_PIC) {
 			// TODO : Handle cases where failures exist
 			final int hasFailures = rxResponse.getData()[1];
 			if (rxTxImage == null || rxTxImage.hasTimedOut()) {
@@ -126,7 +126,7 @@ public class UGateXBeePacketListener implements PacketListener {
 					// UGateMain.getInstance().getUGate().refreshRecentTableViewerData();
 				}
 			}
-		} else if (command == UGateUtil.CMD_IR_GET_ACCESS_CODE) {
+		} else if (command == UGateUtil.CMD_ACCESS_CODE_CHANGE) {
 			//final int hasFailures = rxResponse.getData()[1];
 			final int keys[] =  new int[3];
 			keys[0] = rxResponse.getData()[1];
