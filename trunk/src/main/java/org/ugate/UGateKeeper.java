@@ -176,6 +176,7 @@ public enum UGateKeeper {
 	/**
 	 * Sends the data string to the remote address in ASCII format array
 	 * 
+	 * @param address the address to send to
 	 * @param data the data string to send
 	 * @return the TX status response
 	 */
@@ -184,8 +185,24 @@ public enum UGateKeeper {
 	}
 	
 	/**
+	 * Sends the data string to the remote address in ASCII format array
+	 * 
+	 * @param address the address to send to
+	 * @param data the data string to send
+	 * @return the TX status response
+	 */
+	public TxStatusResponse xbeeSendData(XBeeAddress16 address, List<Integer> data) {
+		int[] dataInts = new int[data.size()];
+		for(int i=0; i<data.size(); i++) {
+			dataInts[i] = data.get(i);
+		}
+		return xbeeSendData(address, dataInts);
+	}
+	
+	/**
 	 * Sends the data array to the remote XBee address
 	 * 
+	 * @param address the address to send to
 	 * @param data the data to send
 	 * @return the TX status response
 	 */

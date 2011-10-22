@@ -60,7 +60,7 @@ public class UGateGUI extends Application {
 	protected final TextArea loggingView = new TextArea();
 	protected MailConnectionView mailConnectionView;
 	protected WirelessConnectionView xbeeConnectionView;
-	protected ControlsView controlsView;
+	protected Controls controls;
 	protected AppFrame applicationFrame;
 
 	/**
@@ -122,7 +122,7 @@ public class UGateGUI extends Application {
 					}
 				}
 			};
-			controlsView = new ControlsView();
+			controls = new Controls();
 	
 			final BorderPane content = new BorderPane();
 			content.setId("content");
@@ -161,7 +161,7 @@ public class UGateGUI extends Application {
 					genFisheyeTaskbar(RS.IMG_WIRELESS, new Runnable() {
 	
 						public void run() {
-							changeCenterView(controlsView, true);
+							changeCenterView(controls, true);
 						}
 					}));
 			taskbar.getChildren().add(
