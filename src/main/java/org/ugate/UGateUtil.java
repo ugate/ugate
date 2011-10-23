@@ -61,23 +61,53 @@ public class UGateUtil {
 	 * Available XBee baud rates
 	 */
 	public static final Integer[] XBEE_BAUD_RATES = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400};
-	public static final String XBEE_COM_PORT_KEY = "xbee.com.port";
-	public static final String XBEE_BAUD_RATE_KEY = "xbee.baud.rate";
+	
+	// settings values
+	
+	public static final String SV_WIRELESS_COM_PORT_KEY = "wireless.com.port";
+	public static final String SV_WIRELESS_BAUD_RATE_KEY = "wireless.baud.rate";
+	public static final String SV_WIRELESS_ADDRESS_TRUNK_KEY = "wireless.address.trunk";
+	public static final String SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY = "wireless.address.node.";
 	public static final String MAIL_COMMAND_DELIMITER = ";";
 	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
-	public static final String MAIL_RECIPIENTS_KEY = "mail.recipients";
-	public static final String MAIL_RECIPIENTS_ON_KEY = "mail.recipients.on";
-	public static final String MAIL_SMTP_HOST_KEY = "mail.smtp.host";
-	public static final String MAIL_SMTP_PORT_KEY = "mail.smtp.port";
-	public static final String MAIL_IMAP_HOST_KEY = "mail.imap.host";
-	public static final String MAIL_IMAP_PORT_KEY = "mail.imap.port";
-	public static final String MAIL_USERNAME_KEY = "mail.username";
-	public static final String MAIL_PASSWORD_KEY = "mail.password";
-	public static final String MAIL_ALARM_ON_KEY = "mail.alarm.on";
-	public static final String SONAR_ALARM_ON_KEY = "sonar.alarm.on";
-	public static final String IR_ALARM_ON_KEY = "ir.alarm.on";
-	public static final String MICROWAVE_ALARM_ON_KEY = "microwave.alarm.on";
-	public static final String GATE_ACCESS_ON_KEY = "gate.access.on";
+	public static final String SV_MAIL_RECIPIENTS_KEY = "mail.recipients";
+	public static final String SV_MAIL_RECIPIENTS_ON_KEY = "mail.recipients.on";
+	public static final String SV_MAIL_SMTP_HOST_KEY = "mail.smtp.host";
+	public static final String SV_MAIL_SMTP_PORT_KEY = "mail.smtp.port";
+	public static final String SV_MAIL_IMAP_HOST_KEY = "mail.imap.host";
+	public static final String SV_MAIL_IMAP_PORT_KEY = "mail.imap.port";
+	public static final String SV_MAIL_USERNAME_KEY = "mail.username";
+	public static final String SV_MAIL_PASSWORD_KEY = "mail.password";
+	public static final String SV_MAIL_ALARM_ON_KEY = "mail.alarm.on";
+	public static final String SV_ACCESS_CODE_1_KEY = "access.code.one";
+	public static final String SV_ACCESS_CODE_2_KEY = "access.code.two";
+	public static final String SV_ACCESS_CODE_3_KEY = "access.code.three";
+	public static final String SV_CAM_RES_KEY = "cam.resolution";
+	public static final String SV_SONAR_ALARM_ON_KEY = "sonar.alarm.on";
+	public static final String SV_IR_ALARM_ON_KEY = "ir.alarm.on";
+	public static final String SV_MW_ALARM_ON_KEY = "microwave.alarm.on";
+	public static final String SV_GATE_ACCESS_ON_KEY = "gate.access.on";
+	public static final String SV_SONAR_DISTANCE_THRES_FEET_KEY = "sonar.distance.threshold.feet";
+	public static final String SV_SONAR_DISTANCE_THRES_INCHES_KEY = "sonar.distance.threshold.inches";
+	public static final String SV_SONAR_DELAY_BTWN_TRIPS_KEY = "sonar.trip.delay";
+	public static final String SV_IR_DISTANCE_THRES_FEET_KEY = "ir.distance.threshold.feet";
+	public static final String SV_IR_DISTANCE_THRES_INCHES_KEY = "ir.distance.threshold.inches";
+	public static final String SV_IR_DELAY_BTWN_TRIPS_KEY = "ir.trip.delay";
+	public static final String SV_MW_SPEED_THRES_INCHES_KEY = "microwave.speed.threshold";
+	public static final String SV_MW_DELAY_BTWN_TRIPS_KEY = "microwave.trip.delay";
+	public static final String SV_MULTI_ALARM_TRIP_STATE_KEY = "multi.alarm.trip.state";
+	public static final String SV_CAM_SONAR_TRIP_ANGLE_PAN_KEY = "cam.sonar.trip.angle.pan";
+	public static final String SV_CAM_SONAR_TRIP_ANGLE_TILT_KEY = "cam.sonar.trip.angle.tilt";
+	public static final String SV_CAM_IR_TRIP_ANGLE_PAN_KEY = "cam.ir.trip.angle.pan";
+	public static final String SV_CAM_IR_TRIP_ANGLE_TILT_KEY = "cam.ir.trip.angle.tilt";
+	public static final String SV_CAM_MW_TRIP_ANGLE_PAN_KEY = "cam.mw.trip.angle.pan";
+	public static final String SV_CAM_MW_TRIP_ANGLE_TILT_KEY = "cam.mw.trip.angle.tilt";
+	
+	// wireless network addresses
+	
+	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
+	public static final int WIRELESS_ADDRESS_NODE_1 = 0x33;
+	public static final int WIRELESS_ADDRESS_TRUNK = 0x77;
 
 	private static final String CAPTURE_PATH = "/ugate";
 	public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();

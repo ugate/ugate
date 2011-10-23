@@ -1,4 +1,4 @@
-package org.ugate.xbee.data;
+package org.ugate.wireless.data;
 
 import org.apache.log4j.Logger;
 

@@ -29,7 +29,7 @@
 		</layout>
 	</appender>
 	<!-- GUI logging -->
-	<appender name="GuiLogger" class="org.ugate.gui.TextAreaAppender">
+	<appender name="GuiLogger" class="org.ugate.gui.components.TextAreaAppender">
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%5p [%t] (%F:%L) - %m%n" />
 		</layout>

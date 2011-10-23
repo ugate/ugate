@@ -312,7 +312,7 @@ public class EmailAgent implements Runnable {
 	}
 	
 	protected boolean hasCommandPermission(Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferences.get(UGateUtil.MAIL_RECIPIENTS_KEY, UGateUtil.MAIL_RECIPIENTS_DELIMITER);
+		List<String> authRecipients = UGateKeeper.DEFAULT.preferences.get(UGateUtil.SV_MAIL_RECIPIENTS_KEY, UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {
@@ -349,7 +349,7 @@ public class EmailAgent implements Runnable {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_CONNECT, null);
+					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_CONNECT, null, null);
 					for (IEmailListener listener : LISTENERS) {
 						listener.handle(event);
 					}
@@ -365,7 +365,7 @@ public class EmailAgent implements Runnable {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_DISCONNECT, null);
+					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_DISCONNECT, null, null);
 					for (IEmailListener listener : LISTENERS) {
 						listener.handle(event);
 					}
@@ -381,7 +381,7 @@ public class EmailAgent implements Runnable {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_CLOSED, null);
+					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_CLOSED, null, null);
 					for (IEmailListener listener : LISTENERS) {
 						listener.handle(event);
 					}

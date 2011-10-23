@@ -1,3 +1,6 @@
+//======= Node ID that identifies the node accross the network =======
+#define NODE_ID 1
+//======= General =======
 #define NUMOFELEM(a) (sizeof(a)/sizeof(a[0]))
 //======= Exception Handlers =======
 // include "Exceptions.h"
@@ -52,6 +55,7 @@ byte key0 = 1, key1 = 2, key2 = 3; // default access key codes
 int tripCmd = CMD_TAKE_SEND_PIC; // default trip command is to take a pic and send to host
 int alarmState = ALRM_TRIP_ANY;
 //======= Camera (Serial CCD Electronic Brick Camera [Seed Studio]) =======
+#define CAM_IR_BOARD_PIN 30
 #define CAM_BUF_LEN 64
 #define CAM_SHIFT_BIT 6
 #define CAMSENDCMD(cmd) {int t = 0; for(t = 0; t < 11; t++) Serial1.print(cmd[t]);}
@@ -71,6 +75,7 @@ int sonarTripOn = 1; // sonar alarm trip on/off
 //======= IR Remote Control Receiver (TSOP38238) =======
 // uno ::: IR must be on Pin 2 (INT0), Pin 3 (INT1) for hardware interrupt
 // uno32 ::: IR must be on Pin 38 (INT0), Pin 2 (INT1), Pin 7 (INT2), Pin 8 (INT3), Pin 35 (INT4) for hardware interrupt
+#define IR_LED_PIN 8
 #define IR_REMOTE_PIN 2
 #define IR_PULSE_THRESHOLD_US 2400 // start bit for start of command
 #define IR_PULSE_ONE_US 1000 // logical one denoted by 1.2 ms
@@ -89,8 +94,10 @@ int irTripDelay; // IR delay between alarm trips (in minutes)
 int irTripOn = 1; // IR alarm trip on/off
 //======= Microwave (X-Band 10.525 GHz Microwave Motion/Speed Sensor [~30ft Range]) =======
 #define MW_EN_PIN 6
-#define MW_PIN 7
-unsigned int mwLimitCycles = 25; // default num of cycles/sec for alarm trip
+#define MW_PIN 7 // if microwave read pin number changes so should the read in MWPINREAD
+#define MWPINREAD() (PORTDbits.RD9) // MWPINREAD() (digitalRead(MW_PIN)) will render course resolution LATDbits.LATD9
+#define MW_MS 250 // milliseconds for sample microwave cycle count
+unsigned int mwLimitCycles = 15; // default num of cycles/sec for alarm trip
 volatile byte mwTrigger; // flag to indicate if the microwave read should be performed - INTERRUPT ONLY!
 int mwCycleCnt, mwTripDelay; // current or last microwave cycle count reading, microwave delay between alarm trips (in minutes)
 int mwTripOn = 1; // microwave alarm trip on/off

@@ -48,9 +48,9 @@ void setup() {
 void loop() {
   execBufferCmds();
   xbeeRead();
-  sonarRead(true);
-  irRead(true);
-  mwReadFreq(true);
+  //sonarRead(true);
+  //irRead(true);
+  //mwReadFreq(true);
   LEDOFF();
   SERVODETACH();
 }
@@ -62,6 +62,8 @@ int pressBuffer(int buffer[], int numElem, int* press) {
   memcpy(buffer + (numElem - 1), press, sz);
   return pop;
 }
+int irTestValue;
+int irTripCmd = 255;
 // Executes the buffered commands in the order they are recieved
 void execBufferCmds() {
   LEDOFF();
@@ -124,6 +126,12 @@ void execBufferCmds() {
         payload[17] = mwTripDelay; // delay between sonar alarm trips
         payload[18] = alarmState; // state in which an alarm is triggered relative to each sensor
         xbeeSend(payload);
+      } else if (cmd == 255) {
+        byte payload[3];
+        payload[0] = 255;
+        payload[1] = 0; // index of reading failure (zero if no failures)
+        payload[2] = irTestValue;
+        xbeeSend(payload);
       }
       LEDWRITE(HIGH, HIGH, HIGH);
     }
@@ -169,6 +177,9 @@ int xbeeRead() {
             mwLimitCycles = rx16.getData(16); // cycles/second before microwave alarm is tripped
             mwTripDelay = rx16.getData(17); // delay between sonar alarm trips
             alarmState = rx16.getData(18); // state in which an alarm is triggered relative to each sensor
+            // notify of settings success
+            int sendSetCmd = CMD_SENSOR_SETTINGS_SEND;
+            pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &sendSetCmd); 
           }
       } else {
         // all other commands can be buffered
@@ -243,6 +254,9 @@ boolean camTakeSendPic(int cmd) {
 // Takes a pic by sending either the QVGA or VGA command to the cam
 // and returning the size of the pic buffered in the cam
 unsigned long camTakePic(int cmd) {
+  // turn IR board LED on for night vision. board has a built-in 
+  // photo resister that will only illuminate when dark
+  digitalWrite(CAM_IR_BOARD_PIN, HIGH);
   Serial1.flush();
   unsigned long picTotalLen = 0;
   CAMSENDCMD((camResSelect == CAM_QVGA ? camQVGA : camVGA));
@@ -253,6 +267,7 @@ unsigned long camTakePic(int cmd) {
   picTotalLen |= Serial1.read();
   // Serial.println("Pic sz: ");
   // Serial.println(picTotalLen);
+  digitalWrite(CAM_IR_BOARD_PIN, LOW);
   return picTotalLen;
 }
 // read the sepecific length of pic data from serial camera
@@ -328,34 +343,82 @@ byte sonarRead(byte isTrip) {
 //============ IR Remote ============//
 // Setup IR remote control to read incoming signals on interrupt
 void irSetup() {
+  pinMode(IR_LED_PIN, OUTPUT);
   pinMode(IR_REMOTE_PIN, INPUT);
-  // setup timer for rollover handling see: http://www.arduino.cc/playground/Code/TimingRollover
   // initial wait is zero
   irWaitFor = millis();
   irInterrupt(true);
-}
-// toggle the IR remote control interrupt
-void irInterrupt(boolean on) {
-  if (on) {
-    // until attachinterrupt is impl need to manually setup Pin 2 (INT1) for IR readings
-    // priority level must be one or it will take up to a minute to return to main loop!
-    ConfigINT1(EXT_INT_PRI_1 | FALLING_EDGE_INT | EXT_INT_ENABLE);
-    //attachInterrupt(1, irCaptureKey, LOW);
-  } else {
-    ConfigINT1(EXT_INT_PRI_1 | FALLING_EDGE_INT | EXT_INT_DISABLE);
-    //detachInterrupt(1);
-  } 
 }
 // Takes an IR distance measurement reading by sending an IR pulse via an IR LED and set on 
 // "irFeet"/"irInches". When the reading is within the specified threshold and "isTrip" is 
 // true the trip command will be entered into the command buffer.
 byte irRead(byte isTrip) {
   // TODO : impl IR LED pulse and read to values
-  if (isTrip && ALRMISTRIPPED(ALRM_IR)) {
-    
+  irInterrupt(false);
+  // one period at 38.5khZ is aproximately 26 microseconds
+  // 26 microseconds * 38 is more or less 1 millisecond
+  /*long usecs = 500;
+  while (usecs > 0) {
+    // 38 kHz is about 13 microseconds high and 13 microseconds low
+   digitalWrite(IR_LED_PIN, HIGH);  // this takes about 3 microseconds to happen
+   delayMicroseconds(10);         // hang out for 10 microseconds
+   digitalWrite(IR_LED_PIN, LOW);   // this also takes about 3 microseconds
+   delayMicroseconds(10);         // hang out for 10 microseconds
+   // so 26 microseconds altogether
+   usecs -= 26;
+  }*/
+  /*if (digitalRead(IR_REMOTE_PIN) == 1) {
+      // buffer trip command (default takes a picture and send the data over xbee)
+      //pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &tripCmd);
+      LEDWRITE(LOW, HIGH, HIGH);
+  }*/
+  /*LEDWRITE(LOW, HIGH, HIGH);
+      byte payload[3];
+      payload[0] = 255;
+      payload[1] = 0; // index of reading failure (zero if no failures)
+      payload[2] = PORTDbits.RD8;
+      xbeeSend(payload);
+  LEDOFF();*/
+  float volts = analogRead(IR_REMOTE_PIN)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
+  float distance = 65*pow(volts, -1.10);          // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
+  if (distance > 0) {
+    LEDWRITE(LOW, HIGH, HIGH);
+      byte payload[3];
+      payload[0] = 255;
+      payload[1] = 0; // index of reading failure (zero if no failures)
+      payload[2] = distance;
+      xbeeSend(payload);
+      LEDOFF();
   }
+  if (isTrip && ALRMISTRIPPED(ALRM_IR)) {
+
+  }
+  irInterrupt(true);
 }
-#ifdef __cplusplus
+// toggle the IR remote control interrupt
+void irInterrupt(boolean on) {
+  if (on) {
+    // Pin 2 (INT1) for IR readings
+    // priority level must be one or it will take up to a minute to return to main loop!
+    //ConfigINT1(EXT_INT_PRI_1 | FALLING_EDGE_INT | EXT_INT_ENABLE);
+    attachInterrupt(1, irTest, RISING);
+  } else {
+    //ConfigINT1(EXT_INT_PRI_1 | FALLING_EDGE_INT | EXT_INT_DISABLE);
+    detachInterrupt(1);
+  } 
+}
+void irTest() {
+          //LEDWRITE(HIGH, LOW, HIGH);
+  float volts = analogRead(IR_REMOTE_PIN)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
+  float distance = 65*pow(volts, -1.10);          // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
+  Serial.print("VOLTS: ");
+  Serial.print(volts);
+  Serial.print(" distance: ");
+  Serial.println(distance);
+    //irTestValue = distance;//PORTDbits.RD8;
+    //pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &irTripCmd);  
+}
+/*ifdef __cplusplus
 extern "C" {
 #endif
 // Interrupt that evaluates an IR remote control key press and stores the commands in a buffer
@@ -366,6 +429,8 @@ void __ISR(_EXTERNAL_1_VECTOR, ipl1) IRPulseHandler(void) {
   //mINT1SetIntPriority(1);
   mINT1ClearIntFlag();
   //mINT0IntEnable(1);
+*/
+void irHandler() {
   // Wait for a start bit IR pulse threshold (in microseconds)
   // 12 bit = 2.400 ms indicates start
   // 15 bit = 2.940 ms indicates start
@@ -399,6 +464,7 @@ void __ISR(_EXTERNAL_1_VECTOR, ipl1) IRPulseHandler(void) {
       // IR_KEY_WAIT_MS milliseconds (unless the key is for servo movement) millis() 
       // doesn't inc in ISRs, but due to rapid pulse it will return to main long 
       // enough to inc millis()
+      // setup timer for rollover handling see: http://www.arduino.cc/playground/Code/TimingRollover
       long waitCalc = SERVOISCMD(currKey) ? 0 : (long)(millis() - irWaitFor);
       // reset when no keys are pressed within XX milliseconds
       if (waitCalc <= 0 || waitCalc >= IR_KEY_WAIT_MS) {
@@ -420,9 +486,9 @@ void __ISR(_EXTERNAL_1_VECTOR, ipl1) IRPulseHandler(void) {
     }
   }
 }
-#ifdef __cplusplus
+/*ifdef __cplusplus
 }
-#endif
+#endif*/
 // Returns true when the current key should be processed.
 // When a valid key combination has previously been entered and the "Input" key is pressed
 // a new key code begins to be captured until all keys are present at which point they are saved 
@@ -493,8 +559,10 @@ void mwSetup() {
   digitalWrite(MW_EN_PIN, LOW);
   delayMicroseconds(5);
   digitalWrite(MW_EN_PIN, HIGH);
-  mwInterrupt(true);
+  //mwInterrupt(true);
 }
+#include "wiring_private.h"
+#include "pins_arduino.h"
 // reads the cycle count of the microwave and stores it in "mwCycleCnt" (adds the trip command when "isTrip")
 byte mwReadFreq(byte isTrip) {
   if (!mwTrigger) {
@@ -503,17 +571,20 @@ byte mwReadFreq(byte isTrip) {
   mwCycleCnt = 0;
   int mwState = 0;
   unsigned long currMillis = millis();
-  while (millis() - currMillis < 500) {
-    if (digitalRead(MW_PIN) != mwState) {
-      mwState = -(mwState - 1);  //changes current_state from 0 to 1, and vice-versa
+  unsigned long cycleMillis;
+  unsigned long overheadMillis;
+  while ((cycleMillis = millis()) - currMillis < (MW_MS - overheadMillis)) {
+    if (MWPINREAD() != mwState) {
+      mwState = !mwState;
       mwCycleCnt++;
+      overheadMillis += millis() - cycleMillis;
     }
   }
   if (ALRMISTRIPPED(ALRM_MW)) {
-    //long speedMM = mwChgCnt * 30000 / 2105; // mm/second
-    //long speedIN = mwChgCnt * 30000 / 53467; // inches/second
+    //long speedMM = mwCycleCnt * 30000 / 2105; // mm/second
+    //long speedIN = mwCycleCnt * 30000 / 53467; // inches/second
     //Serial.print(" Speed (changes/sec): ");
-    //Serial.print(mwChgCnt);
+    //Serial.print(mwCycleCnt);
     //Serial.print(" mm/sec: ");
     //Serial.print(speedMM);
     //Serial.print(" inches/sec: ");
@@ -522,28 +593,37 @@ byte mwReadFreq(byte isTrip) {
     //Serial.println(speedIN / 17.5999999982);
     if (isTrip) {
       // buffer trip command (default takes a picture and send the data over xbee)
-      pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &tripCmd);
+      //pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &tripCmd);
+      LEDWRITE(HIGH, HIGH, LOW);
+      byte payload[3];
+      payload[0] = 255;
+      payload[1] = 0; // index of reading failure (zero if no failures)
+      payload[2] = mwCycleCnt;
+      xbeeSend(payload);
+      LEDOFF();
     }
-    mwTrigger = false;
+    //mwTrigger = false;
     return 1;
   } else {
-    mwTrigger = false;
+    //mwTrigger = false;
     return 0;
   }
 }
 // toggle the IR remote control interrupt
 void mwInterrupt(boolean on) {
   if (on) {
-    // until attachinterrupt is impl need to manually setup Pin 2 (INT1) for IR readings
+    // Pin 7 (INT2) for readings
     // priority level must be one or it will take up to a minute to return to main loop!
-    ConfigINT2(EXT_INT_PRI_1 | RISING_EDGE_INT | EXT_INT_ENABLE);
-    //attachInterrupt(1, irCaptureKey, LOW);
+    //ConfigINT2(EXT_INT_PRI_1 | RISING_EDGE_INT | EXT_INT_ENABLE);
+    //attachInterrupt(2, mwHandler, RISING);
+    mwTrigger = true;
   } else {
-    ConfigINT2(EXT_INT_PRI_1 | RISING_EDGE_INT | EXT_INT_DISABLE);
-    //detachInterrupt(1);
-  } 
+    //ConfigINT2(EXT_INT_PRI_1 | RISING_EDGE_INT | EXT_INT_DISABLE);
+    //detachInterrupt(2);
+    mwTrigger = false;
+  }
 }
-#ifdef __cplusplus
+/*ifdef __cplusplus
 extern "C" {
 #endif
 // Interrupt that evaluates an IR remote control key press and stores the commands in a buffer
@@ -553,10 +633,13 @@ extern "C" {
 void __ISR(_EXTERNAL_2_VECTOR, ipl1) MWHandler(void) {
   //mINT2SetIntPriority(1);
   mINT2ClearIntFlag();
+*/
+void mwHandler() {
   if (!mwTrigger) {
     mwTrigger = true;
   }
 }
-#ifdef __cplusplus
+/*ifdef __cplusplus
 }
 #endif
+*/

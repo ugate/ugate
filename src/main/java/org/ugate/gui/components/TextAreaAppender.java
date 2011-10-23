@@ -1,4 +1,4 @@
-package org.ugate.gui;
+package org.ugate.gui.components;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;

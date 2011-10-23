@@ -1,7 +1,5 @@
 package org.ugate.gui;
 
-import java.util.List;
-
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Separator;
@@ -10,6 +8,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.ToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateSliderGauge;
 import org.ugate.resources.RS;
 
 /**
@@ -39,7 +39,7 @@ public class SonarIrControl extends ControlPane {
 
 	@Override
 	protected Node[] getBottomViewChildren() {
-		final ToggleSwitchPreferenceView sonarToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SONAR_ALARM_ON_KEY, 
+		final ToggleSwitchPreferenceView sonarToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_SONAR_ALARM_ON_KEY, 
 				RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, 
 				"Toggle sonar intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
 		final VBox sonarTripView = new VBox();
@@ -51,7 +51,7 @@ public class SonarIrControl extends ControlPane {
 				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate", 
 				true, null, null);
 		sonarTripView.getChildren().addAll(sonarTripGauge, sonarTripRateGauge);
-		final ToggleSwitchPreferenceView irToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.IR_ALARM_ON_KEY, 
+		final ToggleSwitchPreferenceView irToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_IR_ALARM_ON_KEY, 
 				RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF,
 				"Toggle IR intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
 		final VBox irTripView = new VBox();
@@ -64,10 +64,5 @@ public class SonarIrControl extends ControlPane {
 				true, null, null);
 		irTripView.getChildren().addAll(irTripGauge, irTripRateGauge);
 		return new Node[] { sonarToggleSwitchView, sonarTripView, new Separator(Orientation.VERTICAL), irToggleSwitchView, irTripView };
-	}
-	
-	@Override
-	public boolean preSubmit(final List<Integer> values) {
-		return false;
 	}
 }

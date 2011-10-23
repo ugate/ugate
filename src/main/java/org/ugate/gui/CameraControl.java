@@ -12,6 +12,9 @@ import javafx.scene.paint.Color;
 
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.ToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateSliderGauge;
+import org.ugate.gui.components.UGateTextField;
 import org.ugate.resources.RS;
 
 /**
@@ -60,23 +63,23 @@ public class CameraControl extends ControlPane {
 
 	@Override
 	protected Node[] getBottomViewChildren() {
-		recipientsToggleSwitch = new ToggleSwitchPreferenceView(UGateUtil.MAIL_ALARM_ON_KEY, 
+		recipientsToggleSwitch = new ToggleSwitchPreferenceView(UGateUtil.SV_MAIL_ALARM_ON_KEY, 
 				RS.IMG_EMAIL_SELECTED, RS.IMG_EMAIL_DESELECTED, 
 				"Toggle sending email notifications for images taken (by alarm trip or manually)");
 		final VBox mailView = new VBox();
 		recipients = new UGateTextField("Recipients (semi-colon delimited emails)", 
 				"Semi-colon delimited list of emails to send image to (blank if no emails should be sent)",
-				UGateUtil.MAIL_RECIPIENTS_KEY, UGateTextField.TYPE_TEXT_AREA);
+				UGateUtil.SV_MAIL_RECIPIENTS_KEY, UGateTextField.TYPE_TEXT_AREA);
 		recipients.textArea.setPrefRowCount(5);
 		mailView.getChildren().addAll(recipients);
 		return new Node[] { recipientsToggleSwitch, mailView };
 	}
 	
-	@Override
-	public boolean preSubmit(final List<Integer> values) {
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_RECIPIENTS_ON_KEY, 
+	public boolean addValues(final List<Integer> values) {
+		// values need to be added in a predefined order
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_RECIPIENTS_ON_KEY, 
 				String.valueOf(recipientsToggleSwitch.toggleSwitch.selectedProperty().get()));
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_RECIPIENTS_KEY, recipients.textField.getText());
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_RECIPIENTS_KEY, recipients.textField.getText());
 		values.add(recipientsToggleSwitch.toggleSwitch.selectedProperty().get() ? 1 : 0);
 		//values.add(recipientsToggleSwitch.toggleSwitch.selectedProperty().get() ? 1 : 0);
 		return true;

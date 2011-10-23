@@ -1,13 +1,13 @@
 package org.ugate.gui;
 
-import java.util.List;
-
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.ToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateSliderGauge;
 import org.ugate.resources.RS;
 
 /**
@@ -36,7 +36,7 @@ public class MicrowaveControl extends ControlPane {
 
 	@Override
 	protected Node[] getBottomViewChildren() {
-		final ToggleSwitchPreferenceView mwToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.MICROWAVE_ALARM_ON_KEY, 
+		final ToggleSwitchPreferenceView mwToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_MW_ALARM_ON_KEY, 
 				RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, 
 				"Toggle Microwave intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
 		final VBox mwTripView = new VBox();
@@ -49,10 +49,5 @@ public class MicrowaveControl extends ControlPane {
 				true, null, null);
 		mwTripView.getChildren().addAll(mwTripGauge, mwTripRateGauge);
 		return new Node[] { mwToggleSwitchView, mwTripView };
-	}
-	
-	@Override
-	public boolean preSubmit(final List<Integer> values) {
-		return false;
 	}
 }

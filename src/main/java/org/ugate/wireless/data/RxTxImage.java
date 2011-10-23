@@ -1,4 +1,4 @@
-package org.ugate.xbee.data;
+package org.ugate.wireless.data;
 
 import java.io.IOException;
 import java.util.Arrays;

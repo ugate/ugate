@@ -1,4 +1,4 @@
-package org.ugate.xbee.data;
+package org.ugate.wireless.data;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,9 +9,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.apache.log4j.Logger;
+import org.ugate.ByteUtils;
 import org.ugate.UGateUtil;
-
-import com.rapplogic.xbee.util.ByteUtils;
 
 public class RxTxJPEG implements RxTxImage {
 	

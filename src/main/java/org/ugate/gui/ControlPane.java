@@ -1,7 +1,5 @@
 package org.ugate.gui;
 
-import java.util.List;
-
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ToolBar;
@@ -44,12 +42,4 @@ public abstract class ControlPane extends BorderPane {
 	protected abstract Node[] getMiddleViewChildren();
 	
 	protected abstract Node[] getBottomViewChildren();
-	
-	/**
-	 * Prepares the control for submission to remote device by adding the needed values
-	 * 
-	 * @param values the values to add to
-	 * @return true when the control is ready for submission
-	 */
-	public abstract boolean preSubmit(final List<Integer> values);
 }

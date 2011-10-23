@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
-import org.ugate.xbee.UGateXBeePacketListener;
+import org.ugate.wireless.xbee.UGateXBeePacketListener;
 
 import com.rapplogic.xbee.api.AtCommand;
 import com.rapplogic.xbee.api.AtCommandResponse;
@@ -24,7 +24,6 @@ import com.rapplogic.xbee.api.XBeeException;
 import com.rapplogic.xbee.api.XBeeTimeoutException;
 import com.rapplogic.xbee.api.wpan.TxRequest16;
 import com.rapplogic.xbee.api.wpan.TxStatusResponse;
-import com.rapplogic.xbee.util.ByteUtils;
 
 /**
  * Gate keeper that keeps track of shared XBee, Mail, and other provider implementations
@@ -40,7 +39,7 @@ public enum UGateKeeper {
 	 * Remote XBee radio used for gate operations using a 16-bit address: 3333 
 	 * (XBee must NOT be configured with "MY" set to FFFF)
 	 */
-	public final XBeeAddress16 GATE_XBEE_ADDRESS = new XBeeAddress16(0x33, 0x33);
+	private final XBeeAddress16 XBEE_ADDRESS_ = new XBeeAddress16(0x33, 0x33);
 	public final Preferences preferences;
 	public final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
 	private final XBee xbee;
@@ -71,7 +70,7 @@ public enum UGateKeeper {
 			String password, String mainFolderName, boolean debug, IEmailListener... listener) {
 		// test email connection
 		isEmailConnected = true;
-		listener[0].handle(new EmailEvent(EmailEvent.TYPE_CONNECT, null));
+		listener[0].handle(new EmailEvent(EmailEvent.TYPE_CONNECT, null, null));
 		if (true) {
 			return;
 		}
@@ -84,9 +83,12 @@ public enum UGateKeeper {
 			@Override
 			public void handle(EmailEvent event) {
 				if (event.type == EmailEvent.TYPE_EXECUTE_COMMAND) {
-					if (isXbeeConnected()) {
+					if (wirelessIsConnected()) {
 						for (String command : event.commands) {
-							xbeeSendData(GATE_XBEE_ADDRESS, command);
+							// send command to all the nodes defined in the email
+							for (int toNode : event.toNodes) {
+								wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + toNode, command);
+							}
 						}
 					} else {
 						log.warn("Incoming mail command received, but an XBee connection has not been made");
@@ -135,14 +137,14 @@ public enum UGateKeeper {
 	/* ======= Serial Communications ======= */
 	
 	/**
-	 * Connects to the local XBee
+	 * Connects to the wireless network
 	 * 
 	 * @param comPort the COM port to connect to {@link #getSerialPorts()}
-	 * @param baudRate the baud rate to connect at {@link #XBEE_BAUD_RATES}
+	 * @param baudRate the baud rate to connect at (if applicable)
 	 * @return true when on successful connection
 	 */
-	public boolean xbeeConnect(String comPort, int baudRate) {
-		xbeeDisconnect();
+	public boolean wirelessConnect(String comPort, int baudRate) {
+		wirelessDisconnect();
 		log.info("Connecting to local XBee");
 		try {
 			xbee.open(comPort, baudRate);
@@ -156,10 +158,10 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * Disconnects from the local XBee
+	 * Disconnects from the wireless network
 	 */
-	public void xbeeDisconnect() {
-		if (isXbeeConnected()) {
+	public void wirelessDisconnect() {
+		if (wirelessIsConnected()) {
 			log.info("Disconnecting from XBee");
 			xbee.close();
 			log.info("Disconnected from XBee");
@@ -167,51 +169,58 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * @return true if the local XBee is connected
+	 * @return true when connected to the wireless network
 	 */
-	public boolean isXbeeConnected() {
+	public boolean wirelessIsConnected() {
 		return xbee != null && xbee.isConnected();
 	}
 
 	/**
 	 * Sends the data string to the remote address in ASCII format array
 	 * 
-	 * @param address the address to send to
+	 * @param wirelessNodeAddressHexKey the wireless node address preferences key used to get the address to send to
 	 * @param data the data string to send
-	 * @return the TX status response
+	 * @return true when successful
 	 */
-	public TxStatusResponse xbeeSendData(XBeeAddress16 address, String data) {
-		return xbeeSendData(address, ByteUtils.stringToIntArray(data));
+	public boolean wirelessSendData(String wirelessNodeAddressHexKey, String data) {
+		return wirelessSendData(wirelessNodeAddressHexKey, ByteUtils.stringToIntArray(data));
 	}
 	
 	/**
 	 * Sends the data string to the remote address in ASCII format array
 	 * 
-	 * @param address the address to send to
+	 * @param wirelessNodeAddressHexKey the wireless node address preferences key used to get the address to send to
 	 * @param data the data string to send
-	 * @return the TX status response
+	 * @return true when successful
 	 */
-	public TxStatusResponse xbeeSendData(XBeeAddress16 address, List<Integer> data) {
+	public boolean wirelessSendData(String wirelessNodeAddressHexKey, List<Integer> data) {
 		int[] dataInts = new int[data.size()];
 		for(int i=0; i<data.size(); i++) {
 			dataInts[i] = data.get(i);
 		}
-		return xbeeSendData(address, dataInts);
+		return wirelessSendData(wirelessNodeAddressHexKey, dataInts);
 	}
 	
 	/**
-	 * Sends the data array to the remote XBee address
+	 * Sends the data array to the remote address
 	 * 
-	 * @param address the address to send to
+	 * @param wirelessNodeAddressHexKey the wireless node address preferences key used to get the address to send to
 	 * @param data the data to send
-	 * @return the TX status response
+	 * @return true when successful
 	 */
-	public TxStatusResponse xbeeSendData(XBeeAddress16 address, int[] data) {
+	public boolean wirelessSendData(String wirelessNodeAddressHexKey, int[] data) {
 		try {
+			// TODO : allow for commands to be sent to more than one wireless node?
+			if (!preferences.hasKey(wirelessNodeAddressHexKey)) {
+				log.error("Wireless nodes address \"" + wirelessNodeAddressHexKey + 
+						"\" has not been defined");
+				return false;
+			}
+			final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(wirelessNodeAddressHexKey);
 			// create a unicast packet to be delivered to the supplied address, with the pay load
-			TxRequest16 request = new TxRequest16(address, data);
+			final TxRequest16 request = new TxRequest16(xbeeAddress, data);
 			// send the packet and wait up to 10 seconds for the transmit status reply
-			TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
+			final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
 			if (response.isSuccess()) {
 				// packet was delivered successfully
 				log.info("Data successfully sent");
@@ -219,38 +228,30 @@ public enum UGateKeeper {
 				// packet was not delivered
 				throw new XBeeException("Packet was not delivered. status: " + response.getStatus());
 			}
+			return response.isSuccess();
 		} catch (XBeeTimeoutException e) {
 			log.error("No response was received in the allotted time", e);
 		} catch (XBeeException e) {
 			log.error("Unexpected error occurred when sending data", e);
 		}
-		return null;
+		return false;
 	}
 
 	/**
-	 * Sends a wireless command to the specified address
+	 * Tests the address of a local or remote device within the wireless network
 	 * 
-	 * @param address the address of the device to send the command to
-	 * @param commands the commands to send
+	 * @param wirelessAddressHexKey the wireless address preferences key used to get the address 
+	 * 		to test a connection for (null when testing the local address)
+	 * @return the address of the device (if found and returns its address)
 	 */
-	public void wirelessSendCommands(final String address, final int[] commands) {
-		
-	}
-
-	/**
-	 * Gets the address of a local or remote device
-	 * 
-	 * @param isRemote true when getting an address for a remote device
-	 * @return the address of the device (if found)
-	 */
-	public String wirelessGetAddress(final Boolean isRemote) {
+	public String wirelessTestAddressConnection(final String wirelessAddressHexKey) {
 		String address = null;
 		try {
 			AtCommandResponse response;
 			int[] responseValue;
-			if (isRemote) {
-				RemoteAtRequest request = new RemoteAtRequest(new XBeeAddress16(0x33, 0x33), "MY");
-				RemoteAtResponse remoteResponse = (RemoteAtResponse) xbee.sendSynchronous(request, 10000);
+			if (wirelessAddressHexKey != null) {
+				final RemoteAtRequest request = new RemoteAtRequest(wirelessGetXbeeAddress(wirelessAddressHexKey), "MY");
+				final RemoteAtResponse remoteResponse = (RemoteAtResponse) xbee.sendSynchronous(request, 10000);
 				response = remoteResponse;
 			} else {
 				response = (AtCommandResponse) xbee.sendSynchronous(new AtCommand("MY"));
@@ -258,9 +259,9 @@ public enum UGateKeeper {
 			if (response.isOk()) {
 				responseValue = response.getValue();
 				address = ByteUtils.toBase16(responseValue);
-				log.info("Successfully got " + (isRemote ? "remote" : "local") + " MY String: " + address);
+				log.info("Successfully got " + (wirelessAddressHexKey != null ? "remote" : "local") + " address: " + address);
 			} else {
-				throw new XBeeException("Failed to get remote MY. Status is " + response.getStatus());
+				throw new XBeeException("Failed to get remote address response. Status is " + response.getStatus());
 			}
 		} catch (XBeeTimeoutException e) {
 			log.warn("Timed out getting remote XBee address", e);
@@ -268,6 +269,124 @@ public enum UGateKeeper {
 			log.warn("Error getting remote XBee address", e);
 		}
 		return address;
+	}
+	
+	/**
+	 * Gets a wireless XBee address for a wireless node
+	 * 
+	 * @param wirelessAddressHexKey the wireless address preferences key used to create the address
+	 * @return the XBee address
+	 */
+	private XBeeAddress16 wirelessGetXbeeAddress(String wirelessAddressHexKey) {
+		//final int xbeeRawAddress = Integer.parseInt(preferences.get(wirelessAddressHexKey), 16);
+		final String rawAddress = preferences.get(wirelessAddressHexKey);
+		if (rawAddress.length() > UGateUtil.WIRELESS_ADDRESS_MAX_DIGITS) {
+			throw new IllegalArgumentException("Wireless address cannot be more than " + 
+					UGateUtil.WIRELESS_ADDRESS_MAX_DIGITS + " hex digits long");
+		}
+		final int msb = Integer.parseInt(rawAddress.substring(0, 2), 16);
+		final int lsb = Integer.parseInt(rawAddress.substring(2, 4), 16);
+		final XBeeAddress16 xbeeAddress = new XBeeAddress16(msb, lsb);
+		return xbeeAddress;
+	}
+	
+	/**
+	 * Gets all of the wireless node addresses from the preferences
+	 * 
+	 * @param testConnections true to test each address before adding them to the list
+	 * @return the list of addresses
+	 */
+	public List<String> wirelessGetNodeAddresses(boolean testConnections) {
+		final List<String> was = new ArrayList<String>();
+		final List<String> waks = wirelessGetNodeAddressKeys(false);
+		for (String wak : waks) {
+			if (testConnections) {
+				if (wirelessTestAddressConnection(wak) != null) {
+					was.add(preferences.get(wak));
+				} else {
+					log.info("Invalid wireless address preference key: " + wak);
+				}
+			} else {
+				was.add(preferences.get(wak));
+			}
+		}
+		return was;
+	}
+	
+	/**
+	 * Gets the wireless connection node address keys from the preferences
+	 * @param testConnections true to test/validate the addresses by testing the connection 
+	 * 		before adding to the list
+	 * @return the wireless address preference keys
+	 */
+	public List<String> wirelessGetNodeAddressKeys(boolean testConnections) {
+		final List<String> waks = new ArrayList<String>();
+		int i = 1;
+		String addressKey;
+		while (preferences.hasKey((addressKey = UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + i))) {
+			if (testConnections) {
+				if (wirelessTestAddressConnection(addressKey) != null) {
+					waks.add(addressKey);
+				} else {
+					log.info("Invalid wireless address preference key: " + addressKey);
+				}
+			} else {
+				waks.add(addressKey);
+			}
+			i++;
+		}
+		return waks;
+	}
+	
+	/**
+	 * Synchronizes the locally stored settings with the remote wireless nodes
+	 * 
+	 * @return true when successful
+	 */
+	public boolean wirelessSyncSettings() {
+		if (!wirelessIsConnected()) {
+			return false;
+		}
+		// values need to be added in a predefined order
+		final List<Integer> values = new ArrayList<Integer>();
+		values.add(UGateUtil.CMD_SENSOR_SET_SETTINGS);
+		values.add(0); // TODO : failure code is hard coded
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_ACCESS_CODE_1_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_ACCESS_CODE_2_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_ACCESS_CODE_3_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_RES_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_ALARM_ON_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_ALARM_ON_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_ALARM_ON_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_GATE_ACCESS_ON_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_DISTANCE_THRES_FEET_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_DISTANCE_THRES_INCHES_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_DELAY_BTWN_TRIPS_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DISTANCE_THRES_FEET_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DISTANCE_THRES_INCHES_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DELAY_BTWN_TRIPS_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_SPEED_THRES_INCHES_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_DELAY_BTWN_TRIPS_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_SONAR_TRIP_ANGLE_PAN_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_SONAR_TRIP_ANGLE_TILT_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_IR_TRIP_ANGLE_PAN_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_IR_TRIP_ANGLE_TILT_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_MW_TRIP_ANGLE_PAN_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_MW_TRIP_ANGLE_TILT_KEY)));
+		
+		final List<String> waks = wirelessGetNodeAddressKeys(false);
+		int scnt = 0;
+		for (int i=0; i<waks.size(); i++) {
+			if (wirelessSendData(waks.get(i), values)) {
+				scnt++;
+			}
+		}
+		if (scnt > 0) {
+			log.info("Settings sent to " + scnt + " node(s)");
+			return true;
+		}
+		return false;
 	}
 
 	/**
