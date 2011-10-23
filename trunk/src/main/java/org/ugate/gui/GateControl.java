@@ -1,12 +1,12 @@
 package org.ugate.gui;
 
-import java.util.List;
-
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.ToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateSliderGauge;
 import org.ugate.resources.RS;
 
 public class GateControl extends ControlPane {
@@ -34,13 +34,8 @@ public class GateControl extends ControlPane {
 	@Override
 	protected Node[] getBottomViewChildren() {
 		final ToggleSwitchPreferenceView gateToggleSwitchView = new ToggleSwitchPreferenceView(
-				UGateUtil.GATE_ACCESS_ON_KEY, RS.IMG_GATE_SELECTED,
+				UGateUtil.SV_GATE_ACCESS_ON_KEY, RS.IMG_GATE_SELECTED,
 				RS.IMG_GATE_DESELECTED, "Toogle gate access");
 		return new Node[] { gateToggleSwitchView };
-	}
-
-	@Override
-	public boolean preSubmit(final List<Integer> values) {
-		return false;
 	}
 }

@@ -1,4 +1,4 @@
-package org.ugate.gui;
+package org.ugate.gui.components;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.ChoiceBox;

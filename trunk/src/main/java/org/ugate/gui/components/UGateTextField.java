@@ -1,4 +1,4 @@
-package org.ugate.gui;
+package org.ugate.gui.components;
 
 import org.ugate.UGateKeeper;
 

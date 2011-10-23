@@ -1,4 +1,4 @@
-package org.ugate.gui;
+package org.ugate.gui.components;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,7 +11,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import org.ugate.gui.components.Digits;
 import org.ugate.resources.RS;
 
 /**

@@ -34,6 +34,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
+import org.ugate.gui.components.TextAreaAppender;
 import org.ugate.resources.RS;
 
 /**
@@ -341,7 +342,7 @@ public class UGateGUI extends Application {
 	 */
 	private void changeCenterView(Node node, boolean checkConnection) {
 		if (!checkConnection
-				|| (UGateKeeper.DEFAULT.isXbeeConnected() && UGateKeeper.DEFAULT
+				|| (UGateKeeper.DEFAULT.wirelessIsConnected() && UGateKeeper.DEFAULT
 						.isEmailConnected())) {
 			centerView.getChildren().clear();
 			centerView.getChildren().add(node);

@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.UGateChoiceBox;
 
 /**
  * Wireless connection GUI responsible for connecting to the wireless service
@@ -18,6 +19,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	private static final Logger log = Logger.getLogger(WirelessConnectionView.class);
 	public static final String LABEL_CONNECT = "Connect To Local XBee";
 	public static final String LABEL_CONNECTING = "Connecting To Local XBee...";
+	public static final String LABEL_SYNC = "Syncronizing Remote XBees...";
 	public static final String LABEL_RECONNECT = "Reconnect To Local XBee";
 	public final UGateChoiceBox<String> port;
 	public final UGateChoiceBox<Integer> baud;
@@ -58,7 +60,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	 */
 	public void loadComPorts() {
 		port.choice.getItems().addAll(UGateKeeper.DEFAULT.getSerialPorts());
-		final String xbeeComPort = UGateKeeper.DEFAULT.preferences.get(UGateUtil.XBEE_COM_PORT_KEY);
+		final String xbeeComPort = UGateKeeper.DEFAULT.preferences.get(UGateUtil.SV_WIRELESS_COM_PORT_KEY);
 		if (xbeeComPort != null && xbeeComPort.length() > 0 && 
 				port.choice.getItems().contains(xbeeComPort)) {
 			port.choice.getSelectionModel().select(xbeeComPort);
@@ -73,7 +75,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	public void loadBaudRates() {
 		log.debug("Loading available baud rates");
 		baud.choice.getItems().addAll(UGateUtil.XBEE_BAUD_RATES);
-		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferences.get(UGateUtil.XBEE_BAUD_RATE_KEY);
+		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferences.get(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY);
 		if (xbeeBaudRateStr != null && xbeeBaudRateStr.length() > 0) {
 			final Integer xbeeBaudRate = Integer.parseInt(xbeeBaudRateStr);
 			if (baud.choice.getItems().contains(xbeeBaudRate)) {
@@ -92,23 +94,34 @@ public abstract class WirelessConnectionView extends StatusView {
 		disconnect();
 		connect.setDisable(true);
 		connect.setText(LABEL_CONNECTING);
-		if (UGateKeeper.DEFAULT.xbeeConnect(comPort, baudRate)) {
-			setStatusFill(statusIcon, true);
-			connect.setText(LABEL_RECONNECT);
-		} else {
+		try {
+			if (UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate)) {
+				setStatusFill(statusIcon, true);
+				connect.setText(LABEL_SYNC);
+				try {
+					UGateKeeper.DEFAULT.wirelessSyncSettings();
+				} catch (final Throwable t) {
+					log.warn("Unable to sync local settings to remote wireless nodes", t);
+				}
+				connect.setText(LABEL_RECONNECT);
+			} else {
+				connect.setText(LABEL_CONNECT);
+			}
+		} catch (final Throwable t) {
+			log.warn(String.format("Unable to connect to COM port: {0} @ {1}", comPort, baudRate), t);
 			connect.setText(LABEL_CONNECT);
 		}
 		connect.setDisable(false);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.XBEE_COM_PORT_KEY, comPort);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.XBEE_BAUD_RATE_KEY, String.valueOf(baudRate));
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_COM_PORT_KEY, comPort);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
 	}
 
 	/**
 	 * Disconnects wireless connection (if connected)
 	 */
 	public void disconnect() {
-		if (UGateKeeper.DEFAULT.isXbeeConnected()) {
-			UGateKeeper.DEFAULT.xbeeDisconnect();
+		if (UGateKeeper.DEFAULT.wirelessIsConnected()) {
+			UGateKeeper.DEFAULT.wirelessDisconnect();
 			setStatusFill(statusIcon, false);
 			connect.setDisable(false);
 			connect.setText(LABEL_CONNECT);

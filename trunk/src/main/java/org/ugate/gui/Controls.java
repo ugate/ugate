@@ -1,8 +1,5 @@
 package org.ugate.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -11,7 +8,8 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -20,23 +18,22 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 
 import org.apache.log4j.Logger;
-import org.ugate.UGateKeeper;
 import org.ugate.resources.RS;
 import org.w3c.dom.Element;
 
 /**
  * XBee GUI view responsible for communicating with local and remote XBees once a connection is established
  */
-public class Controls extends SplitPane {
+public class Controls extends VBox {
 
 	private static final Logger log = Logger.getLogger(Controls.class);
 	public static final double TOOLBAR_TOP_HEIGHT = 50;
 	public static final double MIDDLE_SPACING = 10;
 	public static final double TOOLBAR_BOTTOM_HEIGHT = 110;
 	public final CameraControl camView;
-	public final SonarIrControl sonarIrControl;
+	public final SonarIrControl sonarIrView;
 	public final MicrowaveControl mwView;
-	public final GateControl gateControl;
+	public final GateControl gateView;
 	protected static final String NAVIGATE_JS = "nav";
 	protected static final String NAVIGATE_JS_UP = "UP";
 	protected static final String NAVIGATE_JS_DOWN = "DOWN";
@@ -46,18 +43,35 @@ public class Controls extends SplitPane {
 	public Controls() {
 		super();
 		this.setStyle("-fx-background-color: #000000;");
-		
-		// create tabs
-		camView = new CameraControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-		sonarIrControl = new SonarIrControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-		mwView = new MicrowaveControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-		gateControl = new GateControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
 
-		setDividerPositions(0.29f, 0.75f, 0f, 0f);
+		camView = new CameraControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
+		sonarIrView = new SonarIrControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
+		mwView = new MicrowaveControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
+		gateView = new GateControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
+
+		final TabPane mainView = new TabPane();
+		final Tab camTab = new Tab("Camera");
+		camTab.setClosable(false);
+		camTab.setGraphic(RS.imgView(RS.IMG_CAM_DOME));
+		camTab.setContent(camView);
+		final Tab sonarIrTab = new Tab("Sonar/IR");
+		sonarIrTab.setClosable(false);
+		sonarIrTab.setGraphic(RS.imgView(RS.IMG_IR_ALARM_ON));
+		sonarIrTab.setContent(sonarIrView);
+		final Tab mwTab = new Tab("Microwave");
+		mwTab.setClosable(false);
+		mwTab.setGraphic(RS.imgView(RS.IMG_IR_ALARM_ON));
+		mwTab.setContent(mwView);
+		final Tab gateTab = new Tab("Gate");
+		gateTab.setClosable(false);
+		gateTab.setGraphic(RS.imgView(RS.IMG_GATE_SELECTED));
+		gateTab.setContent(gateView);
+		mainView.getTabs().addAll(camTab, sonarIrTab, mwTab, gateTab);
+
 		HBox.setHgrow(this, Priority.ALWAYS);
 		VBox.setVgrow(this, Priority.ALWAYS);
-		setOrientation(Orientation.HORIZONTAL);
-		getItems().addAll(camView, sonarIrControl, mwView, gateControl);
+		
+		getChildren().addAll(mainView);
 	}
 	
 	/**
@@ -151,24 +165,5 @@ public class Controls extends SplitPane {
 			}
 		});
 		return reloadBtn;
-	}
-	
-	/**
-	 * Sends a sync command to the remote device along with the values of the 
-	 * 
-	 * @param command the command to send
-	 */
-	protected void sync(final int command) {
-		if (UGateKeeper.DEFAULT.isXbeeConnected()) {
-			final List<Integer> values = new ArrayList<Integer>();
-			values.add(command);
-			values.add(0); // TODO : failure code is hard coded
-			if (camView.preSubmit(values) && sonarIrControl.preSubmit(values) && 
-					mwView.preSubmit(values) && gateControl.preSubmit(values)) {
-				log.debug("Sending XBee command: " + command);
-				UGateKeeper.DEFAULT.xbeeSendData(
-						UGateKeeper.DEFAULT.GATE_XBEE_ADDRESS, values);
-			}
-		}
 	}
 }

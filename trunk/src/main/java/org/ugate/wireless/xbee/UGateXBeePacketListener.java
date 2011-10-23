@@ -1,4 +1,4 @@
-package org.ugate.xbee;
+package org.ugate.wireless.xbee;
 
 import java.io.IOException;
 
@@ -6,9 +6,9 @@ import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.UGateGUI;
-import org.ugate.xbee.data.RxTxImage;
-import org.ugate.xbee.data.RxTxJPEG;
-import org.ugate.xbee.data.SensorReadings;
+import org.ugate.wireless.data.RxTxImage;
+import org.ugate.wireless.data.RxTxJPEG;
+import org.ugate.wireless.data.SensorReadings;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -86,6 +86,7 @@ public class UGateXBeePacketListener implements PacketListener {
 	
 	protected void handleRxResponse16(final RxResponse16 rxResponse) {
 		final int command = rxResponse.getData()[0];
+		rxResponse.getRemoteAddress().getAddress();
 		if (command == UGateUtil.CMD_CAM_TAKE_PIC) {
 			// TODO : Handle cases where failures exist
 			final int hasFailures = rxResponse.getData()[1];
@@ -106,7 +107,7 @@ public class UGateXBeePacketListener implements PacketListener {
 				if (rxTxImage.getHasError()) {
 					log.warn("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING... [RSSI: " + rxResponse.getRssi() + "] =======");
 					rxTxImage = null;
-					UGateKeeper.DEFAULT.xbeeSendData(UGateKeeper.DEFAULT.GATE_XBEE_ADDRESS, new int[]{command});
+					//UGateKeeper.DEFAULT.wirelessSendData(UGateKeeper.DEFAULT.GATE_XBEE_ADDRESS, new int[]{command});
 				} else {
 					try {
 						RxTxJPEG.ImageFile imageFile = rxTxImage.writeImageSegments();
@@ -138,6 +139,10 @@ public class UGateXBeePacketListener implements PacketListener {
 			final int hasFailures = rxResponse.getData()[1];
 			final SensorReadings sr = createSensorReadings(rxResponse);
 			log.info("Sensor Readings (ERRORS:" + hasFailures + "): " + sr);
+		} else if (command == UGateUtil.CMD_SENSOR_GET_SETTINGS) {
+			for (int i=0; i<rxResponse.getData().length; i++) {
+				log.info("Got setting: " + rxResponse.getData()[i]);
+			}
 		} else {
 			log.warn("Unrecognized command: " + command);
 		}

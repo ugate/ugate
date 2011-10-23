@@ -23,6 +23,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Preferences are used to store simple key/value pair data to disk. The file approach is taken
+ * versus the typical {@link java.util.prefs.Preferences} so they can be readily accessible for
+ * manual editing when needed.
+ */
 public class Preferences {
 
 	private static final Logger log = Logger.getLogger(Preferences.class);
@@ -32,6 +37,11 @@ public class Preferences {
 	private final String fileName;
 	private SecretKeySpec skeySpec;
 
+	/**
+	 * Preference file that can be used to store simple key/value pairs (generated when non-existent)
+	 * 
+	 * @param fileName the file name
+	 */
 	public Preferences(String fileName) {
 		this.fileName = fileName;
 		this.properties = new Properties();
@@ -68,13 +78,34 @@ public class Preferences {
 		}
 	}
 	
+	/**
+	 * @param key the key to check for
+	 * @return true when the key exists
+	 */
+	public boolean hasKey(String key) {
+		return properties.containsKey(key);
+	}
+	
+	/**
+	 * Gets a list of preference values by key using a delimiter
+	 * 
+	 * @param key the preference key
+	 * @param delimiter the delimiter for the multi-value preference
+	 * @return the list of values
+	 */
 	public List<String> get(String key, String delimiter) {
 		final String value = get(key);
 		return value != null ? Arrays.asList(value.split(delimiter)) : new ArrayList<String>();
 	}
 
+	/**
+	 * Gets a preference value by key. If the key does not exist it will be created
+	 * 
+	 * @param key the key
+	 * @return the value
+	 */
 	public String get(String key) {
-		if (properties.containsKey(key)) {
+		if (hasKey(key)) {
 			return properties.getProperty(key);
 		}
 		String value = "";
@@ -89,11 +120,25 @@ public class Preferences {
 		return value;
 	}
 
+	/**
+	 * Sets a key/value preference
+	 * 
+	 * @param key the key
+	 * @param value the value
+	 */
 	public void set(String key, String value) {
 		set(key, value, false);
 	}
 
 	// TODO : write secret key to Arduino EEPROM so encrypted preference values can be used?
+	
+	/**
+	 * Sets a a key/value preference
+	 * 
+	 * @param key the key
+	 * @param value the value
+	 * @param encrypt true to encrypt the value
+	 */
 	private void set(String key, String value, boolean encrypt) {
 		try {
 			if (encrypt) {
@@ -123,8 +168,8 @@ public class Preferences {
 	 * Turns array of bytes into string
 	 * 
 	 * @param buf
-	 *            Array of bytes to convert to hex string
-	 * @return Generated hex string
+	 *            array of bytes to convert to hex string
+	 * @return generated hex string
 	 */
 	private static String asHex(byte buf[]) {
 		StringBuffer strbuf = new StringBuffer(buf.length * 2);

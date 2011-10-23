@@ -13,10 +13,12 @@ public class EmailEvent {
 	public final String type;
 	public final List<String> commands;
 	public final Address[] from;
+	public final int[] toNodes;
 	
-	public EmailEvent(String type, List<String> commands, Address... from) {
+	public EmailEvent(String type, List<String> commands, Address[] from, int... toNodes) {
 		this.type = type;
 		this.commands = commands;
 		this.from = from;
+		this.toNodes = toNodes;
 	}
 }

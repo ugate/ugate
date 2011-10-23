@@ -8,6 +8,7 @@ import javafx.scene.layout.HBox;
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.UGateTextField;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 
@@ -30,12 +31,12 @@ public abstract class MailConnectionView extends StatusView {
 
 	public MailConnectionView() {
 	    super(20);
-		smtpHost = new UGateTextField("SMTP Host", "Outgoing email host", UGateUtil.MAIL_SMTP_HOST_KEY, UGateTextField.TYPE_TEXT);
-		smtpPort = new UGateTextField("SMTP Port", "Outgoing email port", UGateUtil.MAIL_SMTP_PORT_KEY, UGateTextField.TYPE_TEXT);
-	    imapHost = new UGateTextField("IMAP Host", "Incoming email host", UGateUtil.MAIL_IMAP_HOST_KEY, UGateTextField.TYPE_TEXT);
-		imapPort = new UGateTextField("IMAP Port", "Incoming email port", UGateUtil.MAIL_IMAP_PORT_KEY, UGateTextField.TYPE_TEXT);
-		username = new UGateTextField("Username", "Username to login with", UGateUtil.MAIL_USERNAME_KEY, UGateTextField.TYPE_TEXT);
-		password = new UGateTextField("Password", "Password to login with", UGateUtil.MAIL_PASSWORD_KEY, UGateTextField.TYPE_PASSWORD);
+		smtpHost = new UGateTextField("SMTP Host", "Outgoing email host", UGateUtil.SV_MAIL_SMTP_HOST_KEY, UGateTextField.TYPE_TEXT);
+		smtpPort = new UGateTextField("SMTP Port", "Outgoing email port", UGateUtil.SV_MAIL_SMTP_PORT_KEY, UGateTextField.TYPE_TEXT);
+	    imapHost = new UGateTextField("IMAP Host", "Incoming email host", UGateUtil.SV_MAIL_IMAP_HOST_KEY, UGateTextField.TYPE_TEXT);
+		imapPort = new UGateTextField("IMAP Port", "Incoming email port", UGateUtil.SV_MAIL_IMAP_PORT_KEY, UGateTextField.TYPE_TEXT);
+		username = new UGateTextField("Username", "Username to login with", UGateUtil.SV_MAIL_USERNAME_KEY, UGateTextField.TYPE_TEXT);
+		password = new UGateTextField("Password", "Password to login with", UGateUtil.SV_MAIL_PASSWORD_KEY, UGateTextField.TYPE_PASSWORD);
 
 		connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -82,12 +83,12 @@ public abstract class MailConnectionView extends StatusView {
 						}
 					}
 		});
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_SMTP_HOST_KEY, smtpHost);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_SMTP_PORT_KEY, smtpPort);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_IMAP_HOST_KEY, imapHost);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_IMAP_PORT_KEY, imapPort);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_USERNAME_KEY, username);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.MAIL_PASSWORD_KEY, password);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_SMTP_HOST_KEY, smtpHost);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_SMTP_PORT_KEY, smtpPort);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_IMAP_HOST_KEY, imapHost);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_IMAP_PORT_KEY, imapPort);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_USERNAME_KEY, username);
+		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_PASSWORD_KEY, password);
 	}
 	
 	public void disconnect() {
