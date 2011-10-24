@@ -38,24 +38,24 @@ public class UGateUtil {
 	/**
 	 * Commands that can be sent to the remote micro controller
 	 */
-	public static final HashMap<String, Integer> GATE_COMMANDS = new HashMap<String, Integer>();
+	public static final HashMap<Integer, String> CMDS = new HashMap<Integer, String>();
 	static {
-		GATE_COMMANDS.put("Tilts the selected servo up", CMD_SERVO_TILT_UP);
-		GATE_COMMANDS.put("Tilts the selected servo down", CMD_SERVO_TILT_DOWN);
-		GATE_COMMANDS.put("Pans the selected servo to the right", CMD_SERVO_PAN_RIGHT);
-		GATE_COMMANDS.put("Pans the selected servo to the left", CMD_SERVO_PAN_LEFT);
-		GATE_COMMANDS.put("Resets the universal remote control session", CMD_IR_REMOTE_SESSION_RESET);
-		GATE_COMMANDS.put("Turns the sensor alarms on and off", CMD_SENSOR_ALARM_TOGGLE);
-		GATE_COMMANDS.put("Takes a picture at a predefined resolution", CMD_CAM_TAKE_PIC);
-		GATE_COMMANDS.put("Changes the access code", CMD_ACCESS_CODE_CHANGE);
-		GATE_COMMANDS.put("Toggle between the camera and sonar/IR servo", CMD_SERVO_TOGGLE_CAM_SONARIR);
-		GATE_COMMANDS.put("Toggle opening and closing the gate (if applicable)", CMD_GATE_TOGGLE_OPEN_CLOSE);
-		GATE_COMMANDS.put("Moves the camera (followed by a servo movement command)", CMD_SERVO_CAM_MOVE);
-		GATE_COMMANDS.put("Moves the sonar/IR armature (followed by a servo movement command)", CMD_SERVO_SONAR_MOVE);
-		GATE_COMMANDS.put("Moves the microwave armature (followed by a servo movement command)", CMD_SERVO_MICROWAVE_MOVE);
-		GATE_COMMANDS.put("Retrieves the current sensor readings", CMD_SENSOR_GET_READINGS);
-		GATE_COMMANDS.put("Gets all of the settings variables from the remote device", CMD_SENSOR_GET_SETTINGS);
-		GATE_COMMANDS.put("Sets all of the settings variables on the remote device", CMD_SENSOR_SET_SETTINGS);
+		CMDS.put(CMD_SERVO_TILT_UP, "Tilts the selected servo up");
+		CMDS.put(CMD_SERVO_TILT_DOWN, "Tilts the selected servo down");
+		CMDS.put(CMD_SERVO_PAN_RIGHT, "Pans the selected servo to the right");
+		CMDS.put(CMD_SERVO_PAN_LEFT, "Pans the selected servo to the left");
+		CMDS.put(CMD_IR_REMOTE_SESSION_RESET, "Resets the universal remote control session");
+		CMDS.put(CMD_SENSOR_ALARM_TOGGLE, "Turns the sensor alarms on and off");
+		CMDS.put(CMD_CAM_TAKE_PIC, "Takes a picture at a predefined resolution");
+		CMDS.put(CMD_ACCESS_CODE_CHANGE, "Changes the access code");
+		CMDS.put(CMD_SERVO_TOGGLE_CAM_SONARIR, "Toggle between the camera and sonar/IR servo");
+		CMDS.put(CMD_GATE_TOGGLE_OPEN_CLOSE, "Toggle opening and closing the gate (if applicable)");
+		CMDS.put(CMD_SERVO_CAM_MOVE, "Moves the camera (followed by a servo movement command)");
+		CMDS.put(CMD_SERVO_SONAR_MOVE, "Moves the sonar/IR armature (followed by a servo movement command)");
+		CMDS.put(CMD_SERVO_MICROWAVE_MOVE, "Moves the microwave armature (followed by a servo movement command)");
+		CMDS.put(CMD_SENSOR_GET_READINGS, "Retrieves the current sensor readings");
+		CMDS.put(CMD_SENSOR_GET_SETTINGS, "Gets all of the settings variables from the remote device");
+		CMDS.put(CMD_SENSOR_SET_SETTINGS, "Sets all of the settings variables on the remote device");
 	}
 	/**
 	 * Available XBee baud rates
@@ -64,6 +64,7 @@ public class UGateUtil {
 	
 	// settings values
 	
+	public static final String SV_SOUNDS_ON_KEY = "sounds.on";
 	public static final String SV_WIRELESS_COM_PORT_KEY = "wireless.com.port";
 	public static final String SV_WIRELESS_BAUD_RATE_KEY = "wireless.baud.rate";
 	public static final String SV_WIRELESS_ADDRESS_TRUNK_KEY = "wireless.address.trunk";

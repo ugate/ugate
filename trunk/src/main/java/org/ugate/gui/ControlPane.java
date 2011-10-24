@@ -1,9 +1,12 @@
 package org.ugate.gui;
 
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 /**
@@ -11,35 +14,41 @@ import javafx.scene.layout.VBox;
  */
 public abstract class ControlPane extends BorderPane {
 
-	public final ToolBar topView;
-	public final VBox middleView;
-	public final ToolBar bottomView;
+	public final ToolBar leftView;
+	public final VBox centerView;
+	public final ToolBar rightView;
 	
-	public ControlPane(final double toolbarTopHeight, final double middleSpacing, final double toolBarBottomHeight) {
+	public ControlPane() {
 		setStyle("-fx-background-color: #000000;");
+		VBox.setVgrow(this, Priority.ALWAYS);
+		HBox.setHgrow(this, Priority.ALWAYS);
 		// top
-		topView = new ToolBar();
-		topView.setPrefHeight(toolbarTopHeight);
-		topView.getStyleClass().add("rxtx-toolbar");
-		topView.getItems().addAll(getToolBarTopItems());
+		leftView = new ToolBar();
+		leftView.setOrientation(Orientation.VERTICAL);
+		//leftView.setPrefHeight(toolbarTopHeight);
+		VBox.setVgrow(leftView, Priority.ALWAYS);
+		leftView.getStyleClass().add("rxtx-toolbar");
+		leftView.getItems().addAll(createLeftViewChildren());
 		// middle
-		middleView = new VBox(middleSpacing);
-		middleView.setAlignment(Pos.CENTER);
-		middleView.getChildren().addAll(getMiddleViewChildren());
+		centerView = new VBox();
+		centerView.setAlignment(Pos.CENTER);
+		centerView.getChildren().addAll(createCenterViewChildren());
 		// bottom
-		bottomView = new ToolBar();
-		bottomView.setPrefHeight(toolBarBottomHeight);
-		bottomView.getStyleClass().add("rxtx-toolbar");
-		bottomView.getItems().addAll(getBottomViewChildren());
+		rightView = new ToolBar();
+		rightView.setOrientation(Orientation.VERTICAL);
+		//rightView.setPrefHeight(toolBarBottomHeight);
+		VBox.setVgrow(rightView, Priority.ALWAYS);
+		rightView.getStyleClass().add("rxtx-toolbar");
+		rightView.getItems().addAll(createRightViewChildren());
 		// add gate views
-        setTop(topView);
-        setCenter(middleView);
-        setBottom(bottomView);
+        setLeft(leftView);
+        setCenter(centerView);
+        setRight(rightView);
 	}
 	
-	protected abstract Node[] getToolBarTopItems();
+	protected abstract Node[] createLeftViewChildren();
 	
-	protected abstract Node[] getMiddleViewChildren();
+	protected abstract Node[] createCenterViewChildren();
 	
-	protected abstract Node[] getBottomViewChildren();
+	protected abstract Node[] createRightViewChildren();
 }

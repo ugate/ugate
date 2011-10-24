@@ -127,7 +127,7 @@ public class EmailAgent implements Runnable {
 								final Address[] froms = msg.getFrom();
 								if (hasCommandPermission(froms)) {
 									final StringBuffer errorMessages = new StringBuffer();
-									final List<String> commands = getValidCommands(msg, errorMessages);
+									final List<Integer> commands = getValidCommands(msg, errorMessages);
 									if (errorMessages.length() > 0) {
 										if (log.isInfoEnabled()) {
 											log.info("Invalid command(s) received from: " + Arrays.toString(froms));
@@ -276,8 +276,8 @@ public class EmailAgent implements Runnable {
 		}
 	}
 	
-	protected List<String> getValidCommands(MimeMessage msg, final StringBuffer invalidCommandErrors) {
-		final List<String> validCommands = new ArrayList<String>();
+	protected List<Integer> getValidCommands(MimeMessage msg, final StringBuffer invalidCommandErrors) {
+		final List<Integer> validCommands = new ArrayList<Integer>();
 		try {
 			List<String> rawCommands = new ArrayList<String>();
 			if (msg.getSubject() != null && !msg.getSubject().isEmpty()) {
@@ -298,11 +298,18 @@ public class EmailAgent implements Runnable {
 			if (msgRawContent != null) {
 				rawCommands.addAll(Arrays.asList(msgRawContent.trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
 			}
+			int cmd = -1;
 			for (String command : rawCommands) {
-				if (UGateUtil.GATE_COMMANDS.values().contains(command)) {
-					validCommands.add(command);
+				try {
+					cmd = Integer.parseInt(command);
+				} catch (NumberFormatException e) {
+					log.warn("Non-numeric command received: " + command, e);
+					continue;
+				}
+				if (UGateUtil.CMDS.keySet().contains(cmd)) {
+					validCommands.add(cmd);
 				} else if (invalidCommandErrors != null) {
-					invalidCommandErrors.append("Invalid Command \"" + command + "\"\n");
+					invalidCommandErrors.append("Invalid Command \"" + cmd + "\"\n");
 				}
 			}
 		} catch (Exception e) {

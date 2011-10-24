@@ -55,7 +55,7 @@ public class UGateXBeePacketListener implements PacketListener {
 			} else if (response instanceof TxStatusResponse) {
 				final TxStatusResponse txResponse = (TxStatusResponse) response;
 				if (txResponse.getStatus() == TxStatusResponse.Status.SUCCESS) {
-					log.info("Transmission response: STATUS: " + txResponse.getStatus());
+					log.debug("Transmission response: STATUS: " + txResponse.getStatus());
 					UGateGUI.mediaPlayerBlip.play();
 				} else {
 					log.error("Transmission response: STATUS: " + txResponse.getStatus());
@@ -84,34 +84,42 @@ public class UGateXBeePacketListener implements PacketListener {
 		}
 	}
 	
+	/**
+	 * Remote XBee radio used for gate operations using a 16-bit address: 3333 
+	 * (XBee must NOT be configured with "MY" set to FFFF)
+	 * 
+	 * @param rxResponse the RX response
+	 */
 	protected void handleRxResponse16(final RxResponse16 rxResponse) {
+		final String remoteAddress = Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[0]) + 
+				Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[1]);
 		final int command = rxResponse.getData()[0];
-		rxResponse.getRemoteAddress().getAddress();
+		final int failures = rxResponse.getData()[1]; // TODO : Handle cases where failures exist
+		log.info(String.format("Recieved {0} command from wireless address {1} (signal strength: {2}) with {3} failures", 
+				command, remoteAddress, rxResponse.getRssi(), failures));
 		if (command == UGateUtil.CMD_CAM_TAKE_PIC) {
-			// TODO : Handle cases where failures exist
-			final int hasFailures = rxResponse.getData()[1];
 			if (rxTxImage == null || rxTxImage.hasTimedOut()) {
 				if (rxTxImage != null) {
 					log.warn("======= Last image capture timed out while recieving data... Starting new image capture =======");
 				}
 				rxTxImage = new RxTxJPEG(command, createSensorReadings(rxResponse));
-				log.info("======= Receiving chunked image data (RSSI: " + rxResponse.getRssi() + ", " + rxTxImage + ") (ERRORS:" + hasFailures + ") =======");
+				log.info("======= Receiving chunked image data (" + rxTxImage + ") =======");
 				UGateGUI.mediaPlayerCam.play();
 			}
 			int[] imageChunk = rxTxImage.addImageSegment(rxResponse.getData(), IMAGE_START_INDEX);
 			if (log.isDebugEnabled()) {
-				log.debug("Sensor Tripped (RSSI: " + rxResponse.getRssi() + ", " + rxTxImage + ", LENGTH: " + imageChunk.length + 
+				log.debug("Sensor Tripped (" + rxTxImage + ", LENGTH: " + imageChunk.length + 
 						", RAW LENGTH: " + rxResponse.getLength().getLength() + ") DATA: " + ByteUtils.toBase16(imageChunk));
 			}
 			if (rxTxImage.isEof()) {
 				if (rxTxImage.getHasError()) {
-					log.warn("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING... [RSSI: " + rxResponse.getRssi() + "] =======");
+					log.warn("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING... =======");
 					rxTxImage = null;
-					//UGateKeeper.DEFAULT.wirelessSendData(UGateKeeper.DEFAULT.GATE_XBEE_ADDRESS, new int[]{command});
+					UGateKeeper.DEFAULT.wirelessSendData(remoteAddress, new int[]{command});
 				} else {
 					try {
 						RxTxJPEG.ImageFile imageFile = rxTxImage.writeImageSegments();
-						log.info("======= (" + imageFile.fileSize + ") Total Image Bytes [RSSI: " + rxResponse.getRssi() + "] =======");
+						log.info("======= (" + imageFile.fileSize + ") Total Image Bytes =======");
 						UGateGUI.mediaPlayerDoorBell.play();
 						/*UGateKeeper.DEFAULT.emailSend("UGate Tripped", trippedImage.toString(), 
 								UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY), 
@@ -135,14 +143,29 @@ public class UGateXBeePacketListener implements PacketListener {
 			keys[2] = rxResponse.getData()[3];
 			log.info("Access keys: " + keys[0] + ',' + keys[1] + ',' + keys[2]);
 		} else if (command == UGateUtil.CMD_SENSOR_GET_READINGS) {
-			// TODO : Handle cases where failures exist
-			final int hasFailures = rxResponse.getData()[1];
 			final SensorReadings sr = createSensorReadings(rxResponse);
-			log.info("Sensor Readings (ERRORS:" + hasFailures + "): " + sr);
+			log.info(String.format("=== Sensor Readings: %1$s ===", sr));
 		} else if (command == UGateUtil.CMD_SENSOR_GET_SETTINGS) {
-			for (int i=0; i<rxResponse.getData().length; i++) {
-				log.info("Got setting: " + rxResponse.getData()[i]);
-			}
+			int i = 1;
+			log.info(String.format("=== Settings for %s START ===", remoteAddress));
+			log.info(String.format("Access Key Code: %1$s, %2$s, %3$s", 
+					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]));
+			log.info(String.format("Camera image resolution used when taking pictures (0=QVGA, 1=VGA): %1$s", 
+					rxResponse.getData()[++i]));
+			log.info(String.format("State of the alarms (0=off, 1=on): Sonar=%1$s, IR=%2$s, Microwave=%3$s, Gate=%4$s", 
+					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]));
+			log.info(String.format("Sonar distance threshold before trip: feet=%1$s, inches=%2$s, delay between trips=%3$s", 
+					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]));
+			log.info(String.format("IR distance threshold before trip: feet=%1$s, inches=%2$s, delay between trips=%3$s", 
+					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]));
+			log.info(String.format("Microwave speed threshold before trip: cycles/second=%1$s, delay between trips=%2$s", 
+					rxResponse.getData()[++i], rxResponse.getData()[++i]));
+			log.info(String.format("Multi-alarm trip state (0=Any sensor that is tripped will signal alarm, 1=Sonar and " +
+						"IR have to be tripped in order to signal alarm, 2=Sonar and Microwave have to be tripped in order to " + 
+						"signal alarm, 3=IR and Microwave have to be tripped in order to signal alarm, 4=Sonar, IR, and Microwave " + 
+						"have to be tripped in order to signal alarm): %1$s", 
+					rxResponse.getData()[++i]));
+			log.info(String.format("=== Settings for %s END ===", remoteAddress));
 		} else {
 			log.warn("Unrecognized command: " + command);
 		}

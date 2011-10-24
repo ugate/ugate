@@ -16,13 +16,9 @@ import org.ugate.resources.RS;
  * Sonar IR sensor control view
  */
 public class SonarIrControl extends ControlPane {
-	
-	public SonarIrControl(final double toolbarTopHeight, final double middleSpacing, final double toolBarBottomHeight) {
-		super(toolbarTopHeight, middleSpacing, toolBarBottomHeight);
-	}
 
 	@Override
-	protected Node[] getToolBarTopItems() {
+	protected Node[] createLeftViewChildren() {
 		final UGateSliderGauge sonarIrPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
 				"Sonar/IR Pan: Current trip alram sensor pan angle (in degrees)", false, Color.YELLOW, null);
 		final UGateSliderGauge sonarIrTiltGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_TILT,
@@ -31,14 +27,14 @@ public class SonarIrControl extends ControlPane {
 	}
 
 	@Override
-	protected Node[] getMiddleViewChildren() {
+	protected Node[] createCenterViewChildren() {
 		final ImageView sonarIrNavStatusButton = RS.imgView(RS.IMG_SENSOR_ARM);
 		final ImageView sonarIrNavButton = RS.imgView(RS.IMG_NAV_SENSOR);
 		return new Node[] { sonarIrNavStatusButton, sonarIrNavButton };
 	}
 
 	@Override
-	protected Node[] getBottomViewChildren() {
+	protected Node[] createRightViewChildren() {
 		final ToggleSwitchPreferenceView sonarToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_SONAR_ALARM_ON_KEY, 
 				RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, 
 				"Toggle sonar intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");

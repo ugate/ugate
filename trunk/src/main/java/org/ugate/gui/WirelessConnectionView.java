@@ -1,5 +1,8 @@
 package org.ugate.gui;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
@@ -50,9 +53,25 @@ public abstract class WirelessConnectionView extends StatusView {
 	    connect.setText(LABEL_CONNECT);
 	    connect.setTooltip(new Tooltip(connect.getText()));
 	    
+	    final Button sync = new Button("Sync");
+	    sync.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent event) {
+				UGateKeeper.DEFAULT.wirelessSyncSettings();
+			}
+	    });
+	    final Button read = new Button("Read");
+	    read.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent event) {
+				UGateKeeper.DEFAULT.wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + 1, new int[] { UGateUtil.CMD_SENSOR_GET_READINGS });
+			}
+	    });
+	    
+	    
 	    final HBox xbeeContainer = new HBox(10);
 	    xbeeContainer.getChildren().addAll(port, baud, statusIcon);
-	    getChildren().addAll(xbeeContainer, connect);
+	    getChildren().addAll(xbeeContainer, connect, sync, read);
 	}
 	
 	/**
@@ -98,12 +117,18 @@ public abstract class WirelessConnectionView extends StatusView {
 			if (UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate)) {
 				setStatusFill(statusIcon, true);
 				connect.setText(LABEL_SYNC);
-				try {
-					UGateKeeper.DEFAULT.wirelessSyncSettings();
-				} catch (final Throwable t) {
-					log.warn("Unable to sync local settings to remote wireless nodes", t);
-				}
-				connect.setText(LABEL_RECONNECT);
+				new Timer().schedule(new TimerTask() {
+					@Override
+					public void run() {
+						try {
+							UGateKeeper.DEFAULT.wirelessSyncSettings();
+						} catch (final Throwable t) {
+							log.warn("Unable to sync local settings to remote wireless nodes", t);
+						}
+						connect.setText(LABEL_RECONNECT);
+						connect.setDisable(false);
+					}
+				}, 1000);
 			} else {
 				connect.setText(LABEL_CONNECT);
 			}
@@ -111,7 +136,6 @@ public abstract class WirelessConnectionView extends StatusView {
 			log.warn(String.format("Unable to connect to COM port: {0} @ {1}", comPort, baudRate), t);
 			connect.setText(LABEL_CONNECT);
 		}
-		connect.setDisable(false);
 		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_COM_PORT_KEY, comPort);
 		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
 	}

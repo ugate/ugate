@@ -26,7 +26,7 @@ import com.rapplogic.xbee.api.wpan.TxRequest16;
 import com.rapplogic.xbee.api.wpan.TxStatusResponse;
 
 /**
- * Gate keeper that keeps track of shared XBee, Mail, and other provider implementations
+ * Central gate keeper hub for wireless, mail, and other provider implementations
  */
 public enum UGateKeeper {
 	
@@ -34,12 +34,6 @@ public enum UGateKeeper {
 
 	private static final Logger log = Logger.getLogger(UGateKeeper.class);
 	private static final List<IEmailListener> REQUESTS = new CopyOnWriteArrayList<IEmailListener>();
-
-	/**
-	 * Remote XBee radio used for gate operations using a 16-bit address: 3333 
-	 * (XBee must NOT be configured with "MY" set to FFFF)
-	 */
-	private final XBeeAddress16 XBEE_ADDRESS_ = new XBeeAddress16(0x33, 0x33);
 	public final Preferences preferences;
 	public final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
 	private final XBee xbee;
@@ -84,10 +78,10 @@ public enum UGateKeeper {
 			public void handle(EmailEvent event) {
 				if (event.type == EmailEvent.TYPE_EXECUTE_COMMAND) {
 					if (wirelessIsConnected()) {
-						for (String command : event.commands) {
+						for (Integer command : event.commands) {
 							// send command to all the nodes defined in the email
 							for (int toNode : event.toNodes) {
-								wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + toNode, command);
+								wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + toNode, new int[] { command });
 							}
 						}
 					} else {
@@ -212,7 +206,7 @@ public enum UGateKeeper {
 		try {
 			// TODO : allow for commands to be sent to more than one wireless node?
 			if (!preferences.hasKey(wirelessNodeAddressHexKey)) {
-				log.error("Wireless nodes address \"" + wirelessNodeAddressHexKey + 
+				log.error("Wireless node address \"" + wirelessNodeAddressHexKey + 
 						"\" has not been defined");
 				return false;
 			}

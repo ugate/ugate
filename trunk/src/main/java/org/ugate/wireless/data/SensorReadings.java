@@ -30,7 +30,7 @@ public class SensorReadings {
 				+ getSpeedMillimetersPerSec() + " (mm/sec) "
 				+ getSpeedInchesPerSec() + " (inches/sec) " + getSpeedMPH()
 				+ " (MPH)] [IR Disatance: " + getIrFeet() + '\''
-				+ getIrInches() + "]";
+				+ getIrInches() + "\"]";
 	}
 
 	/**
