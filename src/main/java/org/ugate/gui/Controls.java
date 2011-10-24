@@ -30,10 +30,6 @@ public class Controls extends VBox {
 	public static final double TOOLBAR_TOP_HEIGHT = 50;
 	public static final double MIDDLE_SPACING = 10;
 	public static final double TOOLBAR_BOTTOM_HEIGHT = 110;
-	public final CameraControl camView;
-	public final SonarIrControl sonarIrView;
-	public final MicrowaveControl mwView;
-	public final GateControl gateView;
 	protected static final String NAVIGATE_JS = "nav";
 	protected static final String NAVIGATE_JS_UP = "UP";
 	protected static final String NAVIGATE_JS_DOWN = "DOWN";
@@ -44,34 +40,43 @@ public class Controls extends VBox {
 		super();
 		this.setStyle("-fx-background-color: #000000;");
 
-		camView = new CameraControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-		sonarIrView = new SonarIrControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-		mwView = new MicrowaveControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-		gateView = new GateControl(TOOLBAR_TOP_HEIGHT, MIDDLE_SPACING, TOOLBAR_BOTTOM_HEIGHT);
-
 		final TabPane mainView = new TabPane();
-		final Tab camTab = new Tab("Camera");
-		camTab.setClosable(false);
-		camTab.setGraphic(RS.imgView(RS.IMG_CAM_DOME));
-		camTab.setContent(camView);
-		final Tab sonarIrTab = new Tab("Sonar/IR");
-		sonarIrTab.setClosable(false);
-		sonarIrTab.setGraphic(RS.imgView(RS.IMG_IR_ALARM_ON));
-		sonarIrTab.setContent(sonarIrView);
-		final Tab mwTab = new Tab("Microwave");
-		mwTab.setClosable(false);
-		mwTab.setGraphic(RS.imgView(RS.IMG_IR_ALARM_ON));
-		mwTab.setContent(mwView);
-		final Tab gateTab = new Tab("Gate");
-		gateTab.setClosable(false);
-		gateTab.setGraphic(RS.imgView(RS.IMG_GATE_SELECTED));
-		gateTab.setContent(gateView);
+		final Tab camTab = createTab(RS.IMG_CAM_DOME, "Camera", CameraControl.class);
+		final Tab sonarIrTab = createTab(RS.IMG_IR_ALARM_ON, "Sonar/IR", SonarIrControl.class);
+		final Tab mwTab = createTab(RS.IMG_IR_ALARM_ON, "Microwave", MicrowaveControl.class);
+		final Tab gateTab = createTab(RS.IMG_GATE_SELECTED, "Gate", GateControl.class);
 		mainView.getTabs().addAll(camTab, sonarIrTab, mwTab, gateTab);
 
 		HBox.setHgrow(this, Priority.ALWAYS);
 		VBox.setVgrow(this, Priority.ALWAYS);
 		
 		getChildren().addAll(mainView);
+	}
+	
+	protected <T extends ControlPane> Tab createTab(final String graphicFileName, final String text, final Class<T> cpc) {
+		final Tab tab = new Tab(text);
+		tab.setClosable(false);
+		//tab.setGraphic(RS.imgView(graphicFileName));
+		tab.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable,
+					Boolean oldValue, Boolean newValue) {
+				if (newValue) {
+//			        final ParameterizedType pt = (ParameterizedType) cpc.getGenericSuperclass();
+//			        final String parameterClassName = pt.getActualTypeArguments()[0].toString().split("\\s")[1];
+//			        T cp = (T) Class.forName(parameterClassName).newInstance();
+					try {
+						T cp = (T) cpc.newInstance();
+						tab.setContent(cp);
+					} catch (final Throwable t) {
+						log.error("Unable to Instantiate " + cpc, t);
+					}
+				} else {
+					tab.setContent(null);
+				}
+			}
+		});
+		return tab;
 	}
 	
 	/**

@@ -11,11 +11,11 @@ public class EmailEvent {
 	public static final String TYPE_DISCONNECT = "disconnect";
 	public static final String TYPE_CLOSED = "closed";
 	public final String type;
-	public final List<String> commands;
+	public final List<Integer> commands;
 	public final Address[] from;
 	public final int[] toNodes;
 	
-	public EmailEvent(String type, List<String> commands, Address[] from, int... toNodes) {
+	public EmailEvent(String type, List<Integer> commands, Address[] from, int... toNodes) {
 		this.type = type;
 		this.commands = commands;
 		this.from = from;

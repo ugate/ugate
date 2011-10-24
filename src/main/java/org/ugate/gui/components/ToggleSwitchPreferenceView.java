@@ -2,7 +2,6 @@ package org.ugate.gui.components;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
@@ -38,16 +37,17 @@ public class ToggleSwitchPreferenceView extends VBox {
 		this.imgOff = RS.img(offImageFileName);
 		setSpacing(5);
 		toggleSwitch = new ToggleSwitch();
-		final boolean isOn = Boolean.valueOf(UGateKeeper.DEFAULT.preferences.get(this.preferenceKey));
+		final String onStr = UGateKeeper.DEFAULT.preferences.get(this.preferenceKey);
+		final boolean isOn = onStr.length() == 1 && Integer.valueOf(onStr) == 1;
 		toggleSwitch.selectedProperty().set(isOn);
 		if (toolTip != null && !toolTip.isEmpty()) {
-			toggleSwitch.tooltipProperty().set(new Tooltip(toolTip));
+			//toggleSwitch.tooltipProperty().set(new Tooltip(toolTip));
 		}
 		toggleSwitch.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable,
 					Boolean oldValue, Boolean newValue) {
-				UGateKeeper.DEFAULT.preferences.set(preferenceKey, String.valueOf(newValue));
+				UGateKeeper.DEFAULT.preferences.set(preferenceKey, String.valueOf(newValue ? 1 : 0));
 				toggleSwitchImageView.setImage(newValue ? imgOn : imgOff);
 			}
 		});

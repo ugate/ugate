@@ -25,12 +25,8 @@ public class CameraControl extends ControlPane {
 	private UGateTextField recipients;
 	private ToggleSwitchPreferenceView recipientsToggleSwitch;
 
-	public CameraControl(final double toolbarTopHeight, final double middleSpacing, final double toolBarBottomHeight) {
-		super(toolbarTopHeight, middleSpacing, toolBarBottomHeight);
-	}
-
 	@Override
-	protected Node[] getToolBarTopItems() {
+	protected Node[] createLeftViewChildren() {
 		final UGateSliderGauge camPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
 				"Camera Pan: Current camera pan angle (in degrees)", false, Color.AQUA, null);
 		final UGateSliderGauge camTiltGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_TILT,
@@ -55,14 +51,14 @@ public class CameraControl extends ControlPane {
 	}
 
 	@Override
-	protected Node[] getMiddleViewChildren() {
+	protected Node[] createCenterViewChildren() {
 		final ImageView camNavStatusButton = RS.imgView(RS.IMG_SENSOR_ARM);
 		final ImageView camNavButton = RS.imgView(RS.IMG_NAV_CAM);
 		return new Node[] { camNavStatusButton, camNavButton };
 	}
 
 	@Override
-	protected Node[] getBottomViewChildren() {
+	protected Node[] createRightViewChildren() {
 		recipientsToggleSwitch = new ToggleSwitchPreferenceView(UGateUtil.SV_MAIL_ALARM_ON_KEY, 
 				RS.IMG_EMAIL_SELECTED, RS.IMG_EMAIL_DESELECTED, 
 				"Toggle sending email notifications for images taken (by alarm trip or manually)");

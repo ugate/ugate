@@ -102,7 +102,7 @@ void execBufferCmds() {
         payload[4] = (int) irReadInches / 12;
         payload[5] = (int) irReadInches % 12;
         payload[6] = mwCycleCnt;
-        xbeeSend(payload);
+        xbeeSend(payload, sizeof(payload));
       } else if (cmd == CMD_SENSOR_SETTINGS_SEND) {
         // send sensor settings
         byte payload[19];
@@ -125,13 +125,13 @@ void execBufferCmds() {
         payload[16] = mwLimitCycles; // cycles/second before microwave alarm is tripped
         payload[17] = mwTripDelay; // delay between sonar alarm trips
         payload[18] = alarmState; // state in which an alarm is triggered relative to each sensor
-        xbeeSend(payload);
+        xbeeSend(payload, sizeof(payload));
       } else if (cmd == 255) {
         byte payload[3];
         payload[0] = 255;
         payload[1] = 0; // index of reading failure (zero if no failures)
         payload[2] = irTestValue;
-        xbeeSend(payload);
+        xbeeSend(payload, sizeof(payload));
       }
       LEDWRITE(HIGH, HIGH, HIGH);
     }
@@ -203,10 +203,10 @@ int xbeeRead() {
   return -1;
 }
 // send a payload over xbee and wait for ack
-int xbeeSend(byte payload[]) {
+int xbeeSend(byte payload[], int length) {
   // with Series 1 you can use either 16-bit or 64-bit addressing
   // 16-bit addressing: Enter address of remote XBee, typically the coordinator (16-bit 0x7777 in this case)
-  Tx16Request tx = Tx16Request(0x7777, payload, sizeof(payload));
+  Tx16Request tx = Tx16Request(0x7777, payload, length);
   xbee.send(tx);
   int xbeeRtn;
   // TODO : handle when read is called on another incoming RX during this operation
@@ -377,7 +377,7 @@ byte irRead(byte isTrip) {
       payload[0] = 255;
       payload[1] = 0; // index of reading failure (zero if no failures)
       payload[2] = PORTDbits.RD8;
-      xbeeSend(payload);
+      xbeeSend(payload, sizeof(payload));
   LEDOFF();*/
   float volts = analogRead(IR_REMOTE_PIN)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
   float distance = 65*pow(volts, -1.10);          // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
@@ -387,7 +387,7 @@ byte irRead(byte isTrip) {
       payload[0] = 255;
       payload[1] = 0; // index of reading failure (zero if no failures)
       payload[2] = distance;
-      xbeeSend(payload);
+      xbeeSend(payload, sizeof(payload));
       LEDOFF();
   }
   if (isTrip && ALRMISTRIPPED(ALRM_IR)) {
@@ -411,10 +411,10 @@ void irTest() {
           //LEDWRITE(HIGH, LOW, HIGH);
   float volts = analogRead(IR_REMOTE_PIN)*0.0048828125;   // value from sensor * (5/1024) - if running 3.3.volts then change 5 to 3.3
   float distance = 65*pow(volts, -1.10);          // worked out from graph 65 = theretical distance / (1/Volts)S - luckylarry.co.uk
-  Serial.print("VOLTS: ");
-  Serial.print(volts);
-  Serial.print(" distance: ");
-  Serial.println(distance);
+  //Serial.print("VOLTS: ");
+  //Serial.print(volts);
+  //Serial.print(" distance: ");
+  //Serial.println(distance);
     //irTestValue = distance;//PORTDbits.RD8;
     //pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &irTripCmd);  
 }
@@ -599,7 +599,7 @@ byte mwReadFreq(byte isTrip) {
       payload[0] = 255;
       payload[1] = 0; // index of reading failure (zero if no failures)
       payload[2] = mwCycleCnt;
-      xbeeSend(payload);
+      xbeeSend(payload, sizeof(payload));
       LEDOFF();
     }
     //mwTrigger = false;
