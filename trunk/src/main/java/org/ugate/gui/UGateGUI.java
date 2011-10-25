@@ -60,7 +60,7 @@ public class UGateGUI extends Application {
 	protected final HBox connectionView = new HBox(10);
 	protected final TextArea loggingView = new TextArea();
 	protected MailConnectionView mailConnectionView;
-	protected WirelessConnectionView xbeeConnectionView;
+	protected WirelessConnectionView wirelessConnectionView;
 	protected Controls controls;
 	protected AppFrame applicationFrame;
 
@@ -105,7 +105,7 @@ public class UGateGUI extends Application {
 			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 			// public final AudioClip mediaPlayerBeep = new
 			// AudioClip(RS.class.getResource("x_beep.wav").getPath());
-			xbeeConnectionView = new WirelessConnectionView() {
+			wirelessConnectionView = new WirelessConnectionView() {
 	
 				@Override
 				public void handleStatusChange(Boolean on) {
@@ -144,7 +144,7 @@ public class UGateGUI extends Application {
 			connectionView.setAlignment(Pos.CENTER);
 			changeCenterView(connectionView, false);
 	
-			connectionView.getChildren().addAll(xbeeConnectionView,
+			connectionView.getChildren().addAll(wirelessConnectionView,
 					createSeparator(Orientation.VERTICAL), mailConnectionView);
 	
 			content.setCenter(centerView);
@@ -226,7 +226,7 @@ public class UGateGUI extends Application {
 								Platform.runLater(new Runnable() {
 									public void run() {
 										// attempt connections
-										xbeeConnectionView.getStatusHandler()
+										wirelessConnectionView.getStatusHandler()
 												.handle(null);
 										mailConnectionView.getStatusHandler()
 												.handle(null);
@@ -251,7 +251,7 @@ public class UGateGUI extends Application {
 	@Override
 	public void stop() throws Exception {
 		super.stop();
-		xbeeConnectionView.disconnect();
+		wirelessConnectionView.disconnect();
 		mailConnectionView.disconnect();
 		log.info("Exiting application");
 		System.exit(0);
@@ -269,7 +269,7 @@ public class UGateGUI extends Application {
 		final VBox node = new VBox();
 		final HBox statusNode = new HBox(10);
 		statusNode.setAlignment(Pos.CENTER);
-		statusNode.getChildren().add(xbeeConnectionView.statusIcon);
+		statusNode.getChildren().add(wirelessConnectionView.statusIcon);
 		statusNode.getChildren().add(mailConnectionView.statusIcon);
 		node.getChildren().add(connectionButton);
 		node.getChildren().add(statusNode);

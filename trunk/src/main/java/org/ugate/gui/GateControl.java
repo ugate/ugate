@@ -12,6 +12,11 @@ import org.ugate.resources.RS;
 public class GateControl extends ControlPane {
 
 	@Override
+	protected Node[] createTopViewChildren() {
+		return new Node[] {  };
+	}
+	
+	@Override
 	protected Node[] createLeftViewChildren() {
 		final UGateSliderGauge gateGauge = new UGateSliderGauge(1, 180, 90, 1,
 				"%03d", RS.IMG_PAN,

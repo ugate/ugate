@@ -11,9 +11,9 @@
 	<classpathentry kind="lib" path="libs/rxtx/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="libs/xbee-api-0.9.jar" sourcepath="C:/dev/xbee/xbee-api-0.9/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Program Files/Oracle/JavaFX Runtime 2.0/lib/jfxrt.jar">
+	<classpathentry kind="lib" path="C:/dev/javafx/rt/lib/jfxrt.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/Program Files/Oracle/JavaFX 2.0 SDK/docs/api/"/>
+			<attribute name="javadoc_location" value="file:/C:/dev/javafx/docs/api/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

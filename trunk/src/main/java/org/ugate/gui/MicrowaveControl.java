@@ -16,6 +16,11 @@ import org.ugate.resources.RS;
 public class MicrowaveControl extends ControlPane {
 
 	@Override
+	protected Node[] createTopViewChildren() {
+		return new Node[] {  };
+	}
+
+	@Override
 	protected Node[] createLeftViewChildren() {
 		final UGateSliderGauge mwPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
 				"Microwave Pan: Current trip alram sensor pan angle (in degrees)", false, Color.YELLOW, null);
