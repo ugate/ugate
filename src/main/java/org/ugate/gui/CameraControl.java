@@ -24,13 +24,9 @@ public class CameraControl extends ControlPane {
 	
 	private UGateTextField recipients;
 	private ToggleSwitchPreferenceView recipientsToggleSwitch;
-
+	
 	@Override
-	protected Node[] createLeftViewChildren() {
-		final UGateSliderGauge camPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
-				"Camera Pan: Current camera pan angle (in degrees)", false, Color.AQUA, null);
-		final UGateSliderGauge camTiltGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_TILT,
-				"Camera Tilt: Current camera tilt angle (in degrees)", false, Color.AQUA, null);
+	protected Node[] createTopViewChildren() {
 		final HBox camSendView = new HBox();
 		camSendView.setAlignment(Pos.TOP_CENTER);
 		camSendView.setPadding(new Insets(0, 0, 0, 5));
@@ -47,7 +43,16 @@ public class CameraControl extends ControlPane {
             }
         }));
 		HBox.setMargin(camSendView.getChildren().get(0), new Insets(0, 5, 0, 0));
-		return new Node[] { camPanGauge, camTiltGauge, camSendView };
+		return new Node[] { camSendView };
+	}
+
+	@Override
+	protected Node[] createLeftViewChildren() {
+		final UGateSliderGauge camPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
+				"Camera Pan: Current camera pan angle (in degrees)", false, Color.AQUA, null);
+		final UGateSliderGauge camTiltGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_TILT,
+				"Camera Tilt: Current camera tilt angle (in degrees)", false, Color.AQUA, null);
+		return new Node[] { camPanGauge, camTiltGauge };
 	}
 
 	@Override

@@ -18,6 +18,11 @@ import org.ugate.resources.RS;
 public class SonarIrControl extends ControlPane {
 
 	@Override
+	protected Node[] createTopViewChildren() {
+		return new Node[] {  };
+	}
+
+	@Override
 	protected Node[] createLeftViewChildren() {
 		final UGateSliderGauge sonarIrPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
 				"Sonar/IR Pan: Current trip alram sensor pan angle (in degrees)", false, Color.YELLOW, null);

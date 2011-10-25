@@ -131,10 +131,12 @@ public abstract class WirelessConnectionView extends StatusView {
 				}, 1000);
 			} else {
 				connect.setText(LABEL_CONNECT);
+				connect.setDisable(false);
 			}
 		} catch (final Throwable t) {
 			log.warn(String.format("Unable to connect to COM port: {0} @ {1}", comPort, baudRate), t);
 			connect.setText(LABEL_CONNECT);
+			connect.setDisable(false);
 		}
 		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_COM_PORT_KEY, comPort);
 		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
