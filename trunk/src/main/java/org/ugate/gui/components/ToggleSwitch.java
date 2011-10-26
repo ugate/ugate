@@ -7,6 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -41,6 +42,8 @@ public class ToggleSwitch extends Group {
 	}
 
 	public ToggleSwitch(final String onText, final String offText, final boolean on) {
+		setCache(true);
+		setCacheHint(CacheHint.SPEED);
 		this.onText = onText != null ? onText : DEFAULT_ON_TEXT;
 		this.offText = offText != null ? offText : DEFAULT_OFF_TEXT;
 		this.boolProperty = new SimpleBooleanProperty(on);
@@ -87,7 +90,9 @@ public class ToggleSwitch extends Group {
     protected void draw() {
     	// skin approach uses more resources to manage
     	final HBox textView = new HBox(TEXT_SPACING);
-    	textView.setStyle("-fx-color: #FFFFFF; -fx-font-size: 12pt;");
+    	textView.setCache(true);
+    	textView.setCacheHint(CacheHint.SPEED);
+    	textView.setStyle("-fx-color: #FFFFFF; -fx-font-size: 12pt; -fx-font-weight: bold;");
     	textView.widthProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable,
@@ -110,14 +115,19 @@ public class ToggleSwitch extends Group {
 		});
     	
         final Label onLabel = new Label();
+        onLabel.setCache(true);
+        onLabel.setCacheHint(CacheHint.SPEED);
         onLabel.setText(onText);
         final Label offLabel = new Label();
+        offLabel.setCache(true);
         offLabel.setText(offText);
         HBox.setMargin(onLabel, TEXT_INSETS);
         HBox.setMargin(offLabel, TEXT_INSETS);
 		textView.getChildren().addAll(onLabel, offLabel);
 		
     	mainRec = new Rectangle();
+    	mainRec.setCache(true);
+    	mainRec.setCacheHint(CacheHint.SPEED);
     	mainRec.setStroke(Color.BLACK);
     	mainRec.setStrokeWidth(REC_STROKE_WIDTH);
     	mainRec.setX(0);
@@ -127,6 +137,8 @@ public class ToggleSwitch extends Group {
     	mainRec.setArcHeight(REC_ARC);
     	
     	middleRec = new Rectangle();
+    	middleRec.setCache(true);
+    	middleRec.setCacheHint(CacheHint.SPEED);
     	middleRec.setStroke(Color.BLACK);
     	middleRec.setStrokeWidth(REC_STROKE_WIDTH);
     	middleRec.setX(0);

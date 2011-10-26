@@ -158,14 +158,11 @@
     -fx-background-insets: 1 0 -1 0, 0;
 }
 /* ====== CUSTOM ============================================================== */
-.rxtx {
-    -fx-background-color: #666970;
-}
-.rxtx-toolbar .button, .rxtx-toolbar .toggle-button, .rxtx-toolbar .label {
+.control-toolbar .button, .control-toolbar .toggle-button, .control-toolbar .label {
     -fx-text-fill: white;
     -fx-background-radius: 0;
 }
-.rxtx-toolbar {
+.control-toolbar {
     -fx-base: #505359;
     -fx-background: #505359;
     -fx-shadow-highlight-color: transparent;
@@ -173,6 +170,15 @@
     -fx-padding: 4 4 4 4;
     -fx-background-color: 
  		linear-gradient(from 0% 0% to 0% 100%, #919398, #919398 4%, #666970 4.1%, #494d53 66%, #3c3f46 94%, #515151);
+}
+.control-toolbar-left {
+    -fx-base: #505359;
+    -fx-background: #505359;
+    -fx-shadow-highlight-color: transparent;
+    -fx-spacing: 5;
+    -fx-padding: 4 4 4 4;
+    -fx-background-color: 
+ 		linear-gradient(from 0% 0% to 0% 100%, #515151, #3c3f46 4%, #494d53 4.1%, #666970 66%, #919398 94%, #919398);
 }
 .gauge {
 	-fx-background: #000000;

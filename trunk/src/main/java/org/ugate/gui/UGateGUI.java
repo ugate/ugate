@@ -133,6 +133,7 @@ public class UGateGUI extends Application {
 			stage.setTitle("UGate Application Interface");
 	
 			taskbar.setId("taskbar");
+			taskbar.setCache(true);
 			taskbar.setAlignment(Pos.CENTER);
 			taskbar.setPadding(new Insets(10, 10, 50, 10));
 			taskbar.setPrefHeight(100);
@@ -267,7 +268,9 @@ public class UGateGUI extends Application {
 
 	private Node createConnectionStatusView(Node connectionButton) {
 		final VBox node = new VBox();
+		node.setCache(true);
 		final HBox statusNode = new HBox(10);
+		statusNode.setCache(true);
 		statusNode.setAlignment(Pos.CENTER);
 		statusNode.getChildren().add(wirelessConnectionView.statusIcon);
 		statusNode.getChildren().add(mailConnectionView.statusIcon);
