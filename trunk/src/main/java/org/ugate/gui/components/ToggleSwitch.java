@@ -6,6 +6,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -24,13 +25,14 @@ public class ToggleSwitch extends Group {
 	public static final double TEXT_SPACING = 4D;
 	public static final double TEXT_TRANS_X = 2D;
 	public static final double REC_STROKE_WIDTH = .5D;
-	public static final double REC_ARC = 5D;
+	public static final double REC_ARC = 15D;
+	public static final Insets TEXT_INSETS = new Insets(0.3, 5, 0.3, 5);
 	
 	public static final String DEFAULT_ON_TEXT = "ON";
 	public static final String DEFAULT_OFF_TEXT = "OFF";
 	private final String onText;
 	private final String offText;
-	private SimpleBooleanProperty boolproperty;
+	private SimpleBooleanProperty boolProperty;
 	private Rectangle mainRec;
 	private Rectangle middleRec;
 
@@ -41,7 +43,7 @@ public class ToggleSwitch extends Group {
 	public ToggleSwitch(final String onText, final String offText, final boolean on) {
 		this.onText = onText != null ? onText : DEFAULT_ON_TEXT;
 		this.offText = offText != null ? offText : DEFAULT_OFF_TEXT;
-		this.boolproperty = new SimpleBooleanProperty(on);
+		this.boolProperty = new SimpleBooleanProperty(on);
 		selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable,
@@ -70,13 +72,13 @@ public class ToggleSwitch extends Group {
 	protected void update() {
         // Create and set a gradient for the inside of the button
         final Stop[] mainStops = new Stop[] {
-            new Stop(0.0, boolproperty.get() ? Color.DARKBLUE : Color.GRAY),
-            new Stop(1.0, boolproperty.get() ? Color.DODGERBLUE : Color.DARKGRAY)
+            new Stop(0.0, boolProperty.get() ? Color.BLUE : Color.GRAY),
+            new Stop(1.0, boolProperty.get() ? Color.DODGERBLUE : Color.DARKGRAY)
         };
         final LinearGradient mainLG =
             new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, mainStops);
         mainRec.setFill(mainLG);
-        middleRec.setX(boolproperty.get() ? (mainRec.getWidth() / 2) : mainRec.getX());
+        middleRec.setX(boolProperty.get() ? (mainRec.getWidth() / 2) : mainRec.getX());
 	}
 	
 	/**
@@ -85,13 +87,14 @@ public class ToggleSwitch extends Group {
     protected void draw() {
     	// skin approach uses more resources to manage
     	final HBox textView = new HBox(TEXT_SPACING);
+    	textView.setStyle("-fx-color: #FFFFFF; -fx-font-size: 12pt;");
     	textView.widthProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable,
 					Number oldValue, Number newValue) {
 				final Bounds textViewBounds = textView.getBoundsInLocal();
 				mainRec.setX(textViewBounds.getMinX());
-				mainRec.setWidth(textViewBounds.getWidth() + TEXT_TRANS_X);
+				mainRec.setWidth(textViewBounds.getWidth());
 				middleRec.setWidth(mainRec.getWidth() / 2);
 			}
 		});
@@ -101,19 +104,17 @@ public class ToggleSwitch extends Group {
 					Number oldValue, Number newValue) {
 				final Bounds textViewBounds = textView.getBoundsInLocal();
 				mainRec.setY(textViewBounds.getMinY());
-				mainRec.setWidth(textViewBounds.getWidth() + TEXT_TRANS_X);
 				mainRec.setHeight(textViewBounds.getHeight());
 				middleRec.setHeight(mainRec.getHeight());
 			}
 		});
-		textView.setTranslateX(TEXT_TRANS_X);
     	
         final Label onLabel = new Label();
-        onLabel.setStyle("-fx-color: #FFFFFF;");
         onLabel.setText(onText);
         final Label offLabel = new Label();
-        offLabel.setStyle("-fx-color: #FFFFFF;");
         offLabel.setText(offText);
+        HBox.setMargin(onLabel, TEXT_INSETS);
+        HBox.setMargin(offLabel, TEXT_INSETS);
 		textView.getChildren().addAll(onLabel, offLabel);
 		
     	mainRec = new Rectangle();
@@ -137,8 +138,8 @@ public class ToggleSwitch extends Group {
         
         // Create and set a gradient for the inside of the button
         Stop[] middleStops = new Stop[] {
-            new Stop(0.0, Color.GRAY),
-            new Stop(1.0, Color.WHITE)
+            new Stop(0.0, Color.WHITE),
+            new Stop(1.0, Color.GRAY)
         };
         LinearGradient middleLG =
             new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, middleStops);
@@ -153,6 +154,6 @@ public class ToggleSwitch extends Group {
 	 * @return the selected property
 	 */
 	public BooleanProperty selectedProperty() {
-		return this.boolproperty;
+		return this.boolProperty;
 	}
 }
