@@ -1,6 +1,7 @@
 package org.ugate.gui.components;
 
 import javafx.geometry.Insets;
+import javafx.scene.CacheHint;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -20,6 +21,8 @@ public class Digits extends HBox {
 		this(value, scale, null, null);
 	}
 	public Digits(final String value, final double scale, final Color onColor, final Color offColor) {
+		setCache(true);
+		setCacheHint(CacheHint.SPEED);
 		this.onColor = onColor != null ? onColor : Digit.getDefaultOnColor();
 		this.offColor = offColor != null ? offColor : Digit.getDefaultOffColor();
 		this.scale = scale;
@@ -65,6 +68,8 @@ public class Digits extends HBox {
 				if (remCnt != 0) {
 					if (c == '.') {
 						circleBox = new VBox();
+						circleBox.setCache(true);
+						circleBox.setCacheHint(CacheHint.SPEED);
 						circleBox.setStyle("-fx-alignment: BOTTOM_LEFT;");
 						circleBox.getChildren().add(new Circle(0, 0, 6 * getScale(), onColor));
 						getChildren().add(circleBox);

@@ -1,5 +1,6 @@
 package org.ugate.gui.components;
 
+import javafx.scene.CacheHint;
 import javafx.scene.Parent;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
@@ -50,6 +51,8 @@ public class Digit extends Parent {
 
 	public Digit(final double scale, final int number, final Color onColor, final Color offColor,
 			final Effect onEffect, final Effect offEffect) {
+		setCache(true);
+		setCacheHint(CacheHint.SPEED);
 		polygons = createPolygons(scale);
 		this.onColor = onColor != null ? onColor : getDefaultOnColor();
 		this.offColor = offColor != null ? offColor : getDefaultOffColor();
@@ -121,13 +124,20 @@ public class Digit extends Parent {
 	
 	protected static Polygon[] createPolygons(final double scale) {
 		return new Polygon[] {
-				new Polygon(new double[] { 2f * scale, 0f * scale, 52f * scale, 0f * scale, 42f * scale, 10f * scale, 12f * scale, 10f * scale }),
-				new Polygon(new double[] { 12 * scale, 49 * scale, 42 * scale, 49 * scale, 52 * scale, 54 * scale, 42 * scale, 59 * scale, 12 * scale,
+				createPolygon(new double[] { 2f * scale, 0f * scale, 52f * scale, 0f * scale, 42f * scale, 10f * scale, 12f * scale, 10f * scale }),
+				createPolygon(new double[] { 12 * scale, 49 * scale, 42 * scale, 49 * scale, 52 * scale, 54 * scale, 42 * scale, 59 * scale, 12 * scale,
 						59 * scale, 2 * scale, 54 * scale }),
-				new Polygon(new double[] { 12 * scale, 98 * scale, 42 * scale, 98 * scale, 52 * scale, 108 * scale, 2 * scale, 108 * scale }),
-				new Polygon(new double[] { 0 * scale, 2 * scale, 10 * scale, 12 * scale, 10 * scale, 47 * scale, 0 * scale, 52 * scale }),
-				new Polygon(new double[] { 44 * scale, 12 * scale, 54 * scale, 2 * scale, 54 * scale, 52 * scale, 44 * scale, 47 * scale }),
-				new Polygon(new double[] { 0 * scale, 56 * scale, 10 * scale, 61 * scale, 10 * scale, 96 * scale, 0 * scale, 106 * scale }),
-				new Polygon(new double[] { 44 * scale, 61 * scale, 54 * scale, 56 * scale, 54 * scale, 106 * scale, 44 * scale, 96 * scale }) };
+				createPolygon(new double[] { 12 * scale, 98 * scale, 42 * scale, 98 * scale, 52 * scale, 108 * scale, 2 * scale, 108 * scale }),
+				createPolygon(new double[] { 0 * scale, 2 * scale, 10 * scale, 12 * scale, 10 * scale, 47 * scale, 0 * scale, 52 * scale }),
+				createPolygon(new double[] { 44 * scale, 12 * scale, 54 * scale, 2 * scale, 54 * scale, 52 * scale, 44 * scale, 47 * scale }),
+				createPolygon(new double[] { 0 * scale, 56 * scale, 10 * scale, 61 * scale, 10 * scale, 96 * scale, 0 * scale, 106 * scale }),
+				createPolygon(new double[] { 44 * scale, 61 * scale, 54 * scale, 56 * scale, 54 * scale, 106 * scale, 44 * scale, 96 * scale }) };
+	}
+	
+	protected static Polygon createPolygon(final double... points) {
+		final Polygon pg = new Polygon(points);
+		pg.setCache(true);
+		pg.setCacheHint(CacheHint.SPEED);
+		return pg;
 	}
 }

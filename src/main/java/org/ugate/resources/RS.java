@@ -56,11 +56,7 @@ public class RS {
 	 * @return the image view
 	 */
 	public static ImageView imgView(final String fileName) {
-		final ImageView node = new ImageView(img(fileName));
-		node.setSmooth(true);
-		node.setCache(true);
-		node.setCacheHint(CacheHint.SPEED);
-		return node;
+		return imgView(img(fileName));
 	}
 	
 	/**
