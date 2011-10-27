@@ -102,8 +102,10 @@ public class AppFrame extends StackPane {
         });
 	    titleBar.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override public void handle(MouseEvent event) {
-                stage.setX(event.getScreenX() - mouseDragOffsetX);
-                stage.setY(event.getScreenY() - mouseDragOffsetY);
+            	if (!(event.getTarget() instanceof ImageView)) {
+                    stage.setX(event.getScreenX() - mouseDragOffsetX);
+                    stage.setY(event.getScreenY() - mouseDragOffsetY);
+            	}
             }
         });
         final Region titleBarLeft = new Region();
