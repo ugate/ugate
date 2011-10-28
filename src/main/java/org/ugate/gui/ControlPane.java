@@ -7,7 +7,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
-import org.ugate.gui.components.NeedleGauge;
+import org.ugate.gui.components.Gauge;
 
 /**
  * Control view
@@ -32,7 +32,7 @@ public abstract class ControlPane extends BorderPane {
 		// middle
 		centerView = new VBox();
 		centerView.setAlignment(Pos.CENTER);
-		centerView.getChildren().add(new NeedleGauge());
+		centerView.getChildren().add(new Gauge());
 		centerView.getChildren().addAll(createCenterViewChildren());
 		// bottom
 		rightView = new ToolBar();
