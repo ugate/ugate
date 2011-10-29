@@ -75,7 +75,7 @@ public class Gauge extends Group {
 		this.majorTickMarkWidth = majorTickMarkWidth <= 0 ? 10d : majorTickMarkWidth;
 		this.majorTickMarkHeight = majorTickMarkHeight <= 0 ? 2d : majorTickMarkHeight;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
-		this.minorTickMarkHeight = this.minorTickMarkWidth;
+		this.minorTickMarkHeight = this.minorTickMarkWidth / 2d;
 		this.handWidth = this.gaugeCenterRadius - this.minorTickMarkWidth;
 		this.handHeight = this.majorTickMarkHeight * (handHeightFactor <= 0 ? 7d : handHeightFactor); 
 		this.minAngle = minAngle <= 0 ? 0d : minAngle;
@@ -83,13 +83,10 @@ public class Gauge extends Group {
 		this.anglePrecision = anglePrecision == null ?  new DecimalFormat("#.##") : anglePrecision;
 		this.angleProperty =  new SimpleDoubleProperty(this.minAngle);
 		this.showTickMarks = new SimpleBooleanProperty(true);
+		createChildren();
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void layoutChildren() {
+	
+	protected void createChildren() {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
 		final Group gaugeParent = new Group();
@@ -165,6 +162,14 @@ public class Gauge extends Group {
 			}
 		});
 		getChildren().addAll(gaugeParent, val);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void layoutChildren() {
+		super.layoutChildren();
 	}
 	
 	/**
