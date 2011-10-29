@@ -32,7 +32,11 @@ public abstract class ControlPane extends BorderPane {
 		// middle
 		centerView = new VBox();
 		centerView.setAlignment(Pos.CENTER);
-		centerView.getChildren().add(new Gauge());
+		
+		final Gauge gauge = new Gauge();
+		gauge.angleProperty.set(30);
+		centerView.getChildren().add(gauge);
+		
 		centerView.getChildren().addAll(createCenterViewChildren());
 		// bottom
 		rightView = new ToolBar();
