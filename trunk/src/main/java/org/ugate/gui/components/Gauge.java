@@ -20,11 +20,11 @@ import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
+import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -38,8 +38,6 @@ import javafx.scene.transform.Rotate;
 public class Gauge extends Group {
 
 	private final HandType handType;
-	private final double outerRimRadius;
-	private final double gaugeCenterRadius;
 	private final int numOfMajorTickMarks;
 	private final int numOfMinorTickMarks;
 	private final double majorTickMarkWidth;
@@ -52,8 +50,12 @@ public class Gauge extends Group {
 	private final int dialNumberOfSides;
 	private final double dialCenterInnerRadius;
 	private final double dialCenterOuterRadius;
-	private final double minAngle;
-	private final double maxAngle;
+	protected final double outerRadius;
+	protected final double innerRadius;
+	protected final double minAngle;
+	protected final double maxAngle;
+	protected final double centerX;
+	protected final double centerY;
 	private final DecimalFormat anglePrecision;
 	public final DoubleProperty angleProperty;
 	public final DoubleProperty valueProperty = new SimpleDoubleProperty(0);
@@ -87,18 +89,20 @@ public class Gauge extends Group {
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double minAngle, final double maxAngle, final DecimalFormat anglePrecision) {
 		this.handType = handType;
-		this.outerRimRadius = outerRimRadius <= 0 ? 140d : outerRimRadius;
-		this.gaugeCenterRadius = gaugeCenterRadius <= 0 ? 135d : gaugeCenterRadius;
+		this.outerRadius = outerRimRadius <= 0 ? 140d : outerRimRadius;
+		this.centerX = this.outerRadius / 2d;
+		this.centerY = this.centerX;
+		this.innerRadius = gaugeCenterRadius <= 0 ? 130d : gaugeCenterRadius;
 		this.numOfMajorTickMarks = numOfMajorTickMarks <= 0 ? 12 : numOfMajorTickMarks;
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
 		this.majorTickMarkWidth = majorTickMarkWidth <= 0 ? 10d : majorTickMarkWidth;
 		this.majorTickMarkHeight = majorTickMarkHeight <= 0 ? 2d : majorTickMarkHeight;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.minorTickMarkWidth / 2d;
-		this.handWidth = this.gaugeCenterRadius - this.minorTickMarkWidth;
+		this.handWidth = this.innerRadius - this.minorTickMarkWidth;
 		this.handHeight = this.majorTickMarkHeight * (handHeightFactor <= 0 ? 7d : handHeightFactor); 
 		this.minAngle = minAngle <= 0 ? 0d : minAngle;
-		this.maxAngle = maxAngle > 360 ? 360d : maxAngle;
+		this.maxAngle = 180d;//maxAngle > 360 ? 360d : maxAngle;
 		this.anglePrecision = anglePrecision == null ?  new DecimalFormat("#.##") : anglePrecision;
 		this.angleProperty =  new SimpleDoubleProperty(this.minAngle);
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
@@ -112,13 +116,15 @@ public class Gauge extends Group {
 		this.majorTickMarkFillProperty = new Line().fillProperty();
 		this.majorTickMarkFillProperty.set(Color.web("#CCCCCC"));
 		this.outerRimFillProperty = new Line().fillProperty();
-		this.outerRimFillProperty.set(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.web("#FFFFFF")), new Stop(1, Color.web("#010101"))));
+		this.outerRimFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
+				this.outerRadius, false, CycleMethod.NO_CYCLE, 
+				new Stop(0, Color.BLACK), new Stop(0.95, Color.LIGHTGRAY),
+				new Stop(0.99, Color.DARKGRAY), new Stop(1, Color.WHITE)));
 		this.centerGaugeFillProperty = new Line().fillProperty();
-		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.web("#777777")), new Stop(0.9499, Color.rgb(20, 20, 20)),
-				new Stop(0.95, Color.rgb(20, 20, 20)), new Stop(0.975, Color.rgb(20, 20, 20)),
-				new Stop(1, Color.rgb(84, 84, 84, 0.0))));
+		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
+				this.innerRadius, false, CycleMethod.NO_CYCLE, 
+				new Stop(0, Color.web("#777777")), new Stop(0.95, Color.rgb(20, 20, 20)),
+				new Stop(1, Color.rgb(20, 20, 20)), new Stop(1, Color.web("#777777"))));
 		this.handFillProperty = new Line().fillProperty();
 		this.handFillProperty.set(Color.ORANGERED);
 		this.handPointDistance = handPointDistance <= 0 ? (this.majorTickMarkHeight * 4) : handPointDistance;
@@ -133,21 +139,20 @@ public class Gauge extends Group {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
 		// create basic gauge shapes
-		final Shape ourterRim = createOuterRim(outerRimRadius, minAngle, maxAngle, outerRimFillProperty);
-		final Shape gaugeCenter = createGaugeCenter(outerRimRadius, gaugeCenterRadius, minAngle, maxAngle,
+		final Shape ourterRim = createOuterRim(outerRadius, minAngle, maxAngle, outerRimFillProperty);
+		final Shape gaugeCenter = createGaugeCenter(outerRadius, innerRadius, minAngle, maxAngle,
 				centerGaugeFillProperty);
 		final Group gaugeParent = createGaugeParent(ourterRim, gaugeCenter);
 		// add minor tick marks
-		addTickMarks(gaugeParent, gaugeCenter, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
+		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
 				minorTickMarkHeight, majorTickMarkWidth, majorTickMarkHeight, false, minorTickMarkOpacityProperty);
 		// add major tick marks
-		addTickMarks(gaugeParent, gaugeCenter, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
+		addTickMarks(gaugeParent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
 				majorTickMarkHeight, majorTickMarkWidth, majorTickMarkHeight, false, majorTickMarkOpacityProperty);
 		
 		// create hand
-		final Group hand = createHand(gaugeParent, centerX(ourterRim), centerY(ourterRim), 
-				handPointDistance, handFillProperty);
-		gaugeParent.getChildren().addAll(hand, createHighlights(outerRimRadius));
+		final Group hand = createHand(gaugeParent, handPointDistance, handFillProperty);
+		gaugeParent.getChildren().addAll(hand, createHighlights(outerRadius));
 
 		final Label val = new Label("0");
 		val.setStyle("-fx-text-fill: white;");
@@ -193,7 +198,11 @@ public class Gauge extends Group {
 	 */
 	protected Shape createOuterRim(final double radius, final double minAngle, final double maxAngle, 
 			final ObjectProperty<Paint> outerRimFillProperty) {
-		final Shape rim = new Circle(radius, radius, radius);
+		final Shape rim = maxAngle < 360 ? new Arc(this.centerX, this.centerY, radius, radius, minAngle, maxAngle) : 
+			new Circle(this.centerX, this.centerY, radius);
+		if (rim instanceof Arc) {
+			((Arc) rim).setType(ArcType.ROUND);
+		}
 		rim.setSmooth(true);
 		Bindings.bindBidirectional(rim.fillProperty(), outerRimFillProperty);
 		return rim;
@@ -211,7 +220,11 @@ public class Gauge extends Group {
 	 */
 	protected Shape createGaugeCenter(final double outerRimRadius, final double radius, final double minAngle, 
 			final double maxAngle, final ObjectProperty<Paint> centerGaugeFillProperty) {
-		final Shape centerGauge = new Circle(outerRimRadius, outerRimRadius, radius);
+		final Shape centerGauge = maxAngle < 360 ? new Arc(this.centerX, this.centerY, radius, radius, minAngle, maxAngle) : 
+			new Circle(this.centerX, this.centerY, radius);
+		if (centerGauge instanceof Arc) {
+			((Arc) centerGauge).setType(ArcType.ROUND);
+		}
 		Bindings.bindBidirectional(centerGauge.fillProperty(), centerGaugeFillProperty);
 		return centerGauge;
 	}
@@ -227,9 +240,9 @@ public class Gauge extends Group {
 		highlight.setCache(true);
 		highlight.setCacheHint(CacheHint.SPEED);
 		highlight.setOpacity(0.05);
-		final Arc hArc1 = new Arc(radius, radius, radius / 1.1, radius / 1.1, 200, -130);
+		final Arc hArc1 = new Arc(this.centerX, this.centerY, radius / 1.1, radius / 1.1, 200, -130);
 		hArc1.setFill(Color.WHITE);
-		final Arc hArc2 = new Arc(radius, radius, radius / 1.1, radius / 1.1, 190, -122);
+		final Arc hArc2 = new Arc(this.centerX, this.centerY, radius / 1.1, radius / 1.1, 190, -122);
 		hArc2.setFill(Color.WHITE);
 		highlight.getChildren().addAll(hArc1, hArc2);
 		final GaussianBlur highlightBlur = new GaussianBlur();
@@ -250,15 +263,13 @@ public class Gauge extends Group {
 	 * Creates the hand
 	 * 
 	 * @param gaugeParent the gauge parent group used to discover mouse events for moving the hand
-	 * @param centerX the center x coordinate of the gauge
-	 * @param centerY the center y coordinate of the gauge
      * @param pointDistance the distance from the tip of the hand shape to the arm of the hand shape 
      * 		(the sharpness of the hand pointer)
      * @param handFillProperty the hand fill property to bind to
 	 * @return the hand
 	 */
-	protected final Group createHand(final Group gaugeParent, final double centerX, final double centerY,
-			final double pointDistance, final ObjectProperty<Paint> handFillProperty) {
+	protected final Group createHand(final Group gaugeParent, final double pointDistance, 
+			final ObjectProperty<Paint> handFillProperty) {
 		final Group hand = new Group();
 		hand.setCache(true);
 		hand.setCacheHint(CacheHint.SCALE_AND_ROTATE);
@@ -316,7 +327,6 @@ public class Gauge extends Group {
 	 * Adds the tick marks to the gauge
 	 * 
 	 * @param parent the parent to add the tick marks to
-	 * @param gaugeCenter the center shape of the gauge (either circle or arc)
 	 * @param numOfMarks the number of marks to add
 	 * @param tickMarkFillProperty the fill property to bind for the tick marks
 	 * @param width the width of the tick marks
@@ -326,16 +336,16 @@ public class Gauge extends Group {
 	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
 	 * @param addLabel true to add value labels to the tick marks
 	 */
-	protected void addTickMarks(final Group parent, final Shape gaugeCenter, final double numOfMarks, 
+	protected void addTickMarks(final Group parent, final double numOfMarks, 
 			final ObjectProperty<Paint> tickMarkFillProperty, final double width, final double height, 
 			final double offestWidth, final double offsetHeight, boolean addLabel,
 			final DoubleProperty tickMarkOpacityProperty) {
-		final double rtbase = (gaugeCenter instanceof Circle ? 360 : ((Arc) gaugeCenter).getRadiusX()) / numOfMarks;
+		final double rtbase = (minAngle + maxAngle) / numOfMarks;
 		double angle = 0;
 		Shape tick;
 		for (int i=0; i<numOfMarks; i++) {
 			angle = rtbase * i;
-			tick = createTickMark(gaugeCenter, tickMarkFillProperty, angle, width, height, offestWidth, offsetHeight,
+			tick = createTickMark(tickMarkFillProperty, angle, width, height, offestWidth, offsetHeight,
 					tickMarkOpacityProperty);
 			parent.getChildren().add(tick);
 			if (addLabel) {
@@ -352,26 +362,23 @@ public class Gauge extends Group {
 	/**
 	 * Creates a tick mark
 	 * 
-	 * @param gaugeCenter the center shape of the gauge (either circle or arc)
-	 * @param numOfMarks the number of marks to add
-	 * @param tickMarkFillProperty the fill property to bind for the tick marks
-	 * @param width the width of the tick marks
-	 * @param height the height of the tick marks
+	 * @param tickMarkFillProperty the fill property to bind for the tick mark
+	 * @param angle the angle of the tick mark
+	 * @param width the width of the tick mark
+	 * @param height the height of the tick mark
 	 * @param offestWidth the pivot offset width
 	 * @param offsetHeight the pivot offset height
 	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
 	 * @return the tick mark
 	 */
-    protected Shape createTickMark(final Shape gaugeCenter, final ObjectProperty<Paint> tickMarkFillProperty, 
+    protected Shape createTickMark(final ObjectProperty<Paint> tickMarkFillProperty, 
     		final double angle, final double width, final double height, final double offestWidth, 
     		final double offsetHeight, final DoubleProperty tickMarkOpacityProperty) {
-		final double pivotX = gaugeCenter instanceof Circle ? ((Circle) gaugeCenter).getCenterX() : ((Arc) gaugeCenter).getCenterX();
-		final double pivotY = gaugeCenter instanceof Circle ? ((Circle) gaugeCenter).getCenterY() : ((Arc) gaugeCenter).getCenterY();
-		final double x = (pivotX - (width / 2)) / offestWidth;
-		final double y = pivotY - (height / 2);
+		final double x = centerX + width - outerRadius + (outerRadius - innerRadius);
+		final double y = centerY - height / 2;
     	final Rectangle tm = new Rectangle(x, y, width, height);
     	Bindings.bindBidirectional(tm.fillProperty(), tickMarkFillProperty);
-		tm.getTransforms().addAll(new Rotate(angle, pivotX, pivotY));
+		tm.getTransforms().addAll(new Rotate(angle, centerX, centerY));
 		Bindings.bindBidirectional(tm.opacityProperty(), tickMarkOpacityProperty);
 		return tm;
     }
@@ -447,6 +454,8 @@ public class Gauge extends Group {
     		final double pointDistance, final double gaugeCenterX, final double gaugeCenterY,
     		final ObjectProperty<Paint> handFillProperty) {
     	final Group handShapeGroup = new Group();
+    	handShapeGroup.setCache(true);
+    	handShapeGroup.setCacheHint(CacheHint.ROTATE);
 		final Shape handIndicatorShape = new Polygon(
     			x, y,
     			x - pointDistance, y + (handHeight / 2),  
@@ -491,17 +500,9 @@ public class Gauge extends Group {
 		}
 		final Polygon dial = new Polygon(points);
 		dial.setCache(true);
-		dial.setCacheHint(CacheHint.SCALE_AND_ROTATE);
+		dial.setCacheHint(CacheHint.ROTATE);
 		Bindings.bindBidirectional(dial.fillProperty(), dialFillProperty);
 		return dial;
-	}
-	
-	protected static final double centerX(final Shape shape) {
-		return shape instanceof Circle ? ((Circle) shape).getCenterX() : ((Arc) shape).getCenterX();
-	}
-	
-	protected static final double centerY(final Shape shape) {
-		return shape instanceof Circle ? ((Circle) shape).getCenterY() : ((Arc) shape).getCenterY();
 	}
 	
     /**
