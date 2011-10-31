@@ -514,20 +514,22 @@ public class Gauge extends Group {
      * @param y the y coordinate
      */
     protected void moveHand(final double x, final double y) {
-    	double angle = Double.valueOf(anglePrecision.format(Math.toDegrees(Math.atan2(y, x))));
+    	double clockwiseAngle = Double.valueOf(anglePrecision.format(Math.toDegrees(Math.atan2(y, x))));
     	if (isCircular()) {
-    		angleProperty.set(angle);
+    		angleProperty.set(clockwiseAngle);
     	} else {
-        	double angle360 = angle < 0d ? 360d + angle : angle;
-        	double inverseMedAngle = (180d - (angleLength - angleStart)) / 2d;
-        	if (angle360 < angleStart && angle360 >= inverseMedAngle) {
-        		angleProperty.set(angleStart);
-        	} else if (angle360 > angleLength) {
+        	double counterClockwiseAngle = clockwiseAngle < 180d ? 180d - clockwiseAngle : clockwiseAngle;
+        	double counterClockwiseAngleStart = angleStart < 180d ? 180d - angleStart : angleStart;
+        	double counterClockwiseLength = clockwiseAngle < 180d ? 180d - clockwiseAngle : clockwiseAngle;
+        	double inverseMedAngle = ((angleLength + angleStart * 2)) / 2d;
+        	if (counterClockwiseAngle < angleStart) {
+        		angleProperty.set(counterClockwiseAngleStart);
+        	} else if (counterClockwiseAngle > (angleLength + angleLength)) {
         		angleProperty.set(angleLength);
         	} else {
-        		angleProperty.set(angle360);
+        		angleProperty.set(clockwiseAngle);
         	}
-        	System.out.println(String.format("angle: %1$s, anglen: %2$s, inverse: %3$s", angle, angle360, inverseMedAngle));
+        	System.out.println(String.format("clockwiseAngle: %1$s, counterClockwiseAngle: %2$s, inverse: %3$s", clockwiseAngle, counterClockwiseAngle, inverseMedAngle));
     	}
     }
     
@@ -535,7 +537,7 @@ public class Gauge extends Group {
      * @return true when the gauge is circular, false when its an arc
      */
     public boolean isCircular() {
-    	return (angleLength - angleStart) == 0;
+    	return angleLength == 360;
     }
     
     /**
