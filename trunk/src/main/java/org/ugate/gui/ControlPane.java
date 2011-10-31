@@ -8,6 +8,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import org.ugate.gui.components.Gauge;
+import org.ugate.gui.components.Gauge.HandType;
 
 /**
  * Control view
@@ -33,7 +34,7 @@ public abstract class ControlPane extends BorderPane {
 		centerView = new VBox();
 		centerView.setAlignment(Pos.CENTER);
 		
-		final Gauge gauge = new Gauge();
+		final Gauge gauge = new Gauge(HandType.NEEDLE, 0, 0, 45d, 90d);
 		gauge.angleProperty.set(30);
 		centerView.getChildren().add(gauge);
 		
