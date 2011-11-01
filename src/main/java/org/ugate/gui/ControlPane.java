@@ -34,7 +34,7 @@ public abstract class ControlPane extends BorderPane {
 		centerView = new VBox();
 		centerView.setAlignment(Pos.CENTER);
 		
-		final Gauge gauge = new Gauge(HandType.NEEDLE, 0, 0, 0d, 180d);
+		final Gauge gauge = new Gauge(HandType.NEEDLE, 0.7d, 0d, 180d);
 		//gauge.angleProperty.set(30);
 		//gauge.minorTickMarkOpacityProperty.set(0);
 		centerView.getChildren().add(gauge);
