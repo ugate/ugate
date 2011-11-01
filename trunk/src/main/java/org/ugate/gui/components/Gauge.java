@@ -26,6 +26,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
@@ -70,38 +71,36 @@ public class Gauge extends Group {
 	public final DoubleProperty dialCenterOpacityProperty;
 	
 	public Gauge() {
-		this(HandType.NEEDLE, 0, 0, 0, 0);
+		this(HandType.NEEDLE, 0, 0, 0);
 	}
 	
 	public Gauge(final HandType handType) {
-		this(handType, 0, 0, 0, 0);
+		this(handType, 0, 0, 0);
 	}
 	
-	public Gauge(final HandType handType, final double outerRadius, final double innerRadius,
+	public Gauge(final HandType handType, final double scale,
 			final double startAngle, final double endAngle) {
-		this(handType, outerRadius, innerRadius, 0, 0, 0, 0, 0, 0, 0, 0, startAngle, endAngle, null);
+		this(handType, scale, 0, 0, 0, startAngle, endAngle, null);
 	}
 	
-	public Gauge(final HandType handType, final double outerRadius, final double innerRadius, 
-			final int numOfMajorTickMarks, final double majorTickMarkWidth, final double majorTickMarkHeight, 
-			final double handHeightFactor, final double handPointDistance, final int dialNumberOfSides, 
+	public Gauge(final HandType handType, final double scale, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double startAngle, final double angleLength, final DecimalFormat anglePrecision) {
 		this.handType = handType;
-		this.outerRadius = outerRadius <= 0 ? 140d : outerRadius;
-		this.innerRadius = innerRadius <= 0 ? 130d : innerRadius;
+		this.outerRadius = 140d * scale;
+		this.innerRadius = 130d * scale;
 		this.centerX = this.outerRadius / 2d;
 		this.centerY = this.centerX;
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : startAngle;
 		this.angleLength = startAngle == 0 && angleLength == 0 ? 360d : angleLength;
-		this.numOfMajorTickMarks = numOfMajorTickMarks <= 0 ? 12 : numOfMajorTickMarks;
+		this.numOfMajorTickMarks = 12; // TODO : scale the number of tick marks based upon the min/max value/angle
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
-		this.majorTickMarkWidth = majorTickMarkWidth <= 0 ? 12d : majorTickMarkWidth;
-		this.majorTickMarkHeight = majorTickMarkHeight <= 0 ? 2d : majorTickMarkHeight;
+		this.majorTickMarkWidth = 12d * scale;
+		this.majorTickMarkHeight = 2d * scale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
 		this.handWidth = this.innerRadius - this.minorTickMarkWidth;
-		this.handHeight = this.majorTickMarkHeight * (handHeightFactor <= 0 ? 7d : handHeightFactor); 
+		this.handHeight = this.majorTickMarkHeight * 7d;
 		this.anglePrecision = anglePrecision == null ?  new DecimalFormat("#.##") : anglePrecision;
 		this.angleProperty =  new SimpleDoubleProperty(getTrigMinAngle());
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
@@ -126,10 +125,10 @@ public class Gauge extends Group {
 				new Stop(1, Color.rgb(20, 20, 20)), new Stop(1, Color.web("#777777"))));
 		this.handFillProperty = new Line().fillProperty();
 		this.handFillProperty.set(Color.ORANGERED);
-		this.handPointDistance = handPointDistance <= 0 ? (this.majorTickMarkHeight * 4) : handPointDistance;
+		this.handPointDistance = this.majorTickMarkHeight * 4;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 24 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= 10 ? 9.8 : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= 10 ? 10 : dialCenterOuterRadius;
+		this.dialCenterInnerRadius = dialCenterInnerRadius <= (10d * scale) ? (9.8d * scale) : dialCenterInnerRadius;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= (10d * scale) ? (10d * scale) : dialCenterOuterRadius;
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
 		createChildren();
 	}
@@ -139,9 +138,7 @@ public class Gauge extends Group {
 		setCacheHint(CacheHint.SPEED);
 		// create basic gauge shapes
 		final Shape ourterRim = createOuterRim(outerRadius, outerRimFillProperty);
-		final Shape gaugeCenter = createGaugeCenter(outerRadius, innerRadius,
-				centerGaugeFillProperty);
-		final Shape gaugeFrame = new Polygon();
+		final Shape gaugeCenter = createGaugeCenter(outerRadius, innerRadius, centerGaugeFillProperty);
 		final Group gaugeParent = createGaugeParent(ourterRim, gaugeCenter);
 		// add minor tick marks
 		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
@@ -184,6 +181,19 @@ public class Gauge extends Group {
 		final Group gaugeParent = new Group();
 		gaugeParent.setCache(true);
 		gaugeParent.setCacheHint(CacheHint.SPEED);
+		if (!isCircular()) {
+			final double frameInnerRadius = dialCenterOuterRadius * 3d;
+			final double frameOuterRadius = frameInnerRadius * 0.5d;
+			final Circle frameOuter = new Circle(centerX, centerY, outerRadius - innerRadius);
+			frameOuter.setFill(new RadialGradient(0, 0, centerX, centerY, 
+					frameOuter.getRadius(), false, CycleMethod.NO_CYCLE, 
+					new Stop(0, Color.BLACK), new Stop(0.95, Color.LIGHTGRAY), new Stop(0.97, Color.DARKGRAY),
+					new Stop(0.98, Color.LIGHTGRAY), new Stop(0.99, Color.DARKGRAY), new Stop(1, Color.LIGHTGRAY)));
+			//Bindings.bindBidirectional(frameOuter.fillProperty(), outerRimFillProperty);
+			final Circle frameInner = new Circle(centerX, centerY, frameInnerRadius);
+			Bindings.bindBidirectional(frameInner.fillProperty(), centerGaugeFillProperty);
+			gaugeParent.getChildren().addAll(frameOuter, frameInner);
+		}
 		gaugeParent.getChildren().addAll(ourterRim, gaugeCenter);
 		return gaugeParent;
 	}
@@ -257,7 +267,7 @@ public class Gauge extends Group {
 	 */
 	protected Lighting createHandLighting() {
 		final Light.Distant handBaseLight = new Light.Distant();
-		handBaseLight.setAzimuth(225);
+		handBaseLight.setAzimuth(270d);
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
 		return handBaseLighting;
