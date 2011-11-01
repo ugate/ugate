@@ -86,14 +86,14 @@ public class Gauge extends Group {
 			final int numOfMajorTickMarks, final double majorTickMarkWidth, final double majorTickMarkHeight, 
 			final double handHeightFactor, final double handPointDistance, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
-			final double startAngle, final double endAngle, final DecimalFormat anglePrecision) {
+			final double startAngle, final double angleLength, final DecimalFormat anglePrecision) {
 		this.handType = handType;
 		this.outerRadius = outerRadius <= 0 ? 140d : outerRadius;
 		this.innerRadius = innerRadius <= 0 ? 130d : innerRadius;
 		this.centerX = this.outerRadius / 2d;
 		this.centerY = this.centerX;
-		this.angleStart = startAngle == 0 && endAngle == 0 ? 0 : startAngle;
-		this.angleLength = startAngle == 0 && endAngle == 0 ? 360d : endAngle;
+		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : startAngle;
+		this.angleLength = startAngle == 0 && angleLength == 0 ? 360d : angleLength;
 		this.numOfMajorTickMarks = numOfMajorTickMarks <= 0 ? 12 : numOfMajorTickMarks;
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
 		this.majorTickMarkWidth = majorTickMarkWidth <= 0 ? 12d : majorTickMarkWidth;
@@ -111,14 +111,14 @@ public class Gauge extends Group {
 				new Stop(0, Color.WHITE), new Stop(0.3, Color.LIGHTGRAY),
 				new Stop(0.7, Color.DARKGRAY), new Stop(1, Color.WHITE.brighter())));
 		this.minorTickMarkFillProperty = new Line().fillProperty();
-		this.minorTickMarkFillProperty.set(Color.web("#AAAAAA"));
+		this.minorTickMarkFillProperty.set(Color.LIGHTCYAN);
 		this.majorTickMarkFillProperty = new Line().fillProperty();
-		this.majorTickMarkFillProperty.set(Color.web("#CCCCCC"));
+		this.majorTickMarkFillProperty.set(Color.LIGHTCYAN);
 		this.outerRimFillProperty = new Line().fillProperty();
 		this.outerRimFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.outerRadius, false, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.BLACK), new Stop(0.95, Color.LIGHTGRAY),
-				new Stop(0.99, Color.DARKGRAY), new Stop(1, Color.WHITE)));
+				new Stop(0, Color.BLACK), new Stop(0.95, Color.LIGHTGRAY), new Stop(0.97, Color.DARKGRAY),
+				new Stop(0.98, Color.LIGHTGRAY), new Stop(0.99, Color.DARKGRAY), new Stop(1, Color.LIGHTGRAY)));
 		this.centerGaugeFillProperty = new Line().fillProperty();
 		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.innerRadius, false, CycleMethod.NO_CYCLE, 
@@ -128,8 +128,8 @@ public class Gauge extends Group {
 		this.handFillProperty.set(Color.ORANGERED);
 		this.handPointDistance = handPointDistance <= 0 ? (this.majorTickMarkHeight * 4) : handPointDistance;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 24 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= 10 ? 10 : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= 10 ? 10.2 : dialCenterOuterRadius;
+		this.dialCenterInnerRadius = dialCenterInnerRadius <= 10 ? 9.8 : dialCenterInnerRadius;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= 10 ? 10 : dialCenterOuterRadius;
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
 		createChildren();
 	}
@@ -141,6 +141,7 @@ public class Gauge extends Group {
 		final Shape ourterRim = createOuterRim(outerRadius, outerRimFillProperty);
 		final Shape gaugeCenter = createGaugeCenter(outerRadius, innerRadius,
 				centerGaugeFillProperty);
+		final Shape gaugeFrame = new Polygon();
 		final Group gaugeParent = createGaugeParent(ourterRim, gaugeCenter);
 		// add minor tick marks
 		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
