@@ -56,7 +56,7 @@ public class Gauge extends Group {
 	protected final double angleLength;
 	protected final double centerX;
 	protected final double centerY;
-	private final DecimalFormat anglePrecision;
+	protected final DecimalFormat anglePrecision;
 	public final DoubleProperty angleProperty;
 	public final DoubleProperty valueProperty = new SimpleDoubleProperty(0);
 	public final DoubleProperty minorTickMarkOpacityProperty;
@@ -92,18 +92,18 @@ public class Gauge extends Group {
 		this.innerRadius = innerRadius <= 0 ? 130d : innerRadius;
 		this.centerX = this.outerRadius / 2d;
 		this.centerY = this.centerX;
-		this.angleStart = startAngle;
-		this.angleLength = endAngle;
+		this.angleStart = startAngle == 0 && endAngle == 0 ? 0 : startAngle;
+		this.angleLength = startAngle == 0 && endAngle == 0 ? 360d : endAngle;
 		this.numOfMajorTickMarks = numOfMajorTickMarks <= 0 ? 12 : numOfMajorTickMarks;
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
-		this.majorTickMarkWidth = majorTickMarkWidth <= 0 ? 10d : majorTickMarkWidth;
+		this.majorTickMarkWidth = majorTickMarkWidth <= 0 ? 12d : majorTickMarkWidth;
 		this.majorTickMarkHeight = majorTickMarkHeight <= 0 ? 2d : majorTickMarkHeight;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
-		this.minorTickMarkHeight = this.minorTickMarkWidth / 2d;
+		this.minorTickMarkHeight = this.majorTickMarkHeight;
 		this.handWidth = this.innerRadius - this.minorTickMarkWidth;
 		this.handHeight = this.majorTickMarkHeight * (handHeightFactor <= 0 ? 7d : handHeightFactor); 
 		this.anglePrecision = anglePrecision == null ?  new DecimalFormat("#.##") : anglePrecision;
-		this.angleProperty =  new SimpleDoubleProperty(this.angleStart);
+		this.angleProperty =  new SimpleDoubleProperty(getTrigMinAngle());
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.dialCenterFillProperty = new Line().fillProperty();
@@ -144,16 +144,17 @@ public class Gauge extends Group {
 		final Group gaugeParent = createGaugeParent(ourterRim, gaugeCenter);
 		// add minor tick marks
 		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
-				minorTickMarkHeight, majorTickMarkWidth, majorTickMarkHeight, false, minorTickMarkOpacityProperty);
+				minorTickMarkHeight, minorTickMarkWidth, minorTickMarkHeight, false, minorTickMarkOpacityProperty);
 		// add major tick marks
 		addTickMarks(gaugeParent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
-				majorTickMarkHeight, majorTickMarkWidth, majorTickMarkHeight, false, majorTickMarkOpacityProperty);
+				majorTickMarkHeight, minorTickMarkWidth, minorTickMarkHeight, false, majorTickMarkOpacityProperty);
 		
 		// create hand
 		final Group hand = createHand(gaugeParent, handPointDistance, handFillProperty);
 		gaugeParent.getChildren().addAll(hand);//, createHighlights(outerRadius));
+		hand.getRotate();
 
-		final Label val = new Label("0");
+		final Label val = new Label(String.valueOf(angleProperty.get()));
 		val.setStyle("-fx-text-fill: white;");
 		angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
@@ -346,7 +347,7 @@ public class Gauge extends Group {
 		double angle = 0;
 		Shape tick;
 		for (int i=0; i<=numOfMarks; i++) {
-			angle = 180d - (rtbase * i) - angleStart;
+			angle = 180d - (rtbase * i) - angleStart + height / 2d;
 			tick = createTickMark(tickMarkFillProperty, angle, width, height, offestWidth, offsetHeight,
 					tickMarkOpacityProperty);
 			parent.getChildren().add(tick);
@@ -512,29 +513,83 @@ public class Gauge extends Group {
      * 
      * @param x the x coordinate
      * @param y the y coordinate
+     * @return true if the coordinates are within the min/max angles and the hand has been moved
      */
-    protected void moveHand(final double x, final double y) {
-    	double clockwiseAngle = Double.valueOf(anglePrecision.format(Math.toDegrees(Math.atan2(y, x))));
-    	if (isCircular()) {
-    		angleProperty.set(clockwiseAngle);
-    	} else {
-        	double counterClockwiseAngle = clockwiseAngle < 180d ? 180d - clockwiseAngle : clockwiseAngle;
-        	double counterClockwiseAngleStart = angleStart < 180d ? 180d - angleStart : angleStart;
-        	double counterClockwiseLength = clockwiseAngle < 180d ? 180d - clockwiseAngle : clockwiseAngle;
-        	double inverseMedAngle = ((angleLength + angleStart * 2)) / 2d;
-        	if (counterClockwiseAngle < angleStart) {
-        		angleProperty.set(counterClockwiseAngleStart);
-        	} else if (counterClockwiseAngle > (angleLength + angleLength)) {
-        		angleProperty.set(angleLength);
-        	} else {
-        		angleProperty.set(clockwiseAngle);
-        	}
-        	System.out.println(String.format("clockwiseAngle: %1$s, counterClockwiseAngle: %2$s, inverse: %3$s", clockwiseAngle, counterClockwiseAngle, inverseMedAngle));
-    	}
+    protected boolean moveHand(final double x, final double y) {
+    	double viewingAngle = Math.toDegrees(Math.atan2(y, x));
+    	// convert angle to positive quadrants 0 - 360 degrees
+		if (viewingAngle < 0) {
+			viewingAngle += 360d;
+		}
+		return projectHandAngle(viewingAngle);
     }
     
     /**
-     * @return true when the gauge is circular, false when its an arc
+     * Sets the projected angle of the hand when the angle is within the min/max range
+     *  
+     * @param viewingAngle the angle in which a typical gauge is viewed where zero starts on the west horizontal plane
+     * @return true if the angle is within the min/max angles and the angle property has been set
+     */
+    protected boolean projectHandAngle(final double viewingAngle) {
+    	if (isCircular()) {
+    		angleProperty.set(viewingAngle);
+    		return true;
+    	}
+    	double reverseAngle = reverseAngle(viewingAngle);
+    	double minAngle = getTrigMinAngle();
+    	double maxAngle = Math.round(getTrigMaxAngle());
+    	if (reverseAngle >= minAngle && reverseAngle <= maxAngle) {
+    		angleProperty.set(viewingAngle);
+    		return true;
+    	}
+    	System.out.println(String.format("angleStart: %1$s, angleLength: %2$s, minAngle: %3$s, maxAngle: %4$s, viewingAngle: %5$s, reverseAngle: %6$s", 
+    			angleStart, angleLength, minAngle, maxAngle, viewingAngle, reverseAngle));
+    	return false;
+    }
+    
+    /**
+     * Reverses an angle. For example, if an angle has a zero quadrant position on the <b>east</b> horizontal plane the return angle
+     * will have a zero position on the <b>west</b> horizontal plane.
+     * 
+     * @param angle the angle to reverse
+     * @return the reversed angle
+     */
+    protected final double reverseAngle(final double angle) {
+    	return 180d - angle < 0 ? 180d - angle + 360d : 180d - angle;
+    }
+    
+    /**
+     * @return the minimum angle that can be set based upon the normal trigonometry angle where an 
+     * 		angle of zero is in the east horizontal plane
+     */
+    protected final double getTrigMinAngle() {
+    	return angleStart;
+    }
+    
+    /**
+     * @return the maximum angle that can be set based upon the normal trigonometry angle where an 
+     * 		angle of zero is in the east horizontal plane
+     */
+    protected final double getTrigMaxAngle() {
+    	return (angleStart + angleLength) > 360d ? (angleStart + angleLength) - 360d : (angleStart + angleLength);
+    }
+    
+    /**
+     * @return gets the minimum angle that is within the range of the gauge
+     */
+    public final double getMinAngle() {
+    	return reverseAngle(getTrigMinAngle());
+    }
+    
+    /**
+     * @return gets the maximum angle that is within the range of the gauge
+     */
+    public double getMaxAngle() {
+    	return reverseAngle(getTrigMaxAngle());
+    }
+    
+    /**
+     * @return true when the gauge is circular, false when it is an arc
      */
     public boolean isCircular() {
     	return angleLength == 360;
