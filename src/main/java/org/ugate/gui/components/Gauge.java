@@ -40,6 +40,8 @@ import javafx.scene.transform.Rotate;
  */
 public class Gauge extends Group {
 
+	public static final double RADIUS_OUTER_BASE = 140d;
+	public static final double RADIUS_INNER_BASE = 130d;
 	protected static final double START_END_DISTANCE_THRSHOLD = 30d;
 	private final HandType handType;
 	private final int numOfMajorTickMarks;
@@ -91,25 +93,25 @@ public class Gauge extends Group {
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double startAngle, final double angleLength, final int anglePrecision) {
 		this.handType = handType;
-		this.outerRadius = 140d * scale;
-		this.innerRadius = 130d * scale;
+		this.outerRadius = RADIUS_OUTER_BASE * scale;
+		this.innerRadius = RADIUS_INNER_BASE * scale;
 		this.centerX = this.outerRadius / 2d;
 		this.centerY = this.centerX;
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
 		this.angleLength = startAngle == 0 && angleLength == 0 ? 360d : positiveAngle(angleLength);
 		this.anglePrecision = Math.max(0, anglePrecision);
-		this.numOfMajorTickMarks = 12; // TODO : scale the number of tick marks based upon the min/max value/angle
+		this.numOfMajorTickMarks = (int)this.angleLength / 30; // TODO : scale the number of tick marks based upon the min/max value/angle
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
 		this.majorTickMarkWidth = 12d * scale;
 		this.majorTickMarkHeight = 2d * scale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
-		this.handWidth = this.innerRadius - this.minorTickMarkWidth;
-		this.handHeight = this.majorTickMarkHeight * 7d;
+		this.handWidth = this.innerRadius;// - this.minorTickMarkWidth;
+		this.handHeight = this.majorTickMarkHeight * 10d;
 		this.handPointDistance = this.majorTickMarkHeight * 4;
-		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 24 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= (10d * scale) ? (9.8d * scale) : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= (10d * scale) ? (10d * scale) : dialCenterOuterRadius;
+		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
+		this.dialCenterInnerRadius = dialCenterInnerRadius <= ((this.handHeight/1.5d) * scale) ? ((this.handHeight/1.5d) * scale) : dialCenterInnerRadius;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= ((this.handHeight/1.4d) * scale) ? ((this.handHeight/1.4d) * scale) : dialCenterOuterRadius;
 		this.angleProperty =  new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle()));
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
@@ -124,7 +126,7 @@ public class Gauge extends Group {
 		this.outerRimFillProperty = new Line().fillProperty();
 		this.outerRimFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.outerRadius, false, CycleMethod.REPEAT, 
-				new Stop(0.23d, Color.LIGHTGRAY), new Stop(0.26d, Color.DARKGRAY), new Stop(0.27d, Color.LIGHTGRAY),
+				new Stop(0.25d, Color.LIGHTGRAY), new Stop(0.26d, Color.DARKGRAY), new Stop(0.27d, Color.LIGHTGRAY),
 				new Stop(0.95d, Color.LIGHTGRAY), new Stop(0.97d, Color.DARKGRAY), new Stop(1d, Color.LIGHTGRAY)));
 		this.centerGaugeFillProperty = new Line().fillProperty();
 		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
@@ -214,9 +216,9 @@ public class Gauge extends Group {
 			final Arc acg = new Arc(this.centerX, this.centerY, radius, radius, 
 					this.angleStart, this.angleLength);
 			acg.setType(ArcType.ROUND);
-			final Shape acf = new Circle(centerX, centerY, getOuterRimArcInnerRadius());
+			final Shape acf = new Circle(centerX, centerY, this.dialCenterOuterRadius * 4.5d);
 			final Shape cg = Shape.union(acg, acf);
-			cg.setEffect(createHandLighting());
+			cg.setEffect(createLighting());
 			addGaugeStroke(cg, strokeFillProperty);
 			Bindings.bindBidirectional(cg.fillProperty(), centerGaugeFillProperty);
 			return cg;
@@ -265,10 +267,10 @@ public class Gauge extends Group {
 	/**
 	 * @return the lighting applied to the hand group
 	 */
-	protected Lighting createHandLighting() {
+	protected Lighting createLighting() {
 		final Light.Distant handBaseLight = new Light.Distant();
-		handBaseLight.setAzimuth(angleStart + (angleLength / 2d));
-		handBaseLight.setElevation(45d);
+		handBaseLight.setAzimuth(270d);
+		handBaseLight.setElevation(70d);
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
 		return handBaseLighting;
@@ -328,10 +330,10 @@ public class Gauge extends Group {
 			handShape.getTransforms().addAll(handRotate);
 			handBase.getChildren().add(handShape);
 		}
-		handBase.setEffect(createHandLighting());
+		handBase.setEffect(createLighting());
 		
-		final Polygon handDialCenter = createDial(centerX, centerY, dialNumberOfSides, 
-				dialCenterInnerRadius, dialCenterOuterRadius, angleStart, dialCenterFillProperty);
+		final Circle handDialCenter = new Circle(centerX, centerY, dialCenterOuterRadius);
+		Bindings.bindBidirectional(handDialCenter.fillProperty(), dialCenterFillProperty);
 		Bindings.bindBidirectional(handDialCenter.opacityProperty(), dialCenterOpacityProperty);
 		handBase.getChildren().add(handDialCenter);
 		hand.getChildren().add(handBase);
@@ -477,7 +479,7 @@ public class Gauge extends Group {
     			x, y + handHeight, 
     			x + (handWidth / 4), y + (handHeight / 2) + (handHeight / 4), 
     			x + (handWidth / 4), y + (handHeight / 4));
-		handIndicatorShape.setEffect(createHandLighting());
+		handIndicatorShape.setEffect(createLighting());
     	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), handFillProperty);
 		handShapeGroup.getChildren().addAll(dialHandShape, handIndicatorShape);
 		return handShapeGroup;
@@ -559,7 +561,10 @@ public class Gauge extends Group {
     		angleProperty.set(scaleAngle(viewingAngle, BigDecimal.ROUND_HALF_UP));
     		return true;
     	}
-		double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
+    	// determine if the angle is closer to the start or end angle (accounting for 0-360 and 360-0 transition)
+    	double startMax = positiveAngle(startAngle - START_END_DISTANCE_THRSHOLD);
+		double endMax = positiveAngle(endAngle - START_END_DISTANCE_THRSHOLD);
+    	double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
 		// only make the move when the position is within the start angle threshold
 		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(startAngle));
@@ -660,20 +665,6 @@ public class Gauge extends Group {
      */
     public boolean isCircular() {
     	return angleLength == 360;
-    }
-    
-    /**
-     * @return
-     */
-    public double getOuterRimArcInnerRadius() {
-		return this.dialCenterOuterRadius * 3d;
-    }
-    
-    /**
-     * @return
-     */
-    public double getOuterRimArcOuterRadius() {
-    	return getOuterRimArcInnerRadius() + (this.outerRadius - this.innerRadius);
     }
     
     /**
