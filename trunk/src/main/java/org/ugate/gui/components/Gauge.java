@@ -6,6 +6,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -36,13 +37,14 @@ import javafx.scene.shape.StrokeType;
 import javafx.scene.transform.Rotate;
 
 /**
- * Gauge control
+ * Gauge control TODO : add bindings/properties so the size can be dynamically changed
  */
 public class Gauge extends Group {
 
 	public static final double RADIUS_OUTER_BASE = 140d;
 	public static final double RADIUS_INNER_BASE = 130d;
-	protected static final double START_END_DISTANCE_THRSHOLD = 30d;
+	protected static final double ANGLE_START_END_DISTANCE_THRSHOLD = 30d;
+	public static final double[] INTENSITY_REGIONS_DEFAULT = new double[] { 50, 20, 30 };
 	private final IndicatorType indicatorType;
 	private final int numOfMajorTickMarks;
 	private final int numOfMinorTickMarks;
@@ -75,6 +77,7 @@ public class Gauge extends Group {
 	public final ObjectProperty<Paint> centerGaugeFillProperty;
 	public final ObjectProperty<Paint> indicatorFillProperty;
 	public final DoubleProperty dialCenterOpacityProperty;
+	public final ObjectProperty<IntensityIndicatorRegions> intensityIndicatorRegionsProperty;
 	
 	public Gauge() {
 		this(IndicatorType.NEEDLE, 0, 0, 0);
@@ -85,13 +88,14 @@ public class Gauge extends Group {
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale,
-			final double startAngle, final double angleLength) {
-		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, 0);
+			final double startAngle, final double angleLength, final double... intensityRegions) {
+		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, 0, intensityRegions);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
-			final double startAngle, final double angleLength, final int anglePrecision) {
+			final double startAngle, final double angleLength, final int anglePrecision,
+			final double... intensityRegions) {
 		this.indicatorType = indicatorType;
 		this.outerRadius = RADIUS_OUTER_BASE * sizeScale;
 		this.innerRadius = RADIUS_INNER_BASE * sizeScale;
@@ -110,8 +114,13 @@ public class Gauge extends Group {
 		this.indicatorHeight = this.majorTickMarkHeight * 10d;
 		this.indicatorPointDistance = this.majorTickMarkHeight * 4;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= ((this.indicatorHeight/1.5d) * sizeScale) ? ((this.indicatorHeight/1.5d) * sizeScale) : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= ((this.indicatorHeight/1.4d) * sizeScale) ? ((this.indicatorHeight/1.4d) * sizeScale) : dialCenterOuterRadius;
+		this.dialCenterInnerRadius = dialCenterInnerRadius <= ((this.indicatorHeight/1.5d) * sizeScale) ? 
+				((this.indicatorHeight/1.5d) * sizeScale) : dialCenterInnerRadius;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= ((this.indicatorHeight/1.4d) * sizeScale) ? 
+				((this.indicatorHeight/1.4d) * sizeScale) : dialCenterOuterRadius;
+		final double[] irvs = intensityRegions == null || intensityRegions.length < IntensityIndicatorRegions.INTENSITY_REGION_CNT ? 
+				INTENSITY_REGIONS_DEFAULT : intensityRegions;
+		
 		this.angleProperty =  new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle()));
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
@@ -136,9 +145,14 @@ public class Gauge extends Group {
 		this.indicatorFillProperty.set(Color.ORANGERED);
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
 		this.outerRimArcFillProperty = new Line().fillProperty();
+		this.intensityIndicatorRegionsProperty = new SimpleObjectProperty<Gauge.IntensityIndicatorRegions>();
+		this.intensityIndicatorRegionsProperty.setValue(new GaugeIntensityIndicatorRegions(irvs[0], irvs[1], irvs[2]));
 		createChildren();
 	}
 	
+	/**
+	 * Creates the required children
+	 */
 	protected final void createChildren() {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
@@ -158,6 +172,8 @@ public class Gauge extends Group {
 			}
 		});
 		gaugeParent.getChildren().add(val);
+
+		gaugeParent.getChildren().add(createIntensityIndicator(majorTickMarkWidth));
 		
 		// add minor tick marks
 		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
@@ -166,10 +182,10 @@ public class Gauge extends Group {
 		addTickMarks(gaugeParent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
 				majorTickMarkHeight, minorTickMarkWidth, minorTickMarkHeight, false, majorTickMarkOpacityProperty);
 		
-		// create hand
-		final Group hand = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
-		gaugeParent.getChildren().addAll(hand);//, createHighlights(outerRadius));
-		hand.getRotate();
+		// create indicator/hand
+		final Group indicator = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
+		gaugeParent.getChildren().addAll(indicator);//, createHighlights(outerRadius));
+		indicator.getRotate();
 		
 		getChildren().add(gaugeParent);
 	}
@@ -274,6 +290,65 @@ public class Gauge extends Group {
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
 		return handBaseLighting;
+	}
+	
+	protected final Group createIntensityIndicator(final double height) {
+		final Arc redArc = createIntensityIndicatorArc(intensityIndicatorRegionsProperty.get().getRedPercentage(),
+				innerRadius, innerRadius, angleStart, Color.RED);
+		final Arc yellowArc = createIntensityIndicatorArc(intensityIndicatorRegionsProperty.get().getYellowPercentage(),
+				redArc.getRadiusX(), redArc.getRadiusY(), getTrigEndAngle(redArc.getStartAngle(), redArc.getLength()),
+				Color.GOLD);
+		final Arc greenArc = createIntensityIndicatorArc(intensityIndicatorRegionsProperty.get().getGreenPercentage(),
+				yellowArc.getRadiusX(), yellowArc.getRadiusY(), getTrigEndAngle(yellowArc.getStartAngle(), yellowArc.getLength()),
+				Color.GREEN);
+		
+		final Group intensityIndicator = new Group();
+		final Arc subractionArc = new Arc(centerX, centerY, innerRadius - height, innerRadius - height, angleStart, angleLength);
+		final Shape is = Shape.subtract(greenArc, subractionArc);
+		setIntensityIndicatorFill(greenArc.getRadiusX(), greenArc.getRadiusY(), greenArc.getStartAngle(), is, 
+				intensityIndicatorRegionsProperty.get());
+		intensityIndicatorRegionsProperty.addListener(new ChangeListener<IntensityIndicatorRegions>() {
+			@Override
+			public void changed(ObservableValue<? extends IntensityIndicatorRegions> observable, 
+					IntensityIndicatorRegions oldValue, IntensityIndicatorRegions newValue) {
+				setIntensityIndicatorFill(greenArc.getRadiusX(), greenArc.getRadiusY(), greenArc.getStartAngle(), is, newValue);
+			}
+		});
+		intensityIndicator.getChildren().addAll(greenArc, yellowArc, redArc);
+		return intensityIndicator;
+	}
+	
+	protected final Arc createIntensityIndicatorArc(final double intensityPercentage, 
+			final double radiusX, final double radiusY, final double startAngle, final Color color) {
+//		final double x = radiusX * Math.cos(angleStart);
+//		final double y = radiusY * Math.sin(angleStart);
+		final double arcAngleLength = (intensityPercentage * 0.01d) * angleLength;
+		final Arc arc = new Arc(centerX, centerY, radiusX, radiusY, startAngle, arcAngleLength);
+		arc.setType(ArcType.ROUND);
+//		arc.setFill(new RadialGradient(0, 0, centerX + x, centerY + y, 
+//				Math.max(arc.getRadiusX(), arc.getRadiusY()), false, CycleMethod.NO_CYCLE, 
+//				new Stop(0, color), new Stop(0.99d, Color.TRANSPARENT)));
+		arc.setFill(color);
+		arc.setOpacity(0.5);
+		return arc;
+	}
+	
+	/**
+	 * Sets the specified intensity indicator arcs fill based upon its radius and start angle using 
+	 * the intensity region values
+	 * 
+	 * @param is the intensity indicator arc
+	 * @param intensityRegions the intensity indicator regions
+	 */
+	protected <T extends IntensityIndicatorRegions> void setIntensityIndicatorFill(final double radiusX, 
+			final double radiusY, final double startAngle, final Shape intensityIndicator, final T intensityRegions) {
+		final double gx = radiusX * Math.cos(startAngle);
+		final double gy = radiusY * Math.sin(startAngle);
+		final double gYellow = intensityRegions.getYellowPercentage() * .01d;//intensityRegions[2] / (360d / 1.0d);
+		final double gGreen = intensityRegions.getGreenPercentage() * .01d;//intensityRegions[1] / (360d / 1.0d);
+		intensityIndicator.setFill(new RadialGradient(startAngle, 0, centerX + gx, centerY + gy, 
+				Math.max(radiusX, radiusY) * 4.5d, false, CycleMethod.NO_CYCLE, 
+				new Stop(0, Color.RED), new Stop(gYellow, Color.GOLD), new Stop(gGreen, Color.GREEN)));
 	}
 	
 	/**
@@ -564,22 +639,22 @@ public class Gauge extends Group {
     	}
     	double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
 		// move to the start position when the angle is within the start angle threshold
-		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= START_END_DISTANCE_THRSHOLD) {
+		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(startAngle));
 			return true;
 		}
 		// move to the end position when the angle is within the end angle threshold
-		if (closestAngle == endAngle && Math.abs(trigAngle - endAngle) <= START_END_DISTANCE_THRSHOLD) {
+		if (closestAngle == endAngle && Math.abs(trigAngle - endAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(endAngle));
 			return true;
 		}
 		// handle special case where the angle is within a specified threshold of the start position of a 0/360 border (i.e. angleStart=0) 
-		if (closestAngle == endAngle && Math.abs(trigAngle - positiveAngle(startAngle - START_END_DISTANCE_THRSHOLD)) <= START_END_DISTANCE_THRSHOLD) {
+		if (closestAngle == endAngle && Math.abs(trigAngle - positiveAngle(startAngle - ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(startAngle));
 			return true;
 		}
 		// handle special case where the angle is within a specified threshold of the end position of a 0/360 border (i.e. angleStart=180, angleLength=180) 
-		if (closestAngle == startAngle && Math.abs(trigAngle - positiveAngle(360d - endAngle + START_END_DISTANCE_THRSHOLD)) <= START_END_DISTANCE_THRSHOLD) {
+		if (closestAngle == startAngle && Math.abs(trigAngle - positiveAngle(360d - endAngle + ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(endAngle));
 			return true;
 		}
@@ -639,6 +714,17 @@ public class Gauge extends Group {
     }
     
     /**
+     * Calculates the end angle of a given start angle and the angle length
+     * 
+     * @param startAngle the start angle
+     * @param angleLength the angle length
+     * @return the the end angle
+     */
+    public static final double getTrigEndAngle(final double startAngle, final double angleLength) {
+    	return (startAngle + angleLength) > 360d ? (startAngle + angleLength) - 360d : (startAngle + angleLength);
+    }
+    
+    /**
      * @return the start angle within the gauges range relative to the normal trigonometry angle where an 
      * 		angle of zero is in the east horizontal plane
      */
@@ -651,7 +737,7 @@ public class Gauge extends Group {
      * 		angle of zero is in the east horizontal plane
      */
     public final double getTrigEndAngle() {
-    	return (angleStart + angleLength) > 360d ? (angleStart + angleLength) - 360d : (angleStart + angleLength);
+    	return getTrigEndAngle(angleStart, angleLength);
     }
     
     /**
@@ -680,5 +766,67 @@ public class Gauge extends Group {
      */
     public enum IndicatorType {
     	RECTANGLE, NEEDLE, CLOCK, KNOB;
+    }
+    
+    public abstract class IntensityIndicatorRegions {
+    	public static final int INTENSITY_REGION_CNT = 3;
+    	/**
+    	 * @return greenPercentage the percentage of green
+    	 */
+    	public abstract double getGreenPercentage();
+    	/**
+    	 * @return yellowPercentage the percentage of green
+    	 */
+    	public abstract double getYellowPercentage();
+    	/**
+    	 * @return redPercentage the percentage of green
+    	 */
+    	public abstract double getRedPercentage();
+    }
+    
+    /**
+     * Regions used as a visual aid to distinguish the intensity of a {@linkplain #Gauge}. percentages should always add up to one hundred
+     */
+    public class GaugeIntensityIndicatorRegions extends IntensityIndicatorRegions {
+    	private final double greenPercentage;
+    	private final double yellowPercentage;
+    	private final double redPercentage;
+		/**
+		 * Creates intensity indicator regions. percentages should always add up to one hundred
+		 * 
+		 * @param greenPercentage the percentage of green 0-100
+		 * @param yellowPercentage the percentage of yellow 0-100
+		 * @param redPercentage the percentage of red 0-100
+		 */
+		public GaugeIntensityIndicatorRegions(final double greenPercentage, final double yellowPercentage, final double redPercentage) {
+			super();
+			if ((greenPercentage + yellowPercentage + redPercentage) != 100) {
+				throw new IllegalArgumentException("The sum of all percentages must be 100");
+			}
+			this.greenPercentage = greenPercentage;
+			this.yellowPercentage = yellowPercentage;
+			this.redPercentage = redPercentage;
+		}
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public double getGreenPercentage() {
+			return greenPercentage;
+		}
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public double getYellowPercentage() {
+			return yellowPercentage;
+		}
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public double getRedPercentage() {
+			return redPercentage;
+		}
     }
 }
