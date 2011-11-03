@@ -131,7 +131,7 @@ public class Gauge extends Group {
 		this.centerGaugeFillProperty = new Line().fillProperty();
 		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.innerRadius, false, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.LIGHTCYAN), new Stop(0.8d, Color.BLACK)));
+				new Stop(0, Color.LIGHTCYAN.darker()), new Stop(0.8d, Color.BLACK)));
 		this.handFillProperty = new Line().fillProperty();
 		this.handFillProperty.set(Color.ORANGERED);
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
@@ -553,7 +553,8 @@ public class Gauge extends Group {
     	double trigAngle = reverseAngle(viewingAngle);
     	double startAngle = getTrigStartAngle();
     	double endAngle = getTrigEndAngle();
-//    	System.out.println(String.format("angleStart: %1$s, angleLength: %2$s, viewingAngle: %3$s, startAngle: %4$s, endAngle: %5$s, trigAngle: %6$s", 
+//    	System.out.println(String.format("angleStart: %1$s, angleLength: %2$s, viewingAngle: %3$s, 
+//    			startAngle: %4$s, endAngle: %5$s, trigAngle: %6$s", 
 //    			angleStart, angleLength, viewingAngle, startAngle, endAngle, trigAngle));
     	if ((startAngle <= endAngle && trigAngle >= startAngle && trigAngle <= endAngle) ||
     		(startAngle > endAngle && (trigAngle >= startAngle || trigAngle <= endAngle))) {
@@ -561,17 +562,24 @@ public class Gauge extends Group {
     		angleProperty.set(scaleAngle(viewingAngle, BigDecimal.ROUND_HALF_UP));
     		return true;
     	}
-    	// determine if the angle is closer to the start or end angle (accounting for 0-360 and 360-0 transition)
-    	double startMax = positiveAngle(startAngle - START_END_DISTANCE_THRSHOLD);
-		double endMax = positiveAngle(endAngle - START_END_DISTANCE_THRSHOLD);
     	double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
-		// only make the move when the position is within the start angle threshold
+		// move to the start position when the angle is within the start angle threshold
 		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(startAngle));
 			return true;
 		}
-		// only make the move when the position is within the end angle threshold
+		// move to the end position when the angle is within the end angle threshold
 		if (closestAngle == endAngle && Math.abs(trigAngle - endAngle) <= START_END_DISTANCE_THRSHOLD) {
+			angleProperty.set(reverseAngle(endAngle));
+			return true;
+		}
+		// handle special case where the angle is within a specified threshold of the start position of a 0/360 border (i.e. angleStart=0) 
+		if (closestAngle == endAngle && Math.abs(trigAngle - positiveAngle(startAngle - START_END_DISTANCE_THRSHOLD)) <= START_END_DISTANCE_THRSHOLD) {
+			angleProperty.set(reverseAngle(startAngle));
+			return true;
+		}
+		// handle special case where the angle is within a specified threshold of the end position of a 0/360 border (i.e. angleStart=180, angleLength=180) 
+		if (closestAngle == startAngle && Math.abs(trigAngle - positiveAngle(360d - endAngle + START_END_DISTANCE_THRSHOLD)) <= START_END_DISTANCE_THRSHOLD) {
 			angleProperty.set(reverseAngle(endAngle));
 			return true;
 		}
