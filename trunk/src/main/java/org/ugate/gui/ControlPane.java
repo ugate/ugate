@@ -8,7 +8,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import org.ugate.gui.components.Gauge;
-import org.ugate.gui.components.Gauge.HandType;
+import org.ugate.gui.components.Gauge.IndicatorType;
 
 /**
  * Control view
@@ -34,7 +34,7 @@ public abstract class ControlPane extends BorderPane {
 		centerView = new VBox();
 		centerView.setAlignment(Pos.CENTER);
 		
-		final Gauge gauge = new Gauge(HandType.NEEDLE, 0.5d, 0d, 180d);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 0d, 180d);
 		//gauge.minorTickMarkOpacityProperty.set(0);
 		//gauge.majorTickMarkOpacityProperty.set(0);
 		centerView.getChildren().add(gauge);
