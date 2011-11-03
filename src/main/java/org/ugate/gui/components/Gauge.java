@@ -43,16 +43,16 @@ public class Gauge extends Group {
 	public static final double RADIUS_OUTER_BASE = 140d;
 	public static final double RADIUS_INNER_BASE = 130d;
 	protected static final double START_END_DISTANCE_THRSHOLD = 30d;
-	private final HandType handType;
+	private final IndicatorType indicatorType;
 	private final int numOfMajorTickMarks;
 	private final int numOfMinorTickMarks;
 	private final double majorTickMarkWidth;
 	private final double majorTickMarkHeight;
 	private final double minorTickMarkWidth;
 	private final double minorTickMarkHeight;
-	private final double handWidth;
-	private final double handHeight;
-	private final double handPointDistance;
+	private final double indicatorWidth;
+	private final double indicatorHeight;
+	private final double indicatorPointDistance;
 	private final int dialNumberOfSides;
 	private final double dialCenterInnerRadius;
 	private final double dialCenterOuterRadius;
@@ -73,45 +73,45 @@ public class Gauge extends Group {
 	public final ObjectProperty<Paint> minorTickMarkFillProperty;
 	public final ObjectProperty<Paint> majorTickMarkFillProperty;
 	public final ObjectProperty<Paint> centerGaugeFillProperty;
-	public final ObjectProperty<Paint> handFillProperty;
+	public final ObjectProperty<Paint> indicatorFillProperty;
 	public final DoubleProperty dialCenterOpacityProperty;
 	
 	public Gauge() {
-		this(HandType.NEEDLE, 0, 0, 0);
+		this(IndicatorType.NEEDLE, 0, 0, 0);
 	}
 	
-	public Gauge(final HandType handType) {
-		this(handType, 0, 0, 0);
+	public Gauge(final IndicatorType indicatorType) {
+		this(indicatorType, 0, 0, 0);
 	}
 	
-	public Gauge(final HandType handType, final double scale,
-			final double startAngle, final double endAngle) {
-		this(handType, scale, 0, 0, 0, startAngle, endAngle, 0);
+	public Gauge(final IndicatorType indicatorType, final double sizeScale,
+			final double startAngle, final double angleLength) {
+		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, 0);
 	}
 	
-	public Gauge(final HandType handType, final double scale, final int dialNumberOfSides, 
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double startAngle, final double angleLength, final int anglePrecision) {
-		this.handType = handType;
-		this.outerRadius = RADIUS_OUTER_BASE * scale;
-		this.innerRadius = RADIUS_INNER_BASE * scale;
+		this.indicatorType = indicatorType;
+		this.outerRadius = RADIUS_OUTER_BASE * sizeScale;
+		this.innerRadius = RADIUS_INNER_BASE * sizeScale;
 		this.centerX = this.outerRadius / 2d;
 		this.centerY = this.centerX;
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
 		this.angleLength = startAngle == 0 && angleLength == 0 ? 360d : positiveAngle(angleLength);
 		this.anglePrecision = Math.max(0, anglePrecision);
-		this.numOfMajorTickMarks = (int)this.angleLength / 30; // TODO : scale the number of tick marks based upon the min/max value/angle
+		this.numOfMajorTickMarks = (int)this.angleLength / 30;
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
-		this.majorTickMarkWidth = 12d * scale;
-		this.majorTickMarkHeight = 2d * scale;
+		this.majorTickMarkWidth = 12d * sizeScale;
+		this.majorTickMarkHeight = 2d * sizeScale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
-		this.handWidth = this.innerRadius;// - this.minorTickMarkWidth;
-		this.handHeight = this.majorTickMarkHeight * 10d;
-		this.handPointDistance = this.majorTickMarkHeight * 4;
+		this.indicatorWidth = this.innerRadius;// - this.minorTickMarkWidth;
+		this.indicatorHeight = this.majorTickMarkHeight * 10d;
+		this.indicatorPointDistance = this.majorTickMarkHeight * 4;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= ((this.handHeight/1.5d) * scale) ? ((this.handHeight/1.5d) * scale) : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= ((this.handHeight/1.4d) * scale) ? ((this.handHeight/1.4d) * scale) : dialCenterOuterRadius;
+		this.dialCenterInnerRadius = dialCenterInnerRadius <= ((this.indicatorHeight/1.5d) * sizeScale) ? ((this.indicatorHeight/1.5d) * sizeScale) : dialCenterInnerRadius;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= ((this.indicatorHeight/1.4d) * sizeScale) ? ((this.indicatorHeight/1.4d) * sizeScale) : dialCenterOuterRadius;
 		this.angleProperty =  new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle()));
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
@@ -132,8 +132,8 @@ public class Gauge extends Group {
 		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.innerRadius, false, CycleMethod.NO_CYCLE, 
 				new Stop(0, Color.LIGHTCYAN.darker()), new Stop(0.8d, Color.BLACK)));
-		this.handFillProperty = new Line().fillProperty();
-		this.handFillProperty.set(Color.ORANGERED);
+		this.indicatorFillProperty = new Line().fillProperty();
+		this.indicatorFillProperty.set(Color.ORANGERED);
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
 		this.outerRimArcFillProperty = new Line().fillProperty();
 		createChildren();
@@ -143,8 +143,8 @@ public class Gauge extends Group {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
 		// create basic gauge shapes
-		final Shape gaugeCenter = createGaugeCenter(outerRadius, innerRadius, centerGaugeFillProperty, outerRimFillProperty);
-		final Group gaugeParent = createGaugeParent(gaugeCenter);
+		final Shape gaugeCenter = createBackground(outerRadius, innerRadius, centerGaugeFillProperty, outerRimFillProperty);
+		final Group gaugeParent = createParent(gaugeCenter);
 
 		// create angle/value label
 		final Label val = new Label(String.valueOf(angleProperty.get()));
@@ -167,7 +167,7 @@ public class Gauge extends Group {
 				majorTickMarkHeight, minorTickMarkWidth, minorTickMarkHeight, false, majorTickMarkOpacityProperty);
 		
 		// create hand
-		final Group hand = createHand(gaugeParent, handPointDistance, handFillProperty);
+		final Group hand = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
 		gaugeParent.getChildren().addAll(hand);//, createHighlights(outerRadius));
 		hand.getRotate();
 		
@@ -188,7 +188,7 @@ public class Gauge extends Group {
 	 * @param gaugeCenter the center of the gauge display
 	 * @return the gauge parent
 	 */
-	protected final Group createGaugeParent(final Shape gaugeCenter) {
+	protected final Group createParent(final Shape gaugeCenter) {
 		final Group gaugeParent = new Group();
 		gaugeParent.setCache(true);
 		gaugeParent.setCacheHint(CacheHint.SPEED);
@@ -202,14 +202,14 @@ public class Gauge extends Group {
 	 * @param outerRimRadius the outer rim radius
 	 * @param radius the radius of the gauge center
 	 * @param centerGaugeFillProperty the center of the gauge fill property to bind to
-	 * @param strokeFillProperty the fill property to bind the stroke to
+	 * @param rimStrokeFillProperty the fill property that forms the rim that will be bound to the stroke
 	 * @return the gauge center
 	 */
-	protected Shape createGaugeCenter(final double outerRimRadius, final double radius, 
-			final ObjectProperty<Paint> centerGaugeFillProperty, final ObjectProperty<Paint> strokeFillProperty) {
+	protected Shape createBackground(final double outerRimRadius, final double radius, 
+			final ObjectProperty<Paint> centerGaugeFillProperty, final ObjectProperty<Paint> rimStrokeFillProperty) {
 		if (isCircular()) {
 			final Circle ccg = new Circle(this.centerX, this.centerY, radius);
-			addGaugeStroke(ccg, strokeFillProperty);
+			addRimStroke(ccg, rimStrokeFillProperty);
 			Bindings.bindBidirectional(ccg.fillProperty(), centerGaugeFillProperty);
 			return ccg;
 		} else {
@@ -219,7 +219,7 @@ public class Gauge extends Group {
 			final Shape acf = new Circle(centerX, centerY, this.dialCenterOuterRadius * 4.5d);
 			final Shape cg = Shape.union(acg, acf);
 			cg.setEffect(createLighting());
-			addGaugeStroke(cg, strokeFillProperty);
+			addRimStroke(cg, rimStrokeFillProperty);
 			Bindings.bindBidirectional(cg.fillProperty(), centerGaugeFillProperty);
 			return cg;
 		}
@@ -231,7 +231,7 @@ public class Gauge extends Group {
 	 * @param cg the gauge shape
 	 * @param strokeFillProperty the fill property to bind the stroke to
 	 */
-	protected void addGaugeStroke(final Shape cg, final ObjectProperty<Paint> strokeFillProperty) {
+	protected void addRimStroke(final Shape cg, final ObjectProperty<Paint> strokeFillProperty) {
 		cg.setStrokeType(StrokeType.OUTSIDE);
 		cg.setStrokeLineCap(StrokeLineCap.ROUND);
 		cg.setStrokeLineJoin(StrokeLineJoin.ROUND);
@@ -265,7 +265,7 @@ public class Gauge extends Group {
 	}
 	
 	/**
-	 * @return the lighting applied to the hand group
+	 * @return the lighting applied to the gauge shape and indicator/hand group
 	 */
 	protected Lighting createLighting() {
 		final Light.Distant handBaseLight = new Light.Distant();
@@ -277,19 +277,19 @@ public class Gauge extends Group {
 	}
 	
 	/**
-	 * Creates the hand
+	 * Creates the indicator/hand
 	 * 
-	 * @param gaugeParent the gauge parent group used to discover mouse events for moving the hand
+	 * @param gaugeParent the gauge parent group used to discover mouse events for moving the indicator/hand
      * @param pointDistance the distance from the tip of the hand shape to the arm of the hand shape 
      * 		(the sharpness of the hand pointer)
-     * @param handFillProperty the hand fill property to bind to
-	 * @return the hand
+     * @param indicatorFillProperty the indicator/hand fill property to bind to
+	 * @return the indicator/hand
 	 */
-	protected final Group createHand(final Group gaugeParent, final double pointDistance, 
-			final ObjectProperty<Paint> handFillProperty) {
-		final Group hand = new Group();
-		hand.setCache(true);
-		hand.setCacheHint(CacheHint.SCALE_AND_ROTATE);
+	protected final Group createIndicator(final Group gaugeParent, final double pointDistance, 
+			final ObjectProperty<Paint> indicatorFillProperty) {
+		final Group indicator = new Group();
+		indicator.setCache(true);
+		indicator.setCacheHint(CacheHint.SCALE_AND_ROTATE);
 		final ColorAdjust handColorAdj = new ColorAdjust();
 		handColorAdj.setBrightness(0);
 		final DropShadow handDropShadow = new DropShadow();
@@ -298,46 +298,46 @@ public class Gauge extends Group {
 		handDropShadow.setRadius(7);
 		handDropShadow.setColor(Color.web("#000000"));
 		handDropShadow.setInput(handColorAdj);
-		hand.setEffect(handDropShadow);
+		indicator.setEffect(handDropShadow);
 		gaugeParent.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				if (event.getEventType() == MouseEvent.MOUSE_ENTERED && event.getTarget() == hand) {
+				if (event.getEventType() == MouseEvent.MOUSE_ENTERED && event.getTarget() == indicator) {
 					handColorAdj.setBrightness(0.2d);
 				} else if (event.isPrimaryButtonDown() && (event.getEventType() == MouseEvent.MOUSE_DRAGGED || 
-						(event.getEventType() == MouseEvent.MOUSE_CLICKED && event.getTarget() != hand))) {
+						(event.getEventType() == MouseEvent.MOUSE_CLICKED && event.getTarget() != indicator))) {
 					handColorAdj.setBrightness(0.2d);
-					moveHand(centerX - event.getX(), centerY - event.getY());
+					moveIndicator(centerX - event.getX(), centerY - event.getY());
 				} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {// || (event.getEventType() == MouseEvent.MOUSE_EXITED_TARGET)) {
 					handColorAdj.setBrightness(0d);
 				}
 			}
 		});
-		final Group handBase = new Group();
-		final double hx = centerX - (handWidth / 1.2);
-		final double hy = centerY - (handHeight / 2);
+		final Group indicatorBase = new Group();
+		final double ix = centerX - (indicatorWidth / 1.2);
+		final double iy = centerY - (indicatorHeight / 2);
 		
-		final Shape handShape = createHandShape(handType, hx, hy, handWidth, handHeight, pointDistance,
-				centerX, centerY, handType == HandType.ROTARYDIAL ? centerGaugeFillProperty : handFillProperty);
-		final Rotate handRotate = new Rotate(this.angleProperty.get(), centerX, centerY);
-		Bindings.bindBidirectional(handRotate.angleProperty(), this.angleProperty);
-		if (handType == HandType.ROTARYDIAL) {
-	    	final Group handShapeGroup = createRotaryDialHandShape(handShape, hx, hy, 
-					handWidth, handHeight, pointDistance, centerX, centerY, handFillProperty);
-			handShapeGroup.getTransforms().addAll(handRotate);
-			handBase.getChildren().add(handShapeGroup);
+		final Shape indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth, indicatorHeight, pointDistance,
+				centerX, centerY, indicatorType == IndicatorType.KNOB ? centerGaugeFillProperty : indicatorFillProperty);
+		final Rotate indicatorRotate = new Rotate(this.angleProperty.get(), centerX, centerY);
+		Bindings.bindBidirectional(indicatorRotate.angleProperty(), this.angleProperty);
+		if (indicatorType == IndicatorType.KNOB) {
+	    	final Group indicatorShapeGroup = createKnobRotaryDialIndicatorShape(indicatorShape, ix, iy, 
+					indicatorWidth, indicatorHeight, pointDistance, centerX, centerY, indicatorFillProperty);
+			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);
+			indicatorBase.getChildren().add(indicatorShapeGroup);
 		} else {
-			handShape.getTransforms().addAll(handRotate);
-			handBase.getChildren().add(handShape);
+			indicatorShape.getTransforms().addAll(indicatorRotate);
+			indicatorBase.getChildren().add(indicatorShape);
 		}
-		handBase.setEffect(createLighting());
+		indicatorBase.setEffect(createLighting());
 		
-		final Circle handDialCenter = new Circle(centerX, centerY, dialCenterOuterRadius);
-		Bindings.bindBidirectional(handDialCenter.fillProperty(), dialCenterFillProperty);
-		Bindings.bindBidirectional(handDialCenter.opacityProperty(), dialCenterOpacityProperty);
-		handBase.getChildren().add(handDialCenter);
-		hand.getChildren().add(handBase);
-		return hand;
+		final Circle indicatorCenter = new Circle(centerX, centerY, dialCenterOuterRadius);
+		Bindings.bindBidirectional(indicatorCenter.fillProperty(), dialCenterFillProperty);
+		Bindings.bindBidirectional(indicatorCenter.opacityProperty(), dialCenterOpacityProperty);
+		indicatorBase.getChildren().add(indicatorCenter);
+		indicator.getChildren().add(indicatorBase);
+		return indicator;
 	}
 	
 	/**
@@ -401,61 +401,61 @@ public class Gauge extends Group {
     }
 
     /**
-     * Creates the indicator that will be used to point toward the selected numeric value/tick mark.
-     * The {@code #handType} will be used to determine how the hand will be drawn.
+     * Creates the indicator/hand that will be used to point toward the selected numeric value/tick mark.
+     * The {@code #indicatorType} will be used to determine how the indicator/hand will be drawn.
      * 
-     * @param handType the hand type
-     * @param x the hands x coordinate
-     * @param y the hands y coordinate
-     * @param width the width of the hand shape
-     * @param height the height of the hand shape
-     * @param pointDistance the distance from the tip of the hand shape to the arm of the hand shape 
-     * 		(the sharpness of the hand pointer)
+     * @param indicatorType the indicator/hand type
+     * @param x the indicator/hand x coordinate
+     * @param y the indicator/hand y coordinate
+     * @param width the width of the indicator/hand shape
+     * @param height the height of the indicator/hand shape
+     * @param pointDistance the distance from the tip of the indicator/hand shape to the arm of the indicator/hand shape 
+     * 		(the sharpness of the indicator/hand pointer)
      * @param gaugeCenterX a reference point for the overall gauge center x coordinate
      * @param gaugeCenterY a reference point for the overall gauge center y coordinate
-     * @param handFillProperty the hand shape fill property to bind to
-     * @return the created hand
+     * @param indicatorFillProperty the indicator/hand shape fill property to bind to
+     * @return the created indicator/hand
      */
-    protected Shape createHandShape(final HandType handType, final double x, final double y, 
+    protected Shape createIndicatorShape(final IndicatorType indicatorType, final double x, final double y, 
     		final double width, final double height, final double pointDistance, 
     		final double gaugeCenterX, final double gaugeCenterY,
-    		final ObjectProperty<Paint> handFillProperty) {
-    	Shape handShape;
-    	switch (handType) {
-    	case RECTANGLE: handShape = new Rectangle(x, y, width, height);
-    		Bindings.bindBidirectional(handShape.fillProperty(), handFillProperty);
+    		final ObjectProperty<Paint> indicatorFillProperty) {
+    	Shape indicatorShape;
+    	switch (indicatorType) {
+    	case RECTANGLE: indicatorShape = new Rectangle(x, y, width, height);
+    		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
-    	case CLOCK: handShape = new Polygon(
+    	case CLOCK: indicatorShape = new Polygon(
     			x, y,
     			x - pointDistance, y + (height / 2),  
     			x, y + height, 
     			x + width, y + (height / 2) + (height / 4), 
     			x + width, y + (height / 4));
-    		Bindings.bindBidirectional(handShape.fillProperty(), handFillProperty);
+    		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
-    	case ROTARYDIAL: handShape = createDial(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
+    	case KNOB: indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
     			width - (pointDistance * 2) - ((dialCenterOuterRadius - dialCenterInnerRadius) * height), 
-    			width - (pointDistance * 2), 0, handFillProperty);
+    			width - (pointDistance * 2), 0, indicatorFillProperty);
     		break;
-    	case NEEDLE: default: handShape = new Polygon(
+    	case NEEDLE: default: indicatorShape = new Polygon(
 				x, y + (height / 2.5), 
 				x, y + height - (height / 2.5), 
 				x + width - pointDistance, y + height, 
 				x + width, y + (height / 2), 
 				x + width - pointDistance, y);
-    		Bindings.bindBidirectional(handShape.fillProperty(), handFillProperty);
+    		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
     	}
-    	return handShape;
+    	return indicatorShape;
     	
     }
     
     /**
-	 * Creates a rotary dial hand shape
+	 * Creates a rotary/knob style dial indicator/hand shape
 	 * 
-	 * @param dialHandShape
-	 *            the dial hand shape from
-	 *            {@linkplain #createHandShape(HandType, double, double, double, double, double, double, double, ObjectProperty)}
+	 * @param dialInidcatorShape
+	 *            the dial indicator/hand shape from
+	 *            {@linkplain #createIndicatorShape(IndicatorType, double, double, double, double, double, double, double, ObjectProperty)}
 	 * @param x the x coordinate of the indicator point
 	 * @param y the x coordinate of the indicator point
 	 * @param width the width of the indicator point
@@ -463,30 +463,30 @@ public class Gauge extends Group {
 	 * @param pointDistance the point distance offset
 	 * @param gaugeCenterX the center of the gauge x coordinate
 	 * @param gaugeCenterY the center of the gauge y coordinate
-	 * @param handFillProperty the fill property to bind to
+	 * @param indicatorFillProperty the fill property to bind to
 	 * @return the rotary dial
 	 */
-    protected Group createRotaryDialHandShape(final Shape dialHandShape, 
+    protected Group createKnobRotaryDialIndicatorShape(final Shape dialInidcatorShape, 
     		final double x, final double y, final double width, final double height, 
     		final double pointDistance, final double gaugeCenterX, final double gaugeCenterY,
-    		final ObjectProperty<Paint> handFillProperty) {
+    		final ObjectProperty<Paint> indicatorFillProperty) {
     	final Group handShapeGroup = new Group();
     	handShapeGroup.setCache(true);
     	handShapeGroup.setCacheHint(CacheHint.ROTATE);
 		final Shape handIndicatorShape = new Polygon(
     			x, y,
-    			x - pointDistance, y + (handHeight / 2),  
-    			x, y + handHeight, 
-    			x + (handWidth / 4), y + (handHeight / 2) + (handHeight / 4), 
-    			x + (handWidth / 4), y + (handHeight / 4));
+    			x - pointDistance, y + (indicatorHeight / 2),  
+    			x, y + indicatorHeight, 
+    			x + (indicatorWidth / 4), y + (indicatorHeight / 2) + (indicatorHeight / 4), 
+    			x + (indicatorWidth / 4), y + (indicatorHeight / 4));
 		handIndicatorShape.setEffect(createLighting());
-    	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), handFillProperty);
-		handShapeGroup.getChildren().addAll(dialHandShape, handIndicatorShape);
+    	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), indicatorFillProperty);
+		handShapeGroup.getChildren().addAll(dialInidcatorShape, handIndicatorShape);
 		return handShapeGroup;
     }
     
 	/**
-	 * Creates a dial shape that appears in the center of the gauge
+	 * Creates a dial shape (sprocket) that appears in the center of the gauge
 	 * 
 	 * @param x x coordinate of the center of the dial
 	 * @param y y coordinate of the center of the dial
@@ -497,7 +497,7 @@ public class Gauge extends Group {
 	 * @param dialFillProperty the dial fill property to bind to
 	 * @return the dial
 	 */
-	protected Polygon createDial(final double x, final double y, final int numOfSides, final double innerRadius, 
+	protected Polygon createSproket(final double x, final double y, final int numOfSides, final double innerRadius, 
 			final double outerRadius, final double beginAngle, final ObjectProperty<Paint> dialFillProperty) {
 		//final Circle handDial = new Circle(outerRimRadius, outerRimRadius, handHeight / 1.3);
 		final double teethSlope = (Math.PI * 2) / numOfSides;
@@ -523,28 +523,28 @@ public class Gauge extends Group {
 	}
 	
     /**
-     * Moves the hand angle based upon an x/y coordinate
+     * Moves the indicator/hand angle based upon an x/y coordinate
      * 
      * @param x the x coordinate
      * @param y the y coordinate
-     * @return true if the coordinates are within the min/max angles and the hand has been moved
+     * @return true if the coordinates are within the start/end angles and the indicator/hand has been moved
      */
-    protected boolean moveHand(final double x, final double y) {
+    protected boolean moveIndicator(final double x, final double y) {
     	double viewingAngle = Math.toDegrees(Math.atan2(y, x));
     	// convert angle to positive quadrants 0 - 360 degrees
 		if (viewingAngle < 0) {
 			viewingAngle += 360d;
 		}
-		return projectHandAngle(viewingAngle);
+		return moveIndicator(viewingAngle);
     }
     
     /**
-     * Sets the projected angle of the hand when the angle is within the min/max range
+     * Sets the projected angle of the hand when the angle is within a specified threshold range of the start/end range
      *  
      * @param viewingAngle the angle in which a typical gauge is viewed where zero starts on the west horizontal plane
-     * @return true if the angle is within the min/max angles and the angle property has been set
+     * @return true if the angle is within a specified threshold range of the start/end angles and the angle property has been set
      */
-    protected boolean projectHandAngle(final double viewingAngle) {
+    protected boolean moveIndicator(final double viewingAngle) {
     	if (isCircular()) {
     		// angle will always be with in 360 range
     		angleProperty.set(scaleAngle(viewingAngle, BigDecimal.ROUND_HALF_UP));
@@ -676,9 +676,9 @@ public class Gauge extends Group {
     }
     
     /**
-     * Hand types
+     * Indicator/Hand types
      */
-    public enum HandType {
-    	RECTANGLE, NEEDLE, CLOCK, ROTARYDIAL;
+    public enum IndicatorType {
+    	RECTANGLE, NEEDLE, CLOCK, KNOB;
     }
 }
