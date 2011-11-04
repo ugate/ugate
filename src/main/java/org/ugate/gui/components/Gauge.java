@@ -27,7 +27,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -42,9 +41,10 @@ import javafx.scene.transform.Rotate;
 public class Gauge extends Group {
 
 	public static final double RADIUS_OUTER_BASE = 140d;
-	public static final double RADIUS_INNER_BASE = 130d;
+	public static final double RADIUS_INNER_BASE = 132d;
 	protected static final double ANGLE_START_END_DISTANCE_THRSHOLD = 30d;
-	public static final double[] INTENSITY_REGIONS_DEFAULT = new double[] { 50, 20, 30 };
+	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT = 
+		new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
 	private final IndicatorType indicatorType;
 	private final int numOfMajorTickMarks;
 	private final int numOfMinorTickMarks;
@@ -70,17 +70,21 @@ public class Gauge extends Group {
 	public final DoubleProperty minorTickMarkOpacityProperty;
 	public final DoubleProperty majorTickMarkOpacityProperty;
 	public final ObjectProperty<Paint> outerRimFillProperty;
-	public final ObjectProperty<Paint> outerRimArcFillProperty;
 	public final ObjectProperty<Paint> dialCenterFillProperty;
 	public final ObjectProperty<Paint> minorTickMarkFillProperty;
+	public final DoubleProperty minorTickRadiusProperty;
 	public final ObjectProperty<Paint> majorTickMarkFillProperty;
+	public final DoubleProperty majorTickRadiusProperty;
 	public final ObjectProperty<Paint> centerGaugeFillProperty;
 	public final ObjectProperty<Paint> indicatorFillProperty;
 	public final DoubleProperty dialCenterOpacityProperty;
 	public final ObjectProperty<IntensityIndicatorRegions> intensityIndicatorRegionsProperty;
+	public final DoubleProperty lightingAzimuthProperty;
+	public final DoubleProperty lightingElevationProperty;
+	public final ObjectProperty<Paint> highlightFillProperty;
 	
 	public Gauge() {
-		this(IndicatorType.NEEDLE, 0, 0, 0);
+		this(null, 0, 0, 0);
 	}
 	
 	public Gauge(final IndicatorType indicatorType) {
@@ -88,21 +92,21 @@ public class Gauge extends Group {
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale,
-			final double startAngle, final double angleLength, final double... intensityRegions) {
-		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, 0, intensityRegions);
+			final double startAngle, final double angleLength) {
+		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, 0, null);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double startAngle, final double angleLength, final int anglePrecision,
-			final double... intensityRegions) {
-		this.indicatorType = indicatorType;
+			final IntensityIndicatorRegions intensityRegions) {
+		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
 		this.outerRadius = RADIUS_OUTER_BASE * sizeScale;
 		this.innerRadius = RADIUS_INNER_BASE * sizeScale;
-		this.centerX = this.outerRadius / 2d;
-		this.centerY = this.centerX;
+		this.centerX = 0;//this.outerRadius / 2d;
+		this.centerY = 0;//this.centerX;
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
-		this.angleLength = startAngle == 0 && angleLength == 0 ? 360d : positiveAngle(angleLength);
+		this.angleLength = angleLength == 0 ? this.indicatorType == IndicatorType.KNOB ? 360d : 180d : positiveAngle(angleLength);
 		this.anglePrecision = Math.max(0, anglePrecision);
 		this.numOfMajorTickMarks = (int)this.angleLength / 30;
 		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
@@ -114,39 +118,37 @@ public class Gauge extends Group {
 		this.indicatorHeight = this.majorTickMarkHeight * 10d;
 		this.indicatorPointDistance = this.majorTickMarkHeight * 4;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= ((this.indicatorHeight/1.5d) * sizeScale) ? 
-				((this.indicatorHeight/1.5d) * sizeScale) : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= ((this.indicatorHeight/1.4d) * sizeScale) ? 
-				((this.indicatorHeight/1.4d) * sizeScale) : dialCenterOuterRadius;
-		final double[] irvs = intensityRegions == null || intensityRegions.length < IntensityIndicatorRegions.INTENSITY_REGION_CNT ? 
-				INTENSITY_REGIONS_DEFAULT : intensityRegions;
+		this.dialCenterInnerRadius = dialCenterInnerRadius <= 0 ? this.innerRadius / 16.5d : dialCenterInnerRadius;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
 		
 		this.angleProperty =  new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle()));
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
-		this.dialCenterFillProperty = new Line().fillProperty();
-		this.dialCenterFillProperty.set(new RadialGradient(0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.LIGHTCYAN), new Stop(0.3, Color.DARKGRAY),
-				new Stop(0.7, Color.DARKGRAY), new Stop(1, Color.WHITE)));
-		this.minorTickMarkFillProperty = new Line().fillProperty();
-		this.minorTickMarkFillProperty.set(Color.LIGHTCYAN);
-		this.majorTickMarkFillProperty = new Line().fillProperty();
-		this.majorTickMarkFillProperty.set(Color.LIGHTCYAN);
-		this.outerRimFillProperty = new Line().fillProperty();
-		this.outerRimFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
+		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
+				indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : 
+					new RadialGradient(0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE, 
+							new Stop(0, Color.LIGHTCYAN), new Stop(0.3, Color.DARKGRAY),
+							new Stop(0.7, Color.DARKGRAY), new Stop(1, Color.WHITE)));
+		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.LIGHTCYAN);
+		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.LIGHTCYAN);
+		this.minorTickRadiusProperty = new SimpleDoubleProperty();
+		this.majorTickRadiusProperty = new SimpleDoubleProperty();
+		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.outerRadius, false, CycleMethod.REPEAT, 
-				new Stop(0.25d, Color.LIGHTGRAY), new Stop(0.26d, Color.DARKGRAY), new Stop(0.27d, Color.LIGHTGRAY),
+				new Stop(0.26d, Color.LIGHTGRAY), new Stop(0.27d, Color.DARKGRAY), new Stop(0.3d, Color.LIGHTGRAY),
 				new Stop(0.95d, Color.LIGHTGRAY), new Stop(0.97d, Color.DARKGRAY), new Stop(1d, Color.LIGHTGRAY)));
-		this.centerGaugeFillProperty = new Line().fillProperty();
-		this.centerGaugeFillProperty.set(new RadialGradient(0, 0, this.centerX, this.centerY, 
+		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(new RadialGradient(0, 0, this.centerX, this.centerY, 
 				this.innerRadius, false, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.LIGHTCYAN.darker()), new Stop(0.8d, Color.BLACK)));
-		this.indicatorFillProperty = new Line().fillProperty();
-		this.indicatorFillProperty.set(Color.ORANGERED);
+				new Stop(0, Color.LIGHTCYAN.darker().darker()), new Stop(0.7d, Color.BLACK.darker())));
+		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(Color.ORANGERED);
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
-		this.outerRimArcFillProperty = new Line().fillProperty();
-		this.intensityIndicatorRegionsProperty = new SimpleObjectProperty<Gauge.IntensityIndicatorRegions>();
-		this.intensityIndicatorRegionsProperty.setValue(new GaugeIntensityIndicatorRegions(irvs[0], irvs[1], irvs[2]));
+		this.intensityIndicatorRegionsProperty = new SimpleObjectProperty<Gauge.IntensityIndicatorRegions>(
+				intensityRegions == null ? INTENSITY_REGIONS_DEFAULT : intensityRegions);
+		this.lightingAzimuthProperty = new SimpleDoubleProperty(270d);
+		this.lightingElevationProperty = new SimpleDoubleProperty(55d);
+		this.highlightFillProperty = new SimpleObjectProperty<Paint>(new RadialGradient(0, 0, this.centerX, this.centerY, 
+				this.innerRadius, false, CycleMethod.NO_CYCLE, new Stop(0.8, Color.WHITE),
+				new Stop(1, Color.TRANSPARENT)));
 		createChildren();
 	}
 	
@@ -171,9 +173,7 @@ public class Gauge extends Group {
 				val.setText(String.valueOf(anglePrecision == 0 ? newValue.intValue() : newValue.doubleValue()));
 			}
 		});
-		gaugeParent.getChildren().add(val);
-
-		gaugeParent.getChildren().add(createIntensityIndicator(majorTickMarkWidth));
+		gaugeParent.getChildren().addAll(val, createIntensityIndicator(), createHighlight(0, 0));
 		
 		// add minor tick marks
 		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
@@ -257,25 +257,25 @@ public class Gauge extends Group {
 	}
 	
 	/**
-	 * Creates highlights for the control
+	 * Creates highlight for the control
 	 * 
-	 * @param radius the radius of the highlights
-	 * @return the group highlights
+	 * @param width the width of the highlight
+	 * @param height the height of the highlight
+	 * @return the highlight
 	 */
-	protected Group createHighlights(final double radius) {
-		final Group highlight = new Group();
+	protected Shape createHighlight(final double width, final double height) {
+		final double highlightRadius = innerRadius / 1.3d;
+		final double offsetFactor = innerRadius / 4d;
+		final Arc highlight = new Arc(centerX, centerY, highlightRadius, highlightRadius, 
+				positiveAngle(angleStart + offsetFactor), positiveAngle(angleLength - offsetFactor * 2d));
+		highlight.setType(ArcType.CHORD);
+		
 		highlight.setCache(true);
 		highlight.setCacheHint(CacheHint.SPEED);
 		highlight.setOpacity(0.05d);
-		final Arc hArc1 = new Arc(this.centerX, this.centerY, radius, radius, 
-				this.angleStart, this.angleLength);
-		hArc1.setFill(Color.RED);
-		final Arc hArc2 = new Arc(this.centerX, this.centerY, radius, radius, 
-				this.angleStart, this.angleLength);
-		hArc2.setFill(Color.WHITE);
-		highlight.getChildren().addAll(hArc1);//, hArc2);
+		Bindings.bindBidirectional(highlight.fillProperty(), highlightFillProperty);
 		final GaussianBlur highlightBlur = new GaussianBlur();
-		highlightBlur.setRadius(2);
+		highlightBlur.setRadius(2d);
 		highlight.setEffect(highlightBlur);
 		return highlight;
 	}
@@ -283,72 +283,86 @@ public class Gauge extends Group {
 	/**
 	 * @return the lighting applied to the gauge shape and indicator/hand group
 	 */
-	protected Lighting createLighting() {
+	protected final Lighting createLighting() {
 		final Light.Distant handBaseLight = new Light.Distant();
-		handBaseLight.setAzimuth(270d);
-		handBaseLight.setElevation(70d);
+		Bindings.bindBidirectional(handBaseLight.azimuthProperty(), lightingAzimuthProperty);
+		Bindings.bindBidirectional(handBaseLight.elevationProperty(), lightingElevationProperty);
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
 		return handBaseLighting;
 	}
 	
-	protected final Group createIntensityIndicator(final double height) {
-		final Arc redArc = createIntensityIndicatorArc(intensityIndicatorRegionsProperty.get().getRedPercentage(),
-				innerRadius, innerRadius, angleStart, Color.RED);
-		final Arc yellowArc = createIntensityIndicatorArc(intensityIndicatorRegionsProperty.get().getYellowPercentage(),
-				redArc.getRadiusX(), redArc.getRadiusY(), getTrigEndAngle(redArc.getStartAngle(), redArc.getLength()),
-				Color.GOLD);
-		final Arc greenArc = createIntensityIndicatorArc(intensityIndicatorRegionsProperty.get().getGreenPercentage(),
-				yellowArc.getRadiusX(), yellowArc.getRadiusY(), getTrigEndAngle(yellowArc.getStartAngle(), yellowArc.getLength()),
-				Color.GREEN);
+	/**
+	 * Creates an intensity indicator that shows a transition from {@code color 1}, {@code color 2}, and {@code color 3}
+	 * 
+	 * @return the intensity indicator
+	 */
+	protected final Group createIntensityIndicator() {
+		final Arc color1Arc = new Arc();
+		final Arc color2Arc = new Arc();
+		final Arc color3Arc = new Arc();
+		updateIntensityIndicatorProperties(color1Arc, color2Arc, color3Arc, intensityIndicatorRegionsProperty.get());
 		
 		final Group intensityIndicator = new Group();
-		final Arc subractionArc = new Arc(centerX, centerY, innerRadius - height, innerRadius - height, angleStart, angleLength);
-		final Shape is = Shape.subtract(greenArc, subractionArc);
-		setIntensityIndicatorFill(greenArc.getRadiusX(), greenArc.getRadiusY(), greenArc.getStartAngle(), is, 
-				intensityIndicatorRegionsProperty.get());
 		intensityIndicatorRegionsProperty.addListener(new ChangeListener<IntensityIndicatorRegions>() {
 			@Override
 			public void changed(ObservableValue<? extends IntensityIndicatorRegions> observable, 
 					IntensityIndicatorRegions oldValue, IntensityIndicatorRegions newValue) {
-				setIntensityIndicatorFill(greenArc.getRadiusX(), greenArc.getRadiusY(), greenArc.getStartAngle(), is, newValue);
+				updateIntensityIndicatorProperties(color1Arc, color2Arc, color3Arc, newValue);
 			}
 		});
-		intensityIndicator.getChildren().addAll(greenArc, yellowArc, redArc);
+		intensityIndicator.getChildren().addAll(color3Arc, color2Arc, color1Arc);
 		return intensityIndicator;
 	}
 	
-	protected final Arc createIntensityIndicatorArc(final double intensityPercentage, 
+	/**
+	 * Updates the specified intensity indicator arcs properties based upon its radius and start angle using 
+	 * the intensity region values
+	 * 
+	 * @param color1Arc the color 1 arc
+	 * @param color2Arc the color 2 arc
+	 * @param color3Arc the color 3 arc
+	 * @param intensityIndicatorRegions the intensity regions to use
+	 */
+	protected final void updateIntensityIndicatorProperties(final Arc color1Arc, final Arc color2Arc, final Arc color3Arc,
+			final IntensityIndicatorRegions intensityIndicatorRegions) {
+		updateIntensityIndicatorProperties(color1Arc, intensityIndicatorRegions.getColor3SpanPercentage(),
+				innerRadius, innerRadius, angleStart, intensityIndicatorRegions.getColor1());
+		updateIntensityIndicatorProperties(color2Arc, intensityIndicatorRegions.getColor2SpanPercentage(),
+				color1Arc.getRadiusX(), color1Arc.getRadiusY(), getTrigEndAngle(color1Arc.getStartAngle(), color1Arc.getLength()),
+				intensityIndicatorRegions.getColor2());
+		updateIntensityIndicatorProperties(color3Arc, intensityIndicatorRegions.getColor1SpanPercentage(),
+				color2Arc.getRadiusX(), color2Arc.getRadiusY(), getTrigEndAngle(color2Arc.getStartAngle(), color2Arc.getLength()),
+				intensityIndicatorRegions.getColor3());
+	}
+	
+	/**
+	 * Updates the specified intensity indicator arcs properties based upon its radius and start angle using 
+	 * the intensity region values
+	 * 
+	 * @param intensityIndicator the arc to update
+	 * @param intensityPercentage the percentage of the gauge the arc will occupy
+	 * @param radiusX the x radius of the arc
+	 * @param radiusY the y radius of the arc
+	 * @param startAngle the start angle of the arc
+	 * @param color the color of the arc
+	 */
+	protected void updateIntensityIndicatorProperties(final Arc intensityIndicator, final double intensityPercentage, 
 			final double radiusX, final double radiusY, final double startAngle, final Color color) {
 //		final double x = radiusX * Math.cos(angleStart);
 //		final double y = radiusY * Math.sin(angleStart);
 		final double arcAngleLength = (intensityPercentage * 0.01d) * angleLength;
-		final Arc arc = new Arc(centerX, centerY, radiusX, radiusY, startAngle, arcAngleLength);
-		arc.setType(ArcType.ROUND);
-//		arc.setFill(new RadialGradient(0, 0, centerX + x, centerY + y, 
-//				Math.max(arc.getRadiusX(), arc.getRadiusY()), false, CycleMethod.NO_CYCLE, 
-//				new Stop(0, color), new Stop(0.99d, Color.TRANSPARENT)));
-		arc.setFill(color);
-		arc.setOpacity(0.5);
-		return arc;
-	}
-	
-	/**
-	 * Sets the specified intensity indicator arcs fill based upon its radius and start angle using 
-	 * the intensity region values
-	 * 
-	 * @param is the intensity indicator arc
-	 * @param intensityRegions the intensity indicator regions
-	 */
-	protected <T extends IntensityIndicatorRegions> void setIntensityIndicatorFill(final double radiusX, 
-			final double radiusY, final double startAngle, final Shape intensityIndicator, final T intensityRegions) {
-		final double gx = radiusX * Math.cos(startAngle);
-		final double gy = radiusY * Math.sin(startAngle);
-		final double gYellow = intensityRegions.getYellowPercentage() * .01d;//intensityRegions[2] / (360d / 1.0d);
-		final double gGreen = intensityRegions.getGreenPercentage() * .01d;//intensityRegions[1] / (360d / 1.0d);
-		intensityIndicator.setFill(new RadialGradient(startAngle, 0, centerX + gx, centerY + gy, 
-				Math.max(radiusX, radiusY) * 4.5d, false, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.RED), new Stop(gYellow, Color.GOLD), new Stop(gGreen, Color.GREEN)));
+		intensityIndicator.setType(ArcType.ROUND);
+		intensityIndicator.setCenterX(centerX);
+		intensityIndicator.setCenterY(centerY);
+		intensityIndicator.setRadiusX(radiusX);
+		intensityIndicator.setRadiusY(radiusY);
+		intensityIndicator.setStartAngle(startAngle);
+		intensityIndicator.setLength(arcAngleLength);
+		intensityIndicator.setFill(new RadialGradient(0, 0, centerX, centerY, 
+				Math.max(intensityIndicator.getRadiusX(), intensityIndicator.getRadiusY()), false, CycleMethod.NO_CYCLE, 
+				 new Stop(0.8d, Color.TRANSPARENT), new Stop(1, color)));
+		intensityIndicator.setOpacity(0.9d);
 	}
 	
 	/**
@@ -427,19 +441,20 @@ public class Gauge extends Group {
 	 * @param offsetHeight the pivot offset height
 	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
 	 * @param addLabel true to add value labels to the tick marks
+	 * @return the tick mark group
 	 */
-	protected void addTickMarks(final Group parent, final double numOfMarks, 
+	protected Group addTickMarks(final Group parent, final int numOfMarks, 
 			final ObjectProperty<Paint> tickMarkFillProperty, final double width, final double height, 
 			final double offestWidth, final double offsetHeight, boolean addLabel,
 			final DoubleProperty tickMarkOpacityProperty) {
-		final double rtbase = angleLength / numOfMarks;
 		double angle = 0;
+		final Group tickGroup = new Group();
 		Shape tick;
 		for (int i=0; i<=numOfMarks; i++) {
-			angle = 180d - (rtbase * i) - angleStart + height / 2d;
+			angle = tickMarkAngle(numOfMarks, i, height);
 			tick = createTickMark(tickMarkFillProperty, angle, width, height, offestWidth, offsetHeight,
 					tickMarkOpacityProperty);
-			parent.getChildren().add(tick);
+			tickGroup.getChildren().add(tick);
 			if (addLabel) {
 				// TODO : add tick mark label option
 				final Label lbl = new Label(String.valueOf(angle));
@@ -449,6 +464,8 @@ public class Gauge extends Group {
 				parent.getChildren().add(lbl);
 			}
         }
+		parent.getChildren().add(tickGroup);
+		return tickGroup;
 	}
 	
 	/**
@@ -466,8 +483,8 @@ public class Gauge extends Group {
     protected Shape createTickMark(final ObjectProperty<Paint> tickMarkFillProperty, 
     		final double angle, final double width, final double height, final double offestWidth, 
     		final double offsetHeight, final DoubleProperty tickMarkOpacityProperty) {
-		final double x = (centerX + width - outerRadius) + offestWidth;
-		final double y = (centerY - height / 2) + offsetHeight;
+		final double x = tickMarkX(width) + offestWidth;
+		final double y = tickMarkY(height) + offsetHeight;
     	final Rectangle tm = new Rectangle(x, y, width, height);
     	Bindings.bindBidirectional(tm.fillProperty(), tickMarkFillProperty);
 		tm.getTransforms().addAll(new Rotate(angle, centerX, centerY));
@@ -662,6 +679,38 @@ public class Gauge extends Group {
     }
     
     /**
+     * Calculates the x coordinate of a tick mark
+     * 
+     * @param width the width of the tick mark
+     * @return the x coordinate of the tick mark
+     */
+    protected final double tickMarkX(final double width) {
+    	return centerX + width - outerRadius;
+    }
+    
+    /**
+     * Calculates the y coordinate of a tick mark
+     * 
+     * @param height the height of the tick mark
+     * @return the y coordinate of the tick mark
+     */
+    protected final double tickMarkY(final double height) {
+    	return centerY - height / 2d;
+    }
+    
+    /**
+     * Calculates the angle of a tick mark
+     * 
+     * @param numOfMarks the total number of tick marks
+     * @param index the index of the tick mark relative to the total number of tick marks (zero based)
+     * @param height the height of the tick mark
+     * @return the angle of the tick mark
+     */
+    protected final double tickMarkAngle(final int numOfMarks, final int index, final double height) {
+    	return 180d - ((angleLength / numOfMarks) * index) - angleStart + height / 2d;
+    }
+    
+    /**
      * Returns the closest angle to the supplied angle
      * 
      * @param angle the angle to check against
@@ -711,6 +760,17 @@ public class Gauge extends Group {
      */
     public static final double reverseAngle(final double angle) {
     	return 180d - angle < 0 ? 180d - angle + 360d : 180d - angle;
+    }
+    
+    /**
+     * Calculates the difference of two angles
+     * 
+     * @param angle1 angle one
+     * @param angle2 angle two
+     * @return the difference
+     */
+    public static final double differenceAngle(final double angle1, final double angle2) {
+        return Math.abs((angle1 + 180d - angle2) % 360d - 180d);
     }
     
     /**
@@ -768,65 +828,86 @@ public class Gauge extends Group {
     	RECTANGLE, NEEDLE, CLOCK, KNOB;
     }
     
-    public abstract class IntensityIndicatorRegions {
-    	public static final int INTENSITY_REGION_CNT = 3;
-    	/**
-    	 * @return greenPercentage the percentage of green
-    	 */
-    	public abstract double getGreenPercentage();
-    	/**
-    	 * @return yellowPercentage the percentage of green
-    	 */
-    	public abstract double getYellowPercentage();
-    	/**
-    	 * @return redPercentage the percentage of green
-    	 */
-    	public abstract double getRedPercentage();
-    }
-    
     /**
      * Regions used as a visual aid to distinguish the intensity of a {@linkplain #Gauge}. percentages should always add up to one hundred
      */
-    public class GaugeIntensityIndicatorRegions extends IntensityIndicatorRegions {
-    	private final double greenPercentage;
-    	private final double yellowPercentage;
-    	private final double redPercentage;
+    public static class IntensityIndicatorRegions {
+    	public static final int INTENSITY_REGION_CNT = 3;
+    	private final double color1SpanPercentage;
+    	private final double color2SpanPercentage;
+    	private final double color3SpanPercentage;
+    	private final Color color1;
+    	private final Color color2;
+    	private final Color color3;
+    	/**
+		 * Creates intensity indicator regions. percentages should always add up to one hundred
+		 * 
+		 * @param color1SpanPercentage the span percentage of color 1 0-100
+		 * @param color2SpanPercentage the span percentage of color 2 0-100
+		 * @param color3SpanPercentage the span percentage of color 3 0-100
+    	 */
+    	public IntensityIndicatorRegions(final double color1SpanPercentage, final double color2SpanPercentage, 
+				final double color3SpanPercentage) {
+    		this(color1SpanPercentage, color2SpanPercentage, color3SpanPercentage, Color.RED, Color.GOLD, Color.GREEN);
+    	}
 		/**
 		 * Creates intensity indicator regions. percentages should always add up to one hundred
 		 * 
-		 * @param greenPercentage the percentage of green 0-100
-		 * @param yellowPercentage the percentage of yellow 0-100
-		 * @param redPercentage the percentage of red 0-100
+		 * @param color1SpanPercentage the span percentage of color 1 0-100
+		 * @param color2SpanPercentage the span percentage of color 2 0-100
+		 * @param color3SpanPercentage the span percentage of color 3 0-100
+		 * @param color1 color 1
+		 * @param color2 color 2
+		 * @param color3 color 3
 		 */
-		public GaugeIntensityIndicatorRegions(final double greenPercentage, final double yellowPercentage, final double redPercentage) {
+		public IntensityIndicatorRegions(final double color1SpanPercentage, final double color2SpanPercentage, 
+				final double color3SpanPercentage, final Color color1, final Color color2, final Color color3) {
 			super();
-			if ((greenPercentage + yellowPercentage + redPercentage) != 100) {
+			if ((color1SpanPercentage + color2SpanPercentage + color3SpanPercentage) != 100d) {
 				throw new IllegalArgumentException("The sum of all percentages must be 100");
 			}
-			this.greenPercentage = greenPercentage;
-			this.yellowPercentage = yellowPercentage;
-			this.redPercentage = redPercentage;
+			this.color1SpanPercentage = color1SpanPercentage;
+			this.color2SpanPercentage = color2SpanPercentage;
+			this.color3SpanPercentage = color3SpanPercentage;
+			this.color1 = color1;
+			this.color2 = color2;
+			this.color3 = color3;
 		}
 		/**
-		 * {@inheritDoc}
+		 * @return gets the span percentage of color 1
 		 */
-		@Override
-		public double getGreenPercentage() {
-			return greenPercentage;
+		public double getColor1SpanPercentage() {
+			return color1SpanPercentage;
 		}
 		/**
-		 * {@inheritDoc}
+		 * @return gets the span percentage of color 2
 		 */
-		@Override
-		public double getYellowPercentage() {
-			return yellowPercentage;
+		public double getColor2SpanPercentage() {
+			return color2SpanPercentage;
 		}
 		/**
-		 * {@inheritDoc}
+		 * @return gets the span percentage of color 3
 		 */
-		@Override
-		public double getRedPercentage() {
-			return redPercentage;
+		public double getColor3SpanPercentage() {
+			return color3SpanPercentage;
+		}
+		/**
+		 * @return color 1
+		 */
+		public Color getColor1() {
+			return color1;
+		}
+		/**
+		 * @return color 2
+		 */
+		public Color getColor2() {
+			return color2;
+		}
+		/**
+		 * @return color 3
+		 */
+		public Color getColor3() {
+			return color3;
 		}
     }
 }
