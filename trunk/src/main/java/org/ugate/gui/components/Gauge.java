@@ -15,7 +15,9 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Glow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
@@ -58,13 +60,13 @@ public class Gauge extends Group {
 	private final int dialNumberOfSides;
 	private final double dialCenterInnerRadius;
 	private final double dialCenterOuterRadius;
-	protected final double outerRadius;
-	protected final double innerRadius;
-	protected final double angleStart;
-	protected final double angleLength;
-	protected final double centerX;
-	protected final double centerY;
-	protected final int anglePrecision;
+	public final double outerRadius;
+	public final double innerRadius;
+	public final double angleStart;
+	public final double angleLength;
+	public final double centerX;
+	public final double centerY;
+	public final int anglePrecision;
 	public final DoubleProperty angleProperty;
 	public final DoubleProperty valueProperty = new SimpleDoubleProperty(0);
 	public final DoubleProperty minorTickMarkOpacityProperty;
@@ -118,7 +120,7 @@ public class Gauge extends Group {
 		this.majorTickMarkHeight = 2d * sizeScale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
-		this.indicatorWidth = this.innerRadius;// - this.minorTickMarkWidth;
+		this.indicatorWidth = this.innerRadius;
 		this.indicatorHeight = this.majorTickMarkHeight * 10d;
 		this.indicatorPointDistance = this.majorTickMarkHeight * 4;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
@@ -129,22 +131,23 @@ public class Gauge extends Group {
 		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
-				indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : 
-					new RadialGradient(0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE, 
-							new Stop(0, Color.LIGHTCYAN), new Stop(0.3, Color.DARKGRAY),
-							new Stop(0.7, Color.DARKGRAY), new Stop(1, Color.WHITE)));
-		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.LIGHTCYAN);
-		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.LIGHTCYAN);
+				this.indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : Color.BLACK);
+		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
+		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.minorTickRadiusProperty = new SimpleDoubleProperty();
 		this.majorTickRadiusProperty = new SimpleDoubleProperty();
-		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(new RadialGradient(0, 0, this.centerX, this.centerY, 
-				this.outerRadius, false, CycleMethod.REPEAT, 
-				new Stop(0.26d, Color.LIGHTGRAY), new Stop(0.27d, Color.DARKGRAY), new Stop(0.3d, Color.LIGHTGRAY),
-				new Stop(0.95d, Color.LIGHTGRAY), new Stop(0.97d, Color.DARKGRAY), new Stop(1d, Color.LIGHTGRAY)));
-		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(new RadialGradient(0, 0, this.centerX, this.centerY, 
-				this.innerRadius, false, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.LIGHTCYAN.darker().darker()), new Stop(0.7d, Color.BLACK.darker())));
-		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(Color.ORANGERED);
+		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
+		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
+				this.indicatorType == IndicatorType.KNOB ? Color.BLACK :
+					new RadialGradient(0, 0, this.centerX, this.centerY, 
+							this.innerRadius, false, CycleMethod.NO_CYCLE, 
+							new Stop(0, Color.LIGHTCYAN.darker().darker()), 
+							new Stop(0.7d, Color.BLACK.darker())));
+		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(
+				this.indicatorType == IndicatorType.KNOB ? new RadialGradient(0, 0, 0, 0, 
+							Math.max(this.indicatorHeight, this.indicatorWidth), false, 
+							CycleMethod.REPEAT, new Stop(0, Color.ORANGE), 
+							new Stop(1, Color.DARKRED)) : Color.ORANGERED);
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
 		this.intensityIndicatorRegionsProperty = new SimpleObjectProperty<Gauge.IntensityIndicatorRegions>(
 				intensityRegions == null ? INTENSITY_REGIONS_DEFAULT : intensityRegions);
@@ -222,11 +225,12 @@ public class Gauge extends Group {
 	 */
 	protected Shape createBackground(final double outerRimRadius, final double radius, 
 			final ObjectProperty<Paint> centerGaugeFillProperty, final ObjectProperty<Paint> rimStrokeFillProperty) {
+		final Effect effect = createBackgroundEffect();
 		if (isCircular()) {
 			final Circle ccg = new Circle(this.centerX, this.centerY, radius);
 			ccg.setCache(true);
 			ccg.setCacheHint(CacheHint.QUALITY);
-			ccg.setEffect(createLighting());
+			ccg.setEffect(effect);
 			addRimStroke(ccg, rimStrokeFillProperty);
 			Bindings.bindBidirectional(ccg.fillProperty(), centerGaugeFillProperty);
 			return ccg;
@@ -240,11 +244,24 @@ public class Gauge extends Group {
 			acf.setCache(true);
 			final Shape cg = Shape.union(acg, acf);
 			cg.setCache(true);
-			cg.setEffect(createLighting());
+			cg.setEffect(effect);
 			addRimStroke(cg, rimStrokeFillProperty);
 			Bindings.bindBidirectional(cg.fillProperty(), centerGaugeFillProperty);
 			return cg;
 		}
+	}
+	
+	/**
+	 * @return the effect applied to the background
+	 */
+	protected Effect createBackgroundEffect() {
+		final DropShadow outerGlow = new DropShadow();
+		outerGlow.setOffsetX(0);
+		outerGlow.setOffsetY(0);
+		outerGlow.setColor(Color.WHITE);
+		outerGlow.setRadius(5);
+		//outerglow.setInput(createLighting());
+		return outerGlow;
 	}
 	
 	/**
@@ -258,7 +275,7 @@ public class Gauge extends Group {
 		cg.setStrokeLineCap(StrokeLineCap.ROUND);
 		cg.setStrokeLineJoin(StrokeLineJoin.ROUND);
 		cg.setStrokeWidth(outerRadius - innerRadius);
-		cg.setStroke(Color.GREEN);
+		//cg.setStroke(Color.WHITE);
 		Bindings.bindBidirectional(cg.strokeProperty(), strokeFillProperty);
 	}
 	
@@ -270,7 +287,7 @@ public class Gauge extends Group {
 	 * @return the highlight
 	 */
 	protected Shape createHighlight(final double width, final double height) {
-		final double highlightRadius = innerRadius / 1.3d;
+		final double highlightRadius = innerRadius;
 		final double offsetFactor = innerRadius / 4d;
 		final Arc highlight = new Arc(centerX, centerY, highlightRadius, highlightRadius, 
 				positiveAngle(angleStart + offsetFactor), positiveAngle(angleLength - offsetFactor * 2d));
@@ -295,6 +312,10 @@ public class Gauge extends Group {
 		Bindings.bindBidirectional(handBaseLight.elevationProperty(), lightingElevationProperty);
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
+		handBaseLighting.setSpecularConstant(0.7d);
+		handBaseLighting.setSpecularExponent(33d);
+		handBaseLighting.setDiffuseConstant(2d);
+		handBaseLighting.setSurfaceScale(1.7d);
 		return handBaseLighting;
 	}
 	
@@ -390,26 +411,24 @@ public class Gauge extends Group {
 		final Group indicator = new Group();
 		indicator.setCache(true);
 		indicator.setCacheHint(CacheHint.ROTATE);
-		final ColorAdjust handColorAdj = new ColorAdjust();
-		handColorAdj.setBrightness(0);
+		final Glow movingEffect = new Glow();
+		movingEffect.setLevel(0);
 		final DropShadow handDropShadow = new DropShadow();
 		handDropShadow.setOffsetX(4);
 		handDropShadow.setOffsetY(4);
 		handDropShadow.setRadius(7);
-		handDropShadow.setColor(Color.web("#000000"));
-		handDropShadow.setInput(handColorAdj);
+		handDropShadow.setColor(Color.BLACK);
+		handDropShadow.setInput(movingEffect);
 		indicator.setEffect(handDropShadow);
 		gaugeParent.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				if (event.getEventType() == MouseEvent.MOUSE_ENTERED && event.getTarget() == indicator) {
-					handColorAdj.setBrightness(0.2d);
-				} else if (event.isPrimaryButtonDown() && (event.getEventType() == MouseEvent.MOUSE_DRAGGED || 
-						(event.getEventType() == MouseEvent.MOUSE_CLICKED && event.getTarget() != indicator))) {
-					handColorAdj.setBrightness(0.2d);
+				if (event.isPrimaryButtonDown() && (event.getEventType() == MouseEvent.MOUSE_DRAGGED || 
+						(event.getEventType() == MouseEvent.MOUSE_CLICKED))) {
+					movingEffect.setLevel(indicatorType == IndicatorType.KNOB ? 0.2d : 1d);
 					moveIndicator(centerX - event.getX(), centerY - event.getY());
-				} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {// || (event.getEventType() == MouseEvent.MOUSE_EXITED_TARGET)) {
-					handColorAdj.setBrightness(0d);
+				} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
+					movingEffect.setLevel(0);
 				}
 			}
 		});
@@ -444,6 +463,10 @@ public class Gauge extends Group {
 		return indicator;
 	}
 	
+	protected Effect createIndicatorEffect() {
+		return null;
+	}
+	
 	/**
 	 * Adds the tick marks to the gauge
 	 * 
@@ -465,7 +488,7 @@ public class Gauge extends Group {
 		double angle = 0;
 		final Group tickGroup = new Group();
 		tickGroup.setCache(true);
-		tickGroup.setCacheHint(CacheHint.QUALITY);
+		tickGroup.setCacheHint(CacheHint.ROTATE);
 		Shape tick;
 		for (int i=0; i<=numOfMarks; i++) {
 			angle = tickMarkAngle(numOfMarks, i, height);
@@ -538,27 +561,28 @@ public class Gauge extends Group {
     		break;
     	case CLOCK: indicatorShape = new Polygon(
     			x, y,
-    			x - pointDistance, y + (height / 2),  
+    			x - pointDistance, y + (height / 2d),  
     			x, y + height, 
-    			x + width, y + (height / 2) + (height / 4), 
-    			x + width, y + (height / 4));
+    			x + width, y + (height / 2d) + (height / 4d), 
+    			x + width, y + (height / 4d));
     		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
     	case KNOB: indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
-    			width - (pointDistance * 2) - ((dialCenterOuterRadius - dialCenterInnerRadius) * height), 
-    			width - (pointDistance * 2), 0, indicatorFillProperty);
+    			width - (pointDistance * 2d) - ((dialCenterOuterRadius - dialCenterInnerRadius) * height), 
+    			width - (pointDistance * 2d), 0, indicatorFillProperty);
     		break;
     	case NEEDLE: default: indicatorShape = new Polygon(
-				x, y + (height / 2.5), 
-				x, y + height - (height / 2.5), 
+				x, y + (height / 2.5d), 
+				x, y + height - (height / 2.5d), 
 				x + width - pointDistance, y + height, 
-				x + width, y + (height / 2), 
+				x + width, y + (height / 2d), 
 				x + width - pointDistance, y);
     		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
     	}
     	indicatorShape.setCache(true);
-    	indicatorShape.setCacheHint(CacheHint.ROTATE);
+    	indicatorShape.setCacheHint(CacheHint.QUALITY);
+    	//indicatorShape.setEffect(createLighting());
     	return indicatorShape;
     	
     }
@@ -590,9 +614,8 @@ public class Gauge extends Group {
     			x, y,
     			x - pointDistance, y + (indicatorHeight / 2d),  
     			x, y + indicatorHeight, 
-    			x + (indicatorWidth / 4d), y + (indicatorHeight / 2d) + (indicatorHeight / 4d), 
-    			x + (indicatorWidth / 4d), y + (indicatorHeight / 4d));
-		handIndicatorShape.setEffect(createLighting());
+    			x + (indicatorWidth / 2d), y + (indicatorHeight / 2d) + (indicatorHeight / 4d), 
+    			x + (indicatorWidth / 2d), y + (indicatorHeight / 4d));
     	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), indicatorFillProperty);
 		handShapeGroup.getChildren().addAll(dialInidcatorShape, handIndicatorShape);
 		return handShapeGroup;
