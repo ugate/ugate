@@ -126,6 +126,7 @@ public class ToggleSwitch extends Group {
 		textView.getChildren().addAll(onLabel, offLabel);
 		
     	mainRec = new Rectangle();
+    	mainRec.setSmooth(false);
     	mainRec.setCache(true);
     	mainRec.setCacheHint(CacheHint.SPEED);
     	mainRec.setStroke(Color.BLACK);
@@ -137,6 +138,7 @@ public class ToggleSwitch extends Group {
     	mainRec.setArcHeight(REC_ARC);
     	
     	middleRec = new Rectangle();
+    	middleRec.setSmooth(false);
     	middleRec.setCache(true);
     	middleRec.setCacheHint(CacheHint.SPEED);
     	middleRec.setStroke(Color.BLACK);

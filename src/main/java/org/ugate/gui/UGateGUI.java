@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -291,6 +292,7 @@ public class UGateGUI extends Application {
 			final double scaleY, final boolean showReflection,
 			final Runnable action) {
 		final ImageView node = RS.imgView(iconName);
+		node.setCacheHint(CacheHint.SCALE);
 		node.setFitWidth(width);
 		node.setFitHeight(height);
 

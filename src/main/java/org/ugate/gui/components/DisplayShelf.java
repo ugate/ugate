@@ -16,6 +16,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
@@ -117,6 +118,8 @@ public class DisplayShelf extends Region {
      * @param images the images to add as image items for (null if an image directory has been defined)
      */
     protected void init(final Image[] images) {
+    	setCache(true);
+    	setCacheHint(CacheHint.SCALE_AND_ROTATE);
     	setMinSize(imageWidth * 2, imageHeight);
         getStyleClass().add("displayshelf");
         // create items
@@ -196,9 +199,9 @@ public class DisplayShelf extends Region {
     protected DisplayShelfImage addItem(final File file, final Image image, final int index) {
         final DisplayShelfImage item = image != null ?  
 			new DisplayShelfImage(null, image, reflectionSize, displayAngle, 
-					toolBarPosition, imageWidth, imageHeight, false, true) :
+					toolBarPosition, imageWidth, imageHeight, false, false) :
         		new DisplayShelfImage(file, null, reflectionSize, displayAngle, 
-        				toolBarPosition, imageWidth, imageHeight, false, true);
+        				toolBarPosition, imageWidth, imageHeight, false, false);
         items.add(item);
         item.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent me) {

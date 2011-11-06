@@ -1,6 +1,8 @@
 package org.ugate.resources;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javafx.scene.CacheHint;
 import javafx.scene.image.Image;
@@ -45,6 +47,7 @@ public class RS {
 	public static final String IMG_SPEEDOMETER = "speedometer.png";
 	public static final String IMG_PAN = "pan.png";
 	public static final String IMG_TILT = "tilt.png";
+	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
 	private RS() {
 	}
@@ -67,7 +70,7 @@ public class RS {
 	 */
 	public static ImageView imgView(final Image image) {
 		final ImageView node = new ImageView(image);
-		node.setSmooth(true);
+		node.setSmooth(false);
 		node.setCache(true);
 		node.setCacheHint(CacheHint.SPEED);
 		return node;
@@ -80,7 +83,13 @@ public class RS {
 	 * @return the image
 	 */
 	public static Image img(final String fileName) {
-		return new Image(path(fileName));
+		if (IMGS.containsKey(fileName)) {
+			return IMGS.get(fileName);
+		} else {
+			final Image img = new Image(path(fileName));
+			IMGS.put(fileName, img);
+			return img;
+		}
 	}
 	
 	/**
