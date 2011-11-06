@@ -63,6 +63,7 @@ public class Digits extends HBox {
 			Digit digit;
 			char c;
 			int d;
+			Circle circle;
 			for (int i=0; i<value.length(); i++) {
 				c = value.charAt(i);
 				if (remCnt != 0) {
@@ -71,7 +72,10 @@ public class Digits extends HBox {
 						circleBox.setCache(true);
 						circleBox.setCacheHint(CacheHint.SPEED);
 						circleBox.setStyle("-fx-alignment: BOTTOM_LEFT;");
-						circleBox.getChildren().add(new Circle(0, 0, 6 * getScale(), onColor));
+						circle = new Circle(0, 0, 6 * getScale(), onColor);
+						circle.setCache(true);
+						circle.setSmooth(false);
+						circleBox.getChildren().add(circle);
 						getChildren().add(circleBox);
 					} else {
 						d = c == '-' ? Digit.NEGATIVE_SIGN_DIGIT : Integer.valueOf(String.valueOf(c));

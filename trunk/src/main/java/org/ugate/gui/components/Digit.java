@@ -138,6 +138,7 @@ public class Digit extends Parent {
 		final Polygon pg = new Polygon(points);
 		pg.setCache(true);
 		pg.setCacheHint(CacheHint.SPEED);
+		pg.setSmooth(false);
 		return pg;
 	}
 }

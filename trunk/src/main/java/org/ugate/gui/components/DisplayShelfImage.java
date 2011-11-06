@@ -10,6 +10,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -77,6 +78,8 @@ public class DisplayShelfImage extends Parent {
     	this.smooth = fileImageSmooth;
         // create content
     	this.imageView = new ImageView();
+    	this.imageView.setCache(true);
+    	this.imageView.setCacheHint(CacheHint.SCALE_AND_ROTATE);
     	if (image == null) {
     		this.file = file;
     		image = createImage(this.file, fileImageWidth, fileImageHeight, this.preserveRatio, this.smooth);

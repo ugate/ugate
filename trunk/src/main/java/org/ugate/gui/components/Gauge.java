@@ -91,6 +91,10 @@ public class Gauge extends Group {
 		this(indicatorType, 0, 0, 0);
 	}
 	
+	public Gauge(final IndicatorType indicatorType, final double sizeScale) {
+		this(indicatorType, sizeScale, 0, 0, 0, 0, 0, 0, null);
+	}
+	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale,
 			final double startAngle, final double angleLength) {
 		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, 0, null);
@@ -156,8 +160,6 @@ public class Gauge extends Group {
 	 * Creates the required children
 	 */
 	protected final void createChildren() {
-		setCache(true);
-		setCacheHint(CacheHint.SPEED);
 		// create basic gauge shapes
 		final Shape gaugeCenter = createBackground(outerRadius, innerRadius, centerGaugeFillProperty, outerRimFillProperty);
 		final Group gaugeParent = createParent(gaugeCenter);
@@ -184,8 +186,7 @@ public class Gauge extends Group {
 		
 		// create indicator/hand
 		final Group indicator = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
-		gaugeParent.getChildren().addAll(indicator);//, createHighlights(outerRadius));
-		indicator.getRotate();
+		gaugeParent.getChildren().addAll(indicator);
 		
 		getChildren().add(gaugeParent);
 	}
@@ -206,8 +207,6 @@ public class Gauge extends Group {
 	 */
 	protected final Group createParent(final Shape gaugeCenter) {
 		final Group gaugeParent = new Group();
-		gaugeParent.setCache(true);
-		gaugeParent.setCacheHint(CacheHint.SPEED);
 		gaugeParent.getChildren().addAll(gaugeCenter);
 		return gaugeParent;
 	}
@@ -225,6 +224,9 @@ public class Gauge extends Group {
 			final ObjectProperty<Paint> centerGaugeFillProperty, final ObjectProperty<Paint> rimStrokeFillProperty) {
 		if (isCircular()) {
 			final Circle ccg = new Circle(this.centerX, this.centerY, radius);
+			ccg.setCache(true);
+			ccg.setCacheHint(CacheHint.QUALITY);
+			ccg.setEffect(createLighting());
 			addRimStroke(ccg, rimStrokeFillProperty);
 			Bindings.bindBidirectional(ccg.fillProperty(), centerGaugeFillProperty);
 			return ccg;
@@ -232,8 +234,12 @@ public class Gauge extends Group {
 			final Arc acg = new Arc(this.centerX, this.centerY, radius, radius, 
 					this.angleStart, this.angleLength);
 			acg.setType(ArcType.ROUND);
+			acg.setCache(true);
+			acg.setCacheHint(CacheHint.QUALITY);
 			final Shape acf = new Circle(centerX, centerY, this.dialCenterOuterRadius * 4.5d);
+			acf.setCache(true);
 			final Shape cg = Shape.union(acg, acf);
+			cg.setCache(true);
 			cg.setEffect(createLighting());
 			addRimStroke(cg, rimStrokeFillProperty);
 			Bindings.bindBidirectional(cg.fillProperty(), centerGaugeFillProperty);
@@ -298,20 +304,25 @@ public class Gauge extends Group {
 	 * @return the intensity indicator
 	 */
 	protected final Group createIntensityIndicator() {
-		final Arc color1Arc = new Arc();
-		final Arc color2Arc = new Arc();
-		final Arc color3Arc = new Arc();
-		updateIntensityIndicatorProperties(color1Arc, color2Arc, color3Arc, intensityIndicatorRegionsProperty.get());
+		final Arc region1Arc = new Arc();
+		final Arc region2Arc = new Arc();
+		final Arc region3Arc = new Arc();
+		region1Arc.setCache(true);
+		region2Arc.setCache(true);
+		region3Arc.setCache(true);
+		updateIntensityIndicatorProperties(region1Arc, region2Arc, region3Arc, intensityIndicatorRegionsProperty.get());
 		
 		final Group intensityIndicator = new Group();
+		intensityIndicator.setCache(true);
+		intensityIndicator.setCacheHint(CacheHint.SPEED);
 		intensityIndicatorRegionsProperty.addListener(new ChangeListener<IntensityIndicatorRegions>() {
 			@Override
 			public void changed(ObservableValue<? extends IntensityIndicatorRegions> observable, 
 					IntensityIndicatorRegions oldValue, IntensityIndicatorRegions newValue) {
-				updateIntensityIndicatorProperties(color1Arc, color2Arc, color3Arc, newValue);
+				updateIntensityIndicatorProperties(region1Arc, region2Arc, region3Arc, newValue);
 			}
 		});
-		intensityIndicator.getChildren().addAll(color3Arc, color2Arc, color1Arc);
+		intensityIndicator.getChildren().addAll(region3Arc, region2Arc, region1Arc);
 		return intensityIndicator;
 	}
 	
@@ -378,7 +389,7 @@ public class Gauge extends Group {
 			final ObjectProperty<Paint> indicatorFillProperty) {
 		final Group indicator = new Group();
 		indicator.setCache(true);
-		indicator.setCacheHint(CacheHint.SCALE_AND_ROTATE);
+		indicator.setCacheHint(CacheHint.ROTATE);
 		final ColorAdjust handColorAdj = new ColorAdjust();
 		handColorAdj.setBrightness(0);
 		final DropShadow handDropShadow = new DropShadow();
@@ -403,6 +414,8 @@ public class Gauge extends Group {
 			}
 		});
 		final Group indicatorBase = new Group();
+		indicatorBase.setCache(true);
+		indicatorBase.setCacheHint(CacheHint.ROTATE);
 		final double ix = centerX - (indicatorWidth / 1.2);
 		final double iy = centerY - (indicatorHeight / 2);
 		
@@ -422,6 +435,8 @@ public class Gauge extends Group {
 		indicatorBase.setEffect(createLighting());
 		
 		final Circle indicatorCenter = new Circle(centerX, centerY, dialCenterOuterRadius);
+		indicatorCenter.setCache(true);
+		indicatorCenter.setCacheHint(CacheHint.SPEED);
 		Bindings.bindBidirectional(indicatorCenter.fillProperty(), dialCenterFillProperty);
 		Bindings.bindBidirectional(indicatorCenter.opacityProperty(), dialCenterOpacityProperty);
 		indicatorBase.getChildren().add(indicatorCenter);
@@ -449,6 +464,8 @@ public class Gauge extends Group {
 			final DoubleProperty tickMarkOpacityProperty) {
 		double angle = 0;
 		final Group tickGroup = new Group();
+		tickGroup.setCache(true);
+		tickGroup.setCacheHint(CacheHint.QUALITY);
 		Shape tick;
 		for (int i=0; i<=numOfMarks; i++) {
 			angle = tickMarkAngle(numOfMarks, i, height);
@@ -486,6 +503,8 @@ public class Gauge extends Group {
 		final double x = tickMarkX(width) + offestWidth;
 		final double y = tickMarkY(height) + offsetHeight;
     	final Rectangle tm = new Rectangle(x, y, width, height);
+    	tm.setCache(true);
+    	tm.setCacheHint(CacheHint.QUALITY);
     	Bindings.bindBidirectional(tm.fillProperty(), tickMarkFillProperty);
 		tm.getTransforms().addAll(new Rotate(angle, centerX, centerY));
 		Bindings.bindBidirectional(tm.opacityProperty(), tickMarkOpacityProperty);
@@ -538,6 +557,8 @@ public class Gauge extends Group {
     		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
     	}
+    	indicatorShape.setCache(true);
+    	indicatorShape.setCacheHint(CacheHint.ROTATE);
     	return indicatorShape;
     	
     }
@@ -567,10 +588,10 @@ public class Gauge extends Group {
     	handShapeGroup.setCacheHint(CacheHint.ROTATE);
 		final Shape handIndicatorShape = new Polygon(
     			x, y,
-    			x - pointDistance, y + (indicatorHeight / 2),  
+    			x - pointDistance, y + (indicatorHeight / 2d),  
     			x, y + indicatorHeight, 
-    			x + (indicatorWidth / 4), y + (indicatorHeight / 2) + (indicatorHeight / 4), 
-    			x + (indicatorWidth / 4), y + (indicatorHeight / 4));
+    			x + (indicatorWidth / 4d), y + (indicatorHeight / 2d) + (indicatorHeight / 4d), 
+    			x + (indicatorWidth / 4d), y + (indicatorHeight / 4d));
 		handIndicatorShape.setEffect(createLighting());
     	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), indicatorFillProperty);
 		handShapeGroup.getChildren().addAll(dialInidcatorShape, handIndicatorShape);
@@ -592,16 +613,16 @@ public class Gauge extends Group {
 	protected Polygon createSproket(final double x, final double y, final int numOfSides, final double innerRadius, 
 			final double outerRadius, final double beginAngle, final ObjectProperty<Paint> dialFillProperty) {
 		//final Circle handDial = new Circle(outerRimRadius, outerRimRadius, handHeight / 1.3);
-		final double teethSlope = (Math.PI * 2) / numOfSides;
-		final double teethQuarterSlope = teethSlope / 4;
-		final double angle = (beginAngle / 180) * Math.PI;
+		final double teethSlope = (Math.PI * 2d) / numOfSides;
+		final double teethQuarterSlope = teethSlope / 4d;
+		final double angle = (beginAngle / 180d) * Math.PI;
 		final double[] points = new double[numOfSides * 8];
 		int p = -1;
 		for (int sideCnt=1; sideCnt<=numOfSides; sideCnt++) {
-			points[++p] = x + Math.cos(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 3)) * innerRadius;
-			points[++p] = y - Math.sin(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 3)) * innerRadius;
-			points[++p] = x + Math.cos(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 2)) * innerRadius;
-			points[++p] = y - Math.sin(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 2)) * innerRadius;
+			points[++p] = x + Math.cos(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 3d)) * innerRadius;
+			points[++p] = y - Math.sin(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 3d)) * innerRadius;
+			points[++p] = x + Math.cos(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 2d)) * innerRadius;
+			points[++p] = y - Math.sin(angle + (teethSlope * sideCnt) - (teethQuarterSlope * 2d)) * innerRadius;
 			points[++p] = x + Math.cos(angle + (teethSlope * sideCnt) - teethQuarterSlope) * outerRadius;
 			points[++p] = y - Math.sin(angle + (teethSlope * sideCnt) - teethQuarterSlope) * outerRadius;
 			points[++p] = x + Math.cos(angle + (teethSlope * sideCnt)) * outerRadius;
