@@ -13,7 +13,6 @@ import javafx.event.EventHandler;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
@@ -47,19 +46,19 @@ public class Gauge extends Group {
 	protected static final double ANGLE_START_END_DISTANCE_THRSHOLD = 30d;
 	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT = 
 		new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
-	private final IndicatorType indicatorType;
-	private final int numOfMajorTickMarks;
-	private final int numOfMinorTickMarks;
-	private final double majorTickMarkWidth;
-	private final double majorTickMarkHeight;
-	private final double minorTickMarkWidth;
-	private final double minorTickMarkHeight;
-	private final double indicatorWidth;
-	private final double indicatorHeight;
-	private final double indicatorPointDistance;
-	private final int dialNumberOfSides;
-	private final double dialCenterInnerRadius;
-	private final double dialCenterOuterRadius;
+	public final IndicatorType indicatorType;
+	public final int numOfMajorTickMarks;
+	public final int numOfMinorTickMarks;
+	public final double majorTickMarkWidth;
+	public final double majorTickMarkHeight;
+	public final double minorTickMarkWidth;
+	public final double minorTickMarkHeight;
+	public final double indicatorWidth;
+	public final double indicatorHeight;
+	public final double indicatorPointDistance;
+	public final int dialNumberOfSides;
+	public final double dialCenterInnerRadius;
+	public final double dialCenterOuterRadius;
 	public final double outerRadius;
 	public final double innerRadius;
 	public final double angleStart;
@@ -142,7 +141,7 @@ public class Gauge extends Group {
 					new RadialGradient(0, 0, this.centerX, this.centerY, 
 							this.innerRadius, false, CycleMethod.NO_CYCLE, 
 							new Stop(0, Color.LIGHTCYAN.darker().darker()), 
-							new Stop(0.7d, Color.BLACK.darker())));
+							new Stop(0.7d, Color.BLACK)));
 		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? new RadialGradient(0, 0, 0, 0, 
 							Math.max(this.indicatorHeight, this.indicatorWidth), false, 
@@ -180,12 +179,7 @@ public class Gauge extends Group {
 		});
 		gaugeParent.getChildren().addAll(val, createIntensityIndicator(), createHighlight(0, 0));
 		
-		// add minor tick marks
-		addTickMarks(gaugeParent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
-				minorTickMarkHeight, minorTickMarkWidth, minorTickMarkHeight, false, minorTickMarkOpacityProperty);
-		// add major tick marks
-		addTickMarks(gaugeParent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
-				majorTickMarkHeight, minorTickMarkWidth, minorTickMarkHeight, false, majorTickMarkOpacityProperty);
+		addTickMarks(gaugeParent);
 		
 		// create indicator/hand
 		final Group indicator = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
@@ -312,9 +306,9 @@ public class Gauge extends Group {
 		Bindings.bindBidirectional(handBaseLight.elevationProperty(), lightingElevationProperty);
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
-		handBaseLighting.setSpecularConstant(0.7d);
-		handBaseLighting.setSpecularExponent(33d);
-		handBaseLighting.setDiffuseConstant(2d);
+		handBaseLighting.setSpecularConstant(0.5d);
+		handBaseLighting.setSpecularExponent(25d);
+		handBaseLighting.setDiffuseConstant(1.5d);
 		handBaseLighting.setSurfaceScale(1.7d);
 		return handBaseLighting;
 	}
@@ -463,8 +457,19 @@ public class Gauge extends Group {
 		return indicator;
 	}
 	
-	protected Effect createIndicatorEffect() {
-		return null;
+	/**
+	 * Adds the minor and major tick marks
+	 * 
+	 * @param parent the parent to add the tick marks to
+	 */
+	protected void addTickMarks(final Group parent) {
+		final double offset = indicatorType == IndicatorType.KNOB ? minorTickMarkWidth * -1 : 0;
+		// add minor tick marks
+		addTickMarks(parent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
+				minorTickMarkHeight, offset, false, minorTickMarkOpacityProperty);
+		// add major tick marks
+		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
+				majorTickMarkHeight, offset, false, majorTickMarkOpacityProperty);
 	}
 	
 	/**
@@ -475,15 +480,14 @@ public class Gauge extends Group {
 	 * @param tickMarkFillProperty the fill property to bind for the tick marks
 	 * @param width the width of the tick marks
 	 * @param height the height of the tick marks
-	 * @param offestWidth the pivot offset width
-	 * @param offsetHeight the pivot offset height
+	 * @param offset the pivot offset relative to the inner radius of the gauge
 	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
 	 * @param addLabel true to add value labels to the tick marks
 	 * @return the tick mark group
 	 */
 	protected Group addTickMarks(final Group parent, final int numOfMarks, 
 			final ObjectProperty<Paint> tickMarkFillProperty, final double width, final double height, 
-			final double offestWidth, final double offsetHeight, boolean addLabel,
+			final double offset, boolean addLabel,
 			final DoubleProperty tickMarkOpacityProperty) {
 		double angle = 0;
 		final Group tickGroup = new Group();
@@ -492,8 +496,7 @@ public class Gauge extends Group {
 		Shape tick;
 		for (int i=0; i<=numOfMarks; i++) {
 			angle = tickMarkAngle(numOfMarks, i, height);
-			tick = createTickMark(tickMarkFillProperty, angle, width, height, offestWidth, offsetHeight,
-					tickMarkOpacityProperty);
+			tick = createTickMark(tickMarkFillProperty, angle, width, height, offset, tickMarkOpacityProperty);
 			tickGroup.getChildren().add(tick);
 			if (addLabel) {
 				// TODO : add tick mark label option
@@ -515,16 +518,15 @@ public class Gauge extends Group {
 	 * @param angle the angle of the tick mark
 	 * @param width the width of the tick mark
 	 * @param height the height of the tick mark
-	 * @param offestWidth the pivot offset width
-	 * @param offsetHeight the pivot offset height
+	 * @param offset the pivot offset relative to the inner radius of the gauge
 	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
 	 * @return the tick mark
 	 */
     protected Shape createTickMark(final ObjectProperty<Paint> tickMarkFillProperty, 
-    		final double angle, final double width, final double height, final double offestWidth, 
-    		final double offsetHeight, final DoubleProperty tickMarkOpacityProperty) {
-		final double x = tickMarkX(width) + offestWidth;
-		final double y = tickMarkY(height) + offsetHeight;
+    		final double angle, final double width, final double height, final double offset, 
+    		final DoubleProperty tickMarkOpacityProperty) {
+		final double x = tickMarkX(width) + offset;
+		final double y = tickMarkY(height);
     	final Rectangle tm = new Rectangle(x, y, width, height);
     	tm.setCache(true);
     	tm.setCacheHint(CacheHint.QUALITY);
