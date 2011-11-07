@@ -2,7 +2,6 @@ package org.ugate.gui.components;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -41,6 +40,10 @@ public class GaugeDemo extends VBox {
 	private Gauge createRegionKnob(final Color color) {
 		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.1d);
 		gaugeRegion.indicatorFillProperty.set(Color.BLACK);
+		gaugeRegion.majorTickMarkOpacityProperty.set(0);
+		gaugeRegion.minorTickMarkOpacityProperty.set(0);
+		gaugeRegion.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 
+				Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT));
 		gaugeRegion.centerGaugeFillProperty.set(new RadialGradient(0, 0, gaugeRegion.centerX, gaugeRegion.centerY, 
 				gaugeRegion.innerRadius, false, CycleMethod.NO_CYCLE, 
 				new Stop(0, color), new Stop(1, color.darker())));
