@@ -2,9 +2,13 @@ package org.ugate.gui.components;
 
 import java.math.BigDecimal;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.LocatorEx.Snapshot;
+
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -57,6 +61,7 @@ public class Gauge extends Group {
 	public final double majorTickMarkHeight;
 	public final double minorTickMarkWidth;
 	public final double minorTickMarkHeight;
+	public final double tickValueScale;
 	public final double indicatorWidth;
 	public final double indicatorHeight;
 	public final double indicatorPointDistance;
@@ -72,14 +77,13 @@ public class Gauge extends Group {
 	public final int anglePrecision;
 	public final Glow indicatorMoveEffect;
 	public final DoubleProperty angleProperty;
-	public final DoubleProperty minorTickMarkOpacityProperty;
-	public final DoubleProperty majorTickMarkOpacityProperty;
 	public final ObjectProperty<Paint> outerRimFillProperty;
 	public final ObjectProperty<Paint> dialCenterFillProperty;
 	public final ObjectProperty<Paint> minorTickMarkFillProperty;
 	public final DoubleProperty minorTickRadiusProperty;
 	public final ObjectProperty<Paint> majorTickMarkFillProperty;
 	public final DoubleProperty majorTickRadiusProperty;
+	public final BooleanProperty snapToTicksProperty;
 	public final ObjectProperty<Paint> centerGaugeFillProperty;
 	public final ObjectProperty<Paint> indicatorFillProperty;
 	public final DoubleProperty dialCenterOpacityProperty;
@@ -89,26 +93,30 @@ public class Gauge extends Group {
 	public final ObjectProperty<Paint> highlightFillProperty;
 	
 	public Gauge() {
-		this(null, 0, 0, 0, 0);
+		this(null, 0, 0, 0, 0, -1, -1);
 	}
 	
-	public Gauge(final IndicatorType indicatorType) {
-		this(indicatorType, 0, 0, 0, 0);
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale) {
+		this(indicatorType, sizeScale, tickValueScale, 0, 0, -1, -1);
 	}
 	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final int numberOfMajorTickMarks) {
-		this(indicatorType, sizeScale, 0, 0, numberOfMajorTickMarks);
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+			final int numberOfMajorTickMarks, final int numberOfMinorTickMarks) {
+		this(indicatorType, sizeScale, tickValueScale, 0, 0, numberOfMajorTickMarks, numberOfMinorTickMarks);
 	}
 	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale,
-			final double startAngle, final double angleLength, final int numberOfMajorTickMarks) {
-		this(indicatorType, sizeScale, 0, 0, 0, startAngle, angleLength, -1, null, numberOfMajorTickMarks);
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
+			final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
+			final int numberOfMinorTickMarks) {
+		this(indicatorType, sizeScale, tickValueScale, 0, 0, 0, startAngle, angleLength, -1, null, numberOfMajorTickMarks,
+				numberOfMinorTickMarks);
 	}
 	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final int dialNumberOfSides, 
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double startAngle, final double angleLength, final int anglePrecision,
-			final IntensityIndicatorRegions intensityRegions, final int numberOfMajorTickMarks) {
+			final IntensityIndicatorRegions intensityRegions, final int numberOfMajorTickMarks,
+			final int numberOfMinorTickMarks) {
 		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
 		this.outerRadius = RADIUS_OUTER_BASE * sizeScale;
 		this.innerRadius = RADIUS_INNER_BASE * sizeScale;
@@ -117,13 +125,14 @@ public class Gauge extends Group {
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
 		this.angleLength = angleLength == 0 ? this.indicatorType == IndicatorType.KNOB ? 360d : 180d : positiveAngle(angleLength);
 		this.anglePrecision = anglePrecision >= 0 ? anglePrecision : 2;
-		this.numOfMajorTickMarks = numberOfMajorTickMarks <= 1 ? 
+		this.numOfMajorTickMarks = numberOfMajorTickMarks <= 0 ? 
 				(int)this.angleLength / 30 : this.angleLength < 360d ? numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
-		this.numOfMinorTickMarks = this.numOfMajorTickMarks * 10;
+		this.numOfMinorTickMarks = numberOfMinorTickMarks <= 0 ? this.numOfMajorTickMarks * 10 : numberOfMinorTickMarks;
 		this.majorTickMarkWidth = 12d * sizeScale;
 		this.majorTickMarkHeight = 2d * sizeScale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
+		this.tickValueScale = tickValueScale == 0 ? 1d : tickValueScale;
 		this.indicatorWidth = this.innerRadius;
 		this.indicatorHeight = this.majorTickMarkHeight * 10d;
 		this.indicatorPointDistance = this.majorTickMarkHeight * 4;
@@ -132,17 +141,22 @@ public class Gauge extends Group {
 		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
 		this.indicatorMoveEffect = new Glow(0);
 		
-		this.angleProperty =  new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle())) {
-			
+		this.angleProperty = new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle())) {
+			@Override
+			public final void set(final double v) {
+				final double cv = calibrateViewingAngle(v);
+				if (cv >= 0) {
+					super.set(calibrateViewingAngle(v));
+				}
+			}
 		};
-		this.majorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
-		this.minorTickMarkOpacityProperty = new SimpleDoubleProperty(1d);
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : Color.BLACK);
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.minorTickRadiusProperty = new SimpleDoubleProperty();
 		this.majorTickRadiusProperty = new SimpleDoubleProperty();
+		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
 		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? Color.BLACK :
@@ -481,10 +495,10 @@ public class Gauge extends Group {
 		final double offset = indicatorType == IndicatorType.KNOB ? minorTickMarkWidth * -1 : 0;
 		// add minor tick marks
 		addTickMarks(parent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
-				minorTickMarkHeight, offset, false, minorTickMarkOpacityProperty);
+				minorTickMarkHeight, offset, false);
 		// add major tick marks
 		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
-				majorTickMarkHeight, offset, false, majorTickMarkOpacityProperty);
+				majorTickMarkHeight, offset, false);
 	}
 	
 	/**
@@ -496,14 +510,12 @@ public class Gauge extends Group {
 	 * @param width the width of the tick marks
 	 * @param height the height of the tick marks
 	 * @param offset the pivot offset relative to the inner radius of the gauge
-	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
-	 * @param addLabel true to add value labels to the tick marks
+	 * @param addTickValueLabel true to add value labels to the tick marks
 	 * @return the tick mark group
 	 */
 	protected Group addTickMarks(final Group parent, final int numOfMarks, 
 			final ObjectProperty<Paint> tickMarkFillProperty, final double width, final double height, 
-			final double offset, boolean addLabel,
-			final DoubleProperty tickMarkOpacityProperty) {
+			final double offset, boolean addTickValueLabel) {
 		double angle = 0;
 		final Group tickGroup = new Group();
 		tickGroup.setCache(true);
@@ -511,9 +523,9 @@ public class Gauge extends Group {
 		Shape tick;
 		for (int i=0; i<=numOfMarks; i++) {
 			angle = tickMarkAngle(numOfMarks, i, height);
-			tick = createTickMark(tickMarkFillProperty, angle, width, height, offset, tickMarkOpacityProperty);
+			tick = createTickMark(tickMarkFillProperty, angle, width, height, offset);
 			tickGroup.getChildren().add(tick);
-			if (addLabel) {
+			if (addTickValueLabel) {
 				// TODO : add tick mark label option
 				final Label lbl = new Label(String.valueOf(angle));
 				lbl.setStyle("-fx-text-fill: white;");
@@ -534,12 +546,10 @@ public class Gauge extends Group {
 	 * @param width the width of the tick mark
 	 * @param height the height of the tick mark
 	 * @param offset the pivot offset relative to the inner radius of the gauge
-	 * @param tickMarkOpacityProperty tick mark opacity property to bind to the opacity of the tick mark
 	 * @return the tick mark
 	 */
     protected Shape createTickMark(final ObjectProperty<Paint> tickMarkFillProperty, 
-    		final double angle, final double width, final double height, final double offset, 
-    		final DoubleProperty tickMarkOpacityProperty) {
+    		final double angle, final double width, final double height, final double offset) {
 		final double x = tickMarkX(width) + offset;
 		final double y = tickMarkY(height);
     	final Rectangle tm = new Rectangle(x, y, width, height);
@@ -547,7 +557,6 @@ public class Gauge extends Group {
     	tm.setCacheHint(CacheHint.QUALITY);
     	Bindings.bindBidirectional(tm.fillProperty(), tickMarkFillProperty);
 		tm.getTransforms().addAll(new Rotate(angle, centerX, centerY));
-		Bindings.bindBidirectional(tm.opacityProperty(), tickMarkOpacityProperty);
 		return tm;
     }
 
@@ -680,29 +689,26 @@ public class Gauge extends Group {
      * 
      * @param x the x coordinate
      * @param y the y coordinate
-     * @return true if the coordinates are within the start/end angles and the indicator/hand has been moved
      */
-    protected boolean moveIndicator(final double x, final double y) {
+    protected void moveIndicator(final double x, final double y) {
     	double viewingAngle = Math.toDegrees(Math.atan2(y, x));
     	// convert angle to positive quadrants 0 - 360 degrees
 		if (viewingAngle < 0) {
 			viewingAngle += 360d;
 		}
-		return moveIndicator(viewingAngle);
+		angleProperty.set(viewingAngle);
     }
-    
+
     /**
-     * Sets the projected angle of the hand when the angle is within a specified threshold range of the start/end range
-     *  
-     * @param viewingAngle the angle in which a typical gauge is viewed where zero starts on the west horizontal plane
-     * @return true if the angle is within a specified threshold range of the start/end angles and the angle property has been set
+     * Calibrates a viewing angle to ensure that it is within range of the start/end angle
+     * 
+     * @param viewingAngle the viewing angle to calibrate
+     * @return the calibrated viewing angle
      */
-    protected boolean moveIndicator(final double viewingAngle) {
-    	boolean moved = false;
+    protected double calibrateViewingAngle(final double viewingAngle) {
     	if (isCircular()) {
     		// angle will always be with in 360 range
-    		angleProperty.set(scaleAngle(viewingAngle));
-    		moved = true;
+    		return scaleAngle(viewingAngle);
     	} else {
 	    	double trigAngle = reverseAngle(viewingAngle);
 	    	double startAngle = getTrigStartAngle();
@@ -713,34 +719,29 @@ public class Gauge extends Group {
 	    	if ((startAngle <= endAngle && trigAngle >= startAngle && trigAngle <= endAngle) ||
 	    		(startAngle > endAngle && (trigAngle >= startAngle || trigAngle <= endAngle))) {
 	    		// update the angle property with the viewing angle using the predefined precision
-	    		angleProperty.set(scaleAngle(viewingAngle));
-	    		moved = true;
+	    		return scaleAngle(viewingAngle);
 	    	} else {
 	        	double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
 	    		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// move to the start position when the angle is within the start angle threshold
-	    			angleProperty.set(reverseAngle(startAngle));
-	    			moved = true;
+	    			return reverseAngle(startAngle);
 	    		} else if (closestAngle == endAngle && Math.abs(trigAngle - endAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// move to the end position when the angle is within the end angle threshold
-	    			angleProperty.set(reverseAngle(endAngle));
-	    			moved = true;
+	    			return reverseAngle(endAngle);
 	    		} else if (closestAngle == endAngle && Math.abs(trigAngle - 
 	    				positiveAngle(startAngle - ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// handle special case where the angle is within a specified threshold of the start position of a 0/360 border
 	    			// (i.e. angleStart=0)
-	    			angleProperty.set(reverseAngle(startAngle));
-	    			moved = true;
+	    			return reverseAngle(startAngle);
 	    		} else if (closestAngle == startAngle && Math.abs(trigAngle - 
 	    				positiveAngle(360d - endAngle + ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// handle special case where the angle is within a specified threshold of the end position of a 0/360 border
 	    			// (i.e. angleStart=180, angleLength=180)
-	    			angleProperty.set(reverseAngle(endAngle));
-	    			moved = true;
+	    			return reverseAngle(endAngle);
 	    		}
 	    	}
     	}
-    	return moved;
+    	return -1d;
     }
     
     /**
@@ -897,14 +898,33 @@ public class Gauge extends Group {
      */
     public final double getTickValue(final double viewingAngle) {
     	final double numOfTicks = getNumberOfTicks();
-    	return scaleValue((viewingAngle / numOfTicks) - (getViewingEndAngle() / numOfTicks));
+    	return scaleValue(((viewingAngle / numOfTicks) - (getViewingEndAngle() / numOfTicks)) * tickValueScale);
     }
     
     /**
-     * @return the current value relative to the tick mark the indicator is pointing to
+     * Gets the current tick value relative to the tick mark the indicator is pointing to.
+     * <p>To listen for changes on the tick mark value use the {@linkplain #angleProperty} and call 
+     * {@linkplain #getTickValue()}</p>
+     * 
+     * @return the current tick value
      */
     public final double getTickValue() {
     	return getTickValue(angleProperty.get());
+    }
+    
+    /**
+     * Sets the tick value relative to the {@linkplain #numOfMinorTickMarks}. When the tick value is out 
+     * of range the closest value will be set relative to the start/end angles within the 
+     * {@linkplain #ANGLE_START_END_DISTANCE_THRSHOLD}. When the value is also outside the threshold range 
+     * the value will be default to the starting tick value. <b>The actual tick value set will be adjusted to
+     * conform to the {@linkplain #tickValueScale} (and {@linkplain #snapToTicksProperty} when true).</b>
+     * <p>To listen for changes on the tick mark value use the {@linkplain #angleProperty} and call 
+     * {@linkplain #getTickValue()}</p>
+     * 
+     * @param tickValue the tick value to set
+     */
+    public final void setTickValue(final double tickValue) {
+    	angleProperty.set(getNumberOfTicks() * tickValue + getViewingEndAngle());
     }
     
     /**
