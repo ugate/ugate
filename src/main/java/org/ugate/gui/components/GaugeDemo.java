@@ -16,7 +16,7 @@ public class GaugeDemo extends VBox {
 	private Gauge activeIntensityAdjust;
 
 	public GaugeDemo() {
-		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 0d, 180d);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 315d, 90d, 2);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
 		//gauge.minorTickMarkOpacityProperty.set(0);
 		//gauge.majorTickMarkOpacityProperty.set(0);
@@ -32,13 +32,13 @@ public class GaugeDemo extends VBox {
 		final HBox gaugeContainer = new HBox();
 		gaugeContainer.getChildren().addAll(gauge, gaugeIntensitySliders);
 		
-		final Gauge gauge2 = new Gauge(IndicatorType.KNOB, 0.5d, 0d, 360d);
+		final Gauge gauge2 = new Gauge(IndicatorType.KNOB, 0.5d, 0d, 360d, 4);
 		
 		getChildren().addAll(gaugeContainer, gauge2);
 	}
 	
 	private Gauge createRegionKnob(final Color color) {
-		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.1d);
+		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.1d, 0);
 		gaugeRegion.indicatorFillProperty.set(Color.BLACK);
 		gaugeRegion.majorTickMarkOpacityProperty.set(0);
 		gaugeRegion.minorTickMarkOpacityProperty.set(0);
@@ -55,7 +55,7 @@ public class GaugeDemo extends VBox {
 		//color1.setBlockIncrement(1d);
 		//color1.setMajorTickUnit(1d);
 		//color1.setMinorTickCount(0);
-		color1.valueProperty.addListener(new ChangeListener<Number>() {
+		color1.angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				if (activeIntensityAdjust == null) {
