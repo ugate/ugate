@@ -16,7 +16,8 @@ public class GaugeDemo extends VBox {
 	private Gauge activeIntensityAdjust;
 
 	public GaugeDemo() {
-		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 315d, 90d, 2);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, .1d, 315d, 90d, 2, 0);
+		gauge.setTickValue(5d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
 		//gauge.minorTickMarkOpacityProperty.set(0);
 		//gauge.majorTickMarkOpacityProperty.set(0);
@@ -32,16 +33,14 @@ public class GaugeDemo extends VBox {
 		final HBox gaugeContainer = new HBox();
 		gaugeContainer.getChildren().addAll(gauge, gaugeIntensitySliders);
 		
-		final Gauge gauge2 = new Gauge(IndicatorType.KNOB, 0.5d, 0d, 360d, 4);
+		final Gauge gauge2 = new Gauge(IndicatorType.KNOB, 0.5d, 1d, 0d, 360d, 4, -1);
 		
 		getChildren().addAll(gaugeContainer, gauge2);
 	}
 	
 	private Gauge createRegionKnob(final Color color) {
-		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.1d, 0);
+		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.1d, 1d, 0, 0);
 		gaugeRegion.indicatorFillProperty.set(Color.BLACK);
-		gaugeRegion.majorTickMarkOpacityProperty.set(0);
-		gaugeRegion.minorTickMarkOpacityProperty.set(0);
 		gaugeRegion.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 
 				Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT));
 		gaugeRegion.centerGaugeFillProperty.set(new RadialGradient(0, 0, gaugeRegion.centerX, gaugeRegion.centerY, 
