@@ -2,8 +2,6 @@ package org.ugate.gui.components;
 
 import java.math.BigDecimal;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.LocatorEx.Snapshot;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -40,6 +38,9 @@ import javafx.scene.shape.Shape;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 
 /**
@@ -55,8 +56,9 @@ public class Gauge extends Group {
 		new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
 	public static final int ROUNDING_MODE = BigDecimal.ROUND_HALF_UP;
 	public final IndicatorType indicatorType;
+	public final double sizeScale;
 	public final int numOfMajorTickMarks;
-	public final int numOfMinorTickMarks;
+	public final int numOfMinorTickMarksPerMajorTick;
 	public final double majorTickMarkWidth;
 	public final double majorTickMarkHeight;
 	public final double minorTickMarkWidth;
@@ -80,9 +82,7 @@ public class Gauge extends Group {
 	public final ObjectProperty<Paint> outerRimFillProperty;
 	public final ObjectProperty<Paint> dialCenterFillProperty;
 	public final ObjectProperty<Paint> minorTickMarkFillProperty;
-	public final DoubleProperty minorTickRadiusProperty;
 	public final ObjectProperty<Paint> majorTickMarkFillProperty;
-	public final DoubleProperty majorTickRadiusProperty;
 	public final BooleanProperty snapToTicksProperty;
 	public final ObjectProperty<Paint> centerGaugeFillProperty;
 	public final ObjectProperty<Paint> indicatorFillProperty;
@@ -101,35 +101,36 @@ public class Gauge extends Group {
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
-			final int numberOfMajorTickMarks, final int numberOfMinorTickMarks) {
-		this(indicatorType, sizeScale, tickValueScale, 0, 0, numberOfMajorTickMarks, numberOfMinorTickMarks);
+			final int numberOfMajorTickMarks, final int numberOfMinorTickMarksPerMajorTick) {
+		this(indicatorType, sizeScale, tickValueScale, 0, 0, numberOfMajorTickMarks, numberOfMinorTickMarksPerMajorTick);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
 			final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
-			final int numberOfMinorTickMarks) {
+			final int numberOfMinorTickMarksPerMajorTick) {
 		this(indicatorType, sizeScale, tickValueScale, 0, 0, 0, startAngle, angleLength, -1, null, numberOfMajorTickMarks,
-				numberOfMinorTickMarks);
+				numberOfMinorTickMarksPerMajorTick);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, final int dialNumberOfSides, 
 			final double dialCenterInnerRadius, final double dialCenterOuterRadius,
 			final double startAngle, final double angleLength, final int anglePrecision,
 			final IntensityIndicatorRegions intensityRegions, final int numberOfMajorTickMarks,
-			final int numberOfMinorTickMarks) {
+			final int numberOfMinorTickMarksPerMajorTick) {
 		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
-		this.outerRadius = RADIUS_OUTER_BASE * sizeScale;
-		this.innerRadius = RADIUS_INNER_BASE * sizeScale;
+		this.sizeScale = sizeScale == 0 ? 1d : sizeScale;
+		this.outerRadius = RADIUS_OUTER_BASE * this.sizeScale;
+		this.innerRadius = RADIUS_INNER_BASE * this.sizeScale;
 		this.centerX = 0;//this.outerRadius / 2d;
 		this.centerY = 0;//this.centerX;
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
 		this.angleLength = angleLength == 0 ? this.indicatorType == IndicatorType.KNOB ? 360d : 180d : positiveAngle(angleLength);
 		this.anglePrecision = anglePrecision >= 0 ? anglePrecision : 2;
 		this.numOfMajorTickMarks = numberOfMajorTickMarks <= 0 ? 
-				(int)this.angleLength / 30 : this.angleLength < 360d ? numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
-		this.numOfMinorTickMarks = numberOfMinorTickMarks <= 0 ? this.numOfMajorTickMarks * 10 : numberOfMinorTickMarks;
-		this.majorTickMarkWidth = 12d * sizeScale;
-		this.majorTickMarkHeight = 2d * sizeScale;
+				(int)this.angleLength / 30 : this.angleLength < 360d && numberOfMajorTickMarks > 1 ? numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
+		this.numOfMinorTickMarksPerMajorTick = numberOfMinorTickMarksPerMajorTick <= 0 ? 0 : numberOfMinorTickMarksPerMajorTick + 1;
+		this.majorTickMarkWidth = 12d * this.sizeScale;
+		this.majorTickMarkHeight = 2d * this.sizeScale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
 		this.tickValueScale = tickValueScale == 0 ? 1d : tickValueScale;
@@ -154,8 +155,6 @@ public class Gauge extends Group {
 				this.indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : Color.BLACK);
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
-		this.minorTickRadiusProperty = new SimpleDoubleProperty();
-		this.majorTickRadiusProperty = new SimpleDoubleProperty();
 		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
 		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
@@ -492,66 +491,107 @@ public class Gauge extends Group {
 	 * @param parent the parent to add the tick marks to
 	 */
 	protected void addTickMarks(final Group parent) {
-		final double offset = indicatorType == IndicatorType.KNOB ? minorTickMarkWidth * -1 : 0;
-		// add minor tick marks
-		addTickMarks(parent, numOfMinorTickMarks, minorTickMarkFillProperty, minorTickMarkWidth, 
-				minorTickMarkHeight, offset, false);
-		// add major tick marks
-		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkFillProperty, majorTickMarkWidth, 
-				majorTickMarkHeight, offset, false);
+		if (sizeScale < 0.5d) {
+			// tick marks/labels are not clearly visible
+			return;
+		}
+		final double offset = 0;
+		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkWidth, majorTickMarkHeight, true, majorTickMarkFillProperty, 
+				numOfMinorTickMarksPerMajorTick, minorTickMarkWidth, minorTickMarkHeight, false, minorTickMarkFillProperty, offset);
 	}
 	
 	/**
 	 * Adds the tick marks to the gauge
 	 * 
 	 * @param parent the parent to add the tick marks to
-	 * @param numOfMarks the number of marks to add
-	 * @param tickMarkFillProperty the fill property to bind for the tick marks
-	 * @param width the width of the tick marks
-	 * @param height the height of the tick marks
+	 * @param numOfMajorTicks the number of major tick marks to add
+	 * @param majorWidth the width of the major tick marks
+	 * @param majorHeight the height of the major tick marks
+	 * @param addMajorTickLabel true to add the value label to the major tick marks
+	 * @param majorTickMarkFillProperty the fill property to bind for the major tick marks
+	 * @param numOfMinorTicks the number of minor tick marks to add
+	 * @param minorWidth the width of the minor tick marks
+	 * @param minorHeight the height of the minor tick marks
+	 * @param addMinorTickLabel true to add the value label to the minor tick marks
+	 * @param minorTickMarkFillProperty the fill property to bind for the minor tick marks
 	 * @param offset the pivot offset relative to the inner radius of the gauge
-	 * @param addTickValueLabel true to add value labels to the tick marks
 	 * @return the tick mark group
 	 */
-	protected Group addTickMarks(final Group parent, final int numOfMarks, 
-			final ObjectProperty<Paint> tickMarkFillProperty, final double width, final double height, 
-			final double offset, boolean addTickValueLabel) {
-		double angle = 0;
+	protected final Group addTickMarks(final Group parent, final int numOfMajorTicks, final double majorWidth, final double majorHeight, 
+			final boolean addMajorTickLabel, final ObjectProperty<Paint> majorTickMarkFillProperty, final int numOfMinorTicks, 
+			final double minorWidth, final double minorHeight, final boolean addMinorTickLabel, 
+			final ObjectProperty<Paint> minorTickMarkFillProperty, final double offset) {
 		final Group tickGroup = new Group();
 		tickGroup.setCache(true);
 		tickGroup.setCacheHint(CacheHint.ROTATE);
 		Shape tick;
-		for (int i=0; i<=numOfMarks; i++) {
-			angle = tickMarkAngle(numOfMarks, i, height);
-			tick = createTickMark(tickMarkFillProperty, angle, width, height, offset);
+		// all tick marks will have the same starting coordinates- only the angle will be adjusted
+		final double tx = tickMarkDefaultX() + offset;
+		final double ty = tickMarkDefaultY();
+		final double tlx = tickMarkLabelDefaultX();
+		final double tly = tickMarkLabelDefaultY();
+		final int numOfTotalMinorTicks = numOfMinorTicks <= 1 ? -1 : numOfMajorTicks * numOfMinorTicks;
+		int i;
+		double angle = 0;
+		// add the minor tick marks
+		for (i=0; i<=numOfTotalMinorTicks; i++) {
+			angle = tickMarkAngle(numOfTotalMinorTicks, i, majorHeight);
+			tick = createTickMark(tx, ty, minorWidth, minorHeight, angle, minorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
-			if (addTickValueLabel) {
-				// TODO : add tick mark label option
-				final Label lbl = new Label(String.valueOf(angle));
-				lbl.setStyle("-fx-text-fill: white;");
-				lbl.setTranslateX(tick.getBoundsInParent().getMaxX() - (angle > 90D ? lbl.getMaxWidth() : 0));
-				lbl.setTranslateY(tick.getBoundsInParent().getMaxY() - (angle > 90D ? lbl.getMaxHeight() : 0));
-				parent.getChildren().add(lbl);
+		}
+		// add the major tick marks
+		for (i=0; i<=numOfMajorTicks; i++) {
+			angle = tickMarkAngle(numOfMajorTicks, i, majorHeight);
+			tick = createTickMark(tx, ty, majorWidth, majorHeight, angle, majorTickMarkFillProperty);
+			tickGroup.getChildren().add(tick);
+			if (addMajorTickLabel && (i != numOfMajorTicks || !isCircular())) {
+				tickGroup.getChildren().add(createTickMarkLabel(tlx, tly, majorWidth, majorHeight, angle));
+//				final double tickLabelAngle = cartesianCoordinatesToViewingAngle(tick.getBoundsInParent().getMinX(), 
+//						tick.getBoundsInParent().getMinY()) - 90d;
+//				lbl.setTranslateX(tick.getBoundsInParent().getMaxX());
+//				lbl.setTranslateY(tick.getBoundsInParent().getMaxY());
+//				lbl.getTransforms().addAll(new Rotate(tickLabelAngle, centerX, centerY));
+//				parent.getChildren().add(lbl);
+				
+//				parent.getChildren().add(createTickMarkLabel(tick.getBoundsInParent().getMaxX(), tick.getBoundsInParent().getMaxY(), 
+//						width, height, tickLabelAngle));
 			}
         }
 		parent.getChildren().add(tickGroup);
 		return tickGroup;
 	}
 	
+	protected Shape createTickMarkLabel(final double x, final double y, final double width, 
+    		final double height, final double angle) {
+		final double viewingAngle = positiveAngle(angle - (height / 2d) -180d);
+		final Text lbl = new Text(String.valueOf(getTickValue(reverseAngle(viewingAngle))));
+		lbl.setCache(true);
+		lbl.setCacheHint(CacheHint.QUALITY);
+		lbl.setFill(Color.WHITE);
+		lbl.setFont(new Font(20d * sizeScale));
+		lbl.setTextAlignment(TextAlignment.CENTER);
+//		lbl.setX(x);
+//		lbl.setY(y);
+//		lbl.getTransforms().addAll(new Rotate(angle, centerX, centerY));
+		lbl.setLayoutX(outerRadius * Math.cos(Math.toRadians(180d - angle)));
+		lbl.setLayoutY(outerRadius * Math.sin(Math.toRadians(180d - angle)));
+		//lbl.getTransforms().addAll(new Rotate(viewingAngle, centerX, centerY));
+		return lbl;
+	}
+	
 	/**
 	 * Creates a tick mark
 	 * 
-	 * @param tickMarkFillProperty the fill property to bind for the tick mark
-	 * @param angle the angle of the tick mark
+	 * @param x the x coordinate of the tick mark
+	 * @param y the y coordinate of the tick mark
 	 * @param width the width of the tick mark
 	 * @param height the height of the tick mark
-	 * @param offset the pivot offset relative to the inner radius of the gauge
+	 * @param angle the angle of the tick mark
+	 * @param tickMarkFillProperty the fill property to bind for the tick mark
 	 * @return the tick mark
 	 */
-    protected Shape createTickMark(final ObjectProperty<Paint> tickMarkFillProperty, 
-    		final double angle, final double width, final double height, final double offset) {
-		final double x = tickMarkX(width) + offset;
-		final double y = tickMarkY(height);
+    protected Shape createTickMark(final double x, final double y, final double width, 
+    		final double height, final double angle, final ObjectProperty<Paint> tickMarkFillProperty) {
     	final Rectangle tm = new Rectangle(x, y, width, height);
     	tm.setCache(true);
     	tm.setCacheHint(CacheHint.QUALITY);
@@ -595,7 +635,7 @@ public class Gauge extends Group {
     		break;
     	case KNOB: indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
     			width - (pointDistance * 2d) - ((dialCenterOuterRadius - dialCenterInnerRadius) * height), 
-    			width - (pointDistance * 2d), 0, indicatorFillProperty);
+    			width - (pointDistance * 2d), height / 2d, indicatorFillProperty);
     		break;
     	case NEEDLE: default: indicatorShape = new Polygon(
 				x, y + (height / 2.5d), 
@@ -664,7 +704,7 @@ public class Gauge extends Group {
 		//final Circle handDial = new Circle(outerRimRadius, outerRimRadius, handHeight / 1.3);
 		final double teethSlope = (Math.PI * 2d) / numOfSides;
 		final double teethQuarterSlope = teethSlope / 4d;
-		final double angle = (beginAngle / 180d) * Math.PI;
+		final double angle = ((beginAngle) / 180d) * Math.PI;
 		final double[] points = new double[numOfSides * 8];
 		int p = -1;
 		for (int sideCnt=1; sideCnt<=numOfSides; sideCnt++) {
@@ -691,12 +731,7 @@ public class Gauge extends Group {
      * @param y the y coordinate
      */
     protected void moveIndicator(final double x, final double y) {
-    	double viewingAngle = Math.toDegrees(Math.atan2(y, x));
-    	// convert angle to positive quadrants 0 - 360 degrees
-		if (viewingAngle < 0) {
-			viewingAngle += 360d;
-		}
-		angleProperty.set(viewingAngle);
+		angleProperty.set(cartesianCoordinatesToViewingAngle(x, y));
     }
 
     /**
@@ -745,35 +780,19 @@ public class Gauge extends Group {
     }
     
     /**
-     * Calculates the x coordinate of a tick mark
-     * 
-     * @param width the width of the tick mark
-     * @return the x coordinate of the tick mark
+     * Converts coordinates to a viewing angle
+     *  
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @return the angle
      */
-    protected final double tickMarkX(final double width) {
-    	return centerX + width - outerRadius;
-    }
-    
-    /**
-     * Calculates the y coordinate of a tick mark
-     * 
-     * @param height the height of the tick mark
-     * @return the y coordinate of the tick mark
-     */
-    protected final double tickMarkY(final double height) {
-    	return centerY - height / 2d;
-    }
-    
-    /**
-     * Calculates the angle of a tick mark
-     * 
-     * @param numOfMarks the total number of tick marks
-     * @param index the index of the tick mark relative to the total number of tick marks (zero based)
-     * @param height the height of the tick mark
-     * @return the angle of the tick mark
-     */
-    protected final double tickMarkAngle(final int numOfMarks, final int index, final double height) {
-    	return 180d - ((angleLength / numOfMarks) * index) - angleStart + height / 2d;
+    protected static final double cartesianCoordinatesToViewingAngle(final double x, final double y) {
+    	double viewingAngle = Math.toDegrees(Math.atan2(y, x));
+    	// convert angle to positive quadrants 0 - 360 degrees
+		if (viewingAngle < 0) {
+			viewingAngle += 360d;
+		}
+		return viewingAngle;
     }
     
     /**
@@ -891,6 +910,54 @@ public class Gauge extends Group {
     }
     
     /**
+     * Calculates the default x coordinate of a tick mark
+     * 
+     * @return the x coordinate
+     */
+    protected final double tickMarkDefaultX() {
+    	return centerX - innerRadius;
+    }
+    
+    /**
+     * Calculates the default y coordinate of a tick mark
+     * 
+     * @return the y coordinate
+     */
+    protected final double tickMarkDefaultY() {
+    	return centerY;
+    }
+    
+    /**
+     * Calculates the default x coordinate of a tick mark label
+     * 
+     * @return the x coordinate
+     */
+    protected final double tickMarkLabelDefaultX() {
+    	return centerX - outerRadius;
+    }
+    
+    /**
+     * Calculates the default y coordinate of a tick mark label
+     * 
+     * @return the y coordinate
+     */
+    protected final double tickMarkLabelDefaultY() {
+    	return centerY;
+    }
+    
+    /**
+     * Calculates the angle of a tick mark
+     * 
+     * @param numOfMarks the total number of tick marks
+     * @param index the index of the tick mark relative to the total number of tick marks (zero based)
+     * @param height the height of the tick mark
+     * @return the angle of the tick mark
+     */
+    protected final double tickMarkAngle(final int numOfMarks, final int index, final double height) {
+    	return 180d - ((angleLength / numOfMarks) * index) - angleStart + (height / 2d);
+    }
+    
+    /**
      * Gets the tick value relative to the specified viewing angle
      * 
      * @param viewingAngle the viewing angle
@@ -913,7 +980,7 @@ public class Gauge extends Group {
     }
     
     /**
-     * Sets the tick value relative to the {@linkplain #numOfMinorTickMarks}. When the tick value is out 
+     * Sets the tick value relative to the {@linkplain #getNumberOfTicks()}. When the tick value is out 
      * of range the closest value will be set relative to the start/end angles within the 
      * {@linkplain #ANGLE_START_END_DISTANCE_THRSHOLD}. When the value is also outside the threshold range 
      * the value will be default to the starting tick value. <b>The actual tick value set will be adjusted to
@@ -931,7 +998,7 @@ public class Gauge extends Group {
      * @return the total number of tick marks
      */
     public final double getNumberOfTicks() {
-    	return angleLength / numOfMinorTickMarks;
+    	return angleLength / numOfMajorTickMarks;
     }
     
     /**
