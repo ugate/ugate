@@ -125,7 +125,6 @@ public class Gauge extends Group {
 		this.centerY = 0;//this.centerX;
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
 		this.angleLength = angleLength == 0 ? this.indicatorType == IndicatorType.KNOB ? 360d : 180d : positiveAngle(angleLength);
-		this.anglePrecision = anglePrecision >= 0 ? anglePrecision : 2;
 		this.numOfMajorTickMarks = numberOfMajorTickMarks <= 0 ? 
 				(int)this.angleLength / 30 : this.angleLength < 360d && numberOfMajorTickMarks > 1 ? numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
 		this.numOfMinorTickMarksPerMajorTick = numberOfMinorTickMarksPerMajorTick <= 0 ? 0 : numberOfMinorTickMarksPerMajorTick + 1;
@@ -141,6 +140,7 @@ public class Gauge extends Group {
 		this.dialCenterInnerRadius = dialCenterInnerRadius <= 0 ? this.innerRadius / 16.5d : dialCenterInnerRadius;
 		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
 		this.indicatorMoveEffect = new Glow(0);
+		this.anglePrecision = anglePrecision <= 0 ? 0 : anglePrecision;
 		
 		this.angleProperty = new SimpleDoubleProperty(Math.min(getViewingStartAngle(), getViewingEndAngle())) {
 			@Override
@@ -405,8 +405,6 @@ public class Gauge extends Group {
 	 */
 	protected void updateIntensityIndicatorProperties(final Arc intensityIndicator, final double intensityPercentage, 
 			final double radiusX, final double radiusY, final double startAngle, final Color color) {
-//		final double x = radiusX * Math.cos(angleStart);
-//		final double y = radiusY * Math.sin(angleStart);
 		final double arcAngleLength = (intensityPercentage * 0.01d) * angleLength;
 		intensityIndicator.setType(ArcType.ROUND);
 		intensityIndicator.setCenterX(centerX);
@@ -562,19 +560,20 @@ public class Gauge extends Group {
 	}
 	
 	protected Shape createTickMarkLabel(final double x, final double y, final double width, 
-    		final double height, final double angle) {
-		final double viewingAngle = positiveAngle(angle - (height / 2d) -180d);
-		final Text lbl = new Text(String.valueOf(getTickValue(reverseAngle(viewingAngle))));
+    		final double height, final double tickAngle) {
+		final double tickLabelAngle = positiveAngle(tickAngle - (height / 2d) -180d);
+		final Text lbl = new Text(String.valueOf(getTickValue(flipAngleVertical(tickLabelAngle))));
 		lbl.setCache(true);
 		lbl.setCacheHint(CacheHint.QUALITY);
+		lbl.setSmooth(false);
 		lbl.setFill(Color.WHITE);
 		lbl.setFont(new Font(20d * sizeScale));
 		lbl.setTextAlignment(TextAlignment.CENTER);
 //		lbl.setX(x);
 //		lbl.setY(y);
 //		lbl.getTransforms().addAll(new Rotate(angle, centerX, centerY));
-		lbl.setLayoutX(outerRadius * Math.cos(Math.toRadians(180d - angle)));
-		lbl.setLayoutY(outerRadius * Math.sin(Math.toRadians(180d - angle)));
+		lbl.setLayoutX(outerRadius * Math.cos(Math.toRadians(180d - tickAngle)));
+		lbl.setLayoutY(outerRadius * Math.sin(Math.toRadians(180d - tickAngle)));
 		//lbl.getTransforms().addAll(new Rotate(viewingAngle, centerX, centerY));
 		return lbl;
 	}
@@ -745,7 +744,7 @@ public class Gauge extends Group {
     		// angle will always be with in 360 range
     		return scaleAngle(viewingAngle);
     	} else {
-	    	double trigAngle = reverseAngle(viewingAngle);
+	    	double trigAngle = flipAngleVertical(viewingAngle);
 	    	double startAngle = getTrigStartAngle();
 	    	double endAngle = getTrigEndAngle();
 //	    	System.out.println(String.format("angleStart: %1$s, angleLength: %2$s, viewingAngle: %3$s, " +
@@ -759,20 +758,20 @@ public class Gauge extends Group {
 	        	double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
 	    		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// move to the start position when the angle is within the start angle threshold
-	    			return reverseAngle(startAngle);
+	    			return flipAngleVertical(startAngle);
 	    		} else if (closestAngle == endAngle && Math.abs(trigAngle - endAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// move to the end position when the angle is within the end angle threshold
-	    			return reverseAngle(endAngle);
+	    			return flipAngleVertical(endAngle);
 	    		} else if (closestAngle == endAngle && Math.abs(trigAngle - 
 	    				positiveAngle(startAngle - ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// handle special case where the angle is within a specified threshold of the start position of a 0/360 border
 	    			// (i.e. angleStart=0)
-	    			return reverseAngle(startAngle);
+	    			return flipAngleVertical(startAngle);
 	    		} else if (closestAngle == startAngle && Math.abs(trigAngle - 
 	    				positiveAngle(360d - endAngle + ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// handle special case where the angle is within a specified threshold of the end position of a 0/360 border
 	    			// (i.e. angleStart=180, angleLength=180)
-	    			return reverseAngle(endAngle);
+	    			return flipAngleVertical(endAngle);
 	    		}
 	    	}
     	}
@@ -846,13 +845,14 @@ public class Gauge extends Group {
     }
     
     /**
-     * Reverses an angle. For example, if an angle has a zero quadrant position on the <b>east</b> horizontal plane the return angle
-     * will have a zero position on the <b>west</b> horizontal plane.
+     * Flips an angle relative to the y axis. For example, if an angle has a zero quadrant 
+     * position on the <b>east</b> horizontal plane the return angle will have a zero 
+     * position on the <b>west</b> horizontal plane.
      * 
-     * @param angle the angle to reverse
+     * @param angle the angle to flip
      * @return the reversed angle
      */
-    public final double reverseAngle(final double angle) {
+    public final double flipAngleVertical(final double angle) {
     	final double ra = 180d - angle;
     	return ra < 0 || (ra == 0 && getTrigStartAngle() != 0) ? ra + 360d : ra;
     }
@@ -899,14 +899,14 @@ public class Gauge extends Group {
      * @return gets the viewing start angle that is within the range of the gauge
      */
     public final double getViewingStartAngle() {
-    	return reverseAngle(getTrigStartAngle());
+    	return flipAngleVertical(getTrigStartAngle());
     }
     
     /**
      * @return gets the viewing end angle that is within the range of the gauge
      */
     public double getViewingEndAngle() {
-    	return reverseAngle(getTrigEndAngle());
+    	return flipAngleVertical(getTrigEndAngle());
     }
     
     /**
@@ -965,7 +965,9 @@ public class Gauge extends Group {
      */
     public final double getTickValue(final double viewingAngle) {
     	final double numOfTicks = getNumberOfTicks();
-    	return scaleValue(((viewingAngle / numOfTicks) - (getViewingEndAngle() / numOfTicks)) * tickValueScale);
+    	final double numOfTicksAtAngle = viewingAngle / numOfTicks;
+    	final double numOfTicksAtEndAngle = getViewingEndAngle() / numOfTicks;
+    	return scaleValue((numOfTicksAtAngle - numOfTicksAtEndAngle) * tickValueScale);
     }
     
     /**
