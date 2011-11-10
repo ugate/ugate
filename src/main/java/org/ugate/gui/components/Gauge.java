@@ -562,7 +562,7 @@ public class Gauge extends Group {
 	protected Shape createTickMarkLabel(final double x, final double y, final double width, 
     		final double height, final double tickAngle) {
 		final double tickLabelAngle = positiveAngle(tickAngle - (height / 2d) -180d);
-		final Text lbl = new Text(String.valueOf(getTickValue(flipAngleVertical(tickLabelAngle))));
+		final Text lbl = new Text(String.valueOf(getTickValue(flipAngleVertically(tickLabelAngle))));
 		lbl.setCache(true);
 		lbl.setCacheHint(CacheHint.QUALITY);
 		lbl.setSmooth(false);
@@ -744,7 +744,7 @@ public class Gauge extends Group {
     		// angle will always be with in 360 range
     		return scaleAngle(viewingAngle);
     	} else {
-	    	double trigAngle = flipAngleVertical(viewingAngle);
+	    	double trigAngle = flipAngleVertically(viewingAngle);
 	    	double startAngle = getTrigStartAngle();
 	    	double endAngle = getTrigEndAngle();
 //	    	System.out.println(String.format("angleStart: %1$s, angleLength: %2$s, viewingAngle: %3$s, " +
@@ -758,20 +758,20 @@ public class Gauge extends Group {
 	        	double closestAngle = closestAngle(trigAngle, startAngle, endAngle);
 	    		if (closestAngle == startAngle && Math.abs(trigAngle - startAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// move to the start position when the angle is within the start angle threshold
-	    			return flipAngleVertical(startAngle);
+	    			return flipAngleVertically(startAngle);
 	    		} else if (closestAngle == endAngle && Math.abs(trigAngle - endAngle) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// move to the end position when the angle is within the end angle threshold
-	    			return flipAngleVertical(endAngle);
+	    			return flipAngleVertically(endAngle);
 	    		} else if (closestAngle == endAngle && Math.abs(trigAngle - 
 	    				positiveAngle(startAngle - ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// handle special case where the angle is within a specified threshold of the start position of a 0/360 border
 	    			// (i.e. angleStart=0)
-	    			return flipAngleVertical(startAngle);
+	    			return flipAngleVertically(startAngle);
 	    		} else if (closestAngle == startAngle && Math.abs(trigAngle - 
 	    				positiveAngle(360d - endAngle + ANGLE_START_END_DISTANCE_THRSHOLD)) <= ANGLE_START_END_DISTANCE_THRSHOLD) {
 	    			// handle special case where the angle is within a specified threshold of the end position of a 0/360 border
 	    			// (i.e. angleStart=180, angleLength=180)
-	    			return flipAngleVertical(endAngle);
+	    			return flipAngleVertically(endAngle);
 	    		}
 	    	}
     	}
@@ -852,7 +852,7 @@ public class Gauge extends Group {
      * @param angle the angle to flip
      * @return the reversed angle
      */
-    public final double flipAngleVertical(final double angle) {
+    public final double flipAngleVertically(final double angle) {
     	final double ra = 180d - angle;
     	return ra < 0 || (ra == 0 && getTrigStartAngle() != 0) ? ra + 360d : ra;
     }
@@ -899,14 +899,14 @@ public class Gauge extends Group {
      * @return gets the viewing start angle that is within the range of the gauge
      */
     public final double getViewingStartAngle() {
-    	return flipAngleVertical(getTrigStartAngle());
+    	return flipAngleVertically(getTrigStartAngle());
     }
     
     /**
      * @return gets the viewing end angle that is within the range of the gauge
      */
     public double getViewingEndAngle() {
-    	return flipAngleVertical(getTrigEndAngle());
+    	return flipAngleVertically(getTrigEndAngle());
     }
     
     /**
@@ -964,9 +964,11 @@ public class Gauge extends Group {
      * @return the tick value
      */
     public final double getTickValue(final double viewingAngle) {
+    	final double viewingEndAngle = getViewingEndAngle();
     	final double numOfTicks = getNumberOfTicks();
-    	final double numOfTicksAtAngle = viewingAngle / numOfTicks;
-    	final double numOfTicksAtEndAngle = getViewingEndAngle() / numOfTicks;
+    	final double numOfTicksAtAngle = (viewingAngle <= 180d && viewingEndAngle >= 180d ? 
+    			360d + viewingAngle : viewingAngle) / numOfTicks;
+    	final double numOfTicksAtEndAngle = viewingEndAngle / numOfTicks;
     	return scaleValue((numOfTicksAtAngle - numOfTicksAtEndAngle) * tickValueScale);
     }
     

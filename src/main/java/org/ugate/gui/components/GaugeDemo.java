@@ -16,7 +16,7 @@ public class GaugeDemo extends VBox {
 	private Gauge activeIntensityAdjust;
 
 	public GaugeDemo() {
-		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 10d, 0d, 180d, 4, 1);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 10d, 45d, 90d, 4, 1);
 		gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
 		//gauge.minorTickMarkOpacityProperty.set(0);
@@ -33,7 +33,7 @@ public class GaugeDemo extends VBox {
 		final HBox gaugeContainer = new HBox();
 		gaugeContainer.getChildren().addAll(gauge, gaugeIntensitySliders);
 		
-		final Gauge gauge2 = new Gauge(IndicatorType.CLOCK, 0.5d, 1d, 45d, 270d, 4, 0);
+		final Gauge gauge2 = new Gauge(IndicatorType.CLOCK, 0.5d, 1d, 45d, 270d, 10, 0);
 		
 		getChildren().addAll(gaugeContainer, gauge2);
 	}
