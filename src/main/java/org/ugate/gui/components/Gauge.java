@@ -494,7 +494,7 @@ public class Gauge extends Group {
 			return;
 		}
 		final double offset = 0;
-		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkWidth, majorTickMarkHeight, true, majorTickMarkFillProperty, 
+		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkWidth, majorTickMarkHeight, false, majorTickMarkFillProperty, 
 				numOfMinorTickMarksPerMajorTick, minorTickMarkWidth, minorTickMarkHeight, false, minorTickMarkFillProperty, offset);
 	}
 	
@@ -561,8 +561,9 @@ public class Gauge extends Group {
 	
 	protected Shape createTickMarkLabel(final double x, final double y, final double width, 
     		final double height, final double tickAngle) {
-		final double tickLabelAngle = positiveAngle(tickAngle - (height / 2d) -180d);
-		final Text lbl = new Text(String.valueOf(getTickValue(flipAngleVertically(tickLabelAngle))));
+		final double tickValueLableAngle = positiveAngle(tickAngle - (height / 2d) -180d);
+		final double tickLabelAngle = 180d - tickAngle;
+		final Text lbl = new Text(String.valueOf(getTickValue(flipAngleVertically(tickValueLableAngle))));
 		lbl.setCache(true);
 		lbl.setCacheHint(CacheHint.QUALITY);
 		lbl.setSmooth(false);
@@ -572,8 +573,8 @@ public class Gauge extends Group {
 //		lbl.setX(x);
 //		lbl.setY(y);
 //		lbl.getTransforms().addAll(new Rotate(angle, centerX, centerY));
-		lbl.setLayoutX(outerRadius * Math.cos(Math.toRadians(180d - tickAngle)));
-		lbl.setLayoutY(outerRadius * Math.sin(Math.toRadians(180d - tickAngle)));
+		lbl.setLayoutX(outerRadius * Math.cos(Math.toRadians(tickLabelAngle)));
+		lbl.setLayoutY(outerRadius * Math.sin(Math.toRadians(tickLabelAngle)));
 		//lbl.getTransforms().addAll(new Rotate(viewingAngle, centerX, centerY));
 		return lbl;
 	}
