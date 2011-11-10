@@ -32,6 +32,7 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -80,6 +81,7 @@ public class Gauge extends Group {
 	public final Glow indicatorMoveEffect;
 	public final DoubleProperty angleProperty;
 	public final ObjectProperty<Paint> outerRimFillProperty;
+	public final ObjectProperty<Color> outerRimStrokeFillProperty;
 	public final ObjectProperty<Paint> dialCenterFillProperty;
 	public final ObjectProperty<Paint> minorTickMarkFillProperty;
 	public final ObjectProperty<Paint> majorTickMarkFillProperty;
@@ -128,14 +130,14 @@ public class Gauge extends Group {
 		this.numOfMajorTickMarks = numberOfMajorTickMarks <= 0 ? 
 				(int)this.angleLength / 30 : this.angleLength < 360d && numberOfMajorTickMarks > 1 ? numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
 		this.numOfMinorTickMarksPerMajorTick = numberOfMinorTickMarksPerMajorTick <= 0 ? 0 : numberOfMinorTickMarksPerMajorTick + 1;
-		this.majorTickMarkWidth = 12d * this.sizeScale;
-		this.majorTickMarkHeight = 2d * this.sizeScale;
+		this.majorTickMarkWidth = 15d * this.sizeScale;
+		this.majorTickMarkHeight = 2.5d * this.sizeScale;
 		this.minorTickMarkWidth = this.majorTickMarkWidth / 2d;
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
 		this.tickValueScale = tickValueScale == 0 ? 1d : tickValueScale;
 		this.indicatorWidth = this.innerRadius;
-		this.indicatorHeight = this.majorTickMarkHeight * 10d;
-		this.indicatorPointDistance = this.majorTickMarkHeight * 4;
+		this.indicatorHeight = 24d * this.sizeScale;
+		this.indicatorPointDistance = 12d * this.sizeScale;
 		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
 		this.dialCenterInnerRadius = dialCenterInnerRadius <= 0 ? this.innerRadius / 16.5d : dialCenterInnerRadius;
 		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
@@ -153,16 +155,17 @@ public class Gauge extends Group {
 		};
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : Color.BLACK);
-		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
-		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
+		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
+		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
 		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
+		this.outerRimStrokeFillProperty = new SimpleObjectProperty<Color>(Color.LIGHTCYAN);
 		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? Color.BLACK :
 					new RadialGradient(0, 0, this.centerX, this.centerY, 
 							this.innerRadius, false, CycleMethod.NO_CYCLE, 
-							new Stop(0, Color.LIGHTCYAN.darker().darker()), 
-							new Stop(0.7d, Color.BLACK)));
+							new Stop(0, Color.WHITESMOKE), 
+							new Stop(0.7d, Color.SILVER.darker().darker().darker())));
 		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? new RadialGradient(0, 0, 0, 0, 
 							Math.max(this.indicatorHeight, this.indicatorWidth), false, 
@@ -206,7 +209,7 @@ public class Gauge extends Group {
 	protected Node createValueDisplay() {
 		final HBox valContainer = new HBox();
 		final Label val = new Label(String.valueOf(getTickValue()));
-		val.setTranslateX(15);
+		val.setTranslateX(30d);
 		val.setStyle("-fx-text-fill: white;");
 		angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
@@ -282,9 +285,8 @@ public class Gauge extends Group {
 		final DropShadow outerGlow = new DropShadow();
 		outerGlow.setOffsetX(0);
 		outerGlow.setOffsetY(0);
-		outerGlow.setColor(Color.WHITE);
+		Bindings.bindBidirectional(outerGlow.colorProperty(), outerRimStrokeFillProperty);
 		outerGlow.setRadius(5);
-		//outerglow.setInput(createLighting());
 		return outerGlow;
 	}
 	
@@ -299,7 +301,6 @@ public class Gauge extends Group {
 		cg.setStrokeLineCap(StrokeLineCap.ROUND);
 		cg.setStrokeLineJoin(StrokeLineJoin.ROUND);
 		cg.setStrokeWidth(outerRadius - innerRadius);
-		//cg.setStroke(Color.WHITE);
 		Bindings.bindBidirectional(cg.strokeProperty(), strokeFillProperty);
 	}
 	
@@ -311,15 +312,20 @@ public class Gauge extends Group {
 	 * @return the highlight
 	 */
 	protected Shape createHighlight(final double width, final double height) {
-		final double highlightRadius = innerRadius;
-		final double offsetFactor = innerRadius / 4d;
-		final Arc highlight = new Arc(centerX, centerY, highlightRadius, highlightRadius, 
-				positiveAngle(angleStart + offsetFactor), positiveAngle(angleLength - offsetFactor * 2d));
-		highlight.setType(ArcType.CHORD);
+		final double radius = innerRadius / 1.05d;
+		final double centerAngle = getGeometricCenterAngle();
+		final double cx = radius * Math.cos(Math.toRadians(centerAngle));
+		final double cy = radius * Math.sin(Math.toRadians(centerAngle));
+		final Circle shape1 = new Circle(cx, cy, radius);
+		final Arc shape2 = new Arc(centerX, centerY, innerRadius, innerRadius, angleStart, angleLength);
+		shape2.setType(ArcType.ROUND);
+		shape2.setFill(Color.WHITE);
+		
+		final Shape highlight = Shape.intersect(shape1, shape2);
 		
 		highlight.setCache(true);
 		highlight.setCacheHint(CacheHint.SPEED);
-		highlight.setOpacity(0.05d);
+		highlight.setOpacity(0.1d);
 		Bindings.bindBidirectional(highlight.fillProperty(), highlightFillProperty);
 		final GaussianBlur highlightBlur = new GaussianBlur();
 		highlightBlur.setRadius(2d);
@@ -339,7 +345,7 @@ public class Gauge extends Group {
 		handBaseLighting.setSpecularConstant(0.5d);
 		handBaseLighting.setSpecularExponent(25d);
 		handBaseLighting.setDiffuseConstant(1.5d);
-		handBaseLighting.setSurfaceScale(1.7d);
+		handBaseLighting.setSurfaceScale(7d * sizeScale);
 		return handBaseLighting;
 	}
 	
@@ -383,12 +389,12 @@ public class Gauge extends Group {
 	protected final void updateIntensityIndicatorProperties(final Arc color1Arc, final Arc color2Arc, final Arc color3Arc,
 			final IntensityIndicatorRegions intensityIndicatorRegions) {
 		updateIntensityIndicatorProperties(color1Arc, intensityIndicatorRegions.getColor3SpanPercentage(),
-				innerRadius, innerRadius, angleStart, intensityIndicatorRegions.getColor1());
+				outerRadius, outerRadius, angleStart, intensityIndicatorRegions.getColor1());
 		updateIntensityIndicatorProperties(color2Arc, intensityIndicatorRegions.getColor2SpanPercentage(),
-				color1Arc.getRadiusX(), color1Arc.getRadiusY(), getTrigEndAngle(color1Arc.getStartAngle(), color1Arc.getLength()),
+				color1Arc.getRadiusX(), color1Arc.getRadiusY(), getGeometericEndAngle(color1Arc.getStartAngle(), color1Arc.getLength()),
 				intensityIndicatorRegions.getColor2());
 		updateIntensityIndicatorProperties(color3Arc, intensityIndicatorRegions.getColor1SpanPercentage(),
-				color2Arc.getRadiusX(), color2Arc.getRadiusY(), getTrigEndAngle(color2Arc.getStartAngle(), color2Arc.getLength()),
+				color2Arc.getRadiusX(), color2Arc.getRadiusY(), getGeometericEndAngle(color2Arc.getStartAngle(), color2Arc.getLength()),
 				intensityIndicatorRegions.getColor3());
 	}
 	
@@ -415,7 +421,7 @@ public class Gauge extends Group {
 		intensityIndicator.setLength(arcAngleLength);
 		intensityIndicator.setFill(new RadialGradient(0, 0, centerX, centerY, 
 				Math.max(intensityIndicator.getRadiusX(), intensityIndicator.getRadiusY()), false, CycleMethod.NO_CYCLE, 
-				 new Stop(0.8d, Color.TRANSPARENT), new Stop(1, color)));
+				 new Stop(((outerRadius - innerRadius) / sizeScale) * 0.115d, Color.TRANSPARENT), new Stop(1, color)));
 		intensityIndicator.setOpacity(0.9d);
 	}
 	
@@ -533,13 +539,13 @@ public class Gauge extends Group {
 		double angle = 0;
 		// add the minor tick marks
 		for (i=0; i<=numOfTotalMinorTicks; i++) {
-			angle = tickMarkAngle(numOfTotalMinorTicks, i, majorHeight);
+			angle = tickMarkAngle(numOfTotalMinorTicks, i);
 			tick = createTickMark(tx, ty, minorWidth, minorHeight, angle, minorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 		}
 		// add the major tick marks
 		for (i=0; i<=numOfMajorTicks; i++) {
-			angle = tickMarkAngle(numOfMajorTicks, i, majorHeight);
+			angle = tickMarkAngle(numOfMajorTicks, i);
 			tick = createTickMark(tx, ty, majorWidth, majorHeight, angle, majorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTicks || !isCircular())) {
@@ -746,8 +752,8 @@ public class Gauge extends Group {
     		return scaleAngle(viewingAngle);
     	} else {
 	    	double trigAngle = flipAngleVertically(viewingAngle);
-	    	double startAngle = getTrigStartAngle();
-	    	double endAngle = getTrigEndAngle();
+	    	double startAngle = getGeometericStartAngle();
+	    	double endAngle = getGeometericEndAngle();
 //	    	System.out.println(String.format("angleStart: %1$s, angleLength: %2$s, viewingAngle: %3$s, " +
 //	    			"startAngle: %4$s, endAngle: %5$s, trigAngle: %6$s", 
 //	    			angleStart, angleLength, viewingAngle, startAngle, endAngle, trigAngle));
@@ -786,7 +792,7 @@ public class Gauge extends Group {
      * @param y the y coordinate
      * @return the angle
      */
-    protected static final double cartesianCoordinatesToViewingAngle(final double x, final double y) {
+    protected static double cartesianCoordinatesToViewingAngle(final double x, final double y) {
     	double viewingAngle = Math.toDegrees(Math.atan2(y, x));
     	// convert angle to positive quadrants 0 - 360 degrees
 		if (viewingAngle < 0) {
@@ -802,7 +808,7 @@ public class Gauge extends Group {
      * @param angles the angles to check
      * @return the angle that is closest to the angle checked against
      */
-    protected static final double closestAngle(final double angle, final double... angles) {
+    protected static double closestAngle(final double angle, final double... angles) {
     	Double closestValue = null;
     	double ca, la = -1;
     	for (double a : angles) {
@@ -821,7 +827,7 @@ public class Gauge extends Group {
      * @param value the value to scale
      * @return the scaled value
      */
-    private final double scaleValue(final double value) {
+    private double scaleValue(final double value) {
     	return new BigDecimal(value).setScale(anglePrecision, ROUNDING_MODE).doubleValue();
     }
     
@@ -831,7 +837,7 @@ public class Gauge extends Group {
      * @param angle the angle to scale
      * @return the scaled angle
      */
-    public final double scaleAngle(final double angle) {
+    public double scaleAngle(final double angle) {
     	return scaleValue(angle);
     }
     
@@ -841,7 +847,7 @@ public class Gauge extends Group {
      * @param angle the angle to be converted
      * @return the positive angle
      */
-    public static final double positiveAngle(final double angle) {
+    public static double positiveAngle(final double angle) {
     	return angle < 0 ? 360d + angle : angle;
     }
     
@@ -853,9 +859,9 @@ public class Gauge extends Group {
      * @param angle the angle to flip
      * @return the reversed angle
      */
-    public final double flipAngleVertically(final double angle) {
+    public double flipAngleVertically(final double angle) {
     	final double ra = 180d - angle;
-    	return ra < 0 || (ra == 0 && getTrigStartAngle() != 0) ? ra + 360d : ra;
+    	return ra < 0 || (ra == 0 && getGeometericStartAngle() != 0) ? ra + 360d : ra;
     }
     
     /**
@@ -865,7 +871,7 @@ public class Gauge extends Group {
      * @param angle2 angle two
      * @return the difference
      */
-    public static final double differenceAngle(final double angle1, final double angle2) {
+    public static double differenceAngle(final double angle1, final double angle2) {
         return Math.abs((angle1 + 180d - angle2) % 360d - 180d);
     }
     
@@ -876,15 +882,26 @@ public class Gauge extends Group {
      * @param angleLength the angle length
      * @return the the end angle
      */
-    public static final double getTrigEndAngle(final double startAngle, final double angleLength) {
+    public static double getGeometericEndAngle(final double startAngle, final double angleLength) {
     	return (startAngle + angleLength) > 360d ? (startAngle + angleLength) - 360d : (startAngle + angleLength);
+    }
+    
+    /**
+     * Calculates the center angle of a given start angle and the angle length
+     * 
+     * @param startAngle the start angle
+     * @param angleLength the angle length
+     * @return the center angle
+     */
+    public static double getGeometricCenterAngle(final double startAngle, final double angleLength) {
+    	return Math.abs((angleLength / 2d) + startAngle - 360d);
     }
     
     /**
      * @return the start angle within the gauges range relative to the normal trigonometry angle where an 
      * 		angle of zero is in the east horizontal plane
      */
-    public final double getTrigStartAngle() {
+    public double getGeometericStartAngle() {
     	return angleStart;
     }
     
@@ -892,22 +909,29 @@ public class Gauge extends Group {
      * @return the end angle within the gauges range relative to the normal trigonometry angle where an 
      * 		angle of zero is in the east horizontal plane
      */
-    public final double getTrigEndAngle() {
-    	return getTrigEndAngle(angleStart, angleLength);
+    public double getGeometericEndAngle() {
+    	return getGeometericEndAngle(angleStart, angleLength);
+    }
+    
+    /**
+     * @return the center angle within the gauges range
+     */
+    public double getGeometricCenterAngle() {
+    	return Math.abs((angleLength / 2d) + angleStart - 360d);
     }
     
     /**
      * @return gets the viewing start angle that is within the range of the gauge
      */
-    public final double getViewingStartAngle() {
-    	return flipAngleVertically(getTrigStartAngle());
+    public double getViewingStartAngle() {
+    	return flipAngleVertically(getGeometericStartAngle());
     }
     
     /**
      * @return gets the viewing end angle that is within the range of the gauge
      */
     public double getViewingEndAngle() {
-    	return flipAngleVertically(getTrigEndAngle());
+    	return flipAngleVertically(getGeometericEndAngle());
     }
     
     /**
@@ -915,7 +939,7 @@ public class Gauge extends Group {
      * 
      * @return the x coordinate
      */
-    protected final double tickMarkDefaultX() {
+    protected double tickMarkDefaultX() {
     	return centerX - innerRadius;
     }
     
@@ -924,7 +948,7 @@ public class Gauge extends Group {
      * 
      * @return the y coordinate
      */
-    protected final double tickMarkDefaultY() {
+    protected double tickMarkDefaultY() {
     	return centerY;
     }
     
@@ -933,7 +957,7 @@ public class Gauge extends Group {
      * 
      * @return the x coordinate
      */
-    protected final double tickMarkLabelDefaultX() {
+    protected double tickMarkLabelDefaultX() {
     	return centerX - outerRadius;
     }
     
@@ -942,7 +966,7 @@ public class Gauge extends Group {
      * 
      * @return the y coordinate
      */
-    protected final double tickMarkLabelDefaultY() {
+    protected double tickMarkLabelDefaultY() {
     	return centerY;
     }
     
@@ -951,11 +975,10 @@ public class Gauge extends Group {
      * 
      * @param numOfMarks the total number of tick marks
      * @param index the index of the tick mark relative to the total number of tick marks (zero based)
-     * @param height the height of the tick mark
      * @return the angle of the tick mark
      */
-    protected final double tickMarkAngle(final int numOfMarks, final int index, final double height) {
-    	return 180d - ((angleLength / numOfMarks) * index) - angleStart + (height / 2d);
+    protected double tickMarkAngle(final int numOfMarks, final int index) {
+    	return 180d - ((angleLength / numOfMarks) * index - 0.5d) - angleStart;
     }
     
     /**
@@ -964,7 +987,7 @@ public class Gauge extends Group {
      * @param viewingAngle the viewing angle
      * @return the tick value
      */
-    public final double getTickValue(final double viewingAngle) {
+    public double getTickValue(final double viewingAngle) {
     	final double viewingEndAngle = getViewingEndAngle();
     	final double numOfTicks = getNumberOfTicks();
     	final double numOfTicksAtAngle = (viewingAngle <= 180d && viewingEndAngle >= 180d ? 
@@ -980,7 +1003,7 @@ public class Gauge extends Group {
      * 
      * @return the current tick value
      */
-    public final double getTickValue() {
+    public double getTickValue() {
     	return getTickValue(angleProperty.get());
     }
     
@@ -995,7 +1018,7 @@ public class Gauge extends Group {
      * 
      * @param tickValue the tick value to set
      */
-    public final void setTickValue(final double tickValue) {
+    public void setTickValue(final double tickValue) {
     	angleProperty.set(getNumberOfTicks() * tickValue + getViewingEndAngle());
     }
     
@@ -1009,7 +1032,7 @@ public class Gauge extends Group {
     /**
      * @return true when the gauge is circular, false when it is an arc
      */
-    public boolean isCircular() {
+    public final boolean isCircular() {
     	return angleLength == 360;
     }
     
@@ -1047,7 +1070,7 @@ public class Gauge extends Group {
     	 */
     	public IntensityIndicatorRegions(final double color1SpanPercentage, final double color2SpanPercentage, 
 				final double color3SpanPercentage) {
-    		this(color1SpanPercentage, color2SpanPercentage, color3SpanPercentage, Color.RED, Color.GOLD, Color.GREEN);
+    		this(color1SpanPercentage, color2SpanPercentage, color3SpanPercentage, Color.RED, Color.GOLD, Color.GREEN.brighter());
     	}
 		/**
 		 * Creates intensity indicator regions. percentages should always add up to one hundred
