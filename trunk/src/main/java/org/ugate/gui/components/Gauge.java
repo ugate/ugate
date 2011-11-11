@@ -200,9 +200,8 @@ public class Gauge extends Group {
 		final Shape gaugeCenter = createBackground(outerRadius, innerRadius, centerGaugeFillProperty, outerRimFillProperty);
 		final Group gaugeParent = createParent(gaugeCenter);
 
-		gaugeParent.getChildren().addAll(createValueDisplay(), createIntensityIndicator(), createHighlight(0, 0));
-		
 		addTickMarks(gaugeParent);
+		gaugeParent.getChildren().addAll(createValueDisplay(), createIntensityIndicator(), createHighlight(0, 0));
 		
 		// create indicator/hand
 		final Group indicator = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
@@ -219,7 +218,7 @@ public class Gauge extends Group {
 	protected Node createValueDisplay() {
 		final HBox valContainer = new HBox();
 		final Label val = new Label(getTickValueLabel());
-		val.setTranslateX(30d);
+		val.setTranslateX(150d);
 		val.setStyle("-fx-text-fill: white;");
 		angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
@@ -323,7 +322,7 @@ public class Gauge extends Group {
 	 */
 	protected Shape createHighlight(final double width, final double height) {
 		final double radius = innerRadius / 1.05d;
-		final double centerAngle = getGeometricCenterAngle();
+		final double centerAngle = isCircular() ? 270d : getGeometricCenterAngle();
 		final double cx = centerX + radius * Math.cos(Math.toRadians(centerAngle));
 		final double cy = centerY + radius * Math.sin(Math.toRadians(centerAngle));
 		final Circle shape1 = new Circle(cx, cy, radius);
@@ -966,7 +965,7 @@ public class Gauge extends Group {
      * @return a tick value format that will be used for tick value labels
      */
     protected final DecimalFormat createTickValueFormat() {
-    	String format = String.valueOf(tickValueScale).replaceAll("[0-9]", "#");
+    	String format = String.valueOf(tickValueScale).replaceAll("[\\d\\-]", "#");
     	return new DecimalFormat(format);
     }
     
@@ -986,7 +985,7 @@ public class Gauge extends Group {
      * @return the formated tick value
      */
     public String getTickValueLabel() {
-    	return getTickValueLabel(getTickValue());
+    	return getTickValueLabel(angleProperty.get());
     }
     
     /**
@@ -1002,7 +1001,7 @@ public class Gauge extends Group {
     			360d + viewingAngle : viewingAngle) / numOfTicks;
     	final double numOfTicksAtEndAngle = viewingEndAngle / numOfTicks;
     	final double tickValue = ((numOfTicksAtAngle - numOfTicksAtEndAngle) * tickValueScale);
-    	return tickValue != 0 ? tickValue + tickValueZeroOffset : tickValue;
+    	return tickValue + tickValueZeroOffset;
     }
     
     /**
@@ -1028,10 +1027,16 @@ public class Gauge extends Group {
      * @param tickValue the tick value to set
      */
     public void setTickValue(final double tickValue) {
-    	final double tickValueScaled = tickValue / tickValueScale;
-    	final double tickValueActual = getNumberOfTicks() * (tickValueScaled != 0 ? tickValueScaled - tickValueZeroOffset : 
-    		tickValueScaled) + getViewingEndAngle();
-    	angleProperty.set(tickValueActual);
+    	double tickValueScaled = tickValue;
+    	if (tickValueScaled != 0 && tickValueScale == 1) {
+    		tickValueScaled /= tickValueScale;
+    		tickValueScaled -= tickValueZeroOffset;
+    	} else if (tickValueScaled != 0) {
+    		tickValueScaled -= tickValueZeroOffset;
+    		tickValueScaled /= tickValueScale;
+    	}
+    	final double tickValueAngle = getNumberOfTicks() * tickValueScaled + getViewingEndAngle();
+    	angleProperty.set(tickValueAngle);
     }
     
     /**

@@ -16,8 +16,8 @@ public class GaugeDemo extends VBox {
 	private Gauge activeIntensityAdjust;
 
 	public GaugeDemo() {
-		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, -10, 0d, 360d, 20, 1);
-		gauge.setTickValue(-5d);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, -2, 0d, 180d, 10, 1);
+		gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
 		//gauge.minorTickMarkOpacityProperty.set(0);
 		//gauge.majorTickMarkOpacityProperty.set(0);
