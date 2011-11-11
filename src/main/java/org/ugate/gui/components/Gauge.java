@@ -1,6 +1,7 @@
 package org.ugate.gui.components;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -32,7 +33,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -500,7 +500,7 @@ public class Gauge extends Group {
 			return;
 		}
 		final double offset = 0;
-		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkWidth, majorTickMarkHeight, false, majorTickMarkFillProperty, 
+		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkWidth, majorTickMarkHeight, true, majorTickMarkFillProperty, 
 				numOfMinorTickMarksPerMajorTick, minorTickMarkWidth, minorTickMarkHeight, false, minorTickMarkFillProperty, offset);
 	}
 	
@@ -532,11 +532,10 @@ public class Gauge extends Group {
 		// all tick marks will have the same starting coordinates- only the angle will be adjusted
 		final double tx = tickMarkDefaultX() + offset;
 		final double ty = tickMarkDefaultY();
-		final double tlx = tickMarkLabelDefaultX();
-		final double tly = tickMarkLabelDefaultY();
 		final int numOfTotalMinorTicks = numOfMinorTicks <= 1 ? -1 : numOfMajorTicks * numOfMinorTicks;
 		int i;
-		double angle = 0;
+		String label;
+		double angle, labelAngle, labelRadius, tlx, tly;
 		// add the minor tick marks
 		for (i=0; i<=numOfTotalMinorTicks; i++) {
 			angle = tickMarkAngle(numOfTotalMinorTicks, i);
@@ -549,39 +548,38 @@ public class Gauge extends Group {
 			tick = createTickMark(tx, ty, majorWidth, majorHeight, angle, majorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTicks || !isCircular())) {
-				tickGroup.getChildren().add(createTickMarkLabel(tlx, tly, majorWidth, majorHeight, angle));
-//				final double tickLabelAngle = cartesianCoordinatesToViewingAngle(tick.getBoundsInParent().getMinX(), 
-//						tick.getBoundsInParent().getMinY()) - 90d;
-//				lbl.setTranslateX(tick.getBoundsInParent().getMaxX());
-//				lbl.setTranslateY(tick.getBoundsInParent().getMaxY());
-//				lbl.getTransforms().addAll(new Rotate(tickLabelAngle, centerX, centerY));
-//				parent.getChildren().add(lbl);
-				
-//				parent.getChildren().add(createTickMarkLabel(tick.getBoundsInParent().getMaxX(), tick.getBoundsInParent().getMaxY(), 
-//						width, height, tickLabelAngle));
+				labelAngle = positiveAngle(angle - (majorHeight / 2d) -180d);
+				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius * 1.05d : 
+					innerRadius * 0.75d;
+				tlx = labelRadius * Math.cos(Math.toRadians(labelAngle));
+				tly = labelRadius * Math.sin(Math.toRadians(labelAngle));
+				label = new DecimalFormat("##").format(getTickValue(angle));
+				tickGroup.getChildren().add(createTickMarkLabel(tlx, tly, labelAngle, label, tick));
 			}
         }
 		parent.getChildren().add(tickGroup);
 		return tickGroup;
 	}
 	
-	protected Shape createTickMarkLabel(final double x, final double y, final double width, 
-    		final double height, final double tickAngle) {
-		final double tickValueLableAngle = positiveAngle(tickAngle - (height / 2d) -180d);
-		final double tickLabelAngle = 180d - tickAngle;
-		final Text lbl = new Text(String.valueOf(getTickValue(flipAngleVertically(tickValueLableAngle))));
+	/**
+	 * Create tick mark label
+	 * 
+	 * @param x the x coordinate of the label
+	 * @param y the y coordinate of the label
+	 * @param labelAngle the label angle
+	 * @param label the label
+	 * @param tickMark the tick mark that the label is for
+	 * @return the tick mark label
+	 */
+	protected Shape createTickMarkLabel(final double x, final double y, 
+			final double labelAngle, final String label, final Shape tickMark) {
+		final Text lbl = new Text(x, y, label);
 		lbl.setCache(true);
 		lbl.setCacheHint(CacheHint.QUALITY);
 		lbl.setSmooth(false);
 		lbl.setFill(Color.WHITE);
 		lbl.setFont(new Font(20d * sizeScale));
 		lbl.setTextAlignment(TextAlignment.CENTER);
-//		lbl.setX(x);
-//		lbl.setY(y);
-//		lbl.getTransforms().addAll(new Rotate(angle, centerX, centerY));
-		lbl.setLayoutX(outerRadius * Math.cos(Math.toRadians(tickLabelAngle)));
-		lbl.setLayoutY(outerRadius * Math.sin(Math.toRadians(tickLabelAngle)));
-		//lbl.getTransforms().addAll(new Rotate(viewingAngle, centerX, centerY));
 		return lbl;
 	}
 	

@@ -33,7 +33,7 @@ public class GaugeDemo extends VBox {
 		final HBox gaugeContainer = new HBox();
 		gaugeContainer.getChildren().addAll(gauge, gaugeIntensitySliders);
 		
-		final Gauge gauge2 = new Gauge(IndicatorType.CLOCK, 0.5d, 1d, 45d, 270d, 50, 0);
+		final Gauge gauge2 = new Gauge(IndicatorType.KNOB, 0.5d, 1d, 0d, 360d, 20, 0);
 		
 		getChildren().addAll(gaugeContainer, gauge2);
 	}
