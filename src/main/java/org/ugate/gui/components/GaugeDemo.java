@@ -16,8 +16,8 @@ public class GaugeDemo extends VBox {
 	private Gauge activeIntensityAdjust;
 
 	public GaugeDemo() {
-		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, -2, 0d, 180d, 10, 1);
-		gauge.setTickValue(1d);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, 0, 0d, 180d, 10, 3);
+		//gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
 		//gauge.minorTickMarkOpacityProperty.set(0);
 		//gauge.majorTickMarkOpacityProperty.set(0);
@@ -30,12 +30,20 @@ public class GaugeDemo extends VBox {
 		addIntensityChangeListener(gauge, gaugeRegion3, gaugeRegion1, gaugeRegion2);
 		final VBox gaugeIntensitySliders = new VBox();
 		gaugeIntensitySliders.getChildren().addAll(gaugeRegion1, gaugeRegion2, gaugeRegion3);
-		final HBox gaugeContainer = new HBox();
-		gaugeContainer.getChildren().addAll(gauge, gaugeIntensitySliders);
 		
-		final Gauge gauge2 = new Gauge(IndicatorType.KNOB, 0.5d, 1d, 0, 0d, 360d, 20, 0);
+		final HBox row1 = new HBox();
+		final Gauge gauge2 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, -2, 45d, 90d, 5, 0);
+		gauge2.setTickValue(0);
+		row1.getChildren().addAll(gauge, gaugeIntensitySliders, gauge2);
 		
-		getChildren().addAll(gaugeContainer, gauge2);
+		final HBox row2 = new HBox();
+		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 0d, 360d, 20, 4);
+		final Gauge gauge4 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 90d, 270d, 10, 0);
+		final Gauge gauge5 = new Gauge(IndicatorType.KNOB, 0.5d, 1d, 0, 0d, 360d, 20, 0);
+		gauge5.setTickValue(11.5d);
+		row2.getChildren().addAll(gauge3, gauge4, gauge5);
+		
+		getChildren().addAll(row1, row2);
 	}
 	
 	private Gauge createRegionKnob(final Color color) {
