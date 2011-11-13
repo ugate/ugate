@@ -1,9 +1,13 @@
 package org.ugate.gui;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ToolBar;
+import javafx.scene.effect.Reflection;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
@@ -20,7 +24,8 @@ public abstract class ControlPane extends BorderPane {
 	public final ToolBar rightView;
 	
 	public ControlPane() {
-		setStyle("-fx-background-color: #000000;");
+		setStyle("-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #FFFFFF 0%, #111111 15%, #222222 25%, #333333 50%, #222222 60%, #111111 75%, #000000 85%, #000000);");
+		//centerView.getStyleClass().add("control-toolbar");
 		// top
 		topView = new ToolBar();
 		topView.getItems().addAll(createTopViewChildren());
@@ -35,7 +40,8 @@ public abstract class ControlPane extends BorderPane {
 		
 		centerView.getChildren().add(new GaugeDemo());
 		
-		centerView.getChildren().addAll(createCenterViewChildren());
+		//centerView.getChildren().addAll(createCenterViewChildren());
+
 		// bottom
 		rightView = new ToolBar();
 		rightView.setOrientation(Orientation.VERTICAL);
