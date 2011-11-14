@@ -993,7 +993,7 @@ public class Gauge extends Group {
      */
     public String getTickValueLabel(final double viewingAngle) {
     	double value = getTickValue(viewingAngle);
-    	double correctedValue = (value == 0.0 ? 0.0 : value);
+    	double correctedValue = (value == -0.0 ? 0.0 : value);
     	return tickValueFormat.format(correctedValue);
     }
     
