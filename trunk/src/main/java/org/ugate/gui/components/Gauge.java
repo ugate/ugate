@@ -177,7 +177,7 @@ public class Gauge extends Group {
 		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
 					new RadialGradient(0, 0, this.centerX, this.centerY, 
 							this.innerRadius, false, CycleMethod.NO_CYCLE, 
-							new Stop(0, Color.DARKCYAN.darker().darker()), 
+							new Stop(0, Color.DARKCYAN.darker()), 
 							new Stop(0.7d, Color.BLACK)));
 		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? new RadialGradient(0, 0, 0, 0, 
@@ -203,8 +203,9 @@ public class Gauge extends Group {
 		final Group gaugeParent = createParent(gaugeCenter);
 
 		addTickMarks(gaugeParent);
+		final double highlightAngle = 270d; //isCircular() ? 270d : getGeometricCenterAngle();
 		gaugeParent.getChildren().addAll(createTickValueDisplay(), createIntensityIndicator(), 
-				createHighlight(0, 0));
+				createHighlight(0, 0, highlightAngle));
 		
 		// create indicator/hand
 		final Group indicator = createIndicator(gaugeParent, indicatorPointDistance, indicatorFillProperty);
@@ -325,20 +326,21 @@ public class Gauge extends Group {
 	 * 
 	 * @param width the width of the highlight
 	 * @param height the height of the highlight
+	 * @param highlightAngle the angle that the highlight will appear
 	 * @return the highlight
 	 */
-	protected Shape createHighlight(final double width, final double height) {
+	protected Shape createHighlight(final double width, final double height, final double highlightAngle) {
+		final double adjAngleLength = isCircular() ? 180d : angleLength;
 		final double arcRadius = innerRadius - (innerRadius / 100d);
-		final double radiusX = centerX + angleLength / (isCircular() ? 8d : 2d);
-		final double radiusY = centerY + angleLength / (isCircular() ? 8d : 2d);
-		final double centerAngle = 270d; //isCircular() ? 270d : getGeometricCenterAngle();
-		final double cx = (radiusX + innerRadius / (isCircular() ? angleLength / 3.5d : 2.5d)) 
-				* Math.cos(Math.toRadians(centerAngle));
-		final double cy = (radiusY + innerRadius / (isCircular() ? angleLength / 3.5d : 2.5d)) 
-				* Math.sin(Math.toRadians(centerAngle));
+		final double radiusX = centerX + adjAngleLength / 2d;
+		final double radiusY = centerY + adjAngleLength / 2d;
+		final double cx = (radiusX + innerRadius / 2.5d) 
+				* Math.cos(Math.toRadians(highlightAngle));
+		final double cy = (radiusY + innerRadius / 2.5d) 
+				* Math.sin(Math.toRadians(highlightAngle));
 		final Ellipse shape1 = new Ellipse(cx, cy, radiusX, radiusY);
 		shape1.setFill(Color.GREEN);
-		final Arc shape2 = new Arc(centerX, centerY, arcRadius, arcRadius, angleStart, angleLength);
+		final Arc shape2 = new Arc(centerX, centerY, arcRadius, arcRadius, angleStart, adjAngleLength);
 		shape2.setType(ArcType.ROUND);
 		shape2.setFill(Color.WHITE);
 		
@@ -346,10 +348,10 @@ public class Gauge extends Group {
 		
 		highlight.setCache(true);
 		highlight.setCacheHint(CacheHint.SPEED);
-		highlight.setOpacity(0.1d);
-		highlightFillProperty.set(new LinearGradient(cx, cy, this.centerX, this.centerY, 
-				false, CycleMethod.NO_CYCLE, new Stop(0.5, Color.WHITE),
-				new Stop(1, Color.TRANSPARENT)));
+		highlight.setOpacity(0.07d);
+		highlightFillProperty.set(new LinearGradient(cx, cy, centerX, centerY, 
+				false, CycleMethod.NO_CYCLE, new Stop(0.8d, Color.WHITE),
+				new Stop(1d, Color.TRANSPARENT)));
 		Bindings.bindBidirectional(highlight.fillProperty(), highlightFillProperty);
 		return highlight;
 	}
