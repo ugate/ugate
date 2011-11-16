@@ -37,7 +37,7 @@ public class GaugeDemo extends VBox {
 		row1.getChildren().addAll(gauge, gaugeIntensitySliders, gauge2);
 		
 		final HBox row2 = new HBox();
-		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 0d, 360d, 20, 4);
+		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, 0, 0d, 360d, 5, 4);
 		final Gauge gauge4 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 90d, 270d, 10, 0);
 		final Gauge gauge5 = new Gauge(IndicatorType.KNOB, 0.5d, 1d, 0, 0d, 360d, 20, 0);
 		gauge5.setTickValue(11.5d);

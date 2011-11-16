@@ -17,6 +17,7 @@ import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
@@ -24,6 +25,7 @@ import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
@@ -80,6 +82,7 @@ public class Gauge extends Group {
 	public final double angleLength;
 	public final double centerX;
 	public final double centerY;
+	public final Font font;
 	public final Glow indicatorMoveEffect;
 	public final DoubleProperty angleProperty;
 	public final ObjectProperty<Paint> outerRimFillProperty;
@@ -148,6 +151,7 @@ public class Gauge extends Group {
 		this.dialCenterInnerRadius = dialCenterInnerRadius <= 0 ? this.innerRadius / 16.5d : dialCenterInnerRadius;
 		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
 		this.indicatorMoveEffect = new Glow(0);
+		this.font = new Font(17d * sizeScale);
 		
 		final double defaultAngle = getTickValue(getViewingStartAngle()) <= getTickValue(getViewingEndAngle()) ? 
 				getViewingStartAngle() : getViewingEndAngle();
@@ -164,8 +168,8 @@ public class Gauge extends Group {
 				this.indicatorType == IndicatorType.KNOB ? 
 						new RadialGradient(0, 0, this.centerX, this.centerY, 
 								this.innerRadius, false, CycleMethod.NO_CYCLE, 
-								new Stop(0, Color.DARKCYAN.brighter()), 
-								new Stop(1d, Color.DARKCYAN.darker().darker().darker()))
+								new Stop(0, Color.WHITESMOKE), 
+								new Stop(1d, Color.DIMGRAY))
 				: Color.BLACK);
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
@@ -177,7 +181,7 @@ public class Gauge extends Group {
 		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
 					new RadialGradient(0, 0, this.centerX, this.centerY, 
 							this.innerRadius, false, CycleMethod.NO_CYCLE, 
-							new Stop(0, Color.DARKCYAN.darker()), 
+							new Stop(0, Color.WHITESMOKE), 
 							new Stop(0.7d, Color.BLACK)));
 		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(
 				this.indicatorType == IndicatorType.KNOB ? new RadialGradient(0, 0, 0, 0, 
@@ -221,17 +225,35 @@ public class Gauge extends Group {
 	 */
 	protected Node createTickValueDisplay() {
 		// TODO : finish placement and view of value display
-		final HBox valContainer = new HBox();
-		final Label val = new Label(getTickValueLabel());
-		val.setTranslateX(outerRadius);
-		val.setStyle("-fx-text-fill: white;");
+		final StackPane valContainer = new StackPane();
+		final Text val = new Text(getTickValueLabel());
+		val.setFont(font);
+		final DropShadow outerGlow = new DropShadow();
+		outerGlow.setOffsetX(0);
+		outerGlow.setOffsetY(0);
+		outerGlow.setColor(Color.BLUE);
+		outerGlow.setRadius(2d);
+		val.setEffect(outerGlow);
+		//val.setTranslateX(outerRadius);
+		val.setFill(Color.WHITE);
+		//val.setStyle("-fx-text-fill: white;");
 		angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				val.setText(getTickValueLabel(newValue.doubleValue()));
 			}
 		});
-		valContainer.getChildren().add(val);
+		final Rectangle border = new Rectangle(40, 20, new LinearGradient(0, 0, 0, 1, 
+				true, CycleMethod.NO_CYCLE, new Stop(0, Color.GRAY), 
+				new Stop(0.05d, Color.BLACK), new Stop(0.95d, Color.BLACK),
+				new Stop(1d, Color.WHITE)));
+		border.setArcHeight(5);
+		border.setArcWidth(5);
+		border.setStroke(Color.GRAY);
+		border.setStrokeWidth(1d);
+		border.setOpacity(0.5d);
+		
+		valContainer.getChildren().addAll(border, val);
 		return valContainer;
 	}
 
@@ -612,11 +634,11 @@ public class Gauge extends Group {
 			lbl.setX(lbl.getX() - widthOffset);
 			lbl.setY(lbl.getY() + heightOffset);
 		}
+		lbl.setSmooth(false);
 		lbl.setCache(true);
 		lbl.setCacheHint(CacheHint.QUALITY);
-		lbl.setSmooth(false);
 		Bindings.bindBidirectional(lbl.fillProperty(), tickMarkLabelFillProperty);
-		lbl.setFont(new Font(15d * sizeScale));
+		lbl.setFont(font);
 		lbl.setTextAlignment(TextAlignment.CENTER);
 		return lbl;
 	}
@@ -635,6 +657,7 @@ public class Gauge extends Group {
     protected Shape createTickMark(final double x, final double y, final double width, 
     		final double height, final double angle, final ObjectProperty<Paint> tickMarkFillProperty) {
     	final Rectangle tm = new Rectangle(x, y, width, height);
+    	tm.setSmooth(false);
     	tm.setCache(true);
     	tm.setCacheHint(CacheHint.QUALITY);
     	Bindings.bindBidirectional(tm.fillProperty(), tickMarkFillProperty);
