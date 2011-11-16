@@ -16,15 +16,12 @@ import javafx.event.EventHandler;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -168,8 +165,8 @@ public class Gauge extends Group {
 				this.indicatorType == IndicatorType.KNOB ? 
 						new RadialGradient(0, 0, this.centerX, this.centerY, 
 								this.innerRadius, false, CycleMethod.NO_CYCLE, 
-								new Stop(0, Color.WHITESMOKE), 
-								new Stop(1d, Color.DIMGRAY))
+								new Stop(0, Color.LIGHTCYAN), 
+								new Stop(1d, Color.DARKSLATEGRAY))
 				: Color.BLACK);
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
@@ -192,7 +189,7 @@ public class Gauge extends Group {
 		this.intensityIndicatorRegionsProperty = new SimpleObjectProperty<Gauge.IntensityIndicatorRegions>(
 				intensityRegions == null ? INTENSITY_REGIONS_DEFAULT : intensityRegions);
 		this.lightingAzimuthProperty = new SimpleDoubleProperty(270d);
-		this.lightingElevationProperty = new SimpleDoubleProperty(55d);
+		this.lightingElevationProperty = new SimpleDoubleProperty(90d);
 		this.highlightFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		createChildren();
 	}
@@ -379,19 +376,18 @@ public class Gauge extends Group {
 	}
 	
 	/**
-	 * @param surfaceScale the surface scale
 	 * @return the lighting applied to the gauge shape and indicator/hand group
 	 */
-	protected final Lighting createLighting(final double surfaceScale) {
+	protected final Lighting createLighting() {
 		final Light.Distant handBaseLight = new Light.Distant();
 		Bindings.bindBidirectional(handBaseLight.azimuthProperty(), lightingAzimuthProperty);
 		Bindings.bindBidirectional(handBaseLight.elevationProperty(), lightingElevationProperty);
 		final Lighting handBaseLighting = new Lighting();
 		handBaseLighting.setLight(handBaseLight);
-		handBaseLighting.setSpecularConstant(0.5d);
-		handBaseLighting.setSpecularExponent(25d);
-		handBaseLighting.setDiffuseConstant(1.5d);
-		handBaseLighting.setSurfaceScale(surfaceScale);
+		handBaseLighting.setSpecularConstant(0.7d);
+		handBaseLighting.setSpecularExponent(20d);
+		handBaseLighting.setDiffuseConstant(1.0d);
+		handBaseLighting.setSurfaceScale(7d * sizeScale);
 		return handBaseLighting;
 	}
 	
@@ -523,7 +519,11 @@ public class Gauge extends Group {
 			indicatorShape.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShape);
 		}
-		indicatorBase.setEffect(createLighting(indicatorType == IndicatorType.KNOB ? 10d * sizeScale : 7d * sizeScale));
+		final Lighting lighting = createLighting();
+		if (indicatorType == IndicatorType.KNOB) {
+			lighting.setSpecularConstant(0.4d);
+		}
+		indicatorBase.setEffect(lighting);
 		
 		final Circle indicatorCenter = new Circle(centerX, centerY, dialCenterOuterRadius);
 		indicatorCenter.setCache(true);
