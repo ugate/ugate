@@ -84,6 +84,7 @@ public class Gauge extends Group {
 	public final Font tickLabelFont;
 	public final Glow indicatorMoveEffect;
 	public final DoubleProperty angleProperty;
+	public final DoubleProperty tickValueProperty;
 	public final ObjectProperty<Paint> outerRimFillProperty;
 	public final ObjectProperty<Color> outerRimEffectFillProperty;
 	public final ObjectProperty<Paint> dialCenterFillProperty;
@@ -109,22 +110,17 @@ public class Gauge extends Group {
 		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, 0, 0, -1, -1);
 	}
 	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
-			final int tickValueZeroOffset, final int numberOfMajorTickMarks, final int numberOfMinorTickMarksPerMajorTick) {
-		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, 0, 0, numberOfMajorTickMarks, numberOfMinorTickMarksPerMajorTick);
-	}
-	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
 			final int numberOfMinorTickMarksPerMajorTick) {
-		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, 0, 0, 0, startAngle, angleLength, null, numberOfMajorTickMarks,
-				numberOfMinorTickMarksPerMajorTick);
+		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
+				numberOfMinorTickMarksPerMajorTick, 0, 0, 0, null);
 	}
 	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, final int tickValueZeroOffset,
-			final int dialNumberOfSides, final double dialCenterInnerRadius, final double dialCenterOuterRadius, final double startAngle, 
-			final double angleLength, final IntensityIndicatorRegions intensityRegions, final int numberOfMajorTickMarks, 
-			final int numberOfMinorTickMarksPerMajorTick) {
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks, 
+			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, final double dialCenterInnerRadius, 
+			final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions) {
 		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
 		this.sizeScale = sizeScale == 0 ? 1d : sizeScale;
 		this.outerRadius = RADIUS_OUTER_BASE * this.sizeScale;
@@ -160,19 +156,21 @@ public class Gauge extends Group {
 			public final void set(final double v) {
 				final double cv = calibrateViewingAngle(v);
 				if (cv >= 0) {
-					super.set(calibrateViewingAngle(v));
+					super.set(cv);
 				}
 			}
 		};
+		this.tickValueProperty = new SimpleDoubleProperty() {
+			@Override
+			public final void set(final double v) {
+				setTickValue(v);
+				super.set(getTickValue());
+			}
+		};
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
-				this.indicatorType == IndicatorType.KNOB ? 
-						new RadialGradient(0, 0, this.centerX, this.centerY, 
-								this.innerRadius, false, CycleMethod.NO_CYCLE, 
-								new Stop(0, Color.LIGHTCYAN), 
-								new Stop(1d, Color.DIMGRAY))
-				: Color.BLACK);
-		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
-		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.ANTIQUEWHITE);
+				this.indicatorType == IndicatorType.KNOB ? Color.STEELBLUE : Color.BLACK);
+		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.GRAY.brighter());
+		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.tickMarkLabelFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
@@ -184,10 +182,7 @@ public class Gauge extends Group {
 							new Stop(0, Color.WHITESMOKE), 
 							new Stop(0.7d, Color.BLACK)));
 		this.indicatorFillProperty = new SimpleObjectProperty<Paint>(
-				this.indicatorType == IndicatorType.KNOB ? new RadialGradient(0, 0, 0, 0, 
-							Math.max(this.indicatorHeight, this.indicatorWidth), false, 
-							CycleMethod.REPEAT, new Stop(0, Color.SILVER), 
-							new Stop(1, Color.WHITE)) : Color.ORANGERED);
+				this.indicatorType == IndicatorType.KNOB ? Color.BLACK : Color.ORANGERED);
 		this.indicatorOpacityProperty = new SimpleDoubleProperty(1);
 		this.dialCenterOpacityProperty = new SimpleDoubleProperty(1);
 		this.intensityIndicatorRegionsProperty = new SimpleObjectProperty<Gauge.IntensityIndicatorRegions>(
@@ -258,15 +253,18 @@ public class Gauge extends Group {
 		angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				val.setText(getTickValueLabel(newValue.doubleValue()));
+				val.setText(getTickValueLabel());//newValue.doubleValue()));
 			}
 		});
 		final Rectangle rec = new Rectangle(outerRadius, 20d * sizeScale);
-		rec.setTranslateY(5d);
 		rec.setArcHeight(5d);
 		rec.setArcWidth(5d);
+		final Rectangle rec2 = new Rectangle(outerRadius, 20d * sizeScale);
+		rec2.setArcHeight(5d);
+		rec2.setArcWidth(5d);
 		Shape border;
 		if (isCircular()) {
+			rec.setTranslateY(5d);
 			border = rec;
 			val.setTranslateY(rec.getHeight() / 2d);
 			valContainer.setTranslateX(centerX - rec.getWidth() / 2d);
@@ -281,6 +279,14 @@ public class Gauge extends Group {
 			}
 			final Shape recArc = Shape.intersect(rec, new Circle(centerX, centerY, outerRadius));
 			border = Shape.subtract(recArc, new Circle(centerX, centerY, dialCenterBackgroundRadius));
+			
+			final double offsetX2 = centerX - outerRadius;
+			final double offsetY2 = centerY;
+			final Shape recArc2 = Shape.intersect(rec2, new Circle(centerX, centerY, outerRadius));
+			final Shape border2 = Shape.subtract(recArc2, new Circle(centerX, centerY, dialCenterBackgroundRadius));
+			border.setTranslateX(offsetX2);
+			border.setTranslateY(offsetY2);
+			//valContainer.getChildren().add(border2);
 			
 			border.setTranslateX(offsetX);
 			border.setTranslateY(offsetY);
@@ -628,13 +634,13 @@ public class Gauge extends Group {
 		// add the minor tick marks
 		for (i=0; i<=numOfTotalMinorTicks; i++) {
 			angle = tickMarkAngle(numOfTotalMinorTicks, i);
-			tick = createTickMark(tx, ty, minorWidth, minorHeight, angle, minorTickMarkFillProperty);
+			tick = createTickMark(tx, ty, minorWidth, minorHeight, angle + minorHeight / 2.5d, minorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 		}
 		// add the major tick marks
 		for (i=0; i<=numOfMajorTicks; i++) {
 			angle = tickMarkAngle(numOfMajorTicks, i);
-			tick = createTickMark(tx, ty, majorWidth, majorHeight, angle, majorTickMarkFillProperty);
+			tick = createTickMark(tx, ty, majorWidth, majorHeight, angle + majorHeight / 2.5d, majorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTicks || !isCircular())) {
 				labelAngle = positiveAngle(angle - (majorHeight / 2d) -180d);
@@ -672,9 +678,9 @@ public class Gauge extends Group {
 		final double heightOffset = (lbl.getBoundsInLocal().getHeight() / 2d);
 		if (labelAngle > 270d) {
 			lbl.setX(lbl.getX() - lbl.getBoundsInLocal().getWidth() / (indicatorType == IndicatorType.KNOB ? 2.7d : 2d));
-		} else if (labelAngle >= 179d && labelAngle <= 270d) {
+		} else if (labelAngle >= 177d && labelAngle <= 270d) {
 			lbl.setX(lbl.getX() - widthOffset);
-		} else if (labelAngle >= 90d && labelAngle < 179d) {
+		} else if (labelAngle >= 90d && labelAngle < 177d) {
 			lbl.setX(lbl.getX() - widthOffset);
 			lbl.setY(lbl.getY() + heightOffset);
 		} else if (labelAngle < 90d) {
@@ -748,6 +754,8 @@ public class Gauge extends Group {
     	case KNOB: indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
     			width - (pointDistance) - ((dialCenterOuterRadius - dialCenterInnerRadius) * height), 
     			width - (pointDistance), height / 2d, indicatorFillProperty);
+    		indicatorShape.setStroke(Color.WHITESMOKE);
+    		indicatorShape.setStrokeWidth(3d);
     		break;
     	case NEEDLE: default: indicatorShape = new Polygon(
 				x, y + (height / 2.5d), 
@@ -1047,7 +1055,7 @@ public class Gauge extends Group {
      * @return the angle of the tick mark
      */
     protected double tickMarkAngle(final int numOfMarks, final int index) {
-    	return 180d - ((angleLength / numOfMarks) * index - 0.5d) - angleStart;
+    	return 180d - ((angleLength / numOfMarks) * index) - angleStart;
     }
     
     /**
@@ -1104,7 +1112,7 @@ public class Gauge extends Group {
      * @return the current tick value
      */
     public double getTickValue() {
-    	return getTickValue(angleProperty.get());
+    	return this.tickValueProperty.get();
     }
     
     /**
@@ -1194,8 +1202,11 @@ public class Gauge extends Group {
 		public IntensityIndicatorRegions(final double color1SpanPercentage, final double color2SpanPercentage, 
 				final double color3SpanPercentage, final Color color1, final Color color2, final Color color3) {
 			super();
-			if ((color1SpanPercentage + color2SpanPercentage + color3SpanPercentage) != 100d) {
-				throw new IllegalArgumentException("The sum of all percentages must be 100");
+			final double sum = color1SpanPercentage + color2SpanPercentage + color3SpanPercentage;
+			if (sum != 100d) {
+				throw new IllegalArgumentException(String.format(
+						"The sum of color percentages: %s$1 + %s$2 + %s$3 = %s$4 must be 100", color1SpanPercentage, 
+						color2SpanPercentage, color3SpanPercentage, sum));
 			}
 			this.color1SpanPercentage = color1SpanPercentage;
 			this.color2SpanPercentage = color2SpanPercentage;
