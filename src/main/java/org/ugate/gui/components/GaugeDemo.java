@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
 
 import org.ugate.gui.components.Gauge.IndicatorType;
 
@@ -57,7 +58,8 @@ public class GaugeDemo extends VBox {
 	}
 	
 	private Gauge createRegionKnob(final Color color, final double percentValue) {
-		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4);
+		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4, -1, 0, 0, null, 
+				Font.font("Verdina", 7d));
 		gaugeRegion.indicatorFillProperty.set(Color.BLACK);
 		//gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
 		//gaugeRegion.majorTickMarkFillProperty.set(Color.TRANSPARENT);
