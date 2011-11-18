@@ -29,7 +29,7 @@ public class GaugeDemo extends VBox {
 		addIntensityChangeListener(gauge, gaugeRegion1, gaugeRegion2, gaugeRegion3, 0);
 		addIntensityChangeListener(gauge, gaugeRegion2, gaugeRegion1, gaugeRegion3, 1);
 		addIntensityChangeListener(gauge, gaugeRegion3, gaugeRegion1, gaugeRegion2, 2);
-		final HBox gaugeIntensitySliders = new HBox();
+		final HBox gaugeIntensitySliders = new HBox(5d);
 		gaugeIntensitySliders.getChildren().addAll(gaugeRegion1, gaugeRegion2, gaugeRegion3);
 		final VBox col1 = new VBox();
 		col1.getChildren().addAll(gauge, gaugeIntensitySliders);
@@ -57,7 +57,7 @@ public class GaugeDemo extends VBox {
 	}
 	
 	private Gauge createRegionKnob(final Color color, final double percentValue) {
-		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 10, 0d, 180d, 10, 4);
+		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4);
 		gaugeRegion.indicatorFillProperty.set(Color.BLACK);
 		//gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
 		//gaugeRegion.majorTickMarkFillProperty.set(Color.TRANSPARENT);

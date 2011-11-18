@@ -81,7 +81,7 @@ public class Gauge extends Group {
 	public final double angleLength;
 	public final double centerX;
 	public final double centerY;
-	public final Font tickLabelFont;
+	public final Font tickValueFont;
 	public final Glow indicatorMoveEffect;
 	public final DoubleProperty angleProperty;
 	public final DoubleProperty tickValueProperty;
@@ -102,7 +102,7 @@ public class Gauge extends Group {
 	public final ObjectProperty<Paint> highlightFillProperty;
 	
 	public Gauge() {
-		this(null, 0, 0, 0, 0, 0, -1, -1);
+		this(null, 0, 0, 0);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
@@ -114,13 +114,13 @@ public class Gauge extends Group {
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
 			final int numberOfMinorTickMarksPerMajorTick) {
 		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numberOfMinorTickMarksPerMajorTick, 0, 0, 0, null);
+				numberOfMinorTickMarksPerMajorTick, 0, 0, 0, null, null);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks, 
 			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, final double dialCenterInnerRadius, 
-			final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions) {
+			final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions, final Font tickValueFont) {
 		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
 		this.sizeScale = sizeScale == 0 ? 1d : sizeScale;
 		this.outerRadius = RADIUS_OUTER_BASE * this.sizeScale;
@@ -130,7 +130,8 @@ public class Gauge extends Group {
 		this.angleStart = startAngle == 0 && angleLength == 0 ? 0 : positiveAngle(startAngle);
 		this.angleLength = angleLength == 0 ? this.indicatorType == IndicatorType.KNOB ? 360d : 180d : positiveAngle(angleLength);
 		this.numOfMajorTickMarks = numberOfMajorTickMarks <= 0 ? 
-				(int)this.angleLength / 30 : this.angleLength < 360d && numberOfMajorTickMarks > 1 ? numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
+				(int)this.angleLength / 30 : this.angleLength < 360d && numberOfMajorTickMarks > 1 ? 
+						numberOfMajorTickMarks - 1 : numberOfMajorTickMarks;
 		this.numOfMinorTickMarksPerMajorTick = numberOfMinorTickMarksPerMajorTick <= 0 ? 0 : numberOfMinorTickMarksPerMajorTick + 1;
 		this.majorTickMarkWidth = 15d * this.sizeScale;
 		this.majorTickMarkHeight = 2.5d * this.sizeScale;
@@ -147,7 +148,7 @@ public class Gauge extends Group {
 		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
 		this.dialCenterBackgroundRadius = this.dialCenterOuterRadius * 4.5d;
 		this.indicatorMoveEffect = new Glow(0);
-		this.tickLabelFont = Font.font(FONT_NAME, 17d * sizeScale);
+		this.tickValueFont = tickValueFont == null ? Font.font(FONT_NAME, 17d * sizeScale) : tickValueFont;
 		
 		final double defaultAngle = getTickValue(getViewingStartAngle()) <= getTickValue(getViewingEndAngle()) ? 
 				getViewingStartAngle() : getViewingEndAngle();
@@ -251,7 +252,7 @@ public class Gauge extends Group {
 	protected Node createTickValueDisplay() {
 		final StackPane valContainer = new StackPane();
 		final Text val = new Text(getTickValueLabel());
-		val.setFont(tickLabelFont);
+		val.setFont(tickValueFont);
 		final DropShadow outerGlow = new DropShadow();
 		outerGlow.setOffsetX(0);
 		outerGlow.setOffsetY(0);
@@ -701,7 +702,7 @@ public class Gauge extends Group {
 		lbl.setCache(true);
 		lbl.setCacheHint(CacheHint.QUALITY);
 		Bindings.bindBidirectional(lbl.fillProperty(), tickMarkLabelFillProperty);
-		lbl.setFont(tickLabelFont);
+		lbl.setFont(tickValueFont);
 		lbl.setTextAlignment(TextAlignment.CENTER);
 		return lbl;
 	}
