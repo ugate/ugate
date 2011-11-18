@@ -154,17 +154,27 @@ public class Gauge extends Group {
 		this.angleProperty = new SimpleDoubleProperty(defaultAngle) {
 			@Override
 			public final void set(final double v) {
-				final double cv = calibrateViewingAngle(v);
-				if (cv >= 0) {
-					super.set(cv);
+				final double nav = calibrateViewingAngle(v);
+				if (nav >= 0) {
+					super.set(nav);
+					final double ntv = getTickValue(nav);
+					if (tickValueProperty.get() != ntv) {
+						tickValueProperty.set(ntv);
+					}
 				}
 			}
 		};
 		this.tickValueProperty = new SimpleDoubleProperty() {
 			@Override
 			public final void set(final double v) {
-				setTickValue(v);
-				super.set(getTickValue());
+//				double ntv = Math.min(v, getTickValue(getViewingEndAngle()));
+//				ntv = Math.max(v, getTickValue(getViewingStartAngle()));
+				double ntv = Double.parseDouble(tickValueFormat.format(v));
+				super.set(ntv);
+				final double nav = getViewingAngle(ntv);
+				if (angleProperty.get() != nav) {
+					angleProperty.set(nav);
+				}
 			}
 		};
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
@@ -1058,33 +1068,17 @@ public class Gauge extends Group {
     	return 180d - ((angleLength / numOfMarks) * index) - angleStart;
     }
     
-    /**
-     * @return a tick value format that will be used for tick value labels
-     */
-    protected final DecimalFormat createTickValueFormat() {
-    	String format = String.valueOf(tickValueScale).replaceAll("[\\d\\-]", "#");
-    	return new DecimalFormat(format);
-    }
-    
-    /**
-     * Gets the tick value {@linkplain #getTickValue(double)} for the supplied angle formated for display
-     * 
-     * @param viewingAngle the angle to get the tick value for
-     * @return the formated tick value
-     */
-    public String getTickValueLabel(final double viewingAngle) {
-    	double value = getTickValue(viewingAngle);
-    	double correctedValue = (value == -0.0 ? 0.0 : value);
-    	return tickValueFormat.format(correctedValue);
-    }
-    
-    /**
-     * Gets the current tick value {@linkplain #getTickValue()} formated for display
-     * 
-     * @return the formated tick value
-     */
-    public String getTickValueLabel() {
-    	return getTickValueLabel(angleProperty.get());
+    public double getViewingAngle(final double tickValue) {
+    	double tickValueScaled = tickValue;
+    	if (tickValueScale == 1) {
+    		tickValueScaled /= tickValueScale;
+    		tickValueScaled -= tickValueZeroOffset;
+    	} else {
+    		tickValueScaled -= tickValueZeroOffset;
+    		tickValueScaled /= tickValueScale;
+    	}
+    	final double tickValueAngle = getNumberOfTicks() * tickValueScaled + getViewingEndAngle();
+    	return tickValueAngle;
     }
     
     /**
@@ -1112,7 +1106,7 @@ public class Gauge extends Group {
      * @return the current tick value
      */
     public double getTickValue() {
-    	return this.tickValueProperty.get();
+    	return tickValueProperty.get();
     }
     
     /**
@@ -1127,16 +1121,46 @@ public class Gauge extends Group {
      * @param tickValue the tick value to set
      */
     public void setTickValue(final double tickValue) {
-    	double tickValueScaled = tickValue;
-    	if (tickValueScale == 1) {
-    		tickValueScaled /= tickValueScale;
-    		tickValueScaled -= tickValueZeroOffset;
-    	} else {
-    		tickValueScaled -= tickValueZeroOffset;
-    		tickValueScaled /= tickValueScale;
-    	}
-    	final double tickValueAngle = getNumberOfTicks() * tickValueScaled + getViewingEndAngle();
-    	angleProperty.set(tickValueAngle);
+//    	double tickValueScaled = tickValue;
+//    	if (tickValueScale == 1) {
+//    		tickValueScaled /= tickValueScale;
+//    		tickValueScaled -= tickValueZeroOffset;
+//    	} else {
+//    		tickValueScaled -= tickValueZeroOffset;
+//    		tickValueScaled /= tickValueScale;
+//    	}
+//    	final double tickValueAngle = getNumberOfTicks() * tickValueScaled + getViewingEndAngle();
+//    	angleProperty.set(tickValueAngle);
+    	tickValueProperty.set(tickValue);
+    }
+    
+    /**
+     * Gets the tick value {@linkplain #getTickValue(double)} for the supplied angle formated for display
+     * 
+     * @param viewingAngle the angle to get the tick value for
+     * @return the formated tick value
+     */
+    public String getTickValueLabel(final double viewingAngle) {
+    	double value = getTickValue(viewingAngle);
+    	double correctedValue = (value == -0.0 ? 0.0 : value);
+    	return tickValueFormat.format(correctedValue);
+    }
+    
+    /**
+     * Gets the current tick value {@linkplain #getTickValue()} formated for display
+     * 
+     * @return the formated tick value
+     */
+    public String getTickValueLabel() {
+    	return getTickValueLabel(angleProperty.get());
+    }
+    
+    /**
+     * @return a tick value format that will be used for tick value labels
+     */
+    protected final DecimalFormat createTickValueFormat() {
+    	String format = String.valueOf(tickValueScale).replaceAll("[\\d\\-]", "#");
+    	return new DecimalFormat(format);
     }
     
     /**
@@ -1202,10 +1226,10 @@ public class Gauge extends Group {
 		public IntensityIndicatorRegions(final double color1SpanPercentage, final double color2SpanPercentage, 
 				final double color3SpanPercentage, final Color color1, final Color color2, final Color color3) {
 			super();
-			final double sum = color1SpanPercentage + color2SpanPercentage + color3SpanPercentage;
-			if (sum != 100d) {
+			final double sum = Math.round(color1SpanPercentage + color2SpanPercentage + color3SpanPercentage);
+			if (sum != 100) {
 				throw new IllegalArgumentException(String.format(
-						"The sum of color percentages: %s$1 + %s$2 + %s$3 = %s$4 must be 100", color1SpanPercentage, 
+						"The sum of color percentages: %s + %s + %s = %s must be 100", color1SpanPercentage, 
 						color2SpanPercentage, color3SpanPercentage, sum));
 			}
 			this.color1SpanPercentage = color1SpanPercentage;
