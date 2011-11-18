@@ -2,6 +2,7 @@ package org.ugate.gui.components;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.List;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -33,6 +34,7 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -114,7 +116,7 @@ public class Gauge extends Group {
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
 			final int numberOfMinorTickMarksPerMajorTick) {
 		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numberOfMinorTickMarksPerMajorTick, 0, 0, 0, null, null);
+				numberOfMinorTickMarksPerMajorTick, -1, 0, 0, null, null);
 	}
 	
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
@@ -143,7 +145,7 @@ public class Gauge extends Group {
 		this.indicatorWidth = this.innerRadius;
 		this.indicatorHeight = 24d * this.sizeScale;
 		this.indicatorPointDistance = 12d * this.sizeScale;
-		this.dialNumberOfSides = dialNumberOfSides <= 0 ? 10 : dialNumberOfSides;
+		this.dialNumberOfSides = dialNumberOfSides < 0 ? 24 : dialNumberOfSides;
 		this.dialCenterInnerRadius = dialCenterInnerRadius <= 0 ? this.innerRadius / 16.5d : dialCenterInnerRadius;
 		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
 		this.dialCenterBackgroundRadius = this.dialCenterOuterRadius * 4.5d;
@@ -297,7 +299,7 @@ public class Gauge extends Group {
 			final Shape border2 = Shape.subtract(recArc2, new Circle(centerX, centerY, dialCenterBackgroundRadius));
 			border.setTranslateX(offsetX2);
 			border.setTranslateY(offsetY2);
-			//valContainer.getChildren().add(border2);
+			valContainer.getChildren().add(border2);
 			
 			border.setTranslateX(offsetX);
 			border.setTranslateY(offsetY);
@@ -568,16 +570,20 @@ public class Gauge extends Group {
 		final double ix = centerX - (indicatorWidth / 1.2);
 		final double iy = centerY - (indicatorHeight / 2);
 		
-		final Shape indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth, indicatorHeight, pointDistance,
-				centerX, centerY, indicatorType == IndicatorType.KNOB ? dialCenterFillProperty : fillProperty);
 		final Rotate indicatorRotate = new Rotate(this.angleProperty.get(), centerX, centerY);
 		Bindings.bindBidirectional(indicatorRotate.angleProperty(), this.angleProperty);
+		Shape indicatorShape;
 		if (indicatorType == IndicatorType.KNOB) {
+			indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth - pointDistance, 
+					indicatorHeight - pointDistance, pointDistance,
+					centerX, centerY, dialCenterFillProperty);
 	    	final Group indicatorShapeGroup = createKnobRotaryDialIndicatorShape(indicatorShape, ix, iy, 
 					indicatorWidth, indicatorHeight, pointDistance, centerX, centerY, fillProperty);
 			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShapeGroup);
 		} else {
+			indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth, indicatorHeight, pointDistance,
+					centerX, centerY, fillProperty);
 			indicatorShape.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShape);
 		}
@@ -762,11 +768,27 @@ public class Gauge extends Group {
     			x + width, y + (height / 4d));
     		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
-    	case KNOB: indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
-    			width - (pointDistance) - ((dialCenterOuterRadius - dialCenterInnerRadius) * height), 
-    			width - (pointDistance), height / 2d, indicatorFillProperty);
+    	case KNOB: 
+    		if (dialNumberOfSides <= 0) {
+    			indicatorShape = new Ellipse(gaugeCenterX, gaugeCenterY, 
+    					width - pointDistance, height - pointDistance);
+    			Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
+    		} else {
+    			indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
+    					width - (pointDistance * 1.2d), width - pointDistance, height / 2d, indicatorFillProperty);
+    		}
+    		final Group surface = createKnobRotaryDialSurfaceShape(centerX, centerY, innerRadius,
+    				new KnobColor[]{ 
+    				new KnobColor(Color.SILVER, 0), 
+    				new KnobColor(Color.WHITE, 45), 
+    				new KnobColor(Color.SILVER, 90), 
+    				new KnobColor(Color.WHITE, 180), 
+    				new KnobColor(Color.SILVER, 270),  
+    				new KnobColor(Color.WHITE, 360)});
+    		surface.setTranslateX(100d);
+    		getChildren().add(surface);
     		indicatorShape.setStroke(Color.WHITESMOKE);
-    		indicatorShape.setStrokeWidth(3d);
+    		indicatorShape.setStrokeWidth(2d);
     		break;
     	case NEEDLE: default: indicatorShape = new Polygon(
 				x, y + (height / 2.5d), 
@@ -815,8 +837,35 @@ public class Gauge extends Group {
     			x + (indicatorWidth / 2d), y + (indicatorHeight / 4d));
 		handIndicatorShape.setEffect(createLighting());
     	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), indicatorFillProperty);
+    	handIndicatorShape.setStroke(Color.WHITESMOKE);
+    	handIndicatorShape.setStrokeWidth(1d);
 		handShapeGroup.getChildren().addAll(dialInidcatorShape, handIndicatorShape);
 		return handShapeGroup;
+    }
+    
+    protected Group createKnobRotaryDialSurfaceShape(final double centerX, final double centerY, 
+    		final double radius, final KnobColor[] colors) {
+    	Group group = new Group();
+    	double endX, endY, gap, halfGap;
+    	for (int i=0; i<colors.length - 1; i++) {
+            gap = colors[i + 1].getAngle() - colors[i].getAngle();
+            halfGap = gap / 2d;
+            Color color = colors[i].getColor();
+            for (int j=0; j<gap; j++) {
+                if (j < halfGap) {
+                	color = color.brighter();
+                } else {
+                	color = color.darker();
+                }
+        		endX = (centerX + radius) * Math.cos(Math.toRadians(colors[i].getAngle() + j));
+        		endY = (centerY + radius) * Math.sin(Math.toRadians(colors[i].getAngle() + j));
+                Line line = new Line(centerX, centerY, endX, endY);
+                line.setStroke(color);
+                line.setStrokeWidth(1d);
+                group.getChildren().add(line);
+            }
+    	}
+    	return group;
     }
     
 	/**
@@ -1041,6 +1090,20 @@ public class Gauge extends Group {
     }
     
     /**
+     * @return the current angle
+     */
+    public double getAngle() {
+    	return angleProperty.get();
+    }
+    
+    /**
+     * @param angle the angle to set
+     */
+    public void setAngle(final double angle) {
+    	angleProperty.set(angle);
+    }
+    
+    /**
      * Calculates the default x coordinate of a tick mark
      * 
      * @return the x coordinate
@@ -1122,16 +1185,6 @@ public class Gauge extends Group {
      * @param tickValue the tick value to set
      */
     public void setTickValue(final double tickValue) {
-//    	double tickValueScaled = tickValue;
-//    	if (tickValueScale == 1) {
-//    		tickValueScaled /= tickValueScale;
-//    		tickValueScaled -= tickValueZeroOffset;
-//    	} else {
-//    		tickValueScaled -= tickValueZeroOffset;
-//    		tickValueScaled /= tickValueScale;
-//    	}
-//    	final double tickValueAngle = getNumberOfTicks() * tickValueScaled + getViewingEndAngle();
-//    	angleProperty.set(tickValueAngle);
     	tickValueProperty.set(tickValue);
     }
     
@@ -1175,7 +1228,7 @@ public class Gauge extends Group {
      * @return true when the gauge is circular, false when it is an arc
      */
     public final boolean isCircular() {
-    	return angleLength == 360;
+    	return angleLength == 360d;
     }
     
     /**
@@ -1275,6 +1328,40 @@ public class Gauge extends Group {
 		 */
 		public Color getColor3() {
 			return color3;
+		}
+    }
+    
+    /**
+     * Knob color used for a Knob surface
+     */
+    public static class KnobColor {
+    	private final Color color;
+    	private final double angle;
+    	
+		/**
+		 * Creates a color scheme used for a Knob surface
+		 * 
+		 * @param color
+		 * @param angle
+		 */
+		public KnobColor(Color color, double angle) {
+			super();
+			this.color = color;
+			this.angle = angle;
+		}
+
+		/**
+		 * @return the color
+		 */
+		public Color getColor() {
+			return color;
+		}
+
+		/**
+		 * @return the angle
+		 */
+		public double getAngle() {
+			return angle;
 		}
     }
 }
