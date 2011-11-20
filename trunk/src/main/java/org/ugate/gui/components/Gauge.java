@@ -2,6 +2,7 @@ package org.ugate.gui.components;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.binding.Bindings;
@@ -34,7 +35,6 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -57,6 +57,11 @@ public class Gauge extends Group {
 	public static final int MAJOR_TICK_MARK_DIVISOR_DEFAULT = 30;
 	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT = 
 		new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
+	public static final Color[] DEFAULT_KNOB_SURFACE_COLORS = Gauge.genFadedColors(
+			0xA9A9A9, 70, 0xFFFFFF, 5, 0xA9A9A9, 70, 
+			0xFFFFFF, 90, 0xA9A9A9, 110, 0xFFFFFF, 70,
+			0xA9A9A9, 50, 0xFFFFFF, 90,
+			0xA9A9A9);
 	public static final int ROUNDING_MODE = BigDecimal.ROUND_HALF_UP;
 	public static final String FONT_NAME = "Trebuchet MS";
 	public final IndicatorType indicatorType;
@@ -181,7 +186,7 @@ public class Gauge extends Group {
 			}
 		};
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
-				this.indicatorType == IndicatorType.KNOB ? Color.STEELBLUE : Color.BLACK);
+				this.indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : Color.BLACK);
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.GRAY.brighter());
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.tickMarkLabelFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
@@ -576,14 +581,20 @@ public class Gauge extends Group {
 		if (indicatorType == IndicatorType.KNOB) {
 			indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth - pointDistance, 
 					indicatorHeight - pointDistance, pointDistance,
-					centerX, centerY, dialCenterFillProperty);
-	    	final Group indicatorShapeGroup = createKnobRotaryDialIndicatorShape(indicatorShape, ix, iy, 
-					indicatorWidth, indicatorHeight, pointDistance, centerX, centerY, fillProperty);
+					centerX, centerY, fillProperty);
+			final double knobSurfaceRadius = indicatorWidth - pointDistance * 2d;
+    		final Group knobSurface = createKnobSurface(centerX, centerY, 
+    				knobSurfaceRadius, knobSurfaceRadius, genFadedColors(
+    						0xA9A9A9, 100, 0xFFFFFF, 100, 0xA9A9A9, 100, 
+    						0xFFFFFF, 100, 0xA9A9A9, 100, 0xFFFFFF, 100,
+    						0xA9A9A9, 100, 0xFFFFFF, 100,
+    						0xA9A9A9, 100, 0xFFFFFF, 100, 0xA9A9A9));
+	    	final Group indicatorShapeGroup = createKnob(indicatorShape, knobSurface);
 			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShapeGroup);
 		} else {
-			indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth, indicatorHeight, pointDistance,
-					centerX, centerY, fillProperty);
+			indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth, 
+					indicatorHeight, pointDistance, centerX, centerY, fillProperty);
 			indicatorShape.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShape);
 		}
@@ -769,26 +780,16 @@ public class Gauge extends Group {
     		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		break;
     	case KNOB: 
-    		if (dialNumberOfSides <= 0) {
-    			indicatorShape = new Ellipse(gaugeCenterX, gaugeCenterY, 
-    					width - pointDistance, height - pointDistance);
-    			Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
-    		} else {
-    			indicatorShape = createSproket(gaugeCenterX, gaugeCenterY, dialNumberOfSides, 
-    					width - (pointDistance * 1.2d), width - pointDistance, height / 2d, indicatorFillProperty);
-    		}
-    		final Group surface = createKnobRotaryDialSurfaceShape(centerX, centerY, innerRadius,
-    				new KnobColor[]{ 
-    				new KnobColor(Color.SILVER, 0), 
-    				new KnobColor(Color.WHITE, 45), 
-    				new KnobColor(Color.SILVER, 90), 
-    				new KnobColor(Color.WHITE, 180), 
-    				new KnobColor(Color.SILVER, 270),  
-    				new KnobColor(Color.WHITE, 360)});
-    		surface.setTranslateX(100d);
-    		getChildren().add(surface);
+    		indicatorShape = new Polygon(
+        			x, y,
+        			x - pointDistance, y + (indicatorHeight / 2d),  
+        			x, y + indicatorHeight, 
+        			x + (indicatorWidth / 2d), y + (indicatorHeight / 2d) + (indicatorHeight / 4d), 
+        			x + (indicatorWidth / 2d), y + (indicatorHeight / 4d));
+    		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		indicatorShape.setStroke(Color.WHITESMOKE);
-    		indicatorShape.setStrokeWidth(2d);
+    		indicatorShape.setStrokeWidth(1d);
+    		indicatorShape.setEffect(createLighting());
     		break;
     	case NEEDLE: default: indicatorShape = new Polygon(
 				x, y + (height / 2.5d), 
@@ -807,65 +808,90 @@ public class Gauge extends Group {
     }
     
     /**
-	 * Creates a rotary/knob style dial indicator/hand shape
+	 * Creates a rotary/knob dial parent
 	 * 
-	 * @param dialInidcatorShape
-	 *            the dial indicator/hand shape from
-	 *            {@linkplain #createIndicatorShape(IndicatorType, double, double, double, double, double, double, double, ObjectProperty)}
-	 * @param x the x coordinate of the indicator point
-	 * @param y the x coordinate of the indicator point
-	 * @param width the width of the indicator point
-	 * @param height the height of the indicator point
-	 * @param pointDistance the point distance offset
-	 * @param gaugeCenterX the center of the gauge x coordinate
-	 * @param gaugeCenterY the center of the gauge y coordinate
-	 * @param indicatorFillProperty the fill property to bind to
-	 * @return the rotary dial
+	 * @param indicatorShape the indicator/hand shape
+	 * @param dialNode the center portion of the knob
+	 * @return the completed knob
 	 */
-    protected Group createKnobRotaryDialIndicatorShape(final Shape dialInidcatorShape, 
-    		final double x, final double y, final double width, final double height, 
-    		final double pointDistance, final double gaugeCenterX, final double gaugeCenterY,
-    		final ObjectProperty<Paint> indicatorFillProperty) {
+    protected Group createKnob(final Shape indicatorShape, final Node dialNode) {
     	final Group handShapeGroup = new Group();
     	handShapeGroup.setCache(true);
     	handShapeGroup.setCacheHint(CacheHint.ROTATE);
-		final Shape handIndicatorShape = new Polygon(
-    			x, y,
-    			x - pointDistance, y + (indicatorHeight / 2d),  
-    			x, y + indicatorHeight, 
-    			x + (indicatorWidth / 2d), y + (indicatorHeight / 2d) + (indicatorHeight / 4d), 
-    			x + (indicatorWidth / 2d), y + (indicatorHeight / 4d));
-		handIndicatorShape.setEffect(createLighting());
-    	Bindings.bindBidirectional(handIndicatorShape.fillProperty(), indicatorFillProperty);
-    	handIndicatorShape.setStroke(Color.WHITESMOKE);
-    	handIndicatorShape.setStrokeWidth(1d);
-		handShapeGroup.getChildren().addAll(dialInidcatorShape, handIndicatorShape);
+		handShapeGroup.getChildren().addAll(dialNode, indicatorShape);
 		return handShapeGroup;
     }
     
-    protected Group createKnobRotaryDialSurfaceShape(final double centerX, final double centerY, 
-    		final double radius, final KnobColor[] colors) {
+    /**
+     * Creates
+     * @param centerX
+     * @param centerY
+     * @param radius
+     * @param colors
+     * @return
+     */
+    protected Group createKnobSurface(final double centerX, final double centerY, 
+    		final double radiusX, final double radiusY, final Color... colors) {
     	Group group = new Group();
-    	double endX, endY, gap, halfGap;
-    	for (int i=0; i<colors.length - 1; i++) {
-            gap = colors[i + 1].getAngle() - colors[i].getAngle();
-            halfGap = gap / 2d;
-            Color color = colors[i].getColor();
-            for (int j=0; j<gap; j++) {
-                if (j < halfGap) {
-                	color = color.brighter();
-                } else {
-                	color = color.darker();
-                }
-        		endX = (centerX + radius) * Math.cos(Math.toRadians(colors[i].getAngle() + j));
-        		endY = (centerY + radius) * Math.sin(Math.toRadians(colors[i].getAngle() + j));
-                Line line = new Line(centerX, centerY, endX, endY);
-                line.setStroke(color);
-                line.setStrokeWidth(1d);
-                group.getChildren().add(line);
-            }
+    	double angle = 0;
+    	double startRadians = angle * 2d * Math.PI;
+    	double stepRadians = (2d * Math.PI) / colors.length;
+    	double oldX = centerX + Math.cos(startRadians) * radiusX;
+    	double oldY = centerY + Math.sin(startRadians) * radiusY;
+    	double newX, newY, newRadians;
+    	for (double i=0; i<colors.length; i++) {
+    		newRadians = startRadians + stepRadians * (i + 1d);
+    		newX = centerX + Math.cos(newRadians) * radiusX;
+    		newY = centerY + Math.sin(newRadians) * radiusY;
+    		Polygon shape = new Polygon(oldX, oldY, centerX, centerY, newX, newY, oldX, oldY);
+    		shape.setStroke(colors[(int)i]);
+    		shape.setStrokeWidth(1d);
+    		shape.setFill(colors[(int)i]);
+    		group.getChildren().add(shape);
+    		oldX = newX;
+            oldY = newY;
     	}
     	return group;
+    }
+    
+    /**
+     * Generates an array of colors based upon the specified color sequences where every other
+     * value in {@code colors} represents a hexadecimal color (starting at index zero) and 
+     * every other value in {@code colors} represents how many times to fade the preceding 
+     * hexadecimal color (starting at index one).
+     * <p>For example, {@code [0xFFFFFF, 20, 0xA9A9A9, 32, 0xFFFFFF]} would generate 20 different 
+     * variations of white, 32 variations of gray, and end with white.
+     * </p>
+     * @param colors the colors to fade
+     * @return the faded colors
+     */
+    protected static final Color[] genFadedColors(int... colors) {
+        int cs = colors.length - 1;
+        List<Color> transColors = new ArrayList<Color>();
+        int hex, fadeCount;
+        double r, g, b, rd, gd, bd, steps, ratio;
+        for (int i=0; i<cs; i += 2) {
+            hex = colors[i];
+            fadeCount = colors[i + 2];
+            r = hex >> 16;
+        	g = hex >> 8 & 0xFF;
+    		b = hex & 0xFF;
+            transColors.add(Color.rgb((int)r, (int)g, (int)b));
+            rd = (fadeCount >> 16) - r;
+            gd = (fadeCount >> 8 & 0xFF) - g;
+            bd = (fadeCount & 0xFF) - b;
+            steps = colors[i + 1] + 1;
+            for (double j=1; j<steps; j++) {
+                ratio = j / steps;
+                transColors.add(Color.rgb((int)(r + rd * ratio), (int)(g + gd * ratio), 
+                		(int)(b + bd * ratio)));
+            }
+        }
+        r = colors[cs] >> 16;
+        g = colors[cs] >> 8 & 0xFF;
+        b = colors[cs] & 0xFF;
+        transColors.add(Color.rgb((int)r, (int)g, (int)b));
+        return transColors.toArray(new Color[]{});
     }
     
 	/**
@@ -1328,40 +1354,6 @@ public class Gauge extends Group {
 		 */
 		public Color getColor3() {
 			return color3;
-		}
-    }
-    
-    /**
-     * Knob color used for a Knob surface
-     */
-    public static class KnobColor {
-    	private final Color color;
-    	private final double angle;
-    	
-		/**
-		 * Creates a color scheme used for a Knob surface
-		 * 
-		 * @param color
-		 * @param angle
-		 */
-		public KnobColor(Color color, double angle) {
-			super();
-			this.color = color;
-			this.angle = angle;
-		}
-
-		/**
-		 * @return the color
-		 */
-		public Color getColor() {
-			return color;
-		}
-
-		/**
-		 * @return the angle
-		 */
-		public double getAngle() {
-			return angle;
 		}
     }
 }
