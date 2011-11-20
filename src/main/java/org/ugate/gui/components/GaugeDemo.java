@@ -41,7 +41,7 @@ public class GaugeDemo extends VBox {
 		final VBox col2 = new VBox();
 		col2.getChildren().addAll(gauge2, gauge4);
 
-		final Gauge gauge5 = new Gauge(IndicatorType.KNOB, 0.5d, 1d, 0, 0d, 360d, 20, 0);
+		final Gauge gauge5 = new Gauge(IndicatorType.KNOB, 1d, 1d, 0, 0d, 360d, 20, 0);
 		gauge5.setTickValue(11.5d);
 		final VBox col3 = new VBox();
 		col3.getChildren().addAll(gauge5);
@@ -60,15 +60,13 @@ public class GaugeDemo extends VBox {
 	private Gauge createRegionKnob(final Color color, final double percentValue) {
 		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4, -1, 0, 0, null, 
 				Font.font("Verdina", 7d));
-		gaugeRegion.indicatorFillProperty.set(Color.BLACK);
+		gaugeRegion.indicatorFillProperty.set(color);
 		//gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
 		//gaugeRegion.majorTickMarkFillProperty.set(Color.TRANSPARENT);
 		//gaugeRegion.minorTickMarkFillProperty.set(Color.TRANSPARENT);
 		gaugeRegion.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 
 				Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT));
-		gaugeRegion.dialCenterFillProperty.set(new RadialGradient(0, 0, gaugeRegion.centerX, gaugeRegion.centerY, 
-				gaugeRegion.innerRadius, false, CycleMethod.NO_CYCLE, 
-				new Stop(0, color), new Stop(1, color.darker())));
+		//gaugeRegion.dialCenterFillProperty.set(color);
 		gaugeRegion.setTickValue(percentValue);
 		return gaugeRegion;
 	}
