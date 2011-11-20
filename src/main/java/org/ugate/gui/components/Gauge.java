@@ -350,7 +350,7 @@ public class Gauge extends Group {
 		
 		border2.setTranslateX(offsetX);
 		border2.setTranslateY(offsetY);
-		final double angle2 = getGeometericStartAngle();
+		double angle2 = 180d - getGeometericEndAngle();
 		
 		valContainer.getTransforms().add(new Rotate(angle2, centerX, centerY));
 		border2.setFill(Color.BLACK);
