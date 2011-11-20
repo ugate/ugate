@@ -58,9 +58,8 @@ public class Gauge extends Group {
 	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT = 
 		new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
 	public static final Color[] DEFAULT_KNOB_SURFACE_COLORS = Gauge.genFadedColors(
-			0xA9A9A9, 70, 0xFFFFFF, 5, 0xA9A9A9, 70, 
-			0xFFFFFF, 90, 0xA9A9A9, 110, 0xFFFFFF, 70,
-			0xA9A9A9, 50, 0xFFFFFF, 90,
+			0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 
+			0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 
 			0xA9A9A9);
 	public static final int ROUNDING_MODE = BigDecimal.ROUND_HALF_UP;
 	public static final String FONT_NAME = "Trebuchet MS";
@@ -223,7 +222,11 @@ public class Gauge extends Group {
 		// add tick marks
 		addTickMarks(gaugeParent);
 		// add display that will show the current tick value
-		final Node tickValueDisplay = this.indicatorType == IndicatorType.KNOB ? null : createTickValueDisplay();
+		final double tickValueHeight = 20d * sizeScale;
+		final Node tickValueDisplay = this.indicatorType == IndicatorType.KNOB ? null : 
+			createTickValueDisplay(tickValueHeight);
+		final Node tickValueDisplay2 = this.indicatorType == IndicatorType.KNOB ? null : 
+			createTickValueDisplay2(tickValueHeight);
 		
 		// create intensity indicators that will indicate when values are moderate, medium, or intense
 		final Group intensityIndicator = createIntensityIndicator();
@@ -238,6 +241,9 @@ public class Gauge extends Group {
 		
 		if (tickValueDisplay != null) {
 			gaugeParent.getChildren().add(tickValueDisplay);
+		}
+		if (tickValueDisplay2 != null) {
+			gaugeParent.getChildren().add(tickValueDisplay2);
 		}
 		if (intensityIndicator != null) {
 			gaugeParent.getChildren().add(intensityIndicator);
@@ -256,7 +262,7 @@ public class Gauge extends Group {
 	 * 
 	 * @return the tick value display
 	 */
-	protected Node createTickValueDisplay() {
+	protected Node createTickValueDisplay(final double height) {
 		final StackPane valContainer = new StackPane();
 		final Text val = new Text(getTickValueLabel());
 		val.setFont(tickValueFont);
@@ -274,37 +280,36 @@ public class Gauge extends Group {
 				val.setText(getTickValueLabel());//newValue.doubleValue()));
 			}
 		});
-		final Rectangle rec = new Rectangle(outerRadius, 20d * sizeScale);
-		rec.setArcHeight(5d);
-		rec.setArcWidth(5d);
-		final Rectangle rec2 = new Rectangle(outerRadius, 20d * sizeScale);
-		rec2.setArcHeight(5d);
-		rec2.setArcWidth(5d);
+		final double rimRadius = outerRadius - innerRadius;
 		Shape border;
 		if (isCircular()) {
+			final Rectangle rec = new Rectangle(outerRadius, height);
+			rec.setArcHeight(5d);
+			rec.setArcWidth(5d);
 			rec.setTranslateY(5d);
 			border = rec;
 			val.setTranslateY(rec.getHeight() / 2d);
 			valContainer.setTranslateX(centerX - rec.getWidth() / 2d);
 			valContainer.setTranslateY(centerY + rec.getHeight());
 		} else {
-			// create border shape
-			final double offsetX = centerX + dialCenterBackgroundRadius - (outerRadius - innerRadius);
-			final double offsetY = centerY;
+			// create the background border for the tick mark value
+			final double offsetX = centerX + dialCenterBackgroundRadius - rimRadius / 2d;
+			final double offsetY = centerY + rimRadius;
+			// rotate value text so that it is never upside down
 			final double angle = -getGeometericStartAngle();
 			if (Math.abs(angle) > 90d && Math.abs(angle) < 270d) {
 				val.setRotate(180d);
 			}
-			final Shape recArc = Shape.intersect(rec, new Circle(centerX, centerY, outerRadius));
-			border = Shape.subtract(recArc, new Circle(centerX, centerY, dialCenterBackgroundRadius));
-			
-			final double offsetX2 = centerX - outerRadius;
-			final double offsetY2 = centerY;
-			final Shape recArc2 = Shape.intersect(rec2, new Circle(centerX, centerY, outerRadius));
-			final Shape border2 = Shape.subtract(recArc2, new Circle(centerX, centerY, dialCenterBackgroundRadius));
-			border.setTranslateX(offsetX2);
-			border.setTranslateY(offsetY2);
-			valContainer.getChildren().add(border2);
+			final Circle dialCutout = new Circle(centerX, centerY, innerRadius);
+			final Circle gaugeCutout = new Circle(centerX, centerY, dialCenterBackgroundRadius
+					+ rimRadius);
+			// create the border rectangle
+			final Polygon rec = new Polygon(centerX, offsetY, centerX + outerRadius - rimRadius, offsetY,
+					centerX + outerRadius - rimRadius, offsetY + height, centerX, offsetY + height);
+			// carve out outer rim rectangle edge
+			final Shape recArc = Shape.intersect(rec, dialCutout);
+			// carve out inner dial rectangle edge
+			border = Shape.subtract(recArc, gaugeCutout);
 			
 			border.setTranslateX(offsetX);
 			border.setTranslateY(offsetY);
@@ -317,6 +322,42 @@ public class Gauge extends Group {
 		border.setStrokeWidth(1d);
 		border.setOpacity(0.5d);
 		valContainer.getChildren().addAll(border, val);
+		return valContainer;
+	}
+	
+	/**
+	 * Creates a display that will show a 2nd current tick value
+	 * 
+	 * @param height the height of the display
+	 * @return the 2nd tick value display
+	 */
+	protected Node createTickValueDisplay2(final double height) {
+		if (isCircular()) {
+			return null;
+		}
+		final StackPane valContainer = new StackPane();
+		final double rimRadius = outerRadius - innerRadius;
+		final Circle dialCutout = new Circle(centerX, centerY, innerRadius);
+		final Circle gaugeCutout = new Circle(centerX, centerY, dialCenterBackgroundRadius
+				+ rimRadius);
+		// create the opposing background border
+		final double offsetX = centerX - outerRadius + rimRadius / 1.3d;
+		final double offsetY = centerY + rimRadius;
+		final Polygon rec2 = new Polygon(centerX, offsetY, offsetX, offsetY,
+				offsetX, offsetY + height, centerX, offsetY + height);
+		final Shape recArc2 = Shape.intersect(rec2, dialCutout);
+		final Shape border2 = Shape.subtract(recArc2, gaugeCutout);
+		
+		border2.setTranslateX(offsetX);
+		border2.setTranslateY(offsetY);
+		final double angle2 = getGeometericStartAngle();
+		
+		valContainer.getTransforms().add(new Rotate(angle2, centerX, centerY));
+		border2.setFill(Color.BLACK);
+		border2.setStroke(Color.GRAY);
+		border2.setStrokeWidth(1d);
+		border2.setOpacity(0.5d);
+		valContainer.getChildren().add(border2);
 		return valContainer;
 	}
 
@@ -584,11 +625,7 @@ public class Gauge extends Group {
 					centerX, centerY, fillProperty);
 			final double knobSurfaceRadius = indicatorWidth - pointDistance * 2d;
     		final Group knobSurface = createKnobSurface(centerX, centerY, 
-    				knobSurfaceRadius, knobSurfaceRadius, genFadedColors(
-    						0xA9A9A9, 100, 0xFFFFFF, 100, 0xA9A9A9, 100, 
-    						0xFFFFFF, 100, 0xA9A9A9, 100, 0xFFFFFF, 100,
-    						0xA9A9A9, 100, 0xFFFFFF, 100,
-    						0xA9A9A9, 100, 0xFFFFFF, 100, 0xA9A9A9));
+    				knobSurfaceRadius, knobSurfaceRadius, DEFAULT_KNOB_SURFACE_COLORS);
 	    	final Group indicatorShapeGroup = createKnob(indicatorShape, knobSurface);
 			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShapeGroup);
@@ -788,7 +825,8 @@ public class Gauge extends Group {
         			x + (indicatorWidth / 2d), y + (indicatorHeight / 4d));
     		Bindings.bindBidirectional(indicatorShape.fillProperty(), indicatorFillProperty);
     		indicatorShape.setStroke(Color.WHITESMOKE);
-    		indicatorShape.setStrokeWidth(1d);
+    		indicatorShape.setStrokeWidth(2d);
+    		indicatorShape.setStrokeType(StrokeType.CENTERED);
     		indicatorShape.setEffect(createLighting());
     		break;
     	case NEEDLE: default: indicatorShape = new Polygon(
@@ -844,6 +882,9 @@ public class Gauge extends Group {
     		newX = centerX + Math.cos(newRadians) * radiusX;
     		newY = centerY + Math.sin(newRadians) * radiusY;
     		Polygon shape = new Polygon(oldX, oldY, centerX, centerY, newX, newY, oldX, oldY);
+    		shape.setSmooth(false);
+    		shape.setCache(true);
+    		shape.setCacheHint(CacheHint.SPEED);
     		shape.setStroke(colors[(int)i]);
     		shape.setStrokeWidth(1d);
     		shape.setFill(colors[(int)i]);
