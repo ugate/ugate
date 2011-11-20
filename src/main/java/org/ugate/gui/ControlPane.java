@@ -1,13 +1,9 @@
 package org.ugate.gui;
 
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ToolBar;
-import javafx.scene.effect.Reflection;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.Lighting;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
