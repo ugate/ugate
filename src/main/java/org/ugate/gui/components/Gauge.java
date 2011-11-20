@@ -91,6 +91,8 @@ public class Gauge extends Group {
 	public final Glow indicatorMoveEffect;
 	public final DoubleProperty angleProperty;
 	public final DoubleProperty tickValueProperty;
+	public final ObjectProperty<Paint> tickValueDisplayFillProperty;
+	public final ObjectProperty<Paint> tickValueDisplayTextFillProperty;
 	public final ObjectProperty<Paint> outerRimFillProperty;
 	public final ObjectProperty<Color> outerRimEffectFillProperty;
 	public final ObjectProperty<Paint> dialCenterFillProperty;
@@ -189,6 +191,10 @@ public class Gauge extends Group {
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.GRAY.brighter());
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.tickMarkLabelFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
+		this.tickValueDisplayFillProperty = new SimpleObjectProperty<Paint>(new LinearGradient(
+				0, 0, 0, 1d, true, CycleMethod.NO_CYCLE, 
+				new Stop(0, Color.DARKGRAY.darker()), new Stop(0.5d, Color.BLACK)));
+		this.tickValueDisplayTextFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
 		this.outerRimEffectFillProperty = new SimpleObjectProperty<Color>(Color.LIGHTCYAN);
@@ -224,9 +230,9 @@ public class Gauge extends Group {
 		// add display that will show the current tick value
 		final double tickValueHeight = 20d * sizeScale;
 		final Node tickValueDisplay = this.indicatorType == IndicatorType.KNOB ? null : 
-			createTickValueDisplay(tickValueHeight);
+			createTickValueDisplay(tickValueHeight, tickValueDisplayFillProperty, tickValueDisplayTextFillProperty);
 		final Node tickValueDisplay2 = this.indicatorType == IndicatorType.KNOB ? null : 
-			createTickValueDisplay2(tickValueHeight);
+			createTickValueDisplay2(tickValueHeight, tickValueDisplayFillProperty, tickValueDisplayTextFillProperty);
 		
 		// create intensity indicators that will indicate when values are moderate, medium, or intense
 		final Group intensityIndicator = createIntensityIndicator();
@@ -239,11 +245,11 @@ public class Gauge extends Group {
 		final Group indicator = createIndicator(gaugeParent, indicatorPointDistance, 
 				indicatorFillProperty, indicatorOpacityProperty);
 		
-		if (tickValueDisplay != null) {
-			gaugeParent.getChildren().add(tickValueDisplay);
-		}
 		if (tickValueDisplay2 != null) {
 			gaugeParent.getChildren().add(tickValueDisplay2);
+		}
+		if (tickValueDisplay != null) {
+			gaugeParent.getChildren().add(tickValueDisplay);
 		}
 		if (intensityIndicator != null) {
 			gaugeParent.getChildren().add(intensityIndicator);
@@ -260,9 +266,14 @@ public class Gauge extends Group {
 	/**
 	 * Creates a display that will show the current tick value
 	 * 
+	 * @param height the height of the display
+	 * @param backgroundFillProperty the fill property to bind to the background shape
+	 * @param textFillProperty the fill property to bind to the text
 	 * @return the tick value display
 	 */
-	protected Node createTickValueDisplay(final double height) {
+	protected Node createTickValueDisplay(final double height,
+			final ObjectProperty<Paint> backgroundFillProperty, 
+			final ObjectProperty<Paint> textFillProperty) {
 		final StackPane valContainer = new StackPane();
 		final Text val = new Text(getTickValueLabel());
 		val.setFont(tickValueFont);
@@ -272,11 +283,12 @@ public class Gauge extends Group {
 		outerGlow.setColor(Color.BLUE);
 		outerGlow.setRadius(2d);
 		val.setEffect(outerGlow);
-		val.setFill(Color.WHITE);
+		Bindings.bindBidirectional(val.fillProperty(), textFillProperty);
 		//val.setStyle("-fx-text-fill: white;");
 		angleProperty.addListener(new ChangeListener<Number>() {
 			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+			public void changed(ObservableValue<? extends Number> observable, 
+					Number oldValue, Number newValue) {
 				val.setText(getTickValueLabel());//newValue.doubleValue()));
 			}
 		});
@@ -317,10 +329,9 @@ public class Gauge extends Group {
 			val.setTranslateY(offsetY);
 			valContainer.getTransforms().add(new Rotate(angle, centerX, centerY));
 		}
-		border.setFill(Color.BLACK);
+		Bindings.bindBidirectional(border.fillProperty(), backgroundFillProperty);
 		border.setStroke(Color.GRAY);
 		border.setStrokeWidth(1d);
-		border.setOpacity(0.5d);
 		valContainer.getChildren().addAll(border, val);
 		return valContainer;
 	}
@@ -329,9 +340,13 @@ public class Gauge extends Group {
 	 * Creates a display that will show a 2nd current tick value
 	 * 
 	 * @param height the height of the display
+	 * @param backgroundFillProperty the fill property to bind to the background shape
+	 * @param textFillProperty the fill property to bind to the text
 	 * @return the 2nd tick value display
 	 */
-	protected Node createTickValueDisplay2(final double height) {
+	protected Node createTickValueDisplay2(final double height, 
+			final ObjectProperty<Paint> backgroundFillProperty, 
+			final ObjectProperty<Paint> textFillProperty) {
 		if (isCircular()) {
 			return null;
 		}
@@ -341,7 +356,7 @@ public class Gauge extends Group {
 		final Circle gaugeCutout = new Circle(centerX, centerY, dialCenterBackgroundRadius
 				+ rimRadius);
 		// create the opposing background border
-		final double offsetX = centerX - outerRadius + rimRadius / 1.3d;
+		final double offsetX = centerX - outerRadius + rimRadius / 2d;
 		final double offsetY = centerY + rimRadius;
 		final Polygon rec2 = new Polygon(centerX, offsetY, offsetX, offsetY,
 				offsetX, offsetY + height, centerX, offsetY + height);
@@ -353,10 +368,9 @@ public class Gauge extends Group {
 		double angle2 = 180d - getGeometericEndAngle();
 		
 		valContainer.getTransforms().add(new Rotate(angle2, centerX, centerY));
-		border2.setFill(Color.BLACK);
+		Bindings.bindBidirectional(border2.fillProperty(), backgroundFillProperty);
 		border2.setStroke(Color.GRAY);
 		border2.setStrokeWidth(1d);
-		border2.setOpacity(0.5d);
 		valContainer.getChildren().add(border2);
 		return valContainer;
 	}
