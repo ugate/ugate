@@ -6,10 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -47,7 +45,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 
 /**
- * Gauge control TODO : add bindings/properties so the size can be dynamically changed
+ * Gauge control // TODO : add additional documentation w/examples
  */
 public class Gauge extends Group {
 
@@ -99,7 +97,6 @@ public class Gauge extends Group {
 	public final ObjectProperty<Paint> minorTickMarkFillProperty;
 	public final ObjectProperty<Paint> majorTickMarkFillProperty;
 	public final ObjectProperty<Paint> tickMarkLabelFillProperty;
-	public final BooleanProperty snapToTicksProperty;
 	public final ObjectProperty<Paint> centerGaugeFillProperty;
 	public final ObjectProperty<Paint> indicatorFillProperty;
 	public final DoubleProperty indicatorOpacityProperty;
@@ -125,6 +122,27 @@ public class Gauge extends Group {
 				numberOfMinorTickMarksPerMajorTick, -1, 0, 0, null, null);
 	}
 	
+	/**
+	 * Full constructor {@see #Gauge}
+	 * 
+	 * @param indicatorType the indicator/hand type
+	 * @param sizeScale the size scale factor that will be used to size the control without quality degradation
+	 * @param tickValueScale the tick value scale that will be used as a multiplier when converting the angle to a tick mark value
+	 * @param tickValueZeroOffset the number of major tick marks that will appear before the zero tick 
+	 * @param startAngle the starting arc angle of the gauge
+	 * @param angleLength the angle length of the gauge
+	 * @param numberOfMajorTickMarks the number of major tick marks (influences the available tick values)
+	 * @param numberOfMinorTickMarksPerMajorTick the number of minor tick marks to appear in between the major tick marks.
+	 * 		Typically that number of minor tick marks can be calculated based upon the number of decimal places being used for
+	 * 		{@code tickValueScale}.
+	 * @param dialNumberOfSides the number of sides of the dial that appears in the pivot point of the indicator arm (default
+	 * 		is transparent for knob indicator types).
+	 * @param dialCenterInnerRadius the dial center inner radius
+	 * @param dialCenterOuterRadius the dial center outer radius
+	 * @param intensityRegions the intensity regions that will render a visual aid to indicate when a tick value is moderate, 
+	 * 		medium, or intense.
+	 * @param tickValueFont the font used for the tick value display and tick mark labels
+	 */
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks, 
 			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, final double dialCenterInnerRadius, 
@@ -176,8 +194,6 @@ public class Gauge extends Group {
 		this.tickValueProperty = new SimpleDoubleProperty() {
 			@Override
 			public final void set(final double v) {
-//				double ntv = Math.min(v, getTickValue(getViewingEndAngle()));
-//				ntv = Math.max(v, getTickValue(getViewingStartAngle()));
 				double ntv = Double.parseDouble(tickValueFormat.format(v));
 				super.set(ntv);
 				final double nav = getViewingAngle(ntv);
@@ -193,9 +209,8 @@ public class Gauge extends Group {
 		this.tickMarkLabelFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.tickValueDisplayFillProperty = new SimpleObjectProperty<Paint>(new LinearGradient(
 				0, 0, 0, 1d, true, CycleMethod.NO_CYCLE, 
-				new Stop(0, Color.DARKGRAY.darker()), new Stop(0.5d, Color.BLACK)));
+				new Stop(0, Color.DARKGRAY.darker()), new Stop(0.4d, Color.BLACK)));
 		this.tickValueDisplayTextFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
-		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		this.outerRimFillProperty = new SimpleObjectProperty<Paint>(Color.BLACK);
 		this.outerRimEffectFillProperty = new SimpleObjectProperty<Color>(Color.LIGHTCYAN);
 		this.centerGaugeFillProperty = new SimpleObjectProperty<Paint>(
