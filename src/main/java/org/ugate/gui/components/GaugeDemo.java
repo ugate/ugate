@@ -17,6 +17,7 @@ public class GaugeDemo extends VBox {
 		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 1d, 0.5d, 0, 0d, 180d, 10, 4);
 		//gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
+		gauge.snapToTicksProperty.set(true);
 		gauge.setCache(false);
 		final Gauge gaugeRegion1 = createRegionKnob(Color.GREEN, 
 				gauge.intensityIndicatorRegionsProperty.getValue().getColor1SpanPercentage());

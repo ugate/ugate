@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -110,6 +112,7 @@ public class Gauge extends Group {
 	public final DoubleProperty lightingAzimuthProperty;
 	public final DoubleProperty lightingElevationProperty;
 	public final ObjectProperty<Paint> highlightFillProperty;
+	public final BooleanProperty snapToTicksProperty;
 	
 	public Gauge() {
 		this(null, 0, 0, 0);
@@ -150,8 +153,9 @@ public class Gauge extends Group {
 	 */
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks, 
-			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, final double dialCenterInnerRadius, 
-			final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions, final Font tickValueFont) {
+			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, 
+			final double dialCenterInnerRadius, final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions, 
+			final Font tickValueFont) {
 		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
 		this.sizeScale = sizeScale == 0 ? 1d : sizeScale;
 		this.outerRadius = RADIUS_OUTER_BASE * this.sizeScale;
@@ -200,6 +204,7 @@ public class Gauge extends Group {
 			@Override
 			public final void set(final double v) {
 				double ntv = Double.parseDouble(tickValueFormat.format(v));
+				ntv = snapToTicksProperty.get() ? closestTickMarkValue(ntv) : ntv;
 				super.set(ntv);
 				final double nav = getViewingAngle(ntv);
 				if (angleProperty.get() != nav) {
@@ -233,6 +238,7 @@ public class Gauge extends Group {
 		this.lightingAzimuthProperty = new SimpleDoubleProperty(270d);
 		this.lightingElevationProperty = new SimpleDoubleProperty(50d);
 		this.highlightFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
+		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		createChildren();
 	}
 	
@@ -246,7 +252,7 @@ public class Gauge extends Group {
 		final Group gaugeParent = createParent(gaugeCenter);
 
 		// add tick marks
-		addTickMarks(gaugeParent);
+		addTickMarks(gaugeParent, true, false);
 		// add display that will show the current tick value
 		final double tickValueHeight = 20d * sizeScale;
 		final Node tickValueDisplay = this.indicatorType == IndicatorType.KNOB ? null : 
@@ -691,61 +697,41 @@ public class Gauge extends Group {
 	}
 	
 	/**
-	 * Adds the minor and major tick marks
-	 * 
-	 * @param parent the parent to add the tick marks to
-	 */
-	protected void addTickMarks(final Group parent) {
-		final double offset = 0;
-		addTickMarks(parent, numOfMajorTickMarks, majorTickMarkWidth, majorTickMarkHeight, true, majorTickMarkFillProperty, 
-				numOfMinorTickMarksPerMajorTick, minorTickMarkWidth, minorTickMarkHeight, false, minorTickMarkFillProperty, offset);
-	}
-	
-	/**
 	 * Adds the tick marks to the gauge
 	 * 
 	 * @param parent the parent to add the tick marks to
-	 * @param numOfMajorTicks the number of major tick marks to add
-	 * @param majorWidth the width of the major tick marks
-	 * @param majorHeight the height of the major tick marks
 	 * @param addMajorTickLabel true to add the value label to the major tick marks
-	 * @param majorTickMarkFillProperty the fill property to bind for the major tick marks
-	 * @param numOfMinorTicks the number of minor tick marks to add
-	 * @param minorWidth the width of the minor tick marks
-	 * @param minorHeight the height of the minor tick marks
 	 * @param addMinorTickLabel true to add the value label to the minor tick marks
-	 * @param minorTickMarkFillProperty the fill property to bind for the minor tick marks
-	 * @param offset the pivot offset relative to the inner radius of the gauge
 	 * @return the tick mark group
 	 */
-	protected final Group addTickMarks(final Group parent, final int numOfMajorTicks, final double majorWidth, final double majorHeight, 
-			final boolean addMajorTickLabel, final ObjectProperty<Paint> majorTickMarkFillProperty, final int numOfMinorTicks, 
-			final double minorWidth, final double minorHeight, final boolean addMinorTickLabel, 
-			final ObjectProperty<Paint> minorTickMarkFillProperty, final double offset) {
+	protected final Group addTickMarks(final Group parent, final boolean addMajorTickLabel, 
+			final boolean addMinorTickLabel) {
 		final Group tickGroup = new Group();
 		tickGroup.setCache(true);
 		tickGroup.setCacheHint(CacheHint.ROTATE);
 		Shape tick;
 		// all tick marks will have the same starting coordinates- only the angle will be adjusted
-		final double tx = tickMarkDefaultX() + offset;
+		final double tx = tickMarkDefaultX();
 		final double ty = tickMarkDefaultY();
-		final int numOfTotalMinorTicks = numOfMinorTicks <= 1 ? -1 : numOfMajorTicks * numOfMinorTicks;
+		final int numOfTotalMinorTicks = getNumberOfMinorTicks();
 		int i;
 		String label;
 		double angle, labelAngle, labelRadius, tlx, tly;
 		// add the minor tick marks
 		for (i=0; i<=numOfTotalMinorTicks; i++) {
 			angle = tickMarkAngle(numOfTotalMinorTicks, i);
-			tick = createTickMark(tx, ty, minorWidth, minorHeight, angle + minorHeight / 2.5d, minorTickMarkFillProperty);
+			tick = createTickMark(tx, ty, minorTickMarkWidth, minorTickMarkHeight, 
+					angle + minorTickMarkHeight / 2.5d, minorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 		}
 		// add the major tick marks
-		for (i=0; i<=numOfMajorTicks; i++) {
-			angle = tickMarkAngle(numOfMajorTicks, i);
-			tick = createTickMark(tx, ty, majorWidth, majorHeight, angle + majorHeight / 2.5d, majorTickMarkFillProperty);
+		for (i=0; i<=numOfMajorTickMarks; i++) {
+			angle = tickMarkAngle(numOfMajorTickMarks, i);
+			tick = createTickMark(tx, ty, majorTickMarkWidth, majorTickMarkHeight, 
+					angle + majorTickMarkHeight / 2.5d, majorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
-			if (addMajorTickLabel && (i != numOfMajorTicks || !isCircular())) {
-				labelAngle = positiveAngle(angle - (majorHeight / 2d) -180d);
+			if (addMajorTickLabel && (i != numOfMajorTickMarks || !isCircular())) {
+				labelAngle = positiveAngle(angle - (majorTickMarkHeight / 2d) -180d);
 				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius : 
 					innerRadius;
 				tlx = (centerX + labelRadius) 
@@ -1018,7 +1004,7 @@ public class Gauge extends Group {
      * @param viewingAngle the viewing angle to calibrate
      * @return the calibrated viewing angle
      */
-    protected double calibrateViewingAngle(final double viewingAngle) {
+    protected final double calibrateViewingAngle(final double viewingAngle) {
     	if (isCircular()) {
     		// angle will always be with in 360 range
     		return viewingAngle;
@@ -1104,6 +1090,30 @@ public class Gauge extends Group {
     		la = ca;
     	}
     	return closestValue;
+    }
+    
+    /**
+     * Gets the tick mark value closest to the supplied tick value
+     * 
+     * @param tickValue the tick value
+     * @return the tick mark value closest to the tick mark
+     */
+    public double closestTickMarkValue(final double tickValue) {
+    	// TODO : add logic to determine the closest tick label
+    	final int totalTicks = numOfMajorTickMarks * (numOfMinorTickMarksPerMajorTick <= 0 ? 1 : numOfMinorTickMarksPerMajorTick);
+    	final double minTickValue = getTickValue(getViewingEndAngle());
+    	final double scaledTickValue = getScaledTickValue(tickValue);
+    	double snappedValue = tickValue;
+    	if ((snappedValue - minTickValue) % totalTicks != 0 ) {
+            double temp = (snappedValue - minTickValue) / totalTicks;
+            long whichTick = Math.round(temp);
+//            // This is the fix for the bug #6401380
+//            if (temp - (int)temp == .5 && scaledTickValue < lastValue) {
+//              whichTick --;
+//            }
+            snappedValue = minTickValue + (whichTick * totalTicks);
+        }
+    	return snappedValue;
     }
     
     /**
@@ -1242,7 +1252,23 @@ public class Gauge extends Group {
     	return 180d - ((angleLength / numOfMarks) * index) - angleStart;
     }
     
+    /**
+     * Gets the viewing angle of a tick value
+     * 
+     * @param tickValue the tick value to get the viewing angle for
+     * @return the viewing angle
+     */
     public double getViewingAngle(final double tickValue) {
+    	return getNumberOfMajorTicks() * getScaledTickValue(tickValue) + getViewingEndAngle();
+    }
+    
+    /**
+     * Gets a scaled tick value for a given tick value
+     * 
+     * @param tickValue the tick value to scale
+     * @return the scaled tick value
+     */
+    protected double getScaledTickValue(final double tickValue) {
     	double tickValueScaled = tickValue;
     	if (tickValueScale == 1) {
     		tickValueScaled /= tickValueScale;
@@ -1251,8 +1277,7 @@ public class Gauge extends Group {
     		tickValueScaled -= tickValueZeroOffset;
     		tickValueScaled /= tickValueScale;
     	}
-    	final double tickValueAngle = getNumberOfTicks() * tickValueScaled + getViewingEndAngle();
-    	return tickValueAngle;
+    	return tickValueScaled;
     }
     
     /**
@@ -1263,7 +1288,7 @@ public class Gauge extends Group {
      */
     public double getTickValue(final double viewingAngle) {
     	final double viewingEndAngle = getViewingEndAngle();
-    	final double numOfTicks = getNumberOfTicks();
+    	final double numOfTicks = getNumberOfMajorTicks();
     	final double numOfTicksAtEndAngle = viewingEndAngle / numOfTicks;
     	final double numOfTicksAtAngle = (viewingAngle != viewingEndAngle && 
     			viewingAngle <= 180d && viewingEndAngle >= 180d ? 
@@ -1284,7 +1309,7 @@ public class Gauge extends Group {
     }
     
     /**
-     * Sets the tick value relative to the {@linkplain #getNumberOfTicks()}. When the tick value is out 
+     * Sets the tick value relative to the {@linkplain #getNumberOfMajorTicks()}. When the tick value is out 
      * of range the closest value will be set relative to the start/end angles within the 
      * {@linkplain #ANGLE_START_END_DISTANCE_THRSHOLD}. When the value is also outside the threshold range 
      * the value will be default to the starting tick value. <b>The actual tick value set will be adjusted to
@@ -1305,9 +1330,8 @@ public class Gauge extends Group {
      * @return the formated tick value
      */
     public String getTickValueLabel(final double viewingAngle) {
-    	double value = getTickValue(viewingAngle);
-    	double correctedValue = (value == -0.0 ? 0.0 : value);
-    	return tickValueFormat.format(correctedValue);
+    	double tickValue = getTickValue(viewingAngle);
+    	return tickValueFormat.format(tickValue);
     }
     
     /**
@@ -1328,10 +1352,17 @@ public class Gauge extends Group {
     }
     
     /**
-     * @return the total number of tick marks
+     * @return the total number of major tick marks
      */
-    public final double getNumberOfTicks() {
+    public final double getNumberOfMajorTicks() {
     	return angleLength / numOfMajorTickMarks;
+    }
+    
+    /**
+     * @return the total number of minor tick marks
+     */
+    public final int getNumberOfMinorTicks() {
+    	return numOfMinorTickMarksPerMajorTick <= 1 ? -1 : numOfMajorTickMarks * numOfMinorTickMarksPerMajorTick;
     }
     
     /**
