@@ -50,15 +50,20 @@ import javafx.scene.transform.Rotate;
 public class Gauge extends Group {
 
 	public static final double RADIUS_OUTER_BASE = 140d;
-	public static final double RADIUS_INNER_BASE = 132d;
+	public static final double RADIUS_INNER_BASE = 130d;
 	public static final double ANGLE_START_END_DISTANCE_THRSHOLD = 30d;
 	public static final int MAJOR_TICK_MARK_DIVISOR_DEFAULT = 30;
-	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT = 
-		new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
-	public static final Color[] DEFAULT_KNOB_SURFACE_COLORS = Gauge.genFadedColors(
-			0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 
-			0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 
-			0xA9A9A9);
+	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT;
+	static {
+		INTENSITY_REGIONS_DEFAULT = new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
+	}
+	public static final Color[] DEFAULT_KNOB_SURFACE_COLORS;
+	static {
+		DEFAULT_KNOB_SURFACE_COLORS = Gauge.genFadedColors(
+				0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 
+				0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 0xA9A9A9, 16, 0xFFFFFF, 16, 
+				0xA9A9A9);
+	}
 	public static final int ROUNDING_MODE = BigDecimal.ROUND_HALF_UP;
 	public static final String FONT_NAME = "Trebuchet MS";
 	public final IndicatorType indicatorType;
@@ -307,7 +312,7 @@ public class Gauge extends Group {
 				val.setText(getTickValueLabel());//newValue.doubleValue()));
 			}
 		});
-		final double rimRadius = outerRadius - innerRadius;
+		final double rimThickness = outerRadius - innerRadius;
 		Shape border;
 		if (isCircular()) {
 			final Rectangle rec = new Rectangle(outerRadius, height);
@@ -320,8 +325,10 @@ public class Gauge extends Group {
 			valContainer.setTranslateY(centerY + rec.getHeight());
 		} else {
 			// create the background border for the tick mark value
-			final double offsetX = centerX + dialCenterBackgroundRadius - rimRadius / 2d;
-			final double offsetY = centerY + rimRadius;
+			final double width = outerRadius - rimThickness;
+			final double offsetY = centerY + rimThickness;
+			// TODO : replace square root with proper angle offset
+			final double offsetX = centerX + dialCenterBackgroundRadius - Math.sqrt(offsetY);
 			// rotate value text so that it is never upside down
 			final double angle = -getGeometericStartAngle();
 			if (Math.abs(angle) > 90d && Math.abs(angle) < 270d) {
@@ -329,15 +336,15 @@ public class Gauge extends Group {
 			}
 			final Circle dialCutout = new Circle(centerX, centerY, innerRadius);
 			final Circle gaugeCutout = new Circle(centerX, centerY, dialCenterBackgroundRadius
-					+ rimRadius);
+					+ rimThickness);
 			// create the border rectangle
-			final Polygon rec = new Polygon(centerX, offsetY, centerX + outerRadius - rimRadius, offsetY,
-					centerX + outerRadius - rimRadius, offsetY + height, centerX, offsetY + height);
+			final Polygon rec = new Polygon(centerX, offsetY, centerX + width, offsetY,
+					centerX + width, offsetY + height, centerX, offsetY + height);
 			// carve out outer rim rectangle edge
 			final Shape recArc = Shape.intersect(rec, dialCutout);
 			// carve out inner dial rectangle edge
 			border = Shape.subtract(recArc, gaugeCutout);
-			
+
 			border.setTranslateX(offsetX);
 			border.setTranslateY(offsetY);
 			val.setTranslateX(offsetX);
@@ -371,7 +378,7 @@ public class Gauge extends Group {
 		final Circle gaugeCutout = new Circle(centerX, centerY, dialCenterBackgroundRadius
 				+ rimRadius);
 		// create the opposing background border
-		final double offsetX = centerX - outerRadius + rimRadius / 2d;
+		final double offsetX = centerX - innerRadius;
 		final double offsetY = centerY + rimRadius;
 		final Polygon rec2 = new Polygon(centerX, offsetY, offsetX, offsetY,
 				offsetX, offsetY + height, centerX, offsetY + height);
@@ -598,9 +605,10 @@ public class Gauge extends Group {
 		intensityIndicator.setRadiusY(radiusY);
 		intensityIndicator.setStartAngle(startAngle);
 		intensityIndicator.setLength(arcAngleLength);
+		final double stopAmt = (1d - (outerRadius - innerRadius) / outerRadius);
 		intensityIndicator.setFill(new RadialGradient(0, 0, centerX, centerY, 
 				Math.max(intensityIndicator.getRadiusX(), intensityIndicator.getRadiusY()), false, CycleMethod.NO_CYCLE, 
-				 new Stop(((outerRadius - innerRadius) / sizeScale) * 0.115d, Color.TRANSPARENT), new Stop(1, color)));
+				 new Stop(stopAmt, Color.TRANSPARENT), new Stop(1, color)));
 		intensityIndicator.setOpacity(0.9d);
 	}
 	
@@ -738,14 +746,14 @@ public class Gauge extends Group {
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTicks || !isCircular())) {
 				labelAngle = positiveAngle(angle - (majorHeight / 2d) -180d);
-				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius * 1.05d : 
-					innerRadius * 0.75d;
+				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius : 
+					innerRadius;
 				tlx = (centerX + labelRadius) 
 						* Math.cos(Math.toRadians(labelAngle));
 				tly = (centerY + labelRadius) 
 						* Math.sin(Math.toRadians(labelAngle));
 				label = getTickValueLabel(angle);
-				tickGroup.getChildren().add(createTickMarkLabel(tlx, tly, labelAngle, label, tick,
+				tickGroup.getChildren().add(createTickMarkLabel(tlx, tly, angle, labelAngle, label, tick,
 						tickMarkLabelFillProperty));
 			}
         }
@@ -758,32 +766,25 @@ public class Gauge extends Group {
 	 * 
 	 * @param x the x coordinate of the label
 	 * @param y the y coordinate of the label
+	 * @param tickMarkAngle the tick mark angle
 	 * @param labelAngle the label angle
 	 * @param label the label
 	 * @param tickMark the tick mark that the label is for
 	 * @param tickMarkLabelFillProperty the tick mark label fill property to bind to
 	 * @return the tick mark label
 	 */
-	protected Shape createTickMarkLabel(final double x, final double y, 
+	protected Shape createTickMarkLabel(final double x, final double y, final double tickMarkAngle,
 			final double labelAngle, final String label, final Shape tickMark,
 			final ObjectProperty<Paint> tickMarkLabelFillProperty) {
-		final Text lbl = new Text(x, y, label);
-		final double widthOffset = (lbl.getBoundsInLocal().getWidth() / 2d);
+		final double lx = indicatorType == IndicatorType.KNOB ? outerRadius + majorTickMarkHeight : 
+			innerRadius - majorTickMarkWidth * (label.indexOf('.') > -1 ? 2d : 1.8d);
+		final Text lbl = new Text(lx, 0, label);
+		//final double widthOffset = (lbl.getBoundsInLocal().getWidth() / 2d);
 		final double heightOffset = (lbl.getBoundsInLocal().getHeight() / 2d);
-		if (labelAngle > 270d) {
-			lbl.setX(lbl.getX() - lbl.getBoundsInLocal().getWidth() / (indicatorType == IndicatorType.KNOB ? 2.7d : 2d));
-		} else if (labelAngle >= 177d && labelAngle <= 270d) {
-			lbl.setX(lbl.getX() - widthOffset);
-		} else if (labelAngle >= 90d && labelAngle < 177d) {
-			lbl.setX(lbl.getX() - widthOffset);
-			lbl.setY(lbl.getY() + heightOffset);
-		} else if (labelAngle < 90d) {
-			lbl.setX(lbl.getX() - widthOffset);
-			lbl.setY(lbl.getY() + heightOffset);
-		}
-		lbl.setSmooth(false);
-		lbl.setCache(true);
-		lbl.setCacheHint(CacheHint.QUALITY);
+		lbl.setY(lbl.getY() + heightOffset);
+		lbl.getTransforms().addAll(new Rotate(labelAngle, centerX, centerY),
+				new Rotate(90d, lbl.getBoundsInParent().getMinX() + lbl.getBoundsInParent().getWidth() / 2d, 
+						0));
 		Bindings.bindBidirectional(lbl.fillProperty(), tickMarkLabelFillProperty);
 		lbl.setFont(tickValueFont);
 		lbl.setTextAlignment(TextAlignment.CENTER);
@@ -1070,6 +1071,19 @@ public class Gauge extends Group {
 			viewingAngle += 360d;
 		}
 		return viewingAngle;
+    }
+    
+    /**
+     * Gets the distance between two points
+     * 
+     * @param x1 first x coordinate
+     * @param y1 first y coordinate
+     * @param x2 second x coordinate
+     * @param y2 second y coordinate
+     * @return the distance between the two points
+     */
+    protected static double cartesianCoordinatesDistance(double x1, double y1, double x2, double y2) {
+    	return Math.sqrt(Math.pow(x1 - x2, 2d) + Math.pow(y1 - y2, 2d));
     }
     
     /**
