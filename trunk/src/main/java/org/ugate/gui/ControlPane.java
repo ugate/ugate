@@ -7,8 +7,6 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
-import org.ugate.gui.components.GaugeDemo;
-
 /**
  * Control view
  */
@@ -20,8 +18,7 @@ public abstract class ControlPane extends BorderPane {
 	public final ToolBar rightView;
 	
 	public ControlPane() {
-		setStyle("-fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #FFFFFF 0%, #111111 15%, #222222 25%, #333333 50%, #222222 60%, #111111 75%, #000000 85%, #000000);");
-		//centerView.getStyleClass().add("control-toolbar");
+		getStyleClass().add("gauge-control-pane");
 		// top
 		topView = new ToolBar();
 		topView.getItems().addAll(createTopViewChildren());
@@ -34,9 +31,9 @@ public abstract class ControlPane extends BorderPane {
 		centerView = new VBox();
 		centerView.setAlignment(Pos.CENTER);
 		
-		centerView.getChildren().add(new GaugeDemo());
+		//centerView.getChildren().add(new GaugeDemo());
 		
-		//centerView.getChildren().addAll(createCenterViewChildren());
+		centerView.getChildren().addAll(createCenterViewChildren());
 
 		// bottom
 		rightView = new ToolBar();

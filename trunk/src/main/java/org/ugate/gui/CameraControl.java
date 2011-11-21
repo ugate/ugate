@@ -2,16 +2,21 @@ package org.ugate.gui;
 
 import java.util.List;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.Gauge;
+import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.gui.components.ToggleSwitchPreferenceView;
 import org.ugate.gui.components.UGateSliderGauge;
 import org.ugate.gui.components.UGateTextField;
@@ -48,11 +53,43 @@ public class CameraControl extends ControlPane {
 
 	@Override
 	protected Node[] createLeftViewChildren() {
+		final GridPane grid = new GridPane();
+		GridPane.setMargin(grid, new Insets(20d, 20d, 20d, 20d));
+		grid.setHgap(20d);
+		grid.setVgap(20d);
 		final UGateSliderGauge camPanGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_PAN,
 				"Camera Pan: Current camera pan angle (in degrees)", false, Color.AQUA, null);
+		final Gauge panCtrl = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 19, 4);
+		panCtrl.snapToTicksProperty.set(true);
+		panCtrl.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
+		panCtrl.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 
+				Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT));
+		panCtrl.tickValueProperty.addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				camPanGauge.sliderValue.setValue(newValue.toString());
+			}
+		});
+		camPanGauge.sliderValue.setValue(String.valueOf(panCtrl.getTickValue()));
+		grid.add(camPanGauge, 0, 0);
+		grid.add(panCtrl, 0, 1);
 		final UGateSliderGauge camTiltGauge = new UGateSliderGauge(1, 180, 90, 1, "%03d", RS.IMG_TILT,
 				"Camera Tilt: Current camera tilt angle (in degrees)", false, Color.AQUA, null);
-		return new Node[] { camPanGauge, camTiltGauge };
+		final Gauge tiltCtrl = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 19, 0);
+		tiltCtrl.snapToTicksProperty.set(true);
+		tiltCtrl.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
+		tiltCtrl.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 
+				Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT));
+		tiltCtrl.tickValueProperty.addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				camTiltGauge.sliderValue.setValue(newValue.toString());
+			}
+		});
+		camTiltGauge.sliderValue.setValue(String.valueOf(tiltCtrl.getTickValue()));
+		grid.add(camTiltGauge, 1, 0);
+		grid.add(tiltCtrl, 1, 1);
+		return new Node[] { grid };
 	}
 
 	@Override
