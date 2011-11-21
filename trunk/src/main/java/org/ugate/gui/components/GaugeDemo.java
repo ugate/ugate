@@ -34,7 +34,7 @@ public class GaugeDemo extends VBox {
 		
 		final Gauge gauge2 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, -2, 45d, 90d, 5, 0);
 		gauge2.setTickValue(0);
-		final Gauge gauge4 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 135d, 90d, 7, 0);
+		final Gauge gauge4 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 2, 135d, 90d, 9, 4);
 		final VBox col2 = new VBox();
 		col2.getChildren().addAll(gauge2, gauge4);
 
@@ -47,7 +47,7 @@ public class GaugeDemo extends VBox {
 		row1.getChildren().addAll(col1, col2, col3);
 		
 		final HBox row2 = new HBox();
-		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, 0, 0d, 360d, 5, 4);
+		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, 0, 0d, 360d, 20, 1);
 		final Gauge gauge6 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 250d, 310d, 10, 0);
 		row2.getChildren().addAll(gauge3, gauge6);
 		
