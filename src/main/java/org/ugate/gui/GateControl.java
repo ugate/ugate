@@ -6,22 +6,18 @@ import javafx.scene.paint.Color;
 
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.ToggleSwitchPreferenceView;
-import org.ugate.gui.components.UGateSliderGauge;
+import org.ugate.gui.components.UGateGaugeDisplay;
+import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.resources.RS;
 
 public class GateControl extends ControlPane {
-
-	@Override
-	protected Node[] createTopViewChildren() {
-		return new Node[] {  };
-	}
 	
 	@Override
 	protected Node[] createLeftViewChildren() {
-		final UGateSliderGauge gateGauge = new UGateSliderGauge(1, 180, 90, 1,
-				"%03d", RS.IMG_PAN,
+		final UGateGaugeDisplay gateGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0, 180d, 19, 4, 90d, "%03d", RS.IMG_PAN,
 				"Gate Pan: Current trip alram sensor pan angle (in degrees)",
-				false, Color.YELLOW, null);
+				Color.YELLOW, null);
 		return new Node[] { gateGauge };
 	}
 
