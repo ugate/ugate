@@ -45,6 +45,9 @@ public class UGateGUI extends Application {
 
 	private static final Logger log = Logger.getLogger(UGateGUI.class);
 
+	public static final double APPLICATION_WIDTH = 900d;
+	public static final double APPLICATION_HEIGHT = 800d;
+	
 	private static final double TASKBAR_BUTTON_SCALE = 1.3;
 	private static final String TASKBAR_BUTTON_DURATION = "300ms";
 	private static final double TASKBAR_BUTTON_WIDTH = 100;
@@ -128,7 +131,8 @@ public class UGateGUI extends Application {
 	
 			final BorderPane content = new BorderPane();
 			content.setId("content");
-			applicationFrame = new AppFrame(stage, content, 900, 700, 900, 700);
+			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
+					APPLICATION_WIDTH, APPLICATION_HEIGHT);
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_DISPLAY_SHELF));
 			stage.setTitle("UGate Application Interface");

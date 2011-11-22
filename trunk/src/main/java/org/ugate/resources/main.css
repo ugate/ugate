@@ -181,9 +181,17 @@
  		linear-gradient(from 0% 0% to 0% 100%, #515151, #3c3f46 4%, #494d53 4.1%, #666970 66%, #919398 94%, #919398);
 }
 .gauge-control-pane {
+	-fx-text-fill: white;
 	-fx-background-color: 
-		linear-gradient(from 0% 0% to 0% 100%, #FFFFFF 0%, #111111 15%, #222222 25%, #333333 50%, #222222 60%, 
-		#111111 75%, #000000 85%, #000000);
+		linear-gradient(from 0% 0% to 0% 100%, #FFFFFF 0%, #555555 10%, #111111 25%, #555555 50%, #222222 60%, 
+		#111111 75%, #000000 85%, #777777);
+}
+.gauge-header {
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+    -fx-text-origin: top;
+    -fx-underline: true;
+    -fx-font-weight: bold;
 }
 .gauge {
 	-fx-background: #000000;
