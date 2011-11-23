@@ -183,7 +183,7 @@
 .gauge-control-pane {
 	-fx-text-fill: white;
 	-fx-background-color: 
-		linear-gradient(from 0% 0% to 0% 100%, #FFFFFF 0%, #555555 10%, #111111 25%, #555555 50%, #222222 60%, 
+		linear-gradient(from 0% 0% to 0% 100%, #FFFFFF 0%, #555555 5%, #111111 25%, #555555 50%, #222222 60%, 
 		#111111 75%, #000000 85%, #777777);
 }
 .gauge-header {
