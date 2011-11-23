@@ -41,8 +41,8 @@ public class Controls extends VBox {
 		this.setStyle("-fx-background-color: #000000;");
 
 		final TabPane mainView = new TabPane();
-		final Tab camTab = createTab(RS.IMG_CAM_DOME, "Camera", CameraControl.class);
-		final Tab sonarIrTab = createTab(RS.IMG_IR_ALARM_ON, "Sonar/IR", SonarIrControl.class);
+		final Tab camTab = createTab(null, "Camera", CameraControl.class);
+		final Tab sonarIrTab = createTab(RS.IMG_IR_ALARM_ON, "Sonar/PIR", SonarIrControl.class);
 		final Tab mwTab = createTab(RS.IMG_IR_ALARM_ON, "Microwave", MicrowaveControl.class);
 		final Tab gateTab = createTab(RS.IMG_GATE_SELECTED, "Gate", GateControl.class);
 		mainView.getTabs().addAll(camTab, sonarIrTab, mwTab, gateTab);
@@ -66,8 +66,8 @@ public class Controls extends VBox {
 //			        final String parameterClassName = pt.getActualTypeArguments()[0].toString().split("\\s")[1];
 //			        T cp = (T) Class.forName(parameterClassName).newInstance();
 					try {
-						T cp = (T) cpc.newInstance();
-						tab.setContent(cp);
+						tab.setContent(null);
+						tab.setContent((T) cpc.newInstance());
 					} catch (final Throwable t) {
 						log.error("Unable to Instantiate " + cpc, t);
 					}

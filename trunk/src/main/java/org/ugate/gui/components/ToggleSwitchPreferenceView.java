@@ -2,9 +2,10 @@ package org.ugate.gui.components;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 
 import org.ugate.UGateKeeper;
 import org.ugate.resources.RS;
@@ -15,7 +16,7 @@ import org.ugate.resources.RS;
  * 
  * @see ToggleSwitch
  */
-public class ToggleSwitchPreferenceView extends VBox {
+public class ToggleSwitchPreferenceView extends HBox {
 	
 	public final String preferenceKey;
 	public final ImageView toggleSwitchImageView;
@@ -31,12 +32,29 @@ public class ToggleSwitchPreferenceView extends VBox {
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 * @param toolTip the tool tip to show
 	 */
-	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, final String offImageFileName, final String toolTip) {
+	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
+			final String offImageFileName, final String toolTip) {
+		this(preferenceKey, onImageFileName, offImageFileName, toolTip, ToggleSwitch.DEFAULT_ON_TEXT, 
+				ToggleSwitch.DEFAULT_OFF_TEXT);
+	}
+	
+	/**
+	 * Creates a toggle switch preference view
+	 * 
+	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
+	 * @param onImageFileName the file name of the image shown when the toggled on
+	 * @param offImageFileName the file name of the image shown when the toggled off
+	 * @param toolTip the tool tip to show
+	 * @param onText the text to show when on
+	 * @param offText the text to show when off
+	 */
+	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
+			final String offImageFileName, final String toolTip, final String onText, final String offText) {
 		this.preferenceKey = preferenceKey;
 		this.imgOn = RS.img(onImageFileName);
 		this.imgOff = RS.img(offImageFileName);
 		setSpacing(5);
-		toggleSwitch = new ToggleSwitch();
+		toggleSwitch = new ToggleSwitch(onText, offText, true);
 		final String onStr = UGateKeeper.DEFAULT.preferences.get(this.preferenceKey);
 		final boolean isOn = onStr.length() == 1 && Integer.valueOf(onStr) == 1;
 		toggleSwitch.selectedProperty().set(isOn);
@@ -51,6 +69,7 @@ public class ToggleSwitchPreferenceView extends VBox {
 				toggleSwitchImageView.setImage(newValue ? imgOn : imgOff);
 			}
 		});
+		setAlignment(Pos.BOTTOM_LEFT);
 		toggleSwitchImageView = RS.imgView(isOn ? imgOn : imgOff);
 		getChildren().addAll(toggleSwitchImageView, toggleSwitch);
 	}

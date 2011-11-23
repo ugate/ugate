@@ -27,10 +27,8 @@ public class RS {
 	public static final String IMG_GRAPH = "graph.png";
 	public static final String IMG_LOGS = "logs.png";
 	public static final String IMG_CAM_VGA = "cam-vga.png";
-	public static final String IMG_CAM_DOME = "camera.png";
-	public static final String IMG_NAV_CAM = "nav-cam.png";
+	public static final String IMG_CAM_RESOLUTION = "resolution32x32.png";
 	public static final String IMG_SENSOR_ARM = "camera.png";
-	public static final String IMG_NAV_SENSOR = "nav-sensor.png";
 	public static final String IMG_EMAIL_SELECTED = "email-selected.png";
 	public static final String IMG_EMAIL_DESELECTED = "email.png";
 	public static final String IMG_GATE_SELECTED = "gate-selected.png";
@@ -47,6 +45,8 @@ public class RS {
 	public static final String IMG_SPEEDOMETER = "speedometer.png";
 	public static final String IMG_PAN = "pan.png";
 	public static final String IMG_TILT = "tilt.png";
+	public static final String IMG_READINGS_GET = "readings-get64x64.png";
+	public static final String IMG_SETTINGS_SET = "settings-set64x64.png";
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
 	private RS() {
