@@ -4,13 +4,22 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -18,6 +27,8 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 
 import org.apache.log4j.Logger;
+import org.ugate.gui.components.Digits;
+import org.ugate.gui.components.PlateGroup;
 import org.ugate.resources.RS;
 import org.w3c.dom.Element;
 
@@ -27,35 +38,130 @@ import org.w3c.dom.Element;
 public class Controls extends VBox {
 
 	private static final Logger log = Logger.getLogger(Controls.class);
-	public static final double TOOLBAR_TOP_HEIGHT = 50;
-	public static final double MIDDLE_SPACING = 10;
-	public static final double TOOLBAR_BOTTOM_HEIGHT = 110;
+	public static final double CHILD_SPACING = 10d;
+	public static final double CHILD_PADDING = 5d;
+	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	protected static final String NAVIGATE_JS = "nav";
-	protected static final String NAVIGATE_JS_UP = "UP";
-	protected static final String NAVIGATE_JS_DOWN = "DOWN";
-	protected static final String NAVIGATE_JS_LEFT = "LEFT";
-	protected static final String NAVIGATE_JS_RIGHT = "RIGHT";
+	public final ScrollPane helpText;
 
 	public Controls() {
 		super();
 		this.setStyle("-fx-background-color: #000000;");
-
+		
+		// help view
+		helpText = new ScrollPane();
+		helpText.setStyle("-fx-background-color: #ffffff;");
+		helpText.setPrefHeight(48d);
+		helpText.setPrefWidth(200d);
+		final Label helpTextContent = new Label();
+		helpTextContent.setWrapText(true);
+		helpTextContent.setPrefWidth(helpText.getPrefWidth() - 20d);
+		helpText.setContent(helpTextContent);
+		
+		final ToolBar mainBar = new ToolBar(createMainBarChildren());
 		final TabPane mainView = new TabPane();
-		final Tab camTab = createTab(null, "Camera", CameraControl.class);
-		final Tab sonarIrTab = createTab(RS.IMG_IR_ALARM_ON, "Sonar/PIR", SonarIrControl.class);
-		final Tab mwTab = createTab(RS.IMG_IR_ALARM_ON, "Microwave", MicrowaveControl.class);
-		final Tab gateTab = createTab(RS.IMG_GATE_SELECTED, "Gate", GateControl.class);
-		mainView.getTabs().addAll(camTab, sonarIrTab, mwTab, gateTab);
+		mainView.setSide(Side.LEFT);
+		final Tab camTab = createTab(null, "Camera/Gate", CameraGateControl.class);
+		final Tab sensorsTab = createTab(null, "Sensors", SensorControl.class);
+		mainView.getTabs().addAll(camTab, sensorsTab);
 
 		HBox.setHgrow(this, Priority.ALWAYS);
 		VBox.setVgrow(this, Priority.ALWAYS);
 		
-		getChildren().addAll(mainView);
+		getChildren().addAll(mainBar, mainView);
 	}
 	
-	protected <T extends ControlPane> Tab createTab(final String graphicFileName, final String text, final Class<T> cpc) {
+	/**
+	 * @return the children used for the main menu bar
+	 */
+	protected Node[] createMainBarChildren() {
+		// add the actions
+		final DropShadow ds = new DropShadow();
+		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
+		camTakeQvga.setEffect(ds);
+		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
+		camTakeVga.setEffect(ds);
+		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
+		settingsSet.setEffect(ds);
+		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
+		
+		// add the readings view
+		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
+		final Digits sonarReading = new Digits(String.format(SensorControl.FORMAT_SONAR, 7.5f),
+				0.15f, SensorControl.COLOR_SONAR, null);
+		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
+		final Digits pirReading = new Digits(String.format(SensorControl.FORMAT_PIR, 15.5f), 
+				0.15f, SensorControl.COLOR_PIR, null);
+		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
+		final Digits mwReading = new Digits(String.format(SensorControl.FORMAT_MW, 7.5f), 0.15f, 
+				SensorControl.COLOR_MW, null);
+		final Group readingsGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
+				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
+		
+		// add the multi-alarm trip state
+		final ImageView sonarMultiAlarmBtn = RS.imgView(RS.IMG_SONAR_ALARM_ON);
+		final ImageView pirMultiAlarmBtn = RS.imgView(RS.IMG_IR_ALARM_ON);
+		final ImageView mwMultiAlarmBtn = RS.imgView(RS.IMG_MICROWAVE_ALARM_ON);
+		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
+				sonarMultiAlarmBtn, pirMultiAlarmBtn, mwMultiAlarmBtn);
+		
+		// add the menu items
+		return new Node[] { camTakeQvga, camTakeVga, settingsSet, readingsGet, 
+				new Separator(Orientation.VERTICAL), readingsGroup, 
+				new Separator(Orientation.VERTICAL), multiAlarmGroup,
+				new Separator(Orientation.VERTICAL), helpText};
+	}
+	
+	/**
+	 * Creates a readings display
+	 * 
+	 * @param padding the padding in the grid group
+	 * @param gapBetweenChildren the vertical and/or horizontal gap between cells
+	 * @param numItemsPerRow the number of items per row
+	 * @param nodes the nodes to add to the display
+	 * @return the readings display
+	 */
+	public static final Group createReadingsDisplay(final Insets padding, final double gapBetweenChildren, 
+			final int numItemsPerRow, final Node... nodes) {
+		final Label readingsHeader = new Label("Readings");
+		readingsHeader.getStyleClass().add("gauge-header");
+		final GridPane gridReadings = new GridPane();
+		gridReadings.setPadding(padding);
+		gridReadings.setHgap(gapBetweenChildren);
+		gridReadings.setVgap(gapBetweenChildren);
+		int col = -1, row = 0;
+		for (final Node node : nodes) {
+			node.getStyleClass().add("gauge");
+			gridReadings.add(node, ++col, row);
+			row = col == (numItemsPerRow - 1) ? row + 1 : row;
+			col = col == (numItemsPerRow - 1) ? -1 : col;
+		}
+		final PlateGroup readingsGroup = new PlateGroup(gridReadings.widthProperty(), 
+				gridReadings.heightProperty(), 
+				gridReadings.paddingProperty());
+		readingsGroup.getChildren().add(gridReadings);
+		return readingsGroup;
+	}
+	
+	/**
+	 * Creates a tab
+	 * 
+	 * @param graphicFileName the optional graphic for the tab
+	 * @param text the text for the tab
+	 * @param cpc the class used for the tab content
+	 * @return the tab
+	 */
+	protected <T extends ControlPane> Tab createTab(final String graphicFileName, final String text, 
+			final Class<T> cpc) {
 		final Tab tab = new Tab(text);
 		tab.setClosable(false);
+		try {
+			tab.setContent((T) cpc.getConstructor(helpText.getClass()).newInstance(helpText));
+		} catch (final Throwable t) {
+			log.error("Unable to Instantiate " + cpc, t);
+		}
+		// TODO : dynamic tab content creation causes memory leaks
+		/*
 		//tab.setGraphic(RS.imgView(graphicFileName));
 		tab.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
@@ -66,7 +172,6 @@ public class Controls extends VBox {
 //			        final String parameterClassName = pt.getActualTypeArguments()[0].toString().split("\\s")[1];
 //			        T cp = (T) Class.forName(parameterClassName).newInstance();
 					try {
-						tab.setContent(null);
 						tab.setContent((T) cpc.newInstance());
 					} catch (final Throwable t) {
 						log.error("Unable to Instantiate " + cpc, t);
@@ -76,6 +181,7 @@ public class Controls extends VBox {
 				}
 			}
 		});
+		*/
 		return tab;
 	}
 	

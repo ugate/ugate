@@ -667,7 +667,7 @@ public class Gauge extends Group {
 					indicatorHeight - pointDistance, pointDistance,
 					centerX, centerY, fillProperty);
 			final double knobSurfaceRadius = indicatorWidth - pointDistance * 2d;
-    		final Group knobSurface = createKnobSurface(centerX, centerY, 
+    		final Group knobSurface = createKnobSurface(0, centerX, centerY, 
     				knobSurfaceRadius, knobSurfaceRadius, DEFAULT_KNOB_SURFACE_COLORS);
 	    	final Group indicatorShapeGroup = createKnob(indicatorShape, knobSurface);
 			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);
@@ -877,37 +877,60 @@ public class Gauge extends Group {
     }
     
     /**
-     * Creates
-     * @param centerX
-     * @param centerY
-     * @param radius
-     * @param colors
-     * @return
+     * Creates a brushed aluminum surface for the knob
+     * 
+     * @param startAngle the start angle
+     * @param centerX the center x of the surface
+     * @param centerY the center y of the surface
+     * @param radiusX the x radius of the surface
+     * @param radiusY the y radius of the surface
+     * @param colors the colors to use
+     * @return the knob surface
      */
-    protected Group createKnobSurface(final double centerX, final double centerY, 
-    		final double radiusX, final double radiusY, final Color... colors) {
+    protected Group createKnobSurface(final double startAngle, final double centerX, 
+    		final double centerY, final double radiusX, final double radiusY, 
+    		final Color... colors) {
     	Group group = new Group();
-    	double angle = 0;
-    	double startRadians = angle * 2d * Math.PI;
-    	double stepRadians = (2d * Math.PI) / colors.length;
-    	double oldX = centerX + Math.cos(startRadians) * radiusX;
-    	double oldY = centerY + Math.sin(startRadians) * radiusY;
-    	double newX, newY, newRadians;
+    	double startRadians = startAngle * 2d * Math.PI;
+    	//double stepRadians = (2d * Math.PI) / colors.length;
+    	//double oldX = centerX + Math.cos(startRadians) * radiusX;
+    	//double oldY = centerY + Math.sin(startRadians) * radiusY;
+    	//double newX, newY, newRadians;
+    	double angle = Math.toDegrees(startRadians), angleLength = 360d / colors.length;
+    	//angleLength *= 2d;
     	for (double i=0; i<colors.length; i++) {
-    		newRadians = startRadians + stepRadians * (i + 1d);
-    		newX = centerX + Math.cos(newRadians) * radiusX;
-    		newY = centerY + Math.sin(newRadians) * radiusY;
-    		Polygon shape = new Polygon(oldX, oldY, centerX, centerY, newX, newY, oldX, oldY);
+    		//newRadians = startRadians + stepRadians * (i + 2d);
+    		//newX = centerX + Math.cos(newRadians) * radiusX;
+    		//newY = centerY + Math.sin(newRadians) * radiusY;
+    		//Polygon shape = new Polygon(oldX, oldY, centerX, centerY, newX, newY, oldX, oldY);
+    		Arc shape = new Arc(centerX, centerY, radiusX, radiusY, angle, angleLength);
+    		angle += angleLength;
+    		shape.setType(ArcType.ROUND);
     		shape.setSmooth(false);
     		shape.setCache(true);
     		shape.setCacheHint(CacheHint.SPEED);
-    		shape.setStroke(colors[(int)i]);
-    		shape.setStrokeWidth(1d);
     		shape.setFill(colors[(int)i]);
+    		shape.setStroke(colors[(int)i]);
+    		shape.setStrokeWidth(angleLength);
+    		shape.setStrokeType(StrokeType.INSIDE);
     		group.getChildren().add(shape);
-    		oldX = newX;
-            oldY = newY;
+    		//oldX = newX;
+            //oldY = newY;
     	}
+//    	Ellipse brush;
+//    	double rX, rY;
+//    	int i = 1;
+//    	do {
+//    		rX = radiusX - (i * 4);
+//    		rY = radiusY - (i * 4);
+//    		brush = new Ellipse(centerX, centerY, rX, rY);
+//    		brush.setFill(Color.TRANSPARENT);
+//    		brush.setStroke(Color.WHITESMOKE);
+//    		brush.setStrokeWidth(0.1d);
+//    		brush.setOpacity(0.5d);
+//    		group.getChildren().add(brush);
+//    		i++;
+//    	} while (rX > 0 && rY > 0);
     	return group;
     }
     

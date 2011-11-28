@@ -2,78 +2,76 @@ package org.ugate.gui;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import org.ugate.gui.components.PlateGroup;
-
 /**
- * Control view
+ * Base view for control settings
  */
-public abstract class ControlPane extends BorderPane {
+public abstract class ControlPane extends GridPane {
 
 	public static final String FORMAT_DELAY = "%03d";
 	public static final String FORMAT_ANGLE = "%03d";
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 30d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
-	public static final double KNOB_SIZE_SCALE = 0.3d;
-	public static final double NEEDLE_SIZE_SCALE = 0.4d;
+	public static final double KNOB_SIZE_SCALE = 0.25d;
+	public static final double NEEDLE_SIZE_SCALE = 0.5d;
 	public static final Color COLOR_PAN_TILT = Color.YELLOW;
-	public final Group topGroup;
-	public final Group leftGroup;
-	public final Group centerGroup;
-	public final Group rightGroup;
+	public static final String HELP_TEXT_DEFAULT = "Left-Click + Ctrl key on any control for help";
+	private final ScrollPane helpText;
 	
-	public ControlPane() {
-		getStyleClass().add("gauge-control-pane");
-
-		topGroup = createSide(true, false, createTopViewChildren());
-		leftGroup = createSide(false, true, createLeftViewChildren());
-		centerGroup = createSide(false, true, createCenterViewChildren());
-		rightGroup = createSide(false, true, createRightViewChildren());
+	public ControlPane(final ScrollPane helpText) {
+		this.helpText = helpText;
+		((Label) this.helpText.getContent()).setText(HELP_TEXT_DEFAULT);
 		
-		if (topGroup != null) {
-			setTop(topGroup);
-		}
-		if (leftGroup != null) {
-			setLeft(leftGroup);
-		}
-		if (centerGroup != null) {
-			setCenter(centerGroup);
-		}
-		if (rightGroup != null) {
-			setRight(rightGroup);
-		}
-
+		getStyleClass().add("gauge-control-pane");
         setPrefHeight(Integer.MAX_VALUE);
 	}
 	
 	/**
-	 * Creates a side of the border pane
+	 * Creates a cell of the grid pane
 	 * 
 	 * @param resizeWidth  true when the width should be resized
 	 * @param resizeHeight true when the height should be resized
 	 * @param nodes the nodes to add to the side (when null, the group returned will be null)
 	 * @return the group
 	 */
-	private Group createSide(final boolean resizeWidth, final boolean resizeHeight, final Node... nodes) {
-		if (nodes != null && nodes.length > 0) {
-			final Group group = new Group();
-			final VBox view = new VBox(CHILD_SPACING);
-			view.setPadding(PADDING_INSETS);
-			view.getChildren().addAll(nodes);
-			group.getChildren().addAll(createBackground(view, resizeWidth, resizeHeight), view);
-			return group;
-		}
-		return null;
+	protected Group createCell(final boolean resizeWidth, final boolean resizeHeight, final Node... nodes) {
+		final Group group = new Group();
+		final VBox view = new VBox(CHILD_SPACING);
+		view.setPadding(PADDING_INSETS);
+		view.getChildren().addAll(nodes);
+		group.getChildren().addAll(createBackground(view, resizeWidth, resizeHeight), view);
+		return group;
+	}
+	
+	/**
+	 * Adds the help text when the mouse enters the node
+	 * 
+	 * @param node the node to trigger the text
+	 * @param text the text to show
+	 */
+	protected void addHelpText(final Node node, final String text) {
+		node.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (event.isControlDown()) {
+					helpText.setVvalue(helpText.getVmin());
+					((Label) helpText.getContent()).setText(text);
+					event.consume();
+				}
+			}
+		});
 	}
 	
 	/**
@@ -125,58 +123,11 @@ public abstract class ControlPane extends BorderPane {
 	 */
 	private void updateBackgroundRec(final Rectangle backgroundRec, final VBox node, 
 			final boolean resizeWidth, final boolean resizeHeight) {
-		final double contentWidth = resizeWidth ? Math.max(getWidth() - PADDING_INSETS.getLeft(), node.getWidth()) : node.getWidth() - 
-				PADDING_INSETS.getLeft();
-		final double contentHeight = resizeHeight ? Math.max(getHeight() - (getTop() != null ? getTop().getBoundsInLocal().getHeight() : 0) - 
-				PADDING_INSETS.getTop() - PADDING_INSETS.getBottom(), node.getHeight()) : node.getHeight();
+		final double contentWidth = resizeWidth ? Math.max(getWidth() - PADDING_INSETS.getLeft(), 
+				node.getWidth()) : node.getWidth() - PADDING_INSETS.getLeft();
+		final double contentHeight = resizeHeight ? Math.max(getHeight() - PADDING_INSETS.getTop() - 
+				PADDING_INSETS.getBottom(), node.getHeight()) : node.getHeight();
 		backgroundRec.setWidth(contentWidth);
 		backgroundRec.setHeight(contentHeight);
 	}
-	
-	/**
-	 * Creates a readings display
-	 * 
-	 * @param nodes the nodes to add to the display
-	 * @return the readings display
-	 */
-	protected Group createReadingsDisplay(final Node... nodes) {
-		final Label readingsHeader = new Label("Readings");
-		readingsHeader.getStyleClass().add("gauge-header");
-		final GridPane gridReadings = new GridPane();
-		gridReadings.setPadding(PADDING_INSETS);
-		gridReadings.setHgap(CHILD_PADDING);
-		gridReadings.setVgap(CHILD_PADDING);
-		int col = -1, row = 0;
-		for (final Node node : nodes) {
-			node.getStyleClass().add("gauge");
-			gridReadings.add(node, ++col, row);
-			row = col == 1 ? row + 1 : row;
-			col = col == 1 ? -1 : col;
-		}
-		final PlateGroup readingsGroup = new PlateGroup(gridReadings.widthProperty(), gridReadings.heightProperty(), 
-				gridReadings.paddingProperty());
-		readingsGroup.getChildren().add(gridReadings);
-		return readingsGroup;
-	}
-	
-	protected Node[] createTopViewChildren() {
-//		final Label header = new Label("Multi-Alarm Trip State:");
-//		header.setPrefWidth(75d);
-//		header.setWrapText(true);
-//		header.getStyleClass().add("gauge-header");
-//		final ToolBar multiAlarmToolBar = new ToolBar();
-//		multiAlarmToolBar.getStyleClass().add("control-toolbar");
-//		final ImageView sonar = RS.imgView(RS.IMG_SONAR_ALARM_ON);
-//		final ImageView pir = RS.imgView(RS.IMG_IR_ALARM_ON);
-//		final ImageView mw = RS.imgView(RS.IMG_MICROWAVE_ALARM_ON);
-//		multiAlarmToolBar.getItems().addAll(header, sonar, pir, mw);
-//		return new Node[] { multiAlarmToolBar };
-		return null;
-}
-	
-	protected abstract Node[] createLeftViewChildren();
-	
-	protected abstract Node[] createCenterViewChildren();
-	
-	protected abstract Node[] createRightViewChildren();
 }

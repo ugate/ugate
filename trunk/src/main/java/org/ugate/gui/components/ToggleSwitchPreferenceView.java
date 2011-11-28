@@ -30,11 +30,10 @@ public class ToggleSwitchPreferenceView extends HBox {
 	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
 	 * @param onImageFileName the file name of the image shown when the toggled on
 	 * @param offImageFileName the file name of the image shown when the toggled off
-	 * @param toolTip the tool tip to show
 	 */
 	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
-			final String offImageFileName, final String toolTip) {
-		this(preferenceKey, onImageFileName, offImageFileName, toolTip, ToggleSwitch.DEFAULT_ON_TEXT, 
+			final String offImageFileName) {
+		this(preferenceKey, onImageFileName, offImageFileName, ToggleSwitch.DEFAULT_ON_TEXT, 
 				ToggleSwitch.DEFAULT_OFF_TEXT);
 	}
 	
@@ -44,12 +43,11 @@ public class ToggleSwitchPreferenceView extends HBox {
 	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
 	 * @param onImageFileName the file name of the image shown when the toggled on
 	 * @param offImageFileName the file name of the image shown when the toggled off
-	 * @param toolTip the tool tip to show
 	 * @param onText the text to show when on
 	 * @param offText the text to show when off
 	 */
 	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
-			final String offImageFileName, final String toolTip, final String onText, final String offText) {
+			final String offImageFileName, final String onText, final String offText) {
 		this.preferenceKey = preferenceKey;
 		this.imgOn = RS.img(onImageFileName);
 		this.imgOff = RS.img(offImageFileName);
@@ -58,9 +56,6 @@ public class ToggleSwitchPreferenceView extends HBox {
 		final String onStr = UGateKeeper.DEFAULT.preferences.get(this.preferenceKey);
 		final boolean isOn = onStr.length() == 1 && Integer.valueOf(onStr) == 1;
 		toggleSwitch.selectedProperty().set(isOn);
-		if (toolTip != null && !toolTip.isEmpty()) {
-			//toggleSwitch.tooltipProperty().set(new Tooltip(toolTip));
-		}
 		toggleSwitch.selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> observable,
