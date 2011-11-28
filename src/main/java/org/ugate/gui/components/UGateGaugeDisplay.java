@@ -26,7 +26,32 @@ public class UGateGaugeDisplay extends VBox {
 	public final Digits gaugeDigits;
 	
 	/**
-	 * Constructs a new slider gauge
+	 * Constructs a new gauge display
+	 * 
+	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
+	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
+	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
+	 * @param tickValueZeroOffset the gauge tick value zero offset {@linkplain Gauge#tickValueZeroOffset}
+	 * @param startAngle the start angle of the gauge {@linkplain Gauge#angleStart}
+	 * @param angleLength the angle length of the gauge {@linkplain Gauge#angleLength}
+	 * @param numberOfMajorTickMarks the number of major tick marks {@linkplain Gauge#numOfMajorTickMarks}
+	 * @param numOfMinorTickMarksPerMajorTick the number of minor tick marks {@linkplain Gauge#numOfMinorTickMarksPerMajorTick}
+	 * @param value the initial value of the gauge
+	 * @param format the string format of the digits
+	 * @param icon the icon of the gauge
+	 * @param onColor the color of the on digits
+	 */
+	public UGateGaugeDisplay(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
+			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
+			final Double value, final String format, final ImageView icon,
+			final Color onColor) {
+		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
+				numOfMinorTickMarksPerMajorTick, value, format, icon, onColor, null, Orientation.VERTICAL);
+	}
+	
+	/**
+	 * Constructs a new gauge display
 	 * 
 	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
 	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
@@ -39,20 +64,19 @@ public class UGateGaugeDisplay extends VBox {
 	 * @param value the initial value of the gauge
 	 * @param format the string format of the digits
 	 * @param iconFileName the icon of the gauge
-	 * @param toolTip the tool tip of the gauge
 	 * @param onColor the color of the on digits
 	 */
 	public UGateGaugeDisplay(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final Double value, final String format, final String iconFileName,
-			final String toolTip, final Color onColor) {
+			final Color onColor) {
 		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numOfMinorTickMarksPerMajorTick, value, format, iconFileName, toolTip, onColor, null, Orientation.VERTICAL);
+				numOfMinorTickMarksPerMajorTick, value, format, iconFileName, onColor, null, Orientation.VERTICAL);
 	}
-
+	
 	/**
-	 * Constructs a new slider gauge
+	 * Constructs a new gauge display
 	 * 
 	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
 	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
@@ -65,7 +89,6 @@ public class UGateGaugeDisplay extends VBox {
 	 * @param value the initial value of the gauge
 	 * @param format the string format of the digits
 	 * @param iconFileName the icon of the gauge
-	 * @param toolTip the tool tip of the gauge
 	 * @param onColor the color of the on digits
 	 * @param offColor the color of the off digits
 	 * @param orientation the orientation of the control
@@ -74,7 +97,34 @@ public class UGateGaugeDisplay extends VBox {
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final Double value, final String format, final String iconFileName,
-			final String toolTip, final Color onColor, final Color offColor, final Orientation orientation) {
+			final Color onColor, final Color offColor, final Orientation orientation) {
+		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
+				numOfMinorTickMarksPerMajorTick, value, format, RS.imgView(iconFileName), onColor, offColor, orientation);
+	}
+
+	/**
+	 * Constructs a new gauge display
+	 * 
+	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
+	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
+	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
+	 * @param tickValueZeroOffset the gauge tick value zero offset {@linkplain Gauge#tickValueZeroOffset}
+	 * @param startAngle the start angle of the gauge {@linkplain Gauge#angleStart}
+	 * @param angleLength the angle length of the gauge {@linkplain Gauge#angleLength}
+	 * @param numberOfMajorTickMarks the number of major tick marks {@linkplain Gauge#numOfMajorTickMarks}
+	 * @param numOfMinorTickMarksPerMajorTick the number of minor tick marks {@linkplain Gauge#numOfMinorTickMarksPerMajorTick}
+	 * @param value the initial value of the gauge
+	 * @param format the string format of the digits
+	 * @param icon the icon of the gauge
+	 * @param onColor the color of the on digits
+	 * @param offColor the color of the off digits
+	 * @param orientation the orientation of the control
+	 */
+	public UGateGaugeDisplay(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
+			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
+			final Double value, final String format, final ImageView icon,
+			final Color onColor, final Color offColor, final Orientation orientation) {
 		super(10d);
 		setPadding(new Insets(20d, 10d, 20d, 10d));
 		final boolean useInt = format.indexOf("d") > -1;
@@ -90,7 +140,6 @@ public class UGateGaugeDisplay extends VBox {
 					String.format(format, newValue.floatValue()));
 			}
 		});
-		//gauge.setTooltip(new Tooltip(toolTip));
 		gaugeDigits = new Digits(useInt ? String.format(format, value.intValue()) :  
 			String.format(format, value.floatValue()), 0.15f, onColor, offColor);
 		gauge.setTickValue(value);
@@ -104,7 +153,7 @@ public class UGateGaugeDisplay extends VBox {
 //        });
         HBox.setMargin(gaugeDigits, new Insets(0, 5, 0, 5));
         //sliderValue.getTransforms().add(new Scale(0.2f, 0.2f, 0, 0));
-        imageView = RS.imgView(iconFileName);
+        imageView = icon;
 		final DropShadow outerGlow = new DropShadow();
 		outerGlow.setOffsetX(0);
 		outerGlow.setOffsetY(0);
