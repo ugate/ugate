@@ -54,7 +54,7 @@ public class ToggleSwitch extends Group {
 				update();
 			}
 		});
-		this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		this.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
 				if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
