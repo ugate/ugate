@@ -27,7 +27,7 @@ public abstract class ControlPane extends GridPane {
 	public static final double KNOB_SIZE_SCALE = 0.25d;
 	public static final double NEEDLE_SIZE_SCALE = 0.5d;
 	public static final Color COLOR_PAN_TILT = Color.YELLOW;
-	public static final String HELP_TEXT_DEFAULT = "Left-Click + Ctrl key on any control for help";
+	public static final String HELP_TEXT_DEFAULT = "Right-Click on any control for help";
 	private final ScrollPane helpText;
 	
 	public ControlPane(final ScrollPane helpText) {
@@ -56,16 +56,16 @@ public abstract class ControlPane extends GridPane {
 	}
 	
 	/**
-	 * Adds the help text when the mouse enters the node
+	 * Adds the help text when right clicked
 	 * 
 	 * @param node the node to trigger the text
 	 * @param text the text to show
 	 */
 	protected void addHelpText(final Node node, final String text) {
-		node.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		node.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
-				if (event.isControlDown()) {
+				if (event.isSecondaryButtonDown()) {
 					helpText.setVvalue(helpText.getVmin());
 					((Label) helpText.getContent()).setText(text);
 					event.consume();

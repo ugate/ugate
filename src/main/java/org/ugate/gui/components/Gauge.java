@@ -644,12 +644,12 @@ public class Gauge extends Group {
 		gaugeParent.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
-						event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
-					return;
-				}
 				if (event.getEventType() == MouseEvent.MOUSE_DRAGGED || 
-						event.getEventType() == MouseEvent.MOUSE_CLICKED) {
+						event.getEventType() == MouseEvent.MOUSE_PRESSED) {
+					if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
+							event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
+						return;
+					}
 					getIndicatorMoveEffect().setLevel(indicatorType == IndicatorType.KNOB ? 0.2d : 0.7d);
 					moveIndicator(centerX - event.getX(), centerY - event.getY());
 				} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
