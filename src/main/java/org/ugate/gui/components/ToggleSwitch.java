@@ -57,6 +57,10 @@ public class ToggleSwitch extends Group {
 		this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
+				if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
+						event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
+					return;
+				}
 				selectedProperty().set(!selectedProperty().get());
 			}
 		});

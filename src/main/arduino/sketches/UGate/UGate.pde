@@ -42,13 +42,14 @@ void setup() {
   Serial.begin(19200);
   //xbee.setSerial(Serial);
   // Infrared (for Universal Remote):
+  pinMode(SONAR_TX_PIN, OUTPUT);
   irSetup();
   mwSetup();
 }
 void loop() {
   execBufferCmds();
   xbeeRead();
-  //sonarRead(true);
+  sonarRead(true);
   //irRead(true);
   //mwReadFreq(true);
   LEDOFF();
@@ -311,8 +312,11 @@ boolean camReadXBeeSend(int cmd, boolean hasFailures, int index, int toBeReadLen
 // is true the trip command will be entered into the command buffer.
 // NOTE: pulsing on a digital pin seems to be more accurate than the analog method
 byte sonarRead(byte isTrip) {
+  digitalWrite(SONAR_TX_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(SONAR_TX_PIN, LOW);
   // pulse width representation with a scale factor of 147 uS per inch.
-  long pulse = pulseIn(SONAR_PIN, HIGH);
+  long pulse = pulseIn(SONAR_RX_PIN, HIGH);
   // 147uS per inch (58uS per cm)
   sonarReadInches = pulse / 147.32;
   //long cm = sonarReadInches * 2.54;
@@ -321,7 +325,7 @@ byte sonarRead(byte isTrip) {
   
   // allocate two bytes for to hold a 10-bit analog reading
   // uint8_t payload[] = {0, 0};
-  // int analogRead = analogRead(SONAR_PIN);
+  // int analogRead = analogRead(SONAR_RX_PIN);
   // payload[0] = analogRead >> 8 & 0xff;
   // payload[1] = analogRead & 0xff;
   
