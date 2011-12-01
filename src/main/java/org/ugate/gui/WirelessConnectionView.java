@@ -79,7 +79,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	 */
 	public void loadComPorts() {
 		port.choice.getItems().addAll(UGateKeeper.DEFAULT.getSerialPorts());
-		final String xbeeComPort = UGateKeeper.DEFAULT.preferences.get(UGateUtil.SV_WIRELESS_COM_PORT_KEY);
+		final String xbeeComPort = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.SV_WIRELESS_COM_PORT_KEY);
 		if (xbeeComPort != null && xbeeComPort.length() > 0 && 
 				port.choice.getItems().contains(xbeeComPort)) {
 			port.choice.getSelectionModel().select(xbeeComPort);
@@ -94,7 +94,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	public void loadBaudRates() {
 		log.debug("Loading available baud rates");
 		baud.choice.getItems().addAll(UGateUtil.XBEE_BAUD_RATES);
-		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferences.get(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY);
+		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY);
 		if (xbeeBaudRateStr != null && xbeeBaudRateStr.length() > 0) {
 			final Integer xbeeBaudRate = Integer.parseInt(xbeeBaudRateStr);
 			if (baud.choice.getItems().contains(xbeeBaudRate)) {
@@ -138,8 +138,8 @@ public abstract class WirelessConnectionView extends StatusView {
 			connect.setText(LABEL_CONNECT);
 			connect.setDisable(false);
 		}
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_COM_PORT_KEY, comPort);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_WIRELESS_COM_PORT_KEY, comPort);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
 	}
 
 	/**

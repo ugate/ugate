@@ -56,7 +56,7 @@ public class RS {
 	}
 	
 	/**
-	 * Gets an image view from a set of cached images
+	 * Creates an image view from a set of cached images
 	 * 
 	 * @param fileName the image file name
 	 * @return the image view
@@ -66,12 +66,34 @@ public class RS {
 	}
 	
 	/**
-	 * Gets an image view
+	 * Creates an image view from a set of cached images
+	 * 
+	 * @param fileName the image file name
+	 * @param key the preferences key to associate the image with
+	 * @return the image view
+	 */
+	public static ImageView imgView(final String fileName, final String key) {
+		return imgView(img(fileName), key);
+	}
+	
+	/**
+	 * Creates an image view
 	 * 
 	 * @param image the image
 	 * @return the image view
 	 */
 	public static ImageView imgView(final Image image) {
+		return imgView(image, null);
+	}
+	
+	/**
+	 * Creates an image view
+	 * 
+	 * @param image the image
+	 * @param key the preferences key to associate the image with
+	 * @return the image view
+	 */
+	public static ImageView imgView(final Image image, final String key) {
 		final ImageView node = new ImageView(image);
 		node.setSmooth(false);
 		node.setCache(true);

@@ -1,12 +1,16 @@
 package org.ugate.gui;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,12 +27,18 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
+import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
+import org.ugate.IGateKeeperListener;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.PlateGroup;
+import org.ugate.gui.components.ToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
 import org.w3c.dom.Element;
 
@@ -55,7 +65,7 @@ public class Controls extends VBox {
 		helpText.setPrefWidth(200d);
 		final Label helpTextContent = new Label();
 		helpTextContent.setWrapText(true);
-		helpTextContent.setPrefWidth(helpText.getPrefWidth() - 20d);
+		helpTextContent.setPrefWidth(helpText.getPrefWidth() - 35d);
 		helpText.setContent(helpTextContent);
 		
 		final ToolBar mainBar = new ToolBar(createMainBarChildren());
@@ -78,12 +88,48 @@ public class Controls extends VBox {
 		// add the actions
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
+		GuiUtil.addHelpText(helpText, camTakeQvga, "Takes a QVGA image at the current camera pan/tilt angle " + 
+		"and transfers the image back to the host. An email with the attached image will also be sent when enabled");
+		camTakeQvga.setCursor(Cursor.HAND);
 		camTakeQvga.setEffect(ds);
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
+		GuiUtil.addHelpText(helpText, camTakeVga, "Takes a VGA image at the current camera pan/tilt angle " + 
+				"and transfers the image back to the host. An email with the attached image will also be sent when enabled");
+		camTakeVga.setCursor(Cursor.HAND);
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
-		settingsSet.setEffect(ds);
+		settingsSet.setCursor(Cursor.HAND);
+		GuiUtil.addHelpText(helpText, settingsSet, "Sends the settings to the remote microcontroller node. " + 
+				"Blinks when settings updates have been made, but have not yet been sent");
+		final DropShadow settingsDS = new DropShadow();
+		settingsSet.setEffect(settingsDS);
+		final Timeline settingsSetTimeline = new Timeline();
+		settingsSetTimeline.setCycleCount(Timeline.INDEFINITE);
+		settingsSetTimeline.setAutoReverse(true);
+		final KeyFrame kf = new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				settingsDS.setColor(settingsDS.getColor().equals(Color.BLACK) ? Color.RED : Color.BLACK);
+			}
+		});
+		settingsSetTimeline.getKeyFrames().add(kf);
+		// show a visual indication that the settings need updated
+		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final IGateKeeperListener.Event type, 
+					final String key, final String oldValue, final String newValue) {
+				if (type == IGateKeeperListener.Event.PREFERENCES_SET) {
+					settingsSetTimeline.play();
+				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS) {
+					settingsSetTimeline.stop();
+				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_FAILED) {
+					
+				}
+			}
+		});
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
+		GuiUtil.addHelpText(helpText, readingsGet, "Gets the current sensor readings and updates the readings display with the values");
+		readingsGet.setCursor(Cursor.HAND);
 		
 		// add the readings view
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
@@ -97,13 +143,18 @@ public class Controls extends VBox {
 				SensorControl.COLOR_MW, null);
 		final Group readingsGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
+		GuiUtil.addHelpText(helpText, readingsGroup, "Current sensors readings display");
 		
 		// add the multi-alarm trip state
-		final ImageView sonarMultiAlarmBtn = RS.imgView(RS.IMG_SONAR_ALARM_ON);
-		final ImageView pirMultiAlarmBtn = RS.imgView(RS.IMG_IR_ALARM_ON);
-		final ImageView mwMultiAlarmBtn = RS.imgView(RS.IMG_MICROWAVE_ALARM_ON);
-		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
-				sonarMultiAlarmBtn, pirMultiAlarmBtn, mwMultiAlarmBtn);
+		final ToggleSwitchPreferenceView multiAlarmToggleSwitch = new ToggleSwitchPreferenceView(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY,
+				new ToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
+				new ToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
+				new ToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
+		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 0,
+				multiAlarmToggleSwitch);
+		GuiUtil.addHelpText(helpText, multiAlarmGroup, "Multi-alarm trip state. When any combination of sensors have been selected those " + 
+				"selected sensors will ALL have to be tripped in order to cause an alarm. When NONE of the sensors have been selected ANY " + 
+				"sensor trip will cause an alarm. Keep in mind that the sensors selected should be on or no alarm will be triggered.");
 		
 		// add the menu items
 		return new Node[] { camTakeQvga, camTakeVga, settingsSet, readingsGet, 

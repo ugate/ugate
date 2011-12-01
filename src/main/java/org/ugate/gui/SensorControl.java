@@ -82,7 +82,7 @@ public class SensorControl extends ControlPane {
 		final ToggleSwitchPreferenceView sonarToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_SONAR_ALARM_ON_KEY, 
 				RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF);
 		addHelpText(sonarToggleSwitchView, 
-				"Toggle sonar intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
+				"Toggle sonar intruder alarm that when tripped takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
 		grid.add(sonarToggleSwitchView, 0, 1);
 		final UGateGaugeDisplay sonarTripGauge = new UGateGaugeDisplay(IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 2, 0, 180d, 9, 4, 7d, FORMAT_SONAR, RS.IMG_RULER, COLOR_SONAR);
@@ -98,7 +98,7 @@ public class SensorControl extends ControlPane {
 		final ToggleSwitchPreferenceView pirToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_IR_ALARM_ON_KEY, 
 				RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF);
 		addHelpText(pirToggleSwitchView, 
-				"Toggle PIR intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
+				"Toggle PIR intruder alarm that when tripped takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
 		grid.add(pirToggleSwitchView, 1, 1);
 //		final UGateGaugeDisplay pirTripGauge = new UGateGaugeDisplay(IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 //				1d, 2, 0, 180d, 24, 1, 15d, FORMAT_PIR, RS.IMG_RULER,
@@ -115,7 +115,7 @@ public class SensorControl extends ControlPane {
 		final ToggleSwitchPreferenceView mwToggleSwitchView = new ToggleSwitchPreferenceView(UGateUtil.SV_MW_ALARM_ON_KEY, 
 				RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF);
 		addHelpText(mwToggleSwitchView, 
-				"Toggle Microwave intruder alarm that takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
+				"Toggle Microwave intruder alarm that when tripped takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
 		grid.add(mwToggleSwitchView, 2, 1);
 		final UGateGaugeDisplay mwTripGauge = new UGateGaugeDisplay(IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 2, 0, 180d, 9, 4, 5d, FORMAT_MW, RS.IMG_SPEEDOMETER, COLOR_MW);

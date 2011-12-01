@@ -129,8 +129,6 @@ public class Preferences {
 	public void set(String key, String value) {
 		set(key, value, false);
 	}
-
-	// TODO : write secret key to Arduino EEPROM so encrypted preference values can be used?
 	
 	/**
 	 * Sets a a key/value preference
