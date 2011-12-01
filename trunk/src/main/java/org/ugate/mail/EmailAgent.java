@@ -319,7 +319,7 @@ public class EmailAgent implements Runnable {
 	}
 	
 	protected boolean hasCommandPermission(Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferences.get(UGateUtil.SV_MAIL_RECIPIENTS_KEY, UGateUtil.MAIL_RECIPIENTS_DELIMITER);
+		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.SV_MAIL_RECIPIENTS_KEY, UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {

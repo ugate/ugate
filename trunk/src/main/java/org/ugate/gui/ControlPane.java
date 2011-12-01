@@ -62,16 +62,7 @@ public abstract class ControlPane extends GridPane {
 	 * @param text the text to show
 	 */
 	protected void addHelpText(final Node node, final String text) {
-		node.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (event.isSecondaryButtonDown()) {
-					helpText.setVvalue(helpText.getVmin());
-					((Label) helpText.getContent()).setText(text);
-					event.consume();
-				}
-			}
-		});
+		GuiUtil.addHelpText(helpText, node, text);
 	}
 	
 	/**

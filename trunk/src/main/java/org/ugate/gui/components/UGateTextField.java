@@ -28,7 +28,7 @@ public class UGateTextField extends VBox {
 	    label.setText(labelText);
 	    label.setTooltip(new Tooltip(toolTip));
 	    final String textValue = preferencesTextKey != null ? 
-	    		UGateKeeper.DEFAULT.preferences.get(preferencesTextKey) : "";
+	    		UGateKeeper.DEFAULT.preferencesGet(preferencesTextKey) : "";
 	    if (type == TYPE_PASSWORD) {
 	    	textField = null;
 	    	textArea = null;

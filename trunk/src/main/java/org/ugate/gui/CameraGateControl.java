@@ -146,10 +146,10 @@ public class CameraGateControl extends ControlPane {
 	
 	public boolean addValues(final List<Integer> values) {
 		// values need to be added in a predefined order
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_RECIPIENTS_ON_KEY, 
-				String.valueOf(recipientsToggleSwitch.toggleSwitch.selectedProperty().get()));
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_RECIPIENTS_KEY, recipients.textField.getText());
-		values.add(recipientsToggleSwitch.toggleSwitch.selectedProperty().get() ? 1 : 0);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_RECIPIENTS_ON_KEY, 
+				String.valueOf(recipientsToggleSwitch.getToggleItem().toggleSwitch.selectedProperty().get()));
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_RECIPIENTS_KEY, recipients.textField.getText());
+		values.add(recipientsToggleSwitch.getToggleItem().toggleSwitch.selectedProperty().get() ? 1 : 0);
 		//values.add(recipientsToggleSwitch.toggleSwitch.selectedProperty().get() ? 1 : 0);
 		return true;
 	}

@@ -34,8 +34,9 @@ public enum UGateKeeper {
 
 	private static final Logger log = Logger.getLogger(UGateKeeper.class);
 	private static final List<IEmailListener> REQUESTS = new CopyOnWriteArrayList<IEmailListener>();
-	public final Preferences preferences;
-	public final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
+	private final List<IGateKeeperListener> prefListeners = new ArrayList<IGateKeeperListener>();
+	private final Preferences preferences;
+	private final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
 	private final XBee xbee;
 	private EmailAgent emailAgent;
 	private boolean isEmailConnected;
@@ -43,6 +44,80 @@ public enum UGateKeeper {
 	private UGateKeeper() {
 		preferences = new Preferences("ugate");
 		xbee = new XBee();
+	}
+	
+	/* ======= Preferences ======= */
+	
+	/**
+	 * Removes a preference listener
+	 * 
+	 * @param listener the listener to remove
+	 */
+	public void preferencesRemoveListener(final IGateKeeperListener listener) {
+		if (listener != null && prefListeners.contains(listener)) {
+			prefListeners.remove(listener);
+		}
+	}
+	
+	/**
+	 * Adds a preference listener
+	 * 
+	 * @param listener the listener to add
+	 */
+	public void preferencesAddListener(final IGateKeeperListener listener) {
+		if (listener != null && !prefListeners.contains(listener)) {
+			prefListeners.add(listener);
+		}
+	}
+	
+	/**
+	 * Sets a key/value preference
+	 * 
+	 * @param key the key
+	 * @param value the value
+	 */
+	public void preferencesSet(final String key, final String value) {
+		final String oldValue = preferencesGet(key);
+		if (!oldValue.equals(value)) {
+			preferences.set(key, value);
+			preferencesNotify(IGateKeeperListener.Event.PREFERENCES_SET, key, oldValue, value);
+		}
+	}
+	
+	/**
+	 * Gets a preference value
+	 * 
+	 * @param key the key to get the value for
+	 * @return the preference value
+	 */
+	public String preferencesGet(final String key) {
+		return preferences.get(key);
+	}
+	
+	/**
+	 * Gets a preference value
+	 * 
+	 * @param key the key to get the value for
+	 * @param delimiter the delimiter used to split the value
+	 * @return the preference values
+	 */
+	public List<String> preferencesGet(final String key, final String delimiter) {
+		return preferences.get(key, delimiter);
+	}
+	
+	/**
+	 * Notifies the listeners of the preference change
+	 * 
+	 * @param type the {@linkplain IGateKeeperListener.Event} type
+	 * @param key the key
+	 * @param oldValue the old value
+	 * @param newValue the new value
+	 */
+	private void preferencesNotify(final IGateKeeperListener.Event type, 
+			final String key, final String oldValue, final String newValue) {
+		for (final IGateKeeperListener pl : prefListeners) {
+			pl.handle(type, key, oldValue, newValue);
+		}
 	}
 	
 	/* ======= Email Communications ======= */
@@ -128,7 +203,38 @@ public enum UGateKeeper {
 		}
 	}
 	
-	/* ======= Serial Communications ======= */
+	/* ======= Serial Ports ======= */
+	
+	/**
+	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
+	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
+	 * {@link #connect(String)} or {@link #connect(String, int)} to open a Serial connection.
+	 * 
+	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
+	 */
+	@SuppressWarnings("unchecked")
+	public List<String> getSerialPorts() {
+		log.debug("Loading available COM ports");
+		Enumeration<CommPortIdentifier> portList;
+		List<String> ports = new ArrayList<String>();
+		portList = CommPortIdentifier.getPortIdentifiers();
+		CommPortIdentifier portId;
+		while (portList.hasMoreElements()) {
+			portId = portList.nextElement();
+			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+				ports.add(portId.getName());
+			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("Found the following ports:");
+			for (int i = 0; i < ports.size(); i++) {
+				log.debug("   " + ports.get(i));
+			}
+		}
+		return ports;
+	}
+	
+	/* ======= Wireless Communications ======= */
 	
 	/**
 	 * Connects to the wireless network
@@ -210,6 +316,7 @@ public enum UGateKeeper {
 						"\" has not been defined");
 				return false;
 			}
+			preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, null, null, null);
 			final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(wirelessNodeAddressHexKey);
 			// create a unicast packet to be delivered to the supplied address, with the pay load
 			final TxRequest16 request = new TxRequest16(xbeeAddress, data);
@@ -221,6 +328,11 @@ public enum UGateKeeper {
 			} else {
 				// packet was not delivered
 				throw new XBeeException("Packet was not delivered. status: " + response.getStatus());
+			}
+			if (response.isSuccess()) {
+				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, null, null, null);
+			} else {
+				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_FAILED, null, null, null);
 			}
 			return response.isSuccess();
 		} catch (XBeeTimeoutException e) {
@@ -381,35 +493,6 @@ public enum UGateKeeper {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
-	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
-	 * {@link #connect(String)} or {@link #connect(String, int)} to open a Serial connection.
-	 * 
-	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<String> getSerialPorts() {
-		log.debug("Loading available COM ports");
-		Enumeration<CommPortIdentifier> portList;
-		List<String> ports = new ArrayList<String>();
-		portList = CommPortIdentifier.getPortIdentifiers();
-		CommPortIdentifier portId;
-		while (portList.hasMoreElements()) {
-			portId = portList.nextElement();
-			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				ports.add(portId.getName());
-			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("Found the following ports:");
-			for (int i = 0; i < ports.size(); i++) {
-				log.debug("   " + ports.get(i));
-			}
-		}
-		return ports;
 	}
 
 	/**

@@ -83,12 +83,12 @@ public abstract class MailConnectionView extends StatusView {
 						}
 					}
 		});
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_SMTP_HOST_KEY, smtpHost);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_SMTP_PORT_KEY, smtpPort);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_IMAP_HOST_KEY, imapHost);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_IMAP_PORT_KEY, imapPort);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_USERNAME_KEY, username);
-		UGateKeeper.DEFAULT.preferences.set(UGateUtil.SV_MAIL_PASSWORD_KEY, password);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_SMTP_HOST_KEY, smtpHost);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_SMTP_PORT_KEY, smtpPort);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_IMAP_HOST_KEY, imapHost);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_IMAP_PORT_KEY, imapPort);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_USERNAME_KEY, username);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_PASSWORD_KEY, password);
 	}
 	
 	public void disconnect() {
