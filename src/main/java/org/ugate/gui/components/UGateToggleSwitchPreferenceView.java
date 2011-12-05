@@ -24,7 +24,7 @@ import org.ugate.resources.RS;
  * 
  * @see ToggleSwitch
  */
-public class ToggleSwitchPreferenceView extends HBox {
+public class UGateToggleSwitchPreferenceView extends HBox {
 	
 	public static final int TOGGLE_ITEM_START_INDEX = 0;
 	public final String preferenceKey;
@@ -40,7 +40,7 @@ public class ToggleSwitchPreferenceView extends HBox {
 	 * @param onImageFileName the file name of the image shown when the toggled on
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 */
-	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
+	public UGateToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
 			final String offImageFileName) {
 		this(preferenceKey, onImageFileName, offImageFileName, ToggleSwitch.DEFAULT_ON_TEXT, 
 				ToggleSwitch.DEFAULT_OFF_TEXT);
@@ -55,7 +55,7 @@ public class ToggleSwitchPreferenceView extends HBox {
 	 * @param onText the text to show when on
 	 * @param offText the text to show when off
 	 */
-	public ToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
+	public UGateToggleSwitchPreferenceView(final String preferenceKey, final String onImageFileName, 
 			final String offImageFileName, final String onText, final String offText) {
 		this(preferenceKey, new ToggleItem(onImageFileName, offImageFileName, onText, offText, false, true));
 	}
@@ -66,7 +66,7 @@ public class ToggleSwitchPreferenceView extends HBox {
 	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
 	 * @param toggleItems the toggle items
 	 */
-	public ToggleSwitchPreferenceView(final String preferenceKey, final ToggleItem... toggleItems) {
+	public UGateToggleSwitchPreferenceView(final String preferenceKey, final ToggleItem... toggleItems) {
 		this.preferenceKey = preferenceKey;
 		setSpacing(5d);
 		setAlignment(Pos.BOTTOM_LEFT);
@@ -76,7 +76,7 @@ public class ToggleSwitchPreferenceView extends HBox {
 				if (v >= 0 && v <= getMaxPreferenceValue() && v != get()) {
 					super.set(v);
 					if (prefereneNeedsUpdate) {
-						UGateKeeper.DEFAULT.preferencesSet(ToggleSwitchPreferenceView.this.preferenceKey, String.valueOf(v));
+						UGateKeeper.DEFAULT.preferencesSet(UGateToggleSwitchPreferenceView.this.preferenceKey, String.valueOf(v));
 					}
 					if (toggleItemsNeedSelectionUpdates) {
 						updateToggleItems();
@@ -86,7 +86,7 @@ public class ToggleSwitchPreferenceView extends HBox {
 		};
 
 		// add the toggle items
-		this.toggleItems = new ArrayList<ToggleSwitchPreferenceView.ToggleItem>(toggleItems.length);
+		this.toggleItems = new ArrayList<UGateToggleSwitchPreferenceView.ToggleItem>(toggleItems.length);
 		for (final ToggleItem item : toggleItems) {
 			this.toggleItems.add(item);
 			item.toggleSwitch.selectedProperty().addListener(new ChangeListener<Boolean>() {

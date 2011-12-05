@@ -8,7 +8,7 @@ import javafx.scene.layout.HBox;
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
-import org.ugate.gui.components.UGateTextField;
+import org.ugate.gui.components.UGateTextFieldPreferenceView;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 
@@ -21,22 +21,28 @@ public abstract class MailConnectionView extends StatusView {
 	public static final String LABEL_CONNECT = "Connect To Mail";
 	public static final String LABEL_CONNECTING = "Connecting To Mail...";
 	public static final String LABEL_RECONNECT = "Reconnect To Mail";
-	public final UGateTextField smtpHost;
-	public final UGateTextField smtpPort;
-	public final UGateTextField imapHost;
-	public final UGateTextField imapPort;
-	public final UGateTextField username;
-	public final UGateTextField password;
+	public final UGateTextFieldPreferenceView smtpHost;
+	public final UGateTextFieldPreferenceView smtpPort;
+	public final UGateTextFieldPreferenceView imapHost;
+	public final UGateTextFieldPreferenceView imapPort;
+	public final UGateTextFieldPreferenceView username;
+	public final UGateTextFieldPreferenceView password;
 	public final Button connect;
 
 	public MailConnectionView() {
 	    super(20);
-		smtpHost = new UGateTextField("SMTP Host", "Outgoing email host", UGateUtil.SV_MAIL_SMTP_HOST_KEY, UGateTextField.TYPE_TEXT);
-		smtpPort = new UGateTextField("SMTP Port", "Outgoing email port", UGateUtil.SV_MAIL_SMTP_PORT_KEY, UGateTextField.TYPE_TEXT);
-	    imapHost = new UGateTextField("IMAP Host", "Incoming email host", UGateUtil.SV_MAIL_IMAP_HOST_KEY, UGateTextField.TYPE_TEXT);
-		imapPort = new UGateTextField("IMAP Port", "Incoming email port", UGateUtil.SV_MAIL_IMAP_PORT_KEY, UGateTextField.TYPE_TEXT);
-		username = new UGateTextField("Username", "Username to login with", UGateUtil.SV_MAIL_USERNAME_KEY, UGateTextField.TYPE_TEXT);
-		password = new UGateTextField("Password", "Password to login with", UGateUtil.SV_MAIL_PASSWORD_KEY, UGateTextField.TYPE_PASSWORD);
+		smtpHost = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_HOST_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "SMTP Host", "Outgoing email host");
+		smtpPort = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "SMTP Port", "Outgoing email port");
+	    imapHost = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "IMAP Host", "Incoming email host");
+		imapPort = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "IMAP Port", "Incoming email port");
+		username = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "Username", "Username to login with");
+		password = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_PASSWORD, "Password", "Password to login with");
 
 		connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -83,12 +89,12 @@ public abstract class MailConnectionView extends StatusView {
 						}
 					}
 		});
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_SMTP_HOST_KEY, smtpHost);
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_SMTP_PORT_KEY, smtpPort);
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_IMAP_HOST_KEY, imapHost);
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_IMAP_PORT_KEY, imapPort);
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_USERNAME_KEY, username);
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_PASSWORD_KEY, password);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_SMTP_HOST_KEY, smtpHost);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_SMTP_PORT_KEY, smtpPort);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_IMAP_HOST_KEY, imapHost);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_IMAP_PORT_KEY, imapPort);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_USERNAME_KEY, username);
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_PASSWORD_KEY, password);
 	}
 	
 	public void disconnect() {

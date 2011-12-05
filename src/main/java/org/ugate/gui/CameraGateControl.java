@@ -11,9 +11,9 @@ import javafx.scene.layout.GridPane;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.Gauge.IndicatorType;
-import org.ugate.gui.components.ToggleSwitchPreferenceView;
-import org.ugate.gui.components.UGateGaugeDisplay;
-import org.ugate.gui.components.UGateTextField;
+import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateGaugePreferenceView;
+import org.ugate.gui.components.UGateTextFieldPreferenceView;
 import org.ugate.resources.RS;
 
 /**
@@ -22,8 +22,8 @@ import org.ugate.resources.RS;
 public class CameraGateControl extends ControlPane {
 
 	public static final double LABEL_WIDTH = 125d;
-	private UGateTextField recipients;
-	private ToggleSwitchPreferenceView recipientsToggleSwitch;
+	private UGateTextFieldPreferenceView recipients;
+	private UGateToggleSwitchPreferenceView recipientsToggleSwitch;
 	
 	public CameraGateControl(final ScrollPane helpText) {
 		super(helpText);
@@ -39,8 +39,9 @@ public class CameraGateControl extends ControlPane {
 		final Label panHeader = new Label("Cam Pan Angle");
 		panHeader.getStyleClass().add("gauge-header");
 		grid.add(panHeader, 0, 0);
-		final UGateGaugeDisplay camPanGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0d, 180d, 19, 0, 90d, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		final UGateGaugePreferenceView camPanGauge = new UGateGaugePreferenceView(
+				UGateUtil.SV_CAM_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0d, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		addHelpText(camPanGauge, "Camera Pan: Current camera pan angle (in degrees)");
 		grid.add(camPanGauge, 0, 1);
 		final Label tiltHeader = new Label("Cam Tilt Angle");
@@ -48,8 +49,9 @@ public class CameraGateControl extends ControlPane {
 		grid.add(tiltHeader, 1, 0);
 		final ImageView tiltImgView = RS.imgView(camPanGauge.imageView.getImage());
 		tiltImgView.setRotate(90d);
-		final UGateGaugeDisplay camTiltGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 0, 90d, FORMAT_ANGLE, tiltImgView, COLOR_PAN_TILT);
+		final UGateGaugePreferenceView camTiltGauge = new UGateGaugePreferenceView(
+				UGateUtil.SV_CAM_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, tiltImgView, COLOR_PAN_TILT);
 		addHelpText(camTiltGauge, "Camera Tilt: Current camera tilt angle (in degrees)");
 		grid.add(camTiltGauge, 1, 1);
 		final Label headerImageRes = new Label("Image Resolution");
@@ -58,19 +60,19 @@ public class CameraGateControl extends ControlPane {
 //				0, 0, 70d, 40d, 1, 0, 0d, "%03d", RS.IMG_CAM_RESOLUTION,
 //				"Sets the camera resolution of the images taken when an alarm is triggered", 
 //				Color.LIGHTGREEN, null, Orientation.HORIZONTAL);
-		final ToggleSwitchPreferenceView imgResToggleSwitch  = new ToggleSwitchPreferenceView(UGateUtil.SV_CAM_RES_KEY, 
+		final UGateToggleSwitchPreferenceView imgResToggleSwitch  = new UGateToggleSwitchPreferenceView(UGateUtil.SV_CAM_RES_KEY, 
 				RS.IMG_CAM_RESOLUTION, RS.IMG_CAM_RESOLUTION, "VGA", "QVGA");
 		addHelpText(imgResToggleSwitch, 
 				"Sets the camera resolution of the images taken when an alarm is triggered");
 		final Label headerEmailConf = new Label("Email Alarm Notification");
 		headerEmailConf.getStyleClass().add("gauge-header");
-		recipientsToggleSwitch = new ToggleSwitchPreferenceView(UGateUtil.SV_MAIL_ALARM_ON_KEY, 
+		recipientsToggleSwitch = new UGateToggleSwitchPreferenceView(UGateUtil.PV_MAIL_ALARM_ON_KEY, 
 				RS.IMG_EMAIL_SELECTED, RS.IMG_EMAIL_DESELECTED);
 		addHelpText(recipientsToggleSwitch, 
 				"Toggle sending email notifications for images taken (by alarm trip or manually)");
-		recipients = new UGateTextField("Recipients (semi-colon delimited emails)", 
-				"Semi-colon delimited list of emails to send image to (blank if no emails should be sent)",
-				UGateUtil.SV_MAIL_RECIPIENTS_KEY, UGateTextField.TYPE_TEXT_AREA);
+		recipients = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_RECIPIENTS_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, "Recipients (semi-colon delimited emails)", 
+				"Semi-colon delimited list of emails to send image to (blank if no emails should be sent)");
 		recipients.textArea.setPrefRowCount(5);
 		recipients.textArea.setWrapText(true);
 		addHelpText(recipients, "Recipients that will receive an email notification with an image image attachment when the alarm criteria is met.");
@@ -92,14 +94,16 @@ public class CameraGateControl extends ControlPane {
 		sonarPirTiltHeader.setPrefWidth(LABEL_WIDTH);
 		sonarPirTiltHeader.getStyleClass().add("gauge-header");
 		grid.add(sonarPirTiltHeader, 1, 0);
-		final UGateGaugeDisplay sonarPirPanGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, 90d, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
+				UGateUtil.SV_CAM_IR_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		addHelpText(sonarPirPanGauge, "Sonar/PIR Pan: Current trip alram sensor pan angle (in degrees)");
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
-		final UGateGaugeDisplay sonarPirTiltGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, 90d, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
+		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
+				UGateUtil.SV_CAM_IR_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
 		addHelpText(sonarPirTiltGauge, "Sonar/PIR Tilt: Current trip alarm sensor tilt angle (in degrees)");
 		grid.add(sonarPirTiltGauge, 1, 1);
 		final Label headerMwPanHeader = new Label("Cam Pan Angle (On Microwave Alarm)");
@@ -112,12 +116,14 @@ public class CameraGateControl extends ControlPane {
 		mwPanHeader.setPrefWidth(LABEL_WIDTH);
 		mwPanHeader.getStyleClass().add("gauge-header");
 		grid.add(mwPanHeader, 1, 2);
-		final UGateGaugeDisplay mwPanGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, 90d, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
+				UGateUtil.SV_CAM_MW_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		addHelpText(mwPanGauge, "Microwave Pan: Current trip alarm sensor pan angle (in degrees)");
 		grid.add(mwPanGauge, 0, 3);
-		final UGateGaugeDisplay mwTiltGauge = new UGateGaugeDisplay(IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, 90d, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		final UGateGaugePreferenceView mwTiltGauge = new UGateGaugePreferenceView(
+				UGateUtil.SV_CAM_MW_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		addHelpText(mwTiltGauge, "Microwave Tilt: Current trip alarm sensor pan angle (in degrees)");
 		grid.add(mwTiltGauge, 1, 3);
 		
@@ -128,7 +134,7 @@ public class CameraGateControl extends ControlPane {
 	protected void addGateChildren() {
 		final Label gateHeader = new Label("Gate Configuration");
 		gateHeader.getStyleClass().add("gauge-header");
-		final ToggleSwitchPreferenceView gateToggleSwitchView = new ToggleSwitchPreferenceView(
+		final UGateToggleSwitchPreferenceView gateToggleSwitchView = new UGateToggleSwitchPreferenceView(
 				UGateUtil.SV_GATE_ACCESS_ON_KEY, RS.IMG_GATE_SELECTED,
 				RS.IMG_GATE_DESELECTED);
 		addHelpText(gateToggleSwitchView, "Toogles gate access. When disabled the gate will not open regardless of key code entry using a remote control.");
@@ -146,9 +152,9 @@ public class CameraGateControl extends ControlPane {
 	
 	public boolean addValues(final List<Integer> values) {
 		// values need to be added in a predefined order
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_RECIPIENTS_ON_KEY, 
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_RECIPIENTS_ON_KEY, 
 				String.valueOf(recipientsToggleSwitch.getToggleItem().toggleSwitch.selectedProperty().get()));
-		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.SV_MAIL_RECIPIENTS_KEY, recipients.textField.getText());
+		UGateKeeper.DEFAULT.preferencesSet(UGateUtil.PV_MAIL_RECIPIENTS_KEY, recipients.textField.getText());
 		values.add(recipientsToggleSwitch.getToggleItem().toggleSwitch.selectedProperty().get() ? 1 : 0);
 		//values.add(recipientsToggleSwitch.toggleSwitch.selectedProperty().get() ? 1 : 0);
 		return true;
