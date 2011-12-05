@@ -11,11 +11,13 @@ public interface IGateKeeperListener extends EventListener {
 	 * Handles the gate keeper event
 	 * 
 	 * @param type the {@linkplain IGateKeeperListener.Event} type
-	 * @param key the key (null when all are changing)
-	 * @param oldValue the old value (null when all are changing)
-	 * @param newValue the new value (null when all are changing)
+	 * @param node the remote node the event is for (null when event is for all nodes)
+	 * @param key the key (null when event is for all nodes)
+	 * @param oldValue the old value (null when event is for all nodes)
+	 * @param newValue the new value (null when event is for all nodes)
 	 */
-	public abstract void handle(final Event type, final String key, final String oldValue, final String newValue);
+	public abstract void handle(final Event type, final String node, final String key, 
+			final String oldValue, final String newValue);
 	
 	/**
 	 * The change types

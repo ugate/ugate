@@ -55,9 +55,13 @@ public class Gauge extends Group {
 	public static final double RADIUS_INNER_BASE = 130d;
 	public static final double ANGLE_START_END_DISTANCE_THRSHOLD = 30d;
 	public static final int MAJOR_TICK_MARK_DIVISOR_DEFAULT = 30;
+	public static final double INTENSITY_PERCENTAGE_1 = 50d;
+	public static final double INTENSITY_PERCENTAGE_2 = 33d;
+	public static final double INTENSITY_PERCENTAGE_3 = 17d;
 	public static final IntensityIndicatorRegions INTENSITY_REGIONS_DEFAULT;
 	static {
-		INTENSITY_REGIONS_DEFAULT = new Gauge.IntensityIndicatorRegions(50d, 33d, 17d);
+		INTENSITY_REGIONS_DEFAULT = new Gauge.IntensityIndicatorRegions(
+				INTENSITY_PERCENTAGE_1, INTENSITY_PERCENTAGE_2, INTENSITY_PERCENTAGE_3);
 	}
 	public static final Color[] DEFAULT_KNOB_SURFACE_COLORS;
 	static {
@@ -1411,6 +1415,53 @@ public class Gauge extends Group {
      */
     public enum IndicatorType {
     	RECTANGLE, NEEDLE, CLOCK, KNOB;
+    }
+    
+    /**
+     * Sets the intensity regions {@linkplain 
+     * IntensityIndicatorRegions#IntensityIndicatorRegions(double, double, double)}
+     * 
+	 * @param color1SpanPercentage the span percentage of color 1
+	 * @param color2SpanPercentage the span percentage of color 2
+	 * @param color3SpanPercentage the span percentage of color 3
+     */
+    public void setIntensity(final double color1SpanPercentage, final double color2SpanPercentage, 
+			final double color3SpanPercentage) {
+		intensityIndicatorRegionsProperty.set(new IntensityIndicatorRegions(
+				color1SpanPercentage, color2SpanPercentage, color3SpanPercentage));
+    }
+    
+    
+    /**
+     * Sets the intensity regions {@linkplain 
+     * IntensityIndicatorRegions#IntensityIndicatorRegions(double, double, double, Color, Color, Color)}
+     * 
+	 * @param color1 color 1
+	 * @param color2 color 2
+	 * @param color3 color 3
+     */
+    public void setIntensity(final Color color1, final Color color2, final Color color3) {
+		intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(
+				INTENSITY_PERCENTAGE_1, INTENSITY_PERCENTAGE_2, INTENSITY_PERCENTAGE_3, 
+				color1, color2, color3));
+    }
+    
+    /**
+     * Sets the intensity regions {@linkplain 
+     * IntensityIndicatorRegions#IntensityIndicatorRegions(double, double, double, Color, Color, Color)}
+     * 
+	 * @param color1SpanPercentage the span percentage of color 1
+	 * @param color2SpanPercentage the span percentage of color 2
+	 * @param color3SpanPercentage the span percentage of color 3
+	 * @param color1 color 1
+	 * @param color2 color 2
+	 * @param color3 color 3
+     */
+    public void setIntensity(final double color1SpanPercentage, final double color2SpanPercentage, 
+			final double color3SpanPercentage, final Color color1, final Color color2, final Color color3) {
+		intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(
+				color1SpanPercentage, color2SpanPercentage, color3SpanPercentage, 
+				color1, color2, color3));
     }
     
     /**

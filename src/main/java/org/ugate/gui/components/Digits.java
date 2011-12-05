@@ -63,8 +63,7 @@ public class Digits extends HBox {
 	 */
 	private void updateValue(final String value) {
 		//value = value.replaceAll("[^\\d.]", "0");
-		if (!value.equals(valueProperty.get())) {
-			final int remCnt = getChildren().size() - value.length();
+		final int remCnt = getChildren().size() - value.length();
 // TODO : java.util.ConcurrentModificationException thrown when retaining list (workaround implemented)
 //			if (remCnt > 0) {
 //				getChildren().retainAll(getChildren().subList(remCnt, getChildren().size()));
@@ -73,42 +72,41 @@ public class Digits extends HBox {
 //					getChildren().add(i, new Digit());
 //				}
 //			}
-			if (remCnt != 0) {
-				getChildren().clear();
-			}
-			VBox circleBox;
-			Digit digit;
-			char c;
-			int d;
-			Circle circle;
-			for (int i=0; i<value.length(); i++) {
-				c = value.charAt(i);
-				if (remCnt != 0) {
-					if (c == '.') {
-						circleBox = new VBox();
-						circleBox.setCache(true);
-						circleBox.setCacheHint(CacheHint.SPEED);
-						circleBox.setStyle("-fx-alignment: BOTTOM_LEFT;");
-						circle = new Circle(0, 0, 6 * getScale(), onColor);
-						circle.setCache(true);
-						circle.setSmooth(false);
-						circleBox.getChildren().add(circle);
-						getChildren().add(circleBox);
-					} else {
-						d = c == '-' ? Digit.NEGATIVE_SIGN_DIGIT : Integer.valueOf(String.valueOf(c));
-						digit = new Digit(getScale(), d, onColor, offColor);
-						getChildren().add(digit);
-						setMargin(digit, new Insets(0, 0, 0, 1));
-						//digit.setLayoutX(i * 80);
-					}
-				} else if (c != '.') {
-					d = c == '-' ? Digit.NEGATIVE_SIGN_DIGIT : Integer.valueOf(String.valueOf(c));
-					digit = (Digit) getChildren().get(i);
-					digit.showNumber(d);
-				}
-			}
-			valueProperty.set(value);
+		if (remCnt != 0) {
+			getChildren().clear();
 		}
+		VBox circleBox;
+		Digit digit;
+		char c;
+		int d;
+		Circle circle;
+		for (int i=0; i<value.length(); i++) {
+			c = value.charAt(i);
+			if (remCnt != 0) {
+				if (c == '.') {
+					circleBox = new VBox();
+					circleBox.setCache(true);
+					circleBox.setCacheHint(CacheHint.SPEED);
+					circleBox.setStyle("-fx-alignment: BOTTOM_LEFT;");
+					circle = new Circle(0, 0, 6 * getScale(), onColor);
+					circle.setCache(true);
+					circle.setSmooth(false);
+					circleBox.getChildren().add(circle);
+					getChildren().add(circleBox);
+				} else {
+					d = c == '-' ? Digit.NEGATIVE_SIGN_DIGIT : Integer.valueOf(String.valueOf(c));
+					digit = new Digit(getScale(), d, onColor, offColor);
+					getChildren().add(digit);
+					setMargin(digit, new Insets(0, 0, 0, 1));
+					//digit.setLayoutX(i * 80);
+				}
+			} else if (c != '.') {
+				d = c == '-' ? Digit.NEGATIVE_SIGN_DIGIT : Integer.valueOf(String.valueOf(c));
+				digit = (Digit) getChildren().get(i);
+				digit.showNumber(d);
+			}
+		}
+		valueProperty.set(value);
 	}
 
 	/**

@@ -23,7 +23,7 @@ public class SensorControl extends ControlPane {
 	public static final String FORMAT_PIR = "%04.1f";
 	public static final Color COLOR_SONAR = Color.TURQUOISE;
 	public static final Color COLOR_PIR = Color.RED;
-	public static final String FORMAT_MW = "%04.1f";
+	public static final String FORMAT_MW = "%03d";
 	public static final Color COLOR_MW = Color.CHARTREUSE;
 	
 	public SensorControl(final ScrollPane helpText) {
@@ -51,19 +51,19 @@ public class SensorControl extends ControlPane {
 		grid.add(headerMW, 0, 2);
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_SONAR_IR_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		addHelpText(sonarPirPanGauge, "Sonar/PIR Pan: Current trip alram sensor pan angle (in degrees)");
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_SONAR_IR_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
+				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
 		addHelpText(sonarPirTiltGauge, "Sonar/PIR Tilt: Current trip alarm sensor tilt angle (in degrees)");
 		grid.add(sonarPirTiltGauge, 1, 1);
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_MW_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		addHelpText(mwPanGauge, "Microwave Pan: Current trip alarm sensor pan angle (in degrees)");
 		grid.add(mwPanGauge, 0, 3);
 		
@@ -93,6 +93,7 @@ public class SensorControl extends ControlPane {
 				1d, 2, 0, 180d, 9, 4, FORMAT_SONAR, RS.IMG_RULER, COLOR_SONAR);
 		addHelpText(sonarTripGauge, 
 				"Sonar Distance Threshold: Distance at which an image will be taken and sent to the computer and recipients (if alarm is turned on)");
+		sonarTripGauge.gauge.setIntensity(80d, 15d, 5d);
 		grid.add(sonarTripGauge, 0, 2);
 		final UGateGaugePreferenceView sonarTripRateGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_SONAR_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
@@ -100,6 +101,7 @@ public class SensorControl extends ControlPane {
 		addHelpText(sonarTripRateGauge, 
 				"Sonar Delay Between Photos: Delay in minutes between pictures taken/sent when an object is within the distance threshold.\n" +
 				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate");
+		sonarTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(sonarTripRateGauge, 0, 3);
 		final UGateToggleSwitchPreferenceView pirToggleSwitchView = new UGateToggleSwitchPreferenceView(UGateUtil.SV_IR_ALARM_ON_KEY, 
 				RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF);
@@ -117,7 +119,8 @@ public class SensorControl extends ControlPane {
 		addHelpText(pirTripRateGauge, 
 				"PIR Delay Between Photos: Delay in minutes between pictures taken/sent when an object is within the distance threshold.\n" +
 				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate");
-		grid.add(pirTripRateGauge, 1, 2);
+		pirTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
+		grid.add(pirTripRateGauge, 1, 3);
 
 		final UGateToggleSwitchPreferenceView mwToggleSwitchView = new UGateToggleSwitchPreferenceView(UGateUtil.SV_MW_ALARM_ON_KEY, 
 				RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF);
@@ -126,7 +129,7 @@ public class SensorControl extends ControlPane {
 		grid.add(mwToggleSwitchView, 2, 1);
 		final UGateGaugePreferenceView mwTripGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_MW_SPEED_THRES_CYCLES_PER_SEC_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
-				1d, 2, 0, 180d, 50, 2, FORMAT_MW, RS.IMG_SPEEDOMETER, COLOR_MW);
+				1d, 2, 0, 180d, 50, 0, FORMAT_MW, RS.IMG_SPEEDOMETER, COLOR_MW);
 		addHelpText(mwTripGauge, 
 				"Microwave Speed Threshold: Cycles/Second at which an image will be taken and sent to the computer and recipients (if alarm is turned on)");
 		grid.add(mwTripGauge, 2, 2);
@@ -137,6 +140,7 @@ public class SensorControl extends ControlPane {
 		addHelpText(mwTripRateGauge, 
 				"Microwave Delay Between Photos: Delay in minutes between pictures taken/sent when an object is within the speed threshold.\n" +
 				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate");
+		mwTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(mwTripRateGauge, 2, 3);
 		
 		final Group camCell = createCell(false, true, grid);

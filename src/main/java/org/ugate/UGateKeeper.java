@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
+import org.ugate.wireless.data.IWirelessListener;
+import org.ugate.wireless.data.WirelessResponse;
 import org.ugate.wireless.xbee.UGateXBeePacketListener;
 
 import com.rapplogic.xbee.api.AtCommand;
@@ -37,6 +39,7 @@ public enum UGateKeeper {
 	private final List<IGateKeeperListener> prefListeners = new ArrayList<IGateKeeperListener>();
 	private final Preferences preferences;
 	private final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
+	private static final List<IWirelessListener> wirelessListeners = new ArrayList<IWirelessListener>();
 	private final XBee xbee;
 	private EmailAgent emailAgent;
 	private boolean isEmailConnected;
@@ -80,7 +83,7 @@ public enum UGateKeeper {
 		final String oldValue = preferencesGet(key);
 		if (!oldValue.equals(value)) {
 			preferences.set(key, value);
-			preferencesNotify(IGateKeeperListener.Event.PREFERENCES_SET, key, oldValue, value);
+			preferencesNotify(IGateKeeperListener.Event.PREFERENCES_SET, null, key, oldValue, value);
 		}
 	}
 	
@@ -109,14 +112,16 @@ public enum UGateKeeper {
 	 * Notifies the listeners of the preference change
 	 * 
 	 * @param type the {@linkplain IGateKeeperListener.Event} type
+	 * @param node the node the preference notification is for
 	 * @param key the key
 	 * @param oldValue the old value
 	 * @param newValue the new value
 	 */
 	private void preferencesNotify(final IGateKeeperListener.Event type, 
-			final String key, final String oldValue, final String newValue) {
+			final String node, final String key, final String oldValue, 
+			final String newValue) {
 		for (final IGateKeeperListener pl : prefListeners) {
-			pl.handle(type, key, oldValue, newValue);
+			pl.handle(type, node, key, oldValue, newValue);
 		}
 	}
 	
@@ -248,7 +253,13 @@ public enum UGateKeeper {
 		log.info("Connecting to local XBee");
 		try {
 			xbee.open(comPort, baudRate);
-			xbee.addPacketListener(new UGateXBeePacketListener());
+			xbee.addPacketListener(new UGateXBeePacketListener(){
+				@Override
+				protected <T, R extends WirelessResponse<T>> void handleWirelessResponse(
+						R wirelessResponse) {
+					//wirelessResponse;
+				}
+			});
 			log.info("Connected to local XBee: \"" + comPort + "\" at " + baudRate);
 			return true;
 		} catch (XBeeException e) {
@@ -316,7 +327,6 @@ public enum UGateKeeper {
 						"\" has not been defined");
 				return false;
 			}
-			preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, null, null, null);
 			final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(wirelessNodeAddressHexKey);
 			// create a unicast packet to be delivered to the supplied address, with the pay load
 			final TxRequest16 request = new TxRequest16(xbeeAddress, data);
@@ -328,11 +338,6 @@ public enum UGateKeeper {
 			} else {
 				// packet was not delivered
 				throw new XBeeException("Packet was not delivered. status: " + response.getStatus());
-			}
-			if (response.isSuccess()) {
-				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, null, null, null);
-			} else {
-				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_FAILED, null, null, null);
 			}
 			return response.isSuccess();
 		} catch (XBeeTimeoutException e) {
@@ -484,8 +489,18 @@ public enum UGateKeeper {
 		final List<String> waks = wirelessGetNodeAddressKeys(false);
 		int scnt = 0;
 		for (int i=0; i<waks.size(); i++) {
+			preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, 
+					waks.get(i), null, null, null);
+			log.debug("Sending settings to node " + waks.get(i));
 			if (wirelessSendData(waks.get(i), values)) {
+				log.debug("Sent settings to node " + waks.get(i));
+				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, 
+						waks.get(i), null, null, null);
 				scnt++;
+			} else {
+				log.warn("Failed to send settings to node " + waks.get(i));
+				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_FAILED, 
+						waks.get(i), null, null, null);
 			}
 		}
 		if (scnt > 0) {

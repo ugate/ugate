@@ -14,7 +14,8 @@ public class SensorReadings {
 	private final int irFeet;
 	private final int irInches;
 	
-	public SensorReadings(int sonarFeet, int sonarInches, int microwaveCycleCnt, int irFeet, int irInches) {
+	public SensorReadings(int sonarFeet, 
+			int sonarInches, int microwaveCycleCnt, int irFeet, int irInches) {
 		this.sonarFeet = sonarFeet;
 		this.sonarInches = sonarInches;
 		this.microwaveCycleCnt = microwaveCycleCnt;

@@ -66,6 +66,7 @@ public class UGateUtil {
 	
 	public static final String PV_SOUNDS_ON_KEY = "sounds.on";
 	public static final String PV_USE_METRIC_KEY = "metric.on";
+	public static final String PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY = "cam.img.capture.retries";
 	public static final String SV_WIRELESS_COM_PORT_KEY = "wireless.com.port";
 	public static final String SV_WIRELESS_BAUD_RATE_KEY = "wireless.baud.rate";
 	public static final String SV_WIRELESS_ADDRESS_HOST_KEY = "wireless.address.host";
