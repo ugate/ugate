@@ -1,5 +1,9 @@
 package org.ugate.gui.components;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.CacheHint;
 import javafx.scene.layout.HBox;
@@ -15,11 +19,26 @@ public class Digits extends HBox {
 	private final Color onColor;
 	private final Color offColor;
 	private final double scale;
-	private String value;
+	private final StringProperty valueProperty = new SimpleStringProperty();
 
+	/**
+	 * Creates a digits display
+	 * 
+	 * @param value the initial value
+	 * @param scale the scale used for the value
+	 */
 	public Digits(final String value, final double scale) {
 		this(value, scale, null, null);
 	}
+	
+	/**
+	 * Creates a digits display
+	 * 
+	 * @param value the initial value
+	 * @param scale the scale used for the value
+	 * @param onColor the color used for a digit segment when on
+	 * @param offColor the color used for a digit segment when off
+	 */
 	public Digits(final String value, final double scale, final Color onColor, final Color offColor) {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
@@ -27,26 +46,24 @@ public class Digits extends HBox {
 		this.offColor = offColor != null ? offColor : Digit.getDefaultOffColor();
 		this.scale = scale;
 		setPadding(new Insets(5, 5, 5, 5));
+		this.valueProperty.addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				updateValue(newValue);
+			}
+		});
 		setValue(value);
 	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public double getScale() {
-		return scale;
-	}
-
+	
 	/**
 	 * Sets the numeric value for all digits. The value can be zero padded, contain a negative sign, and contain
 	 * a decimal place (as long as the decimal location does not change position).
 	 * 
 	 * @param value the value of the digits
 	 */
-	public void setValue(String value) {
+	private void updateValue(final String value) {
 		//value = value.replaceAll("[^\\d.]", "0");
-		if (!value.equals(this.value)) {
+		if (!value.equals(valueProperty.get())) {
 			final int remCnt = getChildren().size() - value.length();
 // TODO : java.util.ConcurrentModificationException thrown when retaining list (workaround implemented)
 //			if (remCnt > 0) {
@@ -90,10 +107,55 @@ public class Digits extends HBox {
 					digit.showNumber(d);
 				}
 			}
-			this.value = value;
+			valueProperty.set(value);
 		}
 	}
 
+	/**
+	 * @return gets the scale
+	 */
+	public double getScale() {
+		return scale;
+	}
+	
+	/**
+	 * @return gets the digits value
+	 */
+	public String getValue() {
+		return valueProperty.get();
+	}
+	
+	/**
+	 * @param the digits value to set
+	 */
+	public void setValue(final String value) {
+		valueProperty.set(value);
+	}
+	
+	/**
+	 * @return the value property
+	 */
+	public StringProperty getValueProperty() {
+		return valueProperty;
+	}
+
+	/**
+	 * @return the color used for a digit segment when on
+	 */
+	public Color getOnColor() {
+		return onColor;
+	}
+
+	/**
+	 * @return the color used for a digit segment when off
+	 */
+	public Color getOffColor() {
+		return offColor;
+	}
+
+	/**
+	 * Increments the value
+	 */
 	public void increment() {
 		setValue(getValue() + 1);
 	}

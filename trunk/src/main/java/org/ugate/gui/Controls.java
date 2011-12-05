@@ -38,7 +38,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.PlateGroup;
-import org.ugate.gui.components.ToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
 import org.w3c.dom.Element;
 
@@ -146,10 +146,10 @@ public class Controls extends VBox {
 		GuiUtil.addHelpText(helpText, readingsGroup, "Current sensors readings display");
 		
 		// add the multi-alarm trip state
-		final ToggleSwitchPreferenceView multiAlarmToggleSwitch = new ToggleSwitchPreferenceView(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY,
-				new ToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
-				new ToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
-				new ToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
+		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY,
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
 		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				multiAlarmToggleSwitch);
 		GuiUtil.addHelpText(helpText, multiAlarmGroup, "Multi-alarm trip state. When any combination of sensors have been selected those " + 

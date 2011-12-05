@@ -471,7 +471,7 @@ public enum UGateKeeper {
 		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DISTANCE_THRES_FEET_KEY)));
 		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DISTANCE_THRES_INCHES_KEY)));
 		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DELAY_BTWN_TRIPS_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_SPEED_THRES_INCHES_KEY)));
+		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_SPEED_THRES_CYCLES_PER_SEC_KEY)));
 		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_DELAY_BTWN_TRIPS_KEY)));
 		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY)));
 		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_SONAR_TRIP_ANGLE_PAN_KEY)));
