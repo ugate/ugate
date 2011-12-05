@@ -134,8 +134,8 @@ public class UGateGaugePreferenceView extends VBox {
 			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
-			final String format, final ImageView icon,
-			final Color onColor, final Color offColor, final Orientation orientation) {
+			final String format, final ImageView icon, final Color onColor, final Color offColor, 
+			final Orientation orientation) {
 		super(10d);
 		setPadding(new Insets(20d, 10d, 20d, 10d));
 		final boolean useInt = format.indexOf("d") > -1;
@@ -144,8 +144,9 @@ public class UGateGaugePreferenceView extends VBox {
 		gauge = new Gauge(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, 
 				angleLength, numberOfMajorTickMarks, numOfMinorTickMarksPerMajorTick);
 		gauge.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
-		gauge.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 
-				Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT));
+		if (indicatorType == IndicatorType.KNOB) {
+			gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
+		}
 		gauge.tickValueProperty.addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
@@ -154,10 +155,11 @@ public class UGateGaugePreferenceView extends VBox {
 		});
 		
 		// create the value display
-		final String initPrefValStr = UGateKeeper.DEFAULT.preferencesGet(preferenceKeyInteger);
-		final String initPrefValStr2 = preferenceKeyFraction != null ? UGateKeeper.DEFAULT.preferencesGet(preferenceKeyFraction) : null;
-		final Double initPrefVal = Double.valueOf((initPrefValStr != null && initPrefValStr.length() > 0 ? initPrefValStr : "0") + '.' + 
-				(initPrefValStr2 != null && initPrefValStr2.length() > 0 ? initPrefValStr2 : '0'));
+		String initPrefValStr = UGateKeeper.DEFAULT.preferencesGet(preferenceKeyInteger);
+		String initPrefValStr2 = preferenceKeyFraction != null ? UGateKeeper.DEFAULT.preferencesGet(preferenceKeyFraction) : null;
+		final double val1 = initPrefValStr != null && initPrefValStr.length() > 0 ? Double.valueOf(initPrefValStr) : 0d;
+		final double val2 = initPrefValStr2 != null && initPrefValStr2.length() > 0 ? Double.valueOf(initPrefValStr2) : 0d;
+		final Double initPrefVal = val1 + val2;
 		gaugeDigits = new Digits(useInt ? String.format(format, initPrefVal.intValue()) :  
 			String.format(format, initPrefVal.floatValue()), 0.15f, onColor, offColor);
 		gauge.setTickValue(initPrefVal);
@@ -194,6 +196,13 @@ public class UGateGaugePreferenceView extends VBox {
 		}
 	}
 	
+	/**
+	 * Sets the preference value using the preference keys
+	 * 
+	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
+	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param newValue the new value to set
+	 */
 	protected void setPreferenceValue(final String preferenceKeyInteger, 
 			final String preferenceKeyFraction, final String newValue) {
 		if (preferenceKeyFraction != null) {

@@ -1,14 +1,18 @@
 package org.ugate.wireless.xbee;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.UGateGUI;
-import org.ugate.wireless.data.RxTxImage;
+import org.ugate.wireless.data.IResponse;
+import org.ugate.wireless.data.IWirelessListener;
 import org.ugate.wireless.data.RxTxJPEG;
 import org.ugate.wireless.data.SensorReadings;
+import org.ugate.wireless.data.WirelessResponse;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -20,14 +24,15 @@ import com.rapplogic.xbee.util.ByteUtils;
 /**
  * XBee packet listener
  */
-public class UGateXBeePacketListener implements PacketListener {
+public abstract class UGateXBeePacketListener implements PacketListener {
 
 	private static final Logger log = Logger.getLogger(UGateXBeePacketListener.class);
 	/**
 	 * The index of the image start byte
 	 */
 	public static final int IMAGE_START_INDEX = 7;
-	volatile private RxTxImage rxTxImage;
+	volatile private RxTxJPEG rxTxImage;
+	volatile private int rxTxAttempts = 0;
 
 	/**
 	 * Process responses as they are received
@@ -63,7 +68,7 @@ public class UGateXBeePacketListener implements PacketListener {
 				}
 			} else if (response instanceof ErrorResponse) {
 				if (rxTxImage != null) {
-					rxTxImage.setHasError(true);
+					rxTxImage.setStatusCode(IResponse.StatusCode.PARSING_ERROR);
 				}
 				log.info("Incoming RAW Bytes: \"" + ByteUtils.toBase16(response.getRawPacketBytes()) + '"');
 				final ErrorResponse errorResponse = (ErrorResponse) response;
@@ -95,31 +100,42 @@ public class UGateXBeePacketListener implements PacketListener {
 				Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[1]);
 		final int command = rxResponse.getData()[0];
 		final int failures = rxResponse.getData()[1]; // TODO : Handle cases where failures exist
+		final IResponse.StatusCode statusCode = failures == 0 ? IResponse.StatusCode.NONE : IResponse.StatusCode.GENERAL_FAILURE;
 		log.info(String.format("Recieved {0} command from wireless address {1} (signal strength: {2}) with {3} failures", 
 				command, remoteAddress, rxResponse.getRssi(), failures));
 		if (command == UGateUtil.CMD_CAM_TAKE_PIC) {
 			if (rxTxImage == null || rxTxImage.hasTimedOut()) {
 				if (rxTxImage != null) {
+					rxTxAttempts = 0;
 					log.warn("======= Last image capture timed out while recieving data... Starting new image capture =======");
 				}
-				rxTxImage = new RxTxJPEG(command, createSensorReadings(rxResponse));
-				log.info("======= Receiving chunked image data (" + rxTxImage + ") =======");
+				rxTxImage = new RxTxJPEG(command, statusCode, null);
+				log.info(String.format("======= Receiving chunked image data (%1$s) =======", rxTxImage));
 				UGateGUI.mediaPlayerCam.play();
 			}
 			int[] imageChunk = rxTxImage.addImageSegment(rxResponse.getData(), IMAGE_START_INDEX);
 			if (log.isDebugEnabled()) {
-				log.debug("Sensor Tripped (" + rxTxImage + ", LENGTH: " + imageChunk.length + 
-						", RAW LENGTH: " + rxResponse.getLength().getLength() + ") DATA: " + ByteUtils.toBase16(imageChunk));
+				log.debug(String.format("Sensor Tripped (%1$s, LENGTH: %2$s, RAW LENGTH: %3$s) DATA: %4$s", 
+						rxTxImage, imageChunk.length, rxResponse.getLength().getLength(), ByteUtils.toBase16(imageChunk)));
 			}
 			if (rxTxImage.isEof()) {
-				if (rxTxImage.getHasError()) {
-					log.warn("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING... =======");
+				if (rxTxImage.getStatusCode() != IResponse.StatusCode.NONE) {
+					final String retriesStr = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY);
+					final int retries = retriesStr != null && retriesStr.length() > 0 ? Integer.parseInt(retriesStr) : 0;
 					rxTxImage = null;
-					UGateKeeper.DEFAULT.wirelessSendData(remoteAddress, new int[]{command});
+					if (retries != 0 && rxTxAttempts <= retries) {
+						rxTxAttempts++;
+						log.warn(String.format("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING (%1$s of %2$s)... =======", 
+								rxTxAttempts, retries));
+						UGateKeeper.DEFAULT.wirelessSendData(remoteAddress, new int[]{command});
+					} else {
+						log.warn(String.format("======= LOST PACKETS WHEN CAPTURING IMAGE... FAILED after %1$s retry attempts =======",
+								rxTxAttempts));
+					}
 				} else {
 					try {
 						RxTxJPEG.ImageFile imageFile = rxTxImage.writeImageSegments();
-						log.info("======= (" + imageFile.fileSize + ") Total Image Bytes =======");
+						log.info(String.format("======= (%1$s) Total Image Bytes =======", imageFile.fileSize));
 						UGateGUI.mediaPlayerDoorBell.play();
 						/*UGateKeeper.DEFAULT.emailSend("UGate Tripped", trippedImage.toString(), 
 								UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY), 
@@ -145,6 +161,7 @@ public class UGateXBeePacketListener implements PacketListener {
 		} else if (command == UGateUtil.CMD_SENSOR_GET_READINGS) {
 			final SensorReadings sr = createSensorReadings(rxResponse);
 			log.info(String.format("=== Sensor Readings: %1$s ===", sr));
+			handleWirelessResponse(new WirelessResponse<SensorReadings>(command, statusCode, sr));
 		} else if (command == UGateUtil.CMD_SENSOR_GET_SETTINGS) {
 			int i = 1;
 			log.info(String.format("=== Settings for %s START ===", remoteAddress));
@@ -166,6 +183,7 @@ public class UGateXBeePacketListener implements PacketListener {
 						"have to be tripped in order to signal alarm): %1$s", 
 					rxResponse.getData()[++i]));
 			log.info(String.format("=== Settings for %s END ===", remoteAddress));
+			//handleWirelessResponse(sr);
 		} else {
 			log.warn("Unrecognized command: " + command);
 		}
@@ -177,8 +195,9 @@ public class UGateXBeePacketListener implements PacketListener {
 	 * @return the sensor readings
 	 */
 	protected SensorReadings createSensorReadings(final RxResponse16 rxResponse) {
-		return new SensorReadings(rxResponse.getData()[2], 
-				rxResponse.getData()[3], rxResponse.getData()[4], 
+		return new SensorReadings(rxResponse.getData()[2], rxResponse.getData()[3], rxResponse.getData()[4], 
 				rxResponse.getData()[5], rxResponse.getData()[6]);
 	}
+	
+	protected abstract <T, R extends WirelessResponse<T>> void handleWirelessResponse(final R wirelessResponse);
 }

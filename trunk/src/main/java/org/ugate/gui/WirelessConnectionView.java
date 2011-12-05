@@ -51,27 +51,11 @@ public abstract class WirelessConnectionView extends StatusView {
 	    };
 	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, connectionHandler);
 	    connect.setText(LABEL_CONNECT);
-	    connect.setTooltip(new Tooltip(connect.getText()));
-	    
-	    final Button sync = new Button("Sync");
-	    sync.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
-			@Override
-			public void handle(MouseEvent event) {
-				UGateKeeper.DEFAULT.wirelessSyncSettings();
-			}
-	    });
-	    final Button read = new Button("Read");
-	    read.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
-			@Override
-			public void handle(MouseEvent event) {
-				UGateKeeper.DEFAULT.wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + 1, new int[] { UGateUtil.CMD_SENSOR_GET_READINGS });
-			}
-	    });
-	    
+	    connect.setTooltip(new Tooltip(connect.getText()));	    
 	    
 	    final HBox xbeeContainer = new HBox(10);
 	    xbeeContainer.getChildren().addAll(port, baud, statusIcon);
-	    getChildren().addAll(xbeeContainer, connect, sync, read);
+	    getChildren().addAll(xbeeContainer, connect);
 	}
 	
 	/**

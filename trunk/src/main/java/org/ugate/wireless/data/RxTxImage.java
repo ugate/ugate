@@ -2,9 +2,11 @@ package org.ugate.wireless.data;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Calendar;
 
-public interface RxTxImage {
+/**
+ * Wireless receive / transmit image
+ */
+public interface RxTxImage<T> extends IResponse<T> {
 
 	/**
 	 * Adds a segment of image data to the image
@@ -31,30 +33,8 @@ public interface RxTxImage {
 	boolean isEof();
 	
 	/**
-	 * @return true if an error exists in the image segment sequence
+	 * Image file data
 	 */
-	boolean getHasError();
-	
-	/**
-	 * @param hasError set true if an error exists in the image segment sequence
-	 */
-	void setHasError(boolean hasError);
-	
-	/**
-	 * @return date/time the first image segment was added
-	 */
-	Calendar getCreated();
-	
-	/**
-	 * @return the sensor readings read when the image was taken
-	 */
-	SensorReadings getSensorReadings();
-	
-	/**
-	 * @return true when the image segments have timed out from lack of activity
-	 */
-	public boolean hasTimedOut();
-	
 	public class ImageFile {
 		public final String filePath;
 		public final int fileSize;
@@ -63,6 +43,10 @@ public interface RxTxImage {
 			this.fileSize = fileSize;
 		}
 	}
+	
+	/**
+	 * Image chunk that represents a portion of an overall image
+	 */
 	public class ImageChunk {
 		public int[] data;
 		public ImageChunk(int[] data, int startIndex, int length) {

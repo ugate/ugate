@@ -7,40 +7,28 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.ugate.ByteUtils;
 import org.ugate.UGateUtil;
 
-public class RxTxJPEG implements RxTxImage {
+public class RxTxJPEG extends WirelessResponse<List<org.ugate.wireless.data.RxTxImage.ImageChunk>> 
+	implements RxTxImage<List<org.ugate.wireless.data.RxTxImage.ImageChunk>> {
 	
 	private static final Logger log = Logger.getLogger(RxTxJPEG.class);
 	public static final String JPEG_EXT = "jpg";
 	public static final String JPEG_EOF = "0xff,0xd9";
-	public final Calendar created;
-	public final int initCommandASCII;
-	private final SensorReadings sensorReadings;
-	private boolean hasError = false;
-	private ArrayList<ImageChunk> imageChunks = new ArrayList<ImageChunk>();
-	private Calendar startTime;
 	
-	public RxTxJPEG(int initCommandASCII, SensorReadings sensorReadings) {
-		startTime = Calendar.getInstance();
-		this.created = Calendar.getInstance();
-		this.initCommandASCII = initCommandASCII;
-		this.sensorReadings = sensorReadings;
+	public RxTxJPEG(final int initCommandASCII, final StatusCode statusCode, final List<ImageChunk> data) {
+		super(initCommandASCII, statusCode, (data == null ? new ArrayList<ImageChunk>() : data));
 		log.debug("NEW " + this);
-	}
-	
-	@Override
-	public String toString() {
-		return "CREATED: " + UGateUtil.formatCal(this.created) + ", " + getSensorReadings();
 	}
 	
 	@Override
 	public int[] addImageSegment(int[] data, int startIndex) {
 		final ImageChunk imageChunk = new ImageChunk(data, startIndex, data.length - startIndex);
-		imageChunks.add(imageChunk);
+		getData().add(imageChunk);
 		return imageChunk.data;
 	}
 	
@@ -48,7 +36,7 @@ public class RxTxJPEG implements RxTxImage {
 		try {
 			final Calendar ended = Calendar.getInstance();
 			int[] imageData = null;
-			for (ImageChunk imageChunk : imageChunks) {
+			for (ImageChunk imageChunk : getData()) {
 				if (imageData == null) {
 					imageData = imageChunk.data;
 				} else {
@@ -62,15 +50,16 @@ public class RxTxJPEG implements RxTxImage {
 				//byteBuffer.putInt(value);
 				byteBuffer.put((byte) value);
 			}
-			final String filePath = "C:\\ugate\\" + UGateUtil.formatCal(created).replaceAll(":", "-") + '.' + JPEG_EXT;
+			// TODO : dynamically set the path to the images
+			final String filePath = "C:\\ugate\\" + UGateUtil.formatCal(getCreated()).replaceAll(":", "-") + '.' + JPEG_EXT;
 			if (log.isInfoEnabled()) {
-				log.info("Writting (" + imageData.length + ") bytes from (" + imageChunks.size() + ") image chunks to \"" + filePath + "\" (took: " + 
-						UGateUtil.formatDateDifference(created.getTime(), ended.getTime()) + ')');
+				log.info("Writting (" + imageData.length + ") bytes from (" + getData().size() + ") image chunks to \"" + filePath + "\" (took: " + 
+						UGateUtil.formatDateDifference(getCreated().getTime(), ended.getTime()) + ')');
 			}
 			writeImage(byteBuffer.array(), filePath);
 			return new ImageFile(filePath, imageData.length);
 		} finally {
-			imageChunks = new ArrayList<RxTxJPEG.ImageChunk>();
+			setData(new ArrayList<RxTxJPEG.ImageChunk>());
 		}
 	}
 	
@@ -98,12 +87,12 @@ public class RxTxJPEG implements RxTxImage {
 	 */
 	public boolean isEof() {
 		try {
-			final ImageChunk last = imageChunks.get(imageChunks.size() - 1);
+			final ImageChunk last = getData().get(getData().size() - 1);
 			int lastByte = last.data[last.data.length - 1];
 			int secondToLastByte;
 			if (last.data.length < 2) {
 				// in the rare case that the last data added has only one byte
-				final ImageChunk last2 = imageChunks.get(imageChunks.size() - 2);
+				final ImageChunk last2 = getData().get(getData().size() - 2);
 				secondToLastByte = last2.data[last2.data.length - 1];
 			} else {
 				secondToLastByte = last.data[last.data.length - 2];
@@ -113,47 +102,7 @@ public class RxTxJPEG implements RxTxImage {
 		} catch (Exception e) {
 			log.error("Unable to get EOF sequence", e);
 		}
-		setHasError(true);
+		setStatusCode(IResponse.StatusCode.GENERAL_FAILURE);
 		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasTimedOut() {
-		return Calendar.getInstance().getTimeInMillis() - startTime.getTimeInMillis() > 120000;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean getHasError() {
-		return hasError;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setHasError(boolean hasError) {
-		this.hasError = hasError;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Calendar getCreated() {
-		return created;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public SensorReadings getSensorReadings() {
-		return sensorReadings;
 	}
 }

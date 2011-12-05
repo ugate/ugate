@@ -35,13 +35,13 @@ public abstract class MailConnectionView extends StatusView {
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "SMTP Host", "Outgoing email host");
 		smtpPort = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "SMTP Port", "Outgoing email port");
-	    imapHost = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+	    imapHost = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_IMAP_HOST_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "IMAP Host", "Incoming email host");
-		imapPort = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+		imapPort = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_IMAP_PORT_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "IMAP Port", "Incoming email port");
-		username = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+		username = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_USERNAME_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "Username", "Username to login with");
-		password = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_SMTP_PORT_KEY, 
+		password = new UGateTextFieldPreferenceView(UGateUtil.PV_MAIL_PASSWORD_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_PASSWORD, "Password", "Password to login with");
 
 		connect = new Button();

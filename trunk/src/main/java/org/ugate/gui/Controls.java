@@ -99,6 +99,16 @@ public class Controls extends VBox {
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
 		settingsSet.setCursor(Cursor.HAND);
+		settingsSet.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent event) {
+				if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
+						event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
+					return;
+				}
+				UGateKeeper.DEFAULT.wirelessSyncSettings();
+			}
+	    });
 		GuiUtil.addHelpText(helpText, settingsSet, "Sends the settings to the remote microcontroller node. " + 
 				"Blinks when settings updates have been made, but have not yet been sent");
 		final DropShadow settingsDS = new DropShadow();
@@ -116,7 +126,7 @@ public class Controls extends VBox {
 		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final IGateKeeperListener.Event type, 
+			public void handle(final IGateKeeperListener.Event type, final String node,
 					final String key, final String oldValue, final String newValue) {
 				if (type == IGateKeeperListener.Event.PREFERENCES_SET) {
 					settingsSetTimeline.play();
@@ -130,20 +140,28 @@ public class Controls extends VBox {
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
 		GuiUtil.addHelpText(helpText, readingsGet, "Gets the current sensor readings and updates the readings display with the values");
 		readingsGet.setCursor(Cursor.HAND);
+		readingsGet.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(MouseEvent event) {
+				UGateKeeper.DEFAULT.wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + 1, 
+						new int[] { UGateUtil.CMD_SENSOR_GET_READINGS });
+			}
+	    });
 		
 		// add the readings view
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
-		final Digits sonarReading = new Digits(String.format(SensorControl.FORMAT_SONAR, 7.5f),
+		final Digits sonarReading = new Digits(String.format(SensorControl.FORMAT_SONAR, 0.0f),
 				0.15f, SensorControl.COLOR_SONAR, null);
 		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
-		final Digits pirReading = new Digits(String.format(SensorControl.FORMAT_PIR, 15.5f), 
+		final Digits pirReading = new Digits(String.format(SensorControl.FORMAT_PIR, 0.0f), 
 				0.15f, SensorControl.COLOR_PIR, null);
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
-		final Digits mwReading = new Digits(String.format(SensorControl.FORMAT_MW, 7.5f), 0.15f, 
+		final Digits mwReading = new Digits(String.format(SensorControl.FORMAT_MW, 0), 0.15f, 
 				SensorControl.COLOR_MW, null);
 		final Group readingsGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
 		GuiUtil.addHelpText(helpText, readingsGroup, "Current sensors readings display");
+		
 		
 		// add the multi-alarm trip state
 		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY,

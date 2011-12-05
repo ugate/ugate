@@ -96,15 +96,17 @@ public class CameraGateControl extends ControlPane {
 		grid.add(sonarPirTiltHeader, 1, 0);
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_CAM_IR_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(sonarPirPanGauge, "Sonar/PIR Pan: Current trip alram sensor pan angle (in degrees)");
+				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		addHelpText(sonarPirPanGauge, "Sonar/PIR Pan: Current trip alram sensor pan angle in degrees. " + 
+				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_CAM_IR_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
-		addHelpText(sonarPirTiltGauge, "Sonar/PIR Tilt: Current trip alarm sensor tilt angle (in degrees)");
+				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
+		addHelpText(sonarPirTiltGauge, "Sonar/PIR Tilt: Current trip alarm sensor tilt angle in degrees. " + 
+				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
 		grid.add(sonarPirTiltGauge, 1, 1);
 		final Label headerMwPanHeader = new Label("Cam Pan Angle (On Microwave Alarm)");
 		headerMwPanHeader.setWrapText(true);
@@ -118,13 +120,15 @@ public class CameraGateControl extends ControlPane {
 		grid.add(mwPanHeader, 1, 2);
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_CAM_MW_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(mwPanGauge, "Microwave Pan: Current trip alarm sensor pan angle (in degrees)");
+				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		addHelpText(mwPanGauge, "Microwave Pan: Current trip alarm sensor pan angle in degrees. " + 
+				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
 		grid.add(mwPanGauge, 0, 3);
 		final UGateGaugePreferenceView mwTiltGauge = new UGateGaugePreferenceView(
 				UGateUtil.SV_CAM_MW_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
-				10d, 0, 0, 180d, 19, 4, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(mwTiltGauge, "Microwave Tilt: Current trip alarm sensor pan angle (in degrees)");
+				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
+		addHelpText(mwTiltGauge, "Microwave Tilt: Current trip alarm sensor pan angle in degrees. " + 
+				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
 		grid.add(mwTiltGauge, 1, 3);
 		
 		final Group cell = createCell(false, true, grid);
