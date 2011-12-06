@@ -12,12 +12,12 @@ public interface IResponse<T> {
 	/**
 	 * @return the response code if an error exists
 	 */
-	StatusCode getStatusCode();
+	WirelessStatusCode getStatusCode();
 	
 	/**
 	 * @param statusCode the status code
 	 */
-	void setStatusCode(final StatusCode statusCode);
+	void setStatusCode(final WirelessStatusCode statusCode);
 	
 	/**
 	 * @return date/time the first image segment was added
@@ -33,11 +33,4 @@ public interface IResponse<T> {
 	 * @return the sensor readings read when the image was taken
 	 */
 	T getData();
-	
-	/**
-	 * Response codes
-	 */
-	public enum StatusCode {
-		NONE, GENERAL_FAILURE, PARSING_ERROR;
-	}
 }

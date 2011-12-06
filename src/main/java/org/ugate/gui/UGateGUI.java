@@ -132,7 +132,7 @@ public class UGateGUI extends Application {
 			final BorderPane content = new BorderPane();
 			content.setId("content");
 			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
-					APPLICATION_WIDTH, APPLICATION_HEIGHT);
+					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d);
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_DISPLAY_SHELF));
 			stage.setTitle("UGate Application Interface");
@@ -175,7 +175,7 @@ public class UGateGUI extends Application {
 					genFisheyeTaskbar(RS.IMG_PICS, new Runnable() {
 						public void run() {
 							changeCenterView(
-									new DisplayShelf(UGateUtil.getCapturePath(),
+									new DisplayShelf(UGateUtil.imagePath(),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP),
 									true);

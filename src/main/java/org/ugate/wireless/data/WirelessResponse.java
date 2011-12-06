@@ -14,10 +14,10 @@ public class WirelessResponse<T> implements IResponse<T> {
 	private final Calendar created;
 	private final int initCommandASCII;
 	private Calendar startTime;
-	private StatusCode statusCode = StatusCode.NONE;
+	private WirelessStatusCode statusCode = WirelessStatusCode.NONE;
 	private T data;
 
-	public WirelessResponse(final int initCommandASCII, final StatusCode statusCode, final T data) {
+	public WirelessResponse(final int initCommandASCII, final WirelessStatusCode statusCode, final T data) {
 		setStatusCode(statusCode);
 		startTime = Calendar.getInstance();
 		this.created = Calendar.getInstance();
@@ -31,7 +31,8 @@ public class WirelessResponse<T> implements IResponse<T> {
 	 */
 	@Override
 	public String toString() {
-		return "CREATED: " + UGateUtil.formatCal(this.created) + ", " + getData();
+		return String.format("COMMAND: %1$s, CREATED: %2$s, DATA: %3$s", 
+				getCommand(), UGateUtil.calFormat(getCreated()), getData());
 	}
 	
 	/**
@@ -54,7 +55,7 @@ public class WirelessResponse<T> implements IResponse<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public StatusCode getStatusCode() {
+	public WirelessStatusCode getStatusCode() {
 		return statusCode;
 	}
 	
@@ -62,7 +63,7 @@ public class WirelessResponse<T> implements IResponse<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStatusCode(final StatusCode statusCode) {
+	public void setStatusCode(final WirelessStatusCode statusCode) {
 		this.statusCode = statusCode;
 	}
 

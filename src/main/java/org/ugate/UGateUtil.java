@@ -9,15 +9,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+/**
+ * General utility
+ */
 public class UGateUtil {
 
+	// commands
 	public static final int CMD_SERVO_TILT_UP = 16;
 	public static final int CMD_SERVO_TILT_DOWN = 17;
 	public static final int CMD_SERVO_PAN_RIGHT = 18;
@@ -115,21 +117,28 @@ public class UGateUtil {
 	
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
 	public static final int WIRELESS_ADDRESS_NODE_1 = 0x33;
-	public static final int WIRELESS_ADDRESS_TRUNK = 0x77;
+	public static final int WIRELESS_ADDRESS_HOST = 0x77;
 
 	private static final String CAPTURE_PATH = "/ugate";
-	public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
+	//public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd hh:mm:ss";
 	
+	// byte sizes
 	private static final long K = 1024;
 	private static final long M = K * K;
 	private static final long G = M * K;
 	private static final long T = G * K;
 
+	/**
+	 * Private utility constructor
+	 */
 	private UGateUtil() {
 	}
 
-	public static File getCapturePath() {
+	/**
+	 * @return the path to the image files
+	 */
+	public static File imagePath() {
 		File filePath = new File(CAPTURE_PATH);
 		if (!filePath.exists()) {
 			try {
@@ -149,7 +158,7 @@ public class UGateUtil {
 	 * @return null if the format is not a known image format
 	 */
 	public static String getImageFormatInFile(File f) {
-		return getImageFormatName(f);
+		return imageFormatName(f);
 	}
 
 	/**
@@ -159,8 +168,8 @@ public class UGateUtil {
 	 *            the input stream
 	 * @return null if the format is not a known image format
 	 */
-	public static String getImageFormatFromStream(InputStream is) {
-		return getImageFormatName(is);
+	public static String imageFormatFromStream(final InputStream is) {
+		return imageFormatName(is);
 	}
 
 	/**
@@ -170,33 +179,39 @@ public class UGateUtil {
 	 *            can be either a File or InputStream object
 	 * @return null if the format is not a known image format
 	 */
-	private static String getImageFormatName(Object o) {
+	private static String imageFormatName(final Object o) {
 		try {
 			// Create an image input stream on the image
-			ImageInputStream iis = ImageIO.createImageInputStream(o);
+			final ImageInputStream iis = ImageIO.createImageInputStream(o);
 
 			// Find all image readers that recognize the image format
-			Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+			final Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
 			if (!iter.hasNext()) {
 				// No readers found
 				return null;
 			}
 
 			// Use the first reader
-			ImageReader reader = iter.next();
+			final ImageReader reader = iter.next();
 
 			// Close stream
 			iis.close();
 
 			// Return the format name
 			return reader.getFormatName();
-		} catch (Exception e) {
+		} catch (final Exception e) {
 		}
 		// The image could not be read
 		return null;
 	}
 
-	public static String convertToByteLabel(final long value) {
+	/**
+	 * Converts a value to a byte label for display purposes
+	 * 
+	 * @param value the value to format
+	 * @return the label
+	 */
+	public static String byteConvertToLabel(final long value) {
 		final long[] dividers = new long[] { T, G, M, K, 1 };
 		final String[] units = new String[] { "TB", "GB", "MB", "KB", "B" };
 		if (value < 0)
@@ -205,50 +220,103 @@ public class UGateUtil {
 		for (int i = 0; i < dividers.length; i++) {
 			final long divider = dividers[i];
 			if (value >= divider) {
-				result = format(value, divider, units[i]);
+				result = decimalFormatLabel(value, divider, units[i]);
 				break;
 			}
 		}
 		return result;
 	}
-
-	public static <T> T[] concatArray(T[] original, T[] appender) {
-		T[] result = Arrays.copyOf(original, original.length + appender.length);
+	
+	/**
+	 * Concatenates two integer arrays
+	 * 
+	 * @param original the original
+	 * @param appender the array to append
+	 * @return the concatenated array
+	 */
+	public static int[] arrayConcatInt(final int[] original, final int[] appender) {
+		final int[] result = Arrays.copyOf(original, original.length + appender.length);
 		System.arraycopy(appender, 0, result, original.length, appender.length);
 		return result;
 	}
 
-	public static <T> T[] concatArrays(T[] original, T[]... rest) {
+	/**
+	 * Concatenates two arrays
+	 * 
+	 * @param <T> the array type
+	 * @param original the original
+	 * @param appender the array to append
+	 * @return the concatenated array
+	 */
+	public static <T> T[] arrayConcat(final T[] original, final T[] appender) {
+		final T[] result = Arrays.copyOf(original, original.length + appender.length);
+		System.arraycopy(appender, 0, result, original.length, appender.length);
+		return result;
+	}
+
+	/**
+	 * Concatenates multiple arrays
+	 * 
+	 * @param <T> the array type
+	 * @param original the original
+	 * @param appenders the array to append
+	 * @return the concatenated array
+	 */
+	public static <T> T[] arrayConcat(T[] original, T[]... appenders) {
 		int totalLength = original.length;
-		for (T[] array : rest) {
+		for (final T[] array : appenders) {
 			totalLength += array.length;
 		}
-		T[] result = Arrays.copyOf(original, totalLength);
+		final T[] result = Arrays.copyOf(original, totalLength);
 		int offset = original.length;
-		for (T[] array : rest) {
+		for (final T[] array : appenders) {
 			System.arraycopy(array, 0, result, offset, array.length);
 			offset += array.length;
 		}
 		return result;
 	}
 
-	private static String format(final long value, final long divider,
+	/**
+	 * Formats a decimal value using a specified divider
+	 * 
+	 * @param value the value to format
+	 * @param divider the divider to use
+	 * @param unit the unit label to append
+	 * @return the decimal formatted label
+	 */
+	private static String decimalFormatLabel(final long value, final long divider,
 			final String unit) {
 		final double result = divider > 1 ? (double) value / (double) divider
 				: (double) value;
 		return new DecimalFormat("#,##0.#").format(result) + " " + unit;
 	}
 	
-	public static String formatCal(Calendar cal) {
+	/**
+	 * Formats a calendar to the application wide format
+	 * 
+	 * @param cal the calendar to format
+	 * @return the formated calendar
+	 */
+	public static String calFormat(final Calendar cal) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
 		return sdf.format(cal.getTime());
 	}
 
-	public static String now() {
-		return formatCal(Calendar.getInstance());
+	/**
+	 * @return the formatted current calendar
+	 */
+	public static String calNow() {
+		return calFormat(Calendar.getInstance());
 	}
 	
-	public static String formatDateDifference(Date start, Date end) {
+	/**
+	 * Formats the the difference in the dates
+	 * 
+	 * @param start the start date
+	 * @param end the end date
+	 * @return the formated date difference
+	 */
+	public static String calFormatDateDifference(final Date start, final Date end) {
 		long l1 = start.getTime();
 		long l2 = end.getTime();
 		long diff = l2 - l1;

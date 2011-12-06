@@ -105,7 +105,7 @@ public abstract class WirelessConnectionView extends StatusView {
 					@Override
 					public void run() {
 						try {
-							UGateKeeper.DEFAULT.wirelessSyncSettings();
+							UGateKeeper.DEFAULT.wirelessSendSettings();
 						} catch (final Throwable t) {
 							log.warn("Unable to sync local settings to remote wireless nodes", t);
 						}

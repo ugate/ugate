@@ -20,7 +20,7 @@ public class RxTxJPEG extends WirelessResponse<List<org.ugate.wireless.data.RxTx
 	public static final String JPEG_EXT = "jpg";
 	public static final String JPEG_EOF = "0xff,0xd9";
 	
-	public RxTxJPEG(final int initCommandASCII, final StatusCode statusCode, final List<ImageChunk> data) {
+	public RxTxJPEG(final int initCommandASCII, final WirelessStatusCode statusCode, final List<ImageChunk> data) {
 		super(initCommandASCII, statusCode, (data == null ? new ArrayList<ImageChunk>() : data));
 		log.debug("NEW " + this);
 	}
@@ -51,10 +51,10 @@ public class RxTxJPEG extends WirelessResponse<List<org.ugate.wireless.data.RxTx
 				byteBuffer.put((byte) value);
 			}
 			// TODO : dynamically set the path to the images
-			final String filePath = "C:\\ugate\\" + UGateUtil.formatCal(getCreated()).replaceAll(":", "-") + '.' + JPEG_EXT;
+			final String filePath = "C:\\ugate\\" + UGateUtil.calFormat(getCreated()).replaceAll(":", "-") + '.' + JPEG_EXT;
 			if (log.isInfoEnabled()) {
 				log.info("Writting (" + imageData.length + ") bytes from (" + getData().size() + ") image chunks to \"" + filePath + "\" (took: " + 
-						UGateUtil.formatDateDifference(getCreated().getTime(), ended.getTime()) + ')');
+						UGateUtil.calFormatDateDifference(getCreated().getTime(), ended.getTime()) + ')');
 			}
 			writeImage(byteBuffer.array(), filePath);
 			return new ImageFile(filePath, imageData.length);
@@ -102,7 +102,7 @@ public class RxTxJPEG extends WirelessResponse<List<org.ugate.wireless.data.RxTx
 		} catch (Exception e) {
 			log.error("Unable to get EOF sequence", e);
 		}
-		setStatusCode(IResponse.StatusCode.GENERAL_FAILURE);
+		setStatusCode(WirelessStatusCode.GENERAL_FAILURE);
 		return true;
 	}
 }
