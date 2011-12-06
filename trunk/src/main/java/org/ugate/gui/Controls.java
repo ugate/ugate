@@ -1,11 +1,9 @@
 package org.ugate.gui;
 
-import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -30,7 +28,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
-import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
@@ -59,13 +56,24 @@ public class Controls extends VBox {
 		this.setStyle("-fx-background-color: #000000;");
 		
 		// help view
+		final DropShadow helpTextDropShadow = new DropShadow();
+		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
+				helpTextDropShadow, Color.RED, Color.BLACK, 2);
 		helpText = new ScrollPane();
 		helpText.setStyle("-fx-background-color: #ffffff;");
-		helpText.setPrefHeight(48d);
+		helpText.setPrefHeight(40d);
 		helpText.setPrefWidth(200d);
+		helpText.setEffect(helpTextDropShadow);
 		final Label helpTextContent = new Label();
 		helpTextContent.setWrapText(true);
 		helpTextContent.setPrefWidth(helpText.getPrefWidth() - 35d);
+		helpTextContent.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				helpTextTimeline.stop();
+				helpTextTimeline.play();
+			}
+		});
 		helpText.setContent(helpTextContent);
 		
 		final ToolBar mainBar = new ToolBar(createMainBarChildren());
@@ -99,30 +107,24 @@ public class Controls extends VBox {
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
 		settingsSet.setCursor(Cursor.HAND);
-		settingsSet.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+		settingsSet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
 			@Override
-			public void handle(MouseEvent event) {
+			public void handle(final MouseEvent event) {
 				if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
 						event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
 					return;
 				}
-				UGateKeeper.DEFAULT.wirelessSyncSettings();
+				if (!UGateKeeper.DEFAULT.wirelessSendSettings()) {
+					((Label) helpText.getContent()).setText("Unable to send the settings to the remote node(s). See log for more details.");
+				}
 			}
 	    });
 		GuiUtil.addHelpText(helpText, settingsSet, "Sends the settings to the remote microcontroller node. " + 
 				"Blinks when settings updates have been made, but have not yet been sent");
 		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
-		final Timeline settingsSetTimeline = new Timeline();
-		settingsSetTimeline.setCycleCount(Timeline.INDEFINITE);
-		settingsSetTimeline.setAutoReverse(true);
-		final KeyFrame kf = new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				settingsDS.setColor(settingsDS.getColor().equals(Color.BLACK) ? Color.RED : Color.BLACK);
-			}
-		});
-		settingsSetTimeline.getKeyFrames().add(kf);
+		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
+				settingsDS, Color.RED, Color.BLACK, Timeline.INDEFINITE);
 		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
 			@Override
@@ -142,7 +144,7 @@ public class Controls extends VBox {
 		readingsGet.setCursor(Cursor.HAND);
 		readingsGet.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
 			@Override
-			public void handle(MouseEvent event) {
+			public void handle(final MouseEvent event) {
 				UGateKeeper.DEFAULT.wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + 1, 
 						new int[] { UGateUtil.CMD_SENSOR_GET_READINGS });
 			}

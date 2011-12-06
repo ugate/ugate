@@ -1,18 +1,15 @@
 package org.ugate.wireless.xbee;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.UGateGUI;
-import org.ugate.wireless.data.IResponse;
-import org.ugate.wireless.data.IWirelessListener;
 import org.ugate.wireless.data.RxTxJPEG;
 import org.ugate.wireless.data.SensorReadings;
 import org.ugate.wireless.data.WirelessResponse;
+import org.ugate.wireless.data.WirelessStatusCode;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -68,7 +65,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 				}
 			} else if (response instanceof ErrorResponse) {
 				if (rxTxImage != null) {
-					rxTxImage.setStatusCode(IResponse.StatusCode.PARSING_ERROR);
+					rxTxImage.setStatusCode(WirelessStatusCode.PARSING_ERROR);
 				}
 				log.info("Incoming RAW Bytes: \"" + ByteUtils.toBase16(response.getRawPacketBytes()) + '"');
 				final ErrorResponse errorResponse = (ErrorResponse) response;
@@ -100,7 +97,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 				Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[1]);
 		final int command = rxResponse.getData()[0];
 		final int failures = rxResponse.getData()[1]; // TODO : Handle cases where failures exist
-		final IResponse.StatusCode statusCode = failures == 0 ? IResponse.StatusCode.NONE : IResponse.StatusCode.GENERAL_FAILURE;
+		final WirelessStatusCode statusCode = failures == 0 ? WirelessStatusCode.NONE : WirelessStatusCode.GENERAL_FAILURE;
 		log.info(String.format("Recieved {0} command from wireless address {1} (signal strength: {2}) with {3} failures", 
 				command, remoteAddress, rxResponse.getRssi(), failures));
 		if (command == UGateUtil.CMD_CAM_TAKE_PIC) {
@@ -119,7 +116,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 						rxTxImage, imageChunk.length, rxResponse.getLength().getLength(), ByteUtils.toBase16(imageChunk)));
 			}
 			if (rxTxImage.isEof()) {
-				if (rxTxImage.getStatusCode() != IResponse.StatusCode.NONE) {
+				if (rxTxImage.getStatusCode() != WirelessStatusCode.NONE) {
 					final String retriesStr = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY);
 					final int retries = retriesStr != null && retriesStr.length() > 0 ? Integer.parseInt(retriesStr) : 0;
 					rxTxImage = null;
@@ -143,7 +140,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 								imageFile.filePath);
 						*/UGateGUI.mediaPlayerComplete.play();
 					} catch (IOException e) {
-						log.info("Cannot save image ID: " + UGateUtil.formatCal(rxTxImage.getCreated()), e);
+						log.info("Cannot save image ID: " + UGateUtil.calFormat(rxTxImage.getCreated()), e);
 					} finally {
 						rxTxImage = null;
 					}

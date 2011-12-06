@@ -13,7 +13,9 @@ import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.wireless.data.IWirelessListener;
+import org.ugate.wireless.data.SettingsData;
 import org.ugate.wireless.data.WirelessResponse;
+import org.ugate.wireless.data.WirelessStatusCode;
 import org.ugate.wireless.xbee.UGateXBeePacketListener;
 
 import com.rapplogic.xbee.api.AtCommand;
@@ -293,7 +295,7 @@ public enum UGateKeeper {
 	 * @param data the data string to send
 	 * @return true when successful
 	 */
-	public boolean wirelessSendData(String wirelessNodeAddressHexKey, String data) {
+	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, final String data) {
 		return wirelessSendData(wirelessNodeAddressHexKey, ByteUtils.stringToIntArray(data));
 	}
 	
@@ -304,7 +306,7 @@ public enum UGateKeeper {
 	 * @param data the data string to send
 	 * @return true when successful
 	 */
-	public boolean wirelessSendData(String wirelessNodeAddressHexKey, List<Integer> data) {
+	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, final List<Integer> data) {
 		int[] dataInts = new int[data.size()];
 		for(int i=0; i<data.size(); i++) {
 			dataInts[i] = data.get(i);
@@ -319,12 +321,12 @@ public enum UGateKeeper {
 	 * @param data the data to send
 	 * @return true when successful
 	 */
-	public boolean wirelessSendData(String wirelessNodeAddressHexKey, int[] data) {
+	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, final int[] data) {
 		try {
 			// TODO : allow for commands to be sent to more than one wireless node?
 			if (!preferences.hasKey(wirelessNodeAddressHexKey)) {
-				log.error("Wireless node address \"" + wirelessNodeAddressHexKey + 
-						"\" has not been defined");
+				log.error(String.format("Wireless node address \"%1$s\" has not been defined", 
+						wirelessNodeAddressHexKey));
 				return false;
 			}
 			final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(wirelessNodeAddressHexKey);
@@ -341,9 +343,11 @@ public enum UGateKeeper {
 			}
 			return response.isSuccess();
 		} catch (XBeeTimeoutException e) {
-			log.error("No response was received in the allotted time", e);
+			log.error(String.format("Wireless transfer failed. No response from %1$s was received in the allotted time",
+					wirelessNodeAddressHexKey), e);
 		} catch (XBeeException e) {
-			log.error("Unexpected error occurred when sending data", e);
+			log.error(String.format("Unexpected error occurred when wirelessly transferring data to %1$s",
+					wirelessNodeAddressHexKey), e);
 		}
 		return false;
 	}
@@ -388,7 +392,7 @@ public enum UGateKeeper {
 	 * @param wirelessAddressHexKey the wireless address preferences key used to create the address
 	 * @return the XBee address
 	 */
-	private XBeeAddress16 wirelessGetXbeeAddress(String wirelessAddressHexKey) {
+	private XBeeAddress16 wirelessGetXbeeAddress(final String wirelessAddressHexKey) {
 		//final int xbeeRawAddress = Integer.parseInt(preferences.get(wirelessAddressHexKey), 16);
 		final String rawAddress = preferences.get(wirelessAddressHexKey);
 		if (rawAddress.length() > UGateUtil.WIRELESS_ADDRESS_MAX_DIGITS) {
@@ -407,7 +411,7 @@ public enum UGateKeeper {
 	 * @param testConnections true to test each address before adding them to the list
 	 * @return the list of addresses
 	 */
-	public List<String> wirelessGetNodeAddresses(boolean testConnections) {
+	public List<String> wirelessGetNodeAddresses(final boolean testConnections) {
 		final List<String> was = new ArrayList<String>();
 		final List<String> waks = wirelessGetNodeAddressKeys(false);
 		for (String wak : waks) {
@@ -430,7 +434,7 @@ public enum UGateKeeper {
 	 * 		before adding to the list
 	 * @return the wireless address preference keys
 	 */
-	public List<String> wirelessGetNodeAddressKeys(boolean testConnections) {
+	public List<String> wirelessGetNodeAddressKeys(final boolean testConnections) {
 		final List<String> waks = new ArrayList<String>();
 		int i = 1;
 		String addressKey;
@@ -450,49 +454,28 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * Synchronizes the locally stored settings with the remote wireless nodes
+	 * Synchronizes the locally stored settings with the remote wireless node(s)
 	 * 
+	 * @param wirelessNodes the wireless nodes to send to (null to send to all)
 	 * @return true when successful
 	 */
-	public boolean wirelessSyncSettings() {
+	public boolean wirelessSendSettings(final String... wirelessNodes) {
 		if (!wirelessIsConnected()) {
 			return false;
 		}
-		// values need to be added in a predefined order
-		final List<Integer> values = new ArrayList<Integer>();
-		values.add(UGateUtil.CMD_SENSOR_SET_SETTINGS);
-		values.add(0); // TODO : failure code is hard coded
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_ACCESS_CODE_1_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_ACCESS_CODE_2_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_ACCESS_CODE_3_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_RES_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_ALARM_ON_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_ALARM_ON_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_ALARM_ON_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_GATE_ACCESS_ON_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_DISTANCE_THRES_FEET_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_DISTANCE_THRES_INCHES_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_SONAR_DELAY_BTWN_TRIPS_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DISTANCE_THRES_FEET_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DISTANCE_THRES_INCHES_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_IR_DELAY_BTWN_TRIPS_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_SPEED_THRES_CYCLES_PER_SEC_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MW_DELAY_BTWN_TRIPS_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_SONAR_TRIP_ANGLE_PAN_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_SONAR_TRIP_ANGLE_TILT_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_IR_TRIP_ANGLE_PAN_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_IR_TRIP_ANGLE_TILT_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_MW_TRIP_ANGLE_PAN_KEY)));
-		values.add(Integer.parseInt(preferences.get(UGateUtil.SV_CAM_MW_TRIP_ANGLE_TILT_KEY)));
-		
-		final List<String> waks = wirelessGetNodeAddressKeys(false);
+
+		// send the command, status code, and settings data
+		final int[] sendData = UGateUtil.arrayConcatInt(new int[]{UGateUtil.CMD_SENSOR_SET_SETTINGS, 
+				WirelessStatusCode.NONE.ordinal()}, 
+				new SettingsData().toArray());
+		final List<String> waks = wirelessNodes == null || wirelessNodes.length == 0 ? 
+				wirelessGetNodeAddressKeys(false) : Arrays.asList(wirelessNodes);
 		int scnt = 0;
 		for (int i=0; i<waks.size(); i++) {
 			preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, 
 					waks.get(i), null, null, null);
 			log.debug("Sending settings to node " + waks.get(i));
-			if (wirelessSendData(waks.get(i), values)) {
+			if (wirelessSendData(waks.get(i), sendData)) {
 				log.debug("Sent settings to node " + waks.get(i));
 				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, 
 						waks.get(i), null, null, null);

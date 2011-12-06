@@ -1,5 +1,8 @@
 package org.ugate.wireless.data;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 
@@ -133,7 +136,7 @@ public class SettingsData {
 	 */
 	@Override
 	public String toString() {
-		return "SettingsData [keyCode1=" + keyCode1 + ", keyCode2=" + keyCode2
+		return SettingsData.class.getSimpleName() + " [keyCode1=" + keyCode1 + ", keyCode2=" + keyCode2
 				+ ", keyCode3=" + keyCode3 + ", camResolution=" + camResolution
 				+ ", sonarAlarmOn=" + sonarAlarmOn + ", pirAlarmOn="
 				+ pirAlarmOn + ", mwAlarmOn=" + mwAlarmOn + ", gateAlarmOn="
@@ -154,6 +157,24 @@ public class SettingsData {
 				+ camIrTripTiltAngle + ", camMicrowaveTripPanAngle="
 				+ camMicrowaveTripPanAngle + ", camMicrowaveTripTiltAngle="
 				+ camMicrowaveTripTiltAngle + "]";
+	}
+	
+	/**
+	 * @return the list of field values in the order they are declared
+	 */
+	public int[] toArray() {
+		final Field[] fields = getClass().getDeclaredFields();
+		final int[] list = new int[fields.length];
+		int i = 0;
+		for (final Field field : fields) {
+			try {
+				list[i++] = field.getInt(this);
+				//System.out.println("Value: " + list[i - 1]);
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
+		return Arrays.copyOf(list, i);
 	}
 
 	/**
