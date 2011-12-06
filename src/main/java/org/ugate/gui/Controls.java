@@ -70,7 +70,7 @@ public class Controls extends VBox {
 		
 		final ToolBar mainBar = new ToolBar(createMainBarChildren());
 		final TabPane mainView = new TabPane();
-		mainView.setSide(Side.LEFT);
+		mainView.setSide(Side.RIGHT);
 		final Tab camTab = createTab(null, "Camera/Gate", CameraGateControl.class);
 		final Tab sensorsTab = createTab(null, "Sensors", SensorControl.class);
 		mainView.getTabs().addAll(camTab, sensorsTab);
