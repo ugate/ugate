@@ -3,6 +3,8 @@ package org.ugate.gui;
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.concurrent.Worker.State;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -13,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
@@ -24,6 +27,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEvent;
@@ -42,40 +46,48 @@ import org.w3c.dom.Element;
 /**
  * XBee GUI view responsible for communicating with local and remote XBees once a connection is established
  */
-public class Controls extends VBox {
+public class Controls extends StackPane {
 
 	private static final Logger log = Logger.getLogger(Controls.class);
+	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 5d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	protected static final String NAVIGATE_JS = "nav";
-	public final ScrollPane helpText;
+	private final ScrollPane helpTextPane;
+	private final Label helpText;
+	private int remoteNodeIndex = 1;
+	private boolean propagateSettingsToAllRemoteNodes = false;
+	private final VBox progressIndicatorView;
+	private final ProgressIndicator progressIndicator;
 
 	public Controls() {
 		super();
-		this.setStyle("-fx-background-color: #000000;");
 		
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				helpTextDropShadow, Color.RED, Color.BLACK, 2);
-		helpText = new ScrollPane();
-		helpText.setStyle("-fx-background-color: #ffffff;");
-		helpText.setPrefHeight(40d);
-		helpText.setPrefWidth(200d);
-		helpText.setEffect(helpTextDropShadow);
-		final Label helpTextContent = new Label();
-		helpTextContent.setWrapText(true);
-		helpTextContent.setPrefWidth(helpText.getPrefWidth() - 35d);
-		helpTextContent.textProperty().addListener(new ChangeListener<String>() {
+				helpTextDropShadow, Color.CYAN, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
+		helpTextPane = new ScrollPane();
+		helpTextPane.setStyle("-fx-background-color: #ffffff;");
+		helpTextPane.setPrefHeight(40d);
+		helpTextPane.setPrefWidth(200d);
+		helpTextPane.setEffect(helpTextDropShadow);
+		helpText = new Label(GuiUtil.HELP_TEXT_DEFAULT);
+		helpText.setWrapText(true);
+		helpText.setPrefWidth(helpTextPane.getPrefWidth() - 35d);
+		helpText.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				helpTextTimeline.stop();
-				helpTextTimeline.play();
+				if (newValue != null && newValue.length() > 0) {
+					helpTextTimeline.play();
+				}
 			}
 		});
-		helpText.setContent(helpTextContent);
+		helpTextPane.setContent(helpText);
 		
+		// main menu bar and tabs
 		final ToolBar mainBar = new ToolBar(createMainBarChildren());
 		final TabPane mainView = new TabPane();
 		mainView.setSide(Side.RIGHT);
@@ -83,10 +95,25 @@ public class Controls extends VBox {
 		final Tab sensorsTab = createTab(null, "Sensors", SensorControl.class);
 		mainView.getTabs().addAll(camTab, sensorsTab);
 
-		HBox.setHgrow(this, Priority.ALWAYS);
-		VBox.setVgrow(this, Priority.ALWAYS);
+		// add main view
+		final VBox main = new VBox();
+		main.setStyle("-fx-background-color: #000000;");
+		HBox.setHgrow(main, Priority.ALWAYS);
+		VBox.setVgrow(main, Priority.ALWAYS);
+		main.getChildren().addAll(mainBar, mainView);
+		getChildren().add(main);
 		
-		getChildren().addAll(mainBar, mainView);
+		// create progress indicator
+		progressIndicatorView = new VBox();
+		progressIndicatorView.setVisible(false);
+		progressIndicatorView.setOpacity(0.7d);
+		progressIndicatorView.setStyle("-fx-background-color: #000000;");
+		HBox.setHgrow(progressIndicatorView, Priority.ALWAYS);
+		VBox.setVgrow(progressIndicatorView, Priority.ALWAYS);
+		progressIndicator = new ProgressIndicator();
+		progressIndicator.setVisible(false);
+		progressIndicator.setPrefSize(75d, 75d);
+		getChildren().addAll(progressIndicatorView, progressIndicator);
 	}
 	
 	/**
@@ -96,12 +123,12 @@ public class Controls extends VBox {
 		// add the actions
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
-		GuiUtil.addHelpText(helpText, camTakeQvga, "Takes a QVGA image at the current camera pan/tilt angle " + 
+		GuiUtil.addHelpText(helpTextPane, camTakeQvga, "Takes a QVGA image at the current camera pan/tilt angle " + 
 		"and transfers the image back to the host. An email with the attached image will also be sent when enabled");
 		camTakeQvga.setCursor(Cursor.HAND);
 		camTakeQvga.setEffect(ds);
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
-		GuiUtil.addHelpText(helpText, camTakeVga, "Takes a VGA image at the current camera pan/tilt angle " + 
+		GuiUtil.addHelpText(helpTextPane, camTakeVga, "Takes a VGA image at the current camera pan/tilt angle " + 
 				"and transfers the image back to the host. An email with the attached image will also be sent when enabled");
 		camTakeVga.setCursor(Cursor.HAND);
 		camTakeVga.setEffect(ds);
@@ -110,16 +137,30 @@ public class Controls extends VBox {
 		settingsSet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(final MouseEvent event) {
-				if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
-						event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
-					return;
-				}
-				if (!UGateKeeper.DEFAULT.wirelessSendSettings()) {
-					((Label) helpText.getContent()).setText("Unable to send the settings to the remote node(s). See log for more details.");
+				if (GuiUtil.isPrimaryPress(event)) {
+					showProgress();
+					final Service<String> ps = new Service<String>(){
+						@Override
+						protected Task<String> createTask() {
+							return new Task<String>() {
+								@Override
+								protected String call() throws Exception {
+									if (!UGateKeeper.DEFAULT.wirelessSendSettings(
+											(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
+									setHelpText(
+											"Unable to send the settings to the remote node(s). See log for more details.");
+									}
+									hideProgress();
+									return null;
+								}
+							};
+						}
+					};
+					ps.start();
 				}
 			}
 	    });
-		GuiUtil.addHelpText(helpText, settingsSet, "Sends the settings to the remote microcontroller node. " + 
+		GuiUtil.addHelpText(helpTextPane, settingsSet, "Sends the settings to the remote microcontroller node. " + 
 				"Blinks when settings updates have been made, but have not yet been sent");
 		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
@@ -140,13 +181,22 @@ public class Controls extends VBox {
 			}
 		});
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
-		GuiUtil.addHelpText(helpText, readingsGet, "Gets the current sensor readings and updates the readings display with the values");
+		GuiUtil.addHelpText(helpTextPane, readingsGet, 
+				"Gets the current sensor readings and updates the readings display with the values");
 		readingsGet.setCursor(Cursor.HAND);
-		readingsGet.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
+		readingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(final MouseEvent event) {
-				UGateKeeper.DEFAULT.wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + 1, 
-						new int[] { UGateUtil.CMD_SENSOR_GET_READINGS });
+				if (GuiUtil.isPrimaryPress(event)) {
+					showProgress();
+					if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
+						new int[] { UGateUtil.CMD_SENSOR_GET_READINGS })) {
+					setHelpText(String.format(
+							"Unable to get the sensor readings from node %1$s. See log for more details.",
+							getRemoteNodeIndex()));
+					}
+					hideProgress();
+				}
 			}
 	    });
 		
@@ -162,7 +212,7 @@ public class Controls extends VBox {
 				SensorControl.COLOR_MW, null);
 		final Group readingsGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
-		GuiUtil.addHelpText(helpText, readingsGroup, "Current sensors readings display");
+		GuiUtil.addHelpText(helpTextPane, readingsGroup, "Current sensors readings display");
 		
 		
 		// add the multi-alarm trip state
@@ -172,7 +222,7 @@ public class Controls extends VBox {
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
 		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				multiAlarmToggleSwitch);
-		GuiUtil.addHelpText(helpText, multiAlarmGroup, "Multi-alarm trip state. When any combination of sensors have been selected those " + 
+		GuiUtil.addHelpText(helpTextPane, multiAlarmGroup, "Multi-alarm trip state. When any combination of sensors have been selected those " + 
 				"selected sensors will ALL have to be tripped in order to cause an alarm. When NONE of the sensors have been selected ANY " + 
 				"sensor trip will cause an alarm. Keep in mind that the sensors selected should be on or no alarm will be triggered.");
 		
@@ -180,7 +230,7 @@ public class Controls extends VBox {
 		return new Node[] { camTakeQvga, camTakeVga, settingsSet, readingsGet, 
 				new Separator(Orientation.VERTICAL), readingsGroup, 
 				new Separator(Orientation.VERTICAL), multiAlarmGroup,
-				new Separator(Orientation.VERTICAL), helpText};
+				new Separator(Orientation.VERTICAL), helpTextPane};
 	}
 	
 	/**
@@ -227,7 +277,7 @@ public class Controls extends VBox {
 		final Tab tab = new Tab(text);
 		tab.setClosable(false);
 		try {
-			tab.setContent((T) cpc.getConstructor(helpText.getClass()).newInstance(helpText));
+			tab.setContent((T) cpc.getConstructor(helpTextPane.getClass()).newInstance(helpTextPane));
 		} catch (final Throwable t) {
 			log.error("Unable to Instantiate " + cpc, t);
 		}
@@ -347,5 +397,71 @@ public class Controls extends VBox {
 			}
 		});
 		return reloadBtn;
+	}
+
+	public void showProgress() {
+		setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
+		progressIndicatorView.setVisible(true);
+		progressIndicator.setVisible(true);
+	}
+	
+	public void hideProgress() {
+		progressIndicator.setVisible(false);
+		progressIndicatorView.setVisible(false);
+	}
+	
+	/**
+	 * @return the current help text
+	 */
+	public String getHelpText() {
+		return helpText.getText();
+	}
+	
+	/**
+	 * Sets the help text
+	 * 
+	 * @param text the help text to set
+	 */
+	public void setHelpText(final String text) {
+		helpText.setText(text);
+	}
+	
+	/**
+	 * @return the remote node address of the device node for which the controls represent
+	 */
+	public String getRemoteNodeAddress() {
+		return UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + getRemoteNodeIndex();
+	}
+
+	/**
+	 * @return the remote index of the device node for which the controls represent
+	 */
+	public int getRemoteNodeIndex() {
+		return this.remoteNodeIndex;
+	}
+
+	/**
+	 * Sets the remote index of the device node for which the controls represent
+	 * 
+	 * @param remoteNodeIndex the remote node index
+	 */
+	public void setRemoteNodeIndex(final int remoteNodeIndex) {
+		this.remoteNodeIndex = remoteNodeIndex;
+	}
+
+	/**
+	 * @return true when settings updates should be propagated to all the remote nodes when
+	 * 		the user chooses to save the settings
+	 */
+	public boolean isPropagateSettingsToAllRemoteNodes() {
+		return propagateSettingsToAllRemoteNodes;
+	}
+
+	/**
+	 * @param propagateSettingsToAllRemoteNodes true when settings updates should be propagated 
+	 * 		to all the remote nodes when the user chooses to save the settings
+	 */
+	public void setPropagateSettingsToAllRemoteNodes(final boolean propagateSettingsToAllRemoteNodes) {
+		this.propagateSettingsToAllRemoteNodes = propagateSettingsToAllRemoteNodes;
 	}
 }
