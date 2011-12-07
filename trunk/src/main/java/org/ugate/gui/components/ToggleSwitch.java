@@ -37,10 +37,20 @@ public class ToggleSwitch extends Group {
 	private Rectangle mainRec;
 	private Rectangle middleRec;
 
+	/**
+	 * Default toggle switch constructor
+	 */
 	public ToggleSwitch() {
 		this(null, null, true);
 	}
 
+	/**
+	 * Full constructor
+	 * 
+	 * @param onText the on text
+	 * @param offText the off text
+	 * @param on the initial state of the toggle switch
+	 */
 	public ToggleSwitch(final String onText, final String offText, final boolean on) {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
@@ -76,6 +86,9 @@ public class ToggleSwitch extends Group {
 		update();
 	}
 	
+	/**
+	 * Updates the toggle switch display to represent on or off
+	 */
 	protected void update() {
         // Create and set a gradient for the inside of the button
         final Stop[] mainStops = new Stop[] {

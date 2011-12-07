@@ -457,40 +457,46 @@ public enum UGateKeeper {
 	 * Synchronizes the locally stored settings with the remote wireless node(s)
 	 * 
 	 * @param wirelessNodes the wireless nodes to send to (null to send to all)
-	 * @return true when successful
+	 * @return true when all node(s) have been updated successfully
 	 */
 	public boolean wirelessSendSettings(final String... wirelessNodes) {
+		boolean allSuccess = false;
 		if (!wirelessIsConnected()) {
-			return false;
+			return allSuccess;
 		}
 
 		// send the command, status code, and settings data
-		final int[] sendData = UGateUtil.arrayConcatInt(new int[]{UGateUtil.CMD_SENSOR_SET_SETTINGS, 
-				WirelessStatusCode.NONE.ordinal()}, 
-				new SettingsData().toArray());
-		final List<String> waks = wirelessNodes == null || wirelessNodes.length == 0 ? 
-				wirelessGetNodeAddressKeys(false) : Arrays.asList(wirelessNodes);
-		int scnt = 0;
-		for (int i=0; i<waks.size(); i++) {
-			preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, 
-					waks.get(i), null, null, null);
-			log.debug("Sending settings to node " + waks.get(i));
-			if (wirelessSendData(waks.get(i), sendData)) {
-				log.debug("Sent settings to node " + waks.get(i));
-				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, 
+		try {
+			final int[] sendData = UGateUtil.arrayConcatInt(new int[]{UGateUtil.CMD_SENSOR_SET_SETTINGS, 
+					WirelessStatusCode.NONE.ordinal()}, 
+					new SettingsData().toArray());
+			final List<String> waks = wirelessNodes == null || wirelessNodes.length == 0 ? 
+					wirelessGetNodeAddressKeys(false) : Arrays.asList(wirelessNodes);
+			int scnt = 0;
+			for (int i=0; i<waks.size(); i++) {
+				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, 
 						waks.get(i), null, null, null);
-				scnt++;
-			} else {
-				log.warn("Failed to send settings to node " + waks.get(i));
-				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_FAILED, 
-						waks.get(i), null, null, null);
+				log.debug("Sending settings to node for key " + waks.get(i));
+				if (wirelessSendData(waks.get(i), sendData)) {
+					log.debug("Sent settings to node for key " + waks.get(i));
+					preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, 
+							waks.get(i), null, null, null);
+					scnt++;
+				} else {
+					log.warn(String.format("Failed to send settings to node %2$s (preference key: %1$s)", 
+							waks.get(i), preferences.get(waks.get(i))));
+					preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_FAILED, 
+							waks.get(i), null, null, null);
+				}
 			}
-		}
-		if (scnt > 0) {
 			log.info("Settings sent to " + scnt + " node(s)");
-			return true;
+			if (scnt == waks.size()) {
+				allSuccess = true;
+			}
+		} catch (final Throwable t) {
+			log.error("Error while sending settings", t);
 		}
-		return false;
+		return allSuccess;
 	}
 
 	/**

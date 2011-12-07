@@ -16,6 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
 import org.ugate.UGateKeeper;
+import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
 
 /**
@@ -286,11 +287,9 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 			toggleSwitchImageView.setOnMousePressed(new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(final MouseEvent event) {
-					if (event.isMetaDown() || event.isControlDown() || event.isAltDown() || 
-							event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
-						return;
+					if (GuiUtil.isPrimaryPress(event)) {
+						toggleSwitch.selectedProperty().set(!toggleSwitch.selectedProperty().get());
 					}
-					toggleSwitch.selectedProperty().set(!toggleSwitch.selectedProperty().get());
 				}
 			});
 		}
