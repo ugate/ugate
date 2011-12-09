@@ -103,7 +103,7 @@ public class UGateGUI extends Application {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(final Stage stage) throws Exception {
 		log.debug("Starting GUI...");
 		try {
 			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
@@ -127,7 +127,7 @@ public class UGateGUI extends Application {
 					}
 				}
 			};
-			controls = new Controls();
+			controls = new Controls(stage);
 	
 			final BorderPane content = new BorderPane();
 			content.setId("content");
