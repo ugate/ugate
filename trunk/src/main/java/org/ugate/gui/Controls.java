@@ -1,6 +1,8 @@
 package org.ugate.gui;
 
 import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -15,7 +17,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
@@ -32,6 +33,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 
 import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
@@ -58,12 +60,11 @@ public class Controls extends StackPane {
 	private final Label helpText;
 	private int remoteNodeIndex = 1;
 	private boolean propagateSettingsToAllRemoteNodes = false;
-	private final VBox progressIndicatorView;
-	private final ProgressIndicator progressIndicator;
+	private IntegerProperty commandProperty = new SimpleIntegerProperty();
+	public final Service<Boolean> commandService;
 
-	public Controls() {
+	public Controls(final Stage stage) {
 		super();
-		
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
@@ -103,17 +104,29 @@ public class Controls extends StackPane {
 		main.getChildren().addAll(mainBar, mainView);
 		getChildren().add(main);
 		
-		// create progress indicator
-		progressIndicatorView = new VBox();
-		progressIndicatorView.setVisible(false);
-		progressIndicatorView.setOpacity(0.7d);
-		progressIndicatorView.setStyle("-fx-background-color: #000000;");
-		HBox.setHgrow(progressIndicatorView, Priority.ALWAYS);
-		VBox.setVgrow(progressIndicatorView, Priority.ALWAYS);
-		progressIndicator = new ProgressIndicator();
-		progressIndicator.setVisible(false);
-		progressIndicator.setPrefSize(75d, 75d);
-		getChildren().addAll(progressIndicatorView, progressIndicator);
+		// TODO : move to central location?
+		commandService = GuiUtil.alertProgress(stage, new Task<Boolean>() {
+			@Override
+			protected Boolean call() throws Exception {
+				if (commandProperty.get() == UGateUtil.CMD_SENSOR_GET_READINGS) {
+					if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
+							new int[] { UGateUtil.CMD_SENSOR_GET_READINGS })) {
+						setHelpText(String.format(
+								"Unable to get the sensor readings from node %1$s. See log for more details.",
+								getRemoteNodeIndex()));
+						return false;
+					}
+				} else if (commandProperty.get() == UGateUtil.CMD_SENSOR_SET_SETTINGS) {
+					if (!UGateKeeper.DEFAULT.wirelessSendSettings(
+							(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
+						setHelpText(
+								"Unable to send the settings to the remote node(s). See log for more details.");
+						return false;
+					}
+				}
+				return true;
+			}
+		});
 	}
 	
 	/**
@@ -138,25 +151,9 @@ public class Controls extends StackPane {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					showProgress();
-					final Service<String> ps = new Service<String>(){
-						@Override
-						protected Task<String> createTask() {
-							return new Task<String>() {
-								@Override
-								protected String call() throws Exception {
-									if (!UGateKeeper.DEFAULT.wirelessSendSettings(
-											(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
-									setHelpText(
-											"Unable to send the settings to the remote node(s). See log for more details.");
-									}
-									hideProgress();
-									return null;
-								}
-							};
-						}
-					};
-					ps.start();
+					setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
+					commandProperty.set(UGateUtil.CMD_SENSOR_SET_SETTINGS);
+					commandService.start();
 				}
 			}
 	    });
@@ -188,14 +185,9 @@ public class Controls extends StackPane {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					showProgress();
-					if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
-						new int[] { UGateUtil.CMD_SENSOR_GET_READINGS })) {
-					setHelpText(String.format(
-							"Unable to get the sensor readings from node %1$s. See log for more details.",
-							getRemoteNodeIndex()));
-					}
-					hideProgress();
+					setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
+					commandProperty.set(UGateUtil.CMD_SENSOR_GET_READINGS);
+					commandService.start();
 				}
 			}
 	    });
@@ -397,17 +389,6 @@ public class Controls extends StackPane {
 			}
 		});
 		return reloadBtn;
-	}
-
-	public void showProgress() {
-		setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
-		progressIndicatorView.setVisible(true);
-		progressIndicator.setVisible(true);
-	}
-	
-	public void hideProgress() {
-		progressIndicator.setVisible(false);
-		progressIndicatorView.setVisible(false);
 	}
 	
 	/**
