@@ -1,5 +1,6 @@
 package org.ugate.gui.components;
 
+import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 
 import javafx.scene.control.Label;
@@ -27,7 +28,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
-	public UGateTextFieldPreferenceView(final String preferenceKey, 
+	public UGateTextFieldPreferenceView(final Settings preferenceKey, 
 			final Type type, final String labelText, final String toolTip) {
 	    super();
 		label = new Label();

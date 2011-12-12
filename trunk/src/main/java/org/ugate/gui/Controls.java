@@ -1,8 +1,6 @@
 package org.ugate.gui;
 
 import javafx.animation.Timeline;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -36,9 +34,10 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import org.apache.log4j.Logger;
+import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
+import org.ugate.Settings;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.PlateGroup;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
@@ -58,17 +57,17 @@ public class Controls extends StackPane {
 	protected static final String NAVIGATE_JS = "nav";
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
+	private final Stage stage;
 	private int remoteNodeIndex = 1;
 	private boolean propagateSettingsToAllRemoteNodes = false;
-	private IntegerProperty commandProperty = new SimpleIntegerProperty();
-	public final Service<Boolean> commandService;
 
 	public Controls(final Stage stage) {
 		super();
+		this.stage = stage;
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				helpTextDropShadow, Color.CYAN, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
+				helpTextDropShadow, Color.RED, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
 		helpTextPane = new ScrollPane();
 		helpTextPane.setStyle("-fx-background-color: #ffffff;");
 		helpTextPane.setPrefHeight(40d);
@@ -79,9 +78,11 @@ public class Controls extends StackPane {
 		helpText.setPrefWidth(helpTextPane.getPrefWidth() - 35d);
 		helpText.textProperty().addListener(new ChangeListener<String>() {
 			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+			public void changed(ObservableValue<? extends String> observable, String oldValue, 
+					String newValue) {
 				helpTextTimeline.stop();
-				if (newValue != null && newValue.length() > 0) {
+				if (newValue != null && newValue.length() > 0 && 
+						!newValue.equals(GuiUtil.HELP_TEXT_DEFAULT)) {
 					helpTextTimeline.play();
 				}
 			}
@@ -105,28 +106,7 @@ public class Controls extends StackPane {
 		getChildren().add(main);
 		
 		// TODO : move to central location?
-		commandService = GuiUtil.alertProgress(stage, new Task<Boolean>() {
-			@Override
-			protected Boolean call() throws Exception {
-				if (commandProperty.get() == UGateUtil.CMD_SENSOR_GET_READINGS) {
-					if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
-							new int[] { UGateUtil.CMD_SENSOR_GET_READINGS })) {
-						setHelpText(String.format(
-								"Unable to get the sensor readings from node %1$s. See log for more details.",
-								getRemoteNodeIndex()));
-						return false;
-					}
-				} else if (commandProperty.get() == UGateUtil.CMD_SENSOR_SET_SETTINGS) {
-					if (!UGateKeeper.DEFAULT.wirelessSendSettings(
-							(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
-						setHelpText(
-								"Unable to send the settings to the remote node(s). See log for more details.");
-						return false;
-					}
-				}
-				return true;
-			}
-		});
+
 	}
 	
 	/**
@@ -151,9 +131,7 @@ public class Controls extends StackPane {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
-					commandProperty.set(UGateUtil.CMD_SENSOR_SET_SETTINGS);
-					commandService.start();
+					createControlsService(Command.SENSOR_SET_SETTINGS).start();
 				}
 			}
 	    });
@@ -185,9 +163,7 @@ public class Controls extends StackPane {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
-					commandProperty.set(UGateUtil.CMD_SENSOR_GET_READINGS);
-					commandService.start();
+					createControlsService(Command.SENSOR_GET_READINGS).start();
 				}
 			}
 	    });
@@ -208,7 +184,8 @@ public class Controls extends StackPane {
 		
 		
 		// add the multi-alarm trip state
-		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(UGateUtil.SV_MULTI_ALARM_TRIP_STATE_KEY,
+		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
+				Settings.SV_MULTI_ALARM_TRIP_STATE_KEY,
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
@@ -392,6 +369,49 @@ public class Controls extends StackPane {
 	}
 	
 	/**
+	 * Creates a service for the command
+	 * 
+	 * @param command the command
+	 * @return the service
+	 */
+	public Service<Boolean> createControlsService(final Command command) {
+		setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
+		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+			@Override
+			protected Boolean call() throws Exception {
+				try {
+					if (command == Command.SENSOR_GET_READINGS) {
+						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
+								new int[] { Command.SENSOR_GET_READINGS.id })) {
+							setHelpText(String.format(
+									"Unable to get the sensor readings from node %1$s. See log for more details.",
+									getRemoteNodeIndex()));
+							return false;
+						}
+					} else if (command == Command.SENSOR_SET_SETTINGS) {
+						if (!UGateKeeper.DEFAULT.wirelessSendSettings(
+								(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
+							setHelpText(
+									"Unable to send the settings to the remote node(s). See log for more details.");
+							return false;
+						}
+					} else {
+						log.warn(String.format("%1$c is not a valid command for %2$s", 
+								command, Controls.class.getName()));
+						return false;
+					}
+				} catch (final Throwable t) {
+					setHelpText(
+							"An error occurred while executing command. See log for more details.");
+					log.error("Unable to execute " + command, t);
+					return false;
+				}
+				return true;
+			}
+		});
+	}
+	
+	/**
 	 * @return the current help text
 	 */
 	public String getHelpText() {
@@ -411,7 +431,7 @@ public class Controls extends StackPane {
 	 * @return the remote node address of the device node for which the controls represent
 	 */
 	public String getRemoteNodeAddress() {
-		return UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + getRemoteNodeIndex();
+		return Settings.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + getRemoteNodeIndex();
 	}
 
 	/**

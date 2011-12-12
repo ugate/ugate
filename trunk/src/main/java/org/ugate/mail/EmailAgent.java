@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
+import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 
@@ -319,7 +320,8 @@ public class EmailAgent implements Runnable {
 	}
 	
 	protected boolean hasCommandPermission(Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.PV_MAIL_RECIPIENTS_KEY, UGateUtil.MAIL_RECIPIENTS_DELIMITER);
+		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.PV_MAIL_RECIPIENTS_KEY, 
+				UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {

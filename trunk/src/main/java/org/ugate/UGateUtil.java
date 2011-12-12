@@ -18,46 +18,28 @@ import javax.imageio.stream.ImageInputStream;
  * General utility
  */
 public class UGateUtil {
-
-	// commands
-	public static final int CMD_SERVO_TILT_UP = 16;
-	public static final int CMD_SERVO_TILT_DOWN = 17;
-	public static final int CMD_SERVO_PAN_RIGHT = 18;
-	public static final int CMD_SERVO_PAN_LEFT = 19;
-	public static final int CMD_IR_REMOTE_SESSION_RESET = 20;
-	public static final int CMD_SENSOR_ALARM_TOGGLE = 21;
-	public static final int CMD_CAM_TAKE_PIC = 29;
-	public static final int CMD_ACCESS_CODE_CHANGE = 37;
-	public static final int CMD_SERVO_TOGGLE_CAM_SONARIR = 58;
-	public static final int CMD_GATE_TOGGLE_OPEN_CLOSE = 59;
-	public static final int CMD_SERVO_CAM_MOVE = 100;
-	public static final int CMD_SERVO_SONAR_MOVE = 101;
-	public static final int CMD_SERVO_MICROWAVE_MOVE = 102;
-	public static final int CMD_SENSOR_GET_READINGS = 103;
-	public static final int CMD_SENSOR_GET_SETTINGS = 104;
-	public static final int CMD_SENSOR_SET_SETTINGS = 105;
 	
 	/**
 	 * Commands that can be sent to the remote micro controller
 	 */
-	public static final HashMap<Integer, String> CMDS = new HashMap<Integer, String>();
+	public static final HashMap<Command, String> CMDS = new HashMap<Command, String>();
 	static {
-		CMDS.put(CMD_SERVO_TILT_UP, "Tilts the selected servo up");
-		CMDS.put(CMD_SERVO_TILT_DOWN, "Tilts the selected servo down");
-		CMDS.put(CMD_SERVO_PAN_RIGHT, "Pans the selected servo to the right");
-		CMDS.put(CMD_SERVO_PAN_LEFT, "Pans the selected servo to the left");
-		CMDS.put(CMD_IR_REMOTE_SESSION_RESET, "Resets the universal remote control session");
-		CMDS.put(CMD_SENSOR_ALARM_TOGGLE, "Turns the sensor alarms on and off");
-		CMDS.put(CMD_CAM_TAKE_PIC, "Takes a picture at a predefined resolution");
-		CMDS.put(CMD_ACCESS_CODE_CHANGE, "Changes the access code");
-		CMDS.put(CMD_SERVO_TOGGLE_CAM_SONARIR, "Toggle between the camera and sonar/IR servo");
-		CMDS.put(CMD_GATE_TOGGLE_OPEN_CLOSE, "Toggle opening and closing the gate (if applicable)");
-		CMDS.put(CMD_SERVO_CAM_MOVE, "Moves the camera (followed by a servo movement command)");
-		CMDS.put(CMD_SERVO_SONAR_MOVE, "Moves the sonar/IR armature (followed by a servo movement command)");
-		CMDS.put(CMD_SERVO_MICROWAVE_MOVE, "Moves the microwave armature (followed by a servo movement command)");
-		CMDS.put(CMD_SENSOR_GET_READINGS, "Retrieves the current sensor readings");
-		CMDS.put(CMD_SENSOR_GET_SETTINGS, "Gets all of the settings variables from the remote device");
-		CMDS.put(CMD_SENSOR_SET_SETTINGS, "Sets all of the settings variables on the remote device");
+		CMDS.put(Command.SERVO_TILT_UP, "Tilts the selected servo up");
+		CMDS.put(Command.SERVO_TILT_DOWN, "Tilts the selected servo down");
+		CMDS.put(Command.SERVO_PAN_RIGHT, "Pans the selected servo to the right");
+		CMDS.put(Command.SERVO_PAN_LEFT, "Pans the selected servo to the left");
+		CMDS.put(Command.IR_REMOTE_SESSION_RESET, "Resets the universal remote control session");
+		CMDS.put(Command.SENSOR_ALARM_TOGGLE, "Turns the sensor alarms on and off");
+		CMDS.put(Command.CAM_TAKE_PIC, "Takes a picture at a predefined resolution");
+		CMDS.put(Command.ACCESS_CODE_CHANGE, "Changes the access code");
+		CMDS.put(Command.SERVO_TOGGLE_CAM_SONARIR, "Toggle between the camera and sonar/IR servo");
+		CMDS.put(Command.GATE_TOGGLE_OPEN_CLOSE, "Toggle opening and closing the gate (if applicable)");
+		CMDS.put(Command.SERVO_CAM_MOVE, "Moves the camera (followed by a servo movement command)");
+		CMDS.put(Command.SERVO_SONAR_MOVE, "Moves the sonar/IR armature (followed by a servo movement command)");
+		CMDS.put(Command.SERVO_MICROWAVE_MOVE, "Moves the microwave armature (followed by a servo movement command)");
+		CMDS.put(Command.SENSOR_GET_READINGS, "Retrieves the current sensor readings");
+		CMDS.put(Command.SENSOR_GET_SETTINGS, "Gets all of the settings variables from the remote device");
+		CMDS.put(Command.SENSOR_SET_SETTINGS, "Sets all of the settings variables on the remote device");
 	}
 	/**
 	 * Available XBee baud rates
@@ -66,52 +48,8 @@ public class UGateUtil {
 	
 	// preference values (host use only) settings values (host and node use)
 	
-	public static final String PV_SOUNDS_ON_KEY = "sounds.on";
-	public static final String PV_USE_METRIC_KEY = "metric.on";
-	public static final String PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY = "cam.img.capture.retries";
-	public static final String SV_WIRELESS_COM_PORT_KEY = "wireless.com.port";
-	public static final String SV_WIRELESS_BAUD_RATE_KEY = "wireless.baud.rate";
-	public static final String SV_WIRELESS_ADDRESS_HOST_KEY = "wireless.address.host";
-	public static final String SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY = "wireless.address.node.";
 	public static final String MAIL_COMMAND_DELIMITER = ";";
 	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
-	public static final String PV_MAIL_RECIPIENTS_KEY = "mail.recipients";
-	public static final String PV_MAIL_RECIPIENTS_ON_KEY = "mail.recipients.on";
-	public static final String PV_MAIL_SMTP_HOST_KEY = "mail.smtp.host";
-	public static final String PV_MAIL_SMTP_PORT_KEY = "mail.smtp.port";
-	public static final String PV_MAIL_IMAP_HOST_KEY = "mail.imap.host";
-	public static final String PV_MAIL_IMAP_PORT_KEY = "mail.imap.port";
-	public static final String PV_MAIL_USERNAME_KEY = "mail.username";
-	public static final String PV_MAIL_PASSWORD_KEY = "mail.password";
-	public static final String PV_MAIL_ALARM_ON_KEY = "mail.alarm.on";
-	public static final String SV_ACCESS_CODE_1_KEY = "access.code.one";
-	public static final String SV_ACCESS_CODE_2_KEY = "access.code.two";
-	public static final String SV_ACCESS_CODE_3_KEY = "access.code.three";
-	public static final String SV_SONAR_ALARM_ON_KEY = "sonar.alarm.on";
-	public static final String SV_IR_ALARM_ON_KEY = "ir.alarm.on";
-	public static final String SV_GATE_ACCESS_ON_KEY = "gate.access.on";
-	public static final String SV_SONAR_DISTANCE_THRES_FEET_KEY = "sonar.distance.threshold.feet";
-	public static final String SV_SONAR_DISTANCE_THRES_INCHES_KEY = "sonar.distance.threshold.inches";
-	public static final String SV_SONAR_DELAY_BTWN_TRIPS_KEY = "sonar.trip.delay";
-	public static final String SV_SONAR_IR_ANGLE_PAN_KEY = "sonar.ir.angle.pan";
-	public static final String SV_SONAR_IR_ANGLE_TILT_KEY = "sonar.ir.angle.tilt";
-	public static final String SV_IR_DISTANCE_THRES_FEET_KEY = "ir.distance.threshold.feet";
-	public static final String SV_IR_DISTANCE_THRES_INCHES_KEY = "ir.distance.threshold.inches";
-	public static final String SV_IR_DELAY_BTWN_TRIPS_KEY = "ir.trip.delay";
-	public static final String SV_MW_ALARM_ON_KEY = "microwave.alarm.on";
-	public static final String SV_MW_SPEED_THRES_CYCLES_PER_SEC_KEY = "microwave.speed.threshold";
-	public static final String SV_MW_DELAY_BTWN_TRIPS_KEY = "microwave.trip.delay";
-	public static final String SV_MW_ANGLE_PAN_KEY = "microwave.angle.pan";
-	public static final String SV_MULTI_ALARM_TRIP_STATE_KEY = "multi.alarm.trip.state";
-	public static final String SV_CAM_RES_KEY = "cam.resolution";
-	public static final String SV_CAM_ANGLE_PAN_KEY = "cam.angle.pan";
-	public static final String SV_CAM_ANGLE_TILT_KEY = "cam.angle.pan";
-	public static final String SV_CAM_SONAR_TRIP_ANGLE_PAN_KEY = "cam.sonar.trip.angle.pan";
-	public static final String SV_CAM_SONAR_TRIP_ANGLE_TILT_KEY = "cam.sonar.trip.angle.tilt";
-	public static final String SV_CAM_IR_TRIP_ANGLE_PAN_KEY = "cam.ir.trip.angle.pan";
-	public static final String SV_CAM_IR_TRIP_ANGLE_TILT_KEY = "cam.ir.trip.angle.tilt";
-	public static final String SV_CAM_MW_TRIP_ANGLE_PAN_KEY = "cam.mw.trip.angle.pan";
-	public static final String SV_CAM_MW_TRIP_ANGLE_TILT_KEY = "cam.mw.trip.angle.tilt";
 	
 	// wireless network addresses
 	

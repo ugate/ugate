@@ -16,6 +16,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -62,12 +64,20 @@ public class GuiUtil {
 	public static <T> Service<T> alertProgress(final Stage parent, final Task<T> progressTask) {
 		final Stage alert = alert(parent, 200, 150, 
 				Modality.APPLICATION_MODAL, new ProgressIndicator());
+		final Service<T> service = new Service<T>() {
+			@Override
+			protected Task<T> createTask() {
+				return progressTask;
+			}
+		};
+		final Effect origEffect = parent.getScene().getRoot().getEffect();
 		progressTask.stateProperty().addListener(new ChangeListener<State>() {
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue == State.RUNNING && !alert.isShowing()) {
 					Platform.runLater(new Runnable() {
 						public void run() {
+							parent.getScene().getRoot().setEffect(new GaussianBlur());
 							alert.show();
 						}
 					});
@@ -75,17 +85,13 @@ public class GuiUtil {
 					Platform.runLater(new Runnable() {
 						public void run() {
 							alert.hide();
+							parent.getScene().getRoot().setEffect(origEffect);
 						}
 					});
 				}
 			}
 		});
-		return new Service<T>() {
-			@Override
-			protected Task<T> createTask() {
-				return progressTask;
-			}
-		};
+		return service;
 	}
 
 	/**
@@ -111,6 +117,8 @@ public class GuiUtil {
 		stage.setScene(new Scene(root, width, height, Color.TRANSPARENT));
 		if (parent != null) {
 			stage.initOwner(parent);
+			stage.setX(parent.getX() + parent.getScene().getWidth() / 2d - width / 2d);
+			stage.setY(parent.getY() + parent.getScene().getHeight() / 2d - height / 2d);
 			parent.xProperty().addListener(new ChangeListener<Number>() {
 				@Override
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {

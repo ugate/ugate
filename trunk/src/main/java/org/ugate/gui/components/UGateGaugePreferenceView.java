@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.resources.RS;
@@ -44,7 +45,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param icon the icon of the gauge
 	 * @param onColor the color of the on digits
 	 */
-	public UGateGaugePreferenceView(final String preferenceKeyInteger, final String preferenceKeyFraction, 
+	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
 			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
@@ -71,7 +72,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param iconFileName the icon of the gauge
 	 * @param onColor the color of the on digits
 	 */
-	public UGateGaugePreferenceView(final String preferenceKeyInteger, final String preferenceKeyFraction, 
+	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
 			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
@@ -100,7 +101,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param offColor the color of the off digits
 	 * @param orientation the orientation of the control
 	 */
-	public UGateGaugePreferenceView(final String preferenceKeyInteger, final String preferenceKeyFraction, 
+	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
 			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
@@ -130,7 +131,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param offColor the color of the off digits
 	 * @param orientation the orientation of the control
 	 */
-	public UGateGaugePreferenceView(final String preferenceKeyInteger, final String preferenceKeyFraction, 
+	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
 			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
@@ -203,8 +204,8 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
 	 * @param newValue the new value to set
 	 */
-	protected void setPreferenceValue(final String preferenceKeyInteger, 
-			final String preferenceKeyFraction, final String newValue) {
+	protected void setPreferenceValue(final Settings preferenceKeyInteger, 
+			final Settings preferenceKeyFraction, final String newValue) {
 		if (preferenceKeyFraction != null) {
 			final double value = Double.parseDouble(newValue);
 			final int feet = (int) value;
