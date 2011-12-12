@@ -81,10 +81,10 @@ public enum UGateKeeper {
 	 * @param key the key
 	 * @param value the value
 	 */
-	public void preferencesSet(final String key, final String value) {
+	public void preferencesSet(final Settings key, final String value) {
 		final String oldValue = preferencesGet(key);
 		if (!oldValue.equals(value)) {
-			preferences.set(key, value);
+			preferences.set(key.key, value);
 			preferencesNotify(IGateKeeperListener.Event.PREFERENCES_SET, null, key, oldValue, value);
 		}
 	}
@@ -95,8 +95,8 @@ public enum UGateKeeper {
 	 * @param key the key to get the value for
 	 * @return the preference value
 	 */
-	public String preferencesGet(final String key) {
-		return preferences.get(key);
+	public String preferencesGet(final Settings key) {
+		return preferences.get(key.key);
 	}
 	
 	/**
@@ -106,8 +106,8 @@ public enum UGateKeeper {
 	 * @param delimiter the delimiter used to split the value
 	 * @return the preference values
 	 */
-	public List<String> preferencesGet(final String key, final String delimiter) {
-		return preferences.get(key, delimiter);
+	public List<String> preferencesGet(final Settings key, final String delimiter) {
+		return preferences.get(key.key, delimiter);
 	}
 	
 	/**
@@ -120,10 +120,10 @@ public enum UGateKeeper {
 	 * @param newValue the new value
 	 */
 	private void preferencesNotify(final IGateKeeperListener.Event type, 
-			final String node, final String key, final String oldValue, 
+			final String node, final Settings key, final String oldValue, 
 			final String newValue) {
 		for (final IGateKeeperListener pl : prefListeners) {
-			pl.handle(type, node, key, oldValue, newValue);
+			pl.handle(type, node, key.key, oldValue, newValue);
 		}
 	}
 	
@@ -163,7 +163,7 @@ public enum UGateKeeper {
 						for (Integer command : event.commands) {
 							// send command to all the nodes defined in the email
 							for (int toNode : event.toNodes) {
-								wirelessSendData(UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + toNode, new int[] { command });
+								wirelessSendData(Settings.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + toNode, new int[] { command });
 							}
 						}
 					} else {
@@ -438,7 +438,7 @@ public enum UGateKeeper {
 		final List<String> waks = new ArrayList<String>();
 		int i = 1;
 		String addressKey;
-		while (preferences.hasKey((addressKey = UGateUtil.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY + i))) {
+		while (preferences.hasKey((addressKey = Settings.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + i))) {
 			if (testConnections) {
 				if (wirelessTestAddressConnection(addressKey) != null) {
 					waks.add(addressKey);
@@ -467,7 +467,7 @@ public enum UGateKeeper {
 
 		// send the command, status code, and settings data
 		try {
-			final int[] sendData = UGateUtil.arrayConcatInt(new int[]{UGateUtil.CMD_SENSOR_SET_SETTINGS, 
+			final int[] sendData = UGateUtil.arrayConcatInt(new int[]{Command.SENSOR_SET_SETTINGS.id, 
 					WirelessStatusCode.NONE.ordinal()}, 
 					new SettingsData().toArray());
 			final List<String> waks = wirelessNodes == null || wirelessNodes.length == 0 ? 

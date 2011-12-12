@@ -3,6 +3,8 @@ package org.ugate.wireless.xbee;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.ugate.Command;
+import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.UGateGUI;
@@ -100,7 +102,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 		final WirelessStatusCode statusCode = failures == 0 ? WirelessStatusCode.NONE : WirelessStatusCode.GENERAL_FAILURE;
 		log.info(String.format("Recieved {0} command from wireless address {1} (signal strength: {2}) with {3} failures", 
 				command, remoteAddress, rxResponse.getRssi(), failures));
-		if (command == UGateUtil.CMD_CAM_TAKE_PIC) {
+		if (command == Command.CAM_TAKE_PIC.id) {
 			if (rxTxImage == null || rxTxImage.hasTimedOut()) {
 				if (rxTxImage != null) {
 					rxTxAttempts = 0;
@@ -117,7 +119,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			}
 			if (rxTxImage.isEof()) {
 				if (rxTxImage.getStatusCode() != WirelessStatusCode.NONE) {
-					final String retriesStr = UGateKeeper.DEFAULT.preferencesGet(UGateUtil.PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY);
+					final String retriesStr = UGateKeeper.DEFAULT.preferencesGet(Settings.PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY);
 					final int retries = retriesStr != null && retriesStr.length() > 0 ? Integer.parseInt(retriesStr) : 0;
 					rxTxImage = null;
 					if (retries != 0 && rxTxAttempts <= retries) {
@@ -148,18 +150,18 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					// UGateMain.getInstance().getUGate().refreshRecentTableViewerData();
 				}
 			}
-		} else if (command == UGateUtil.CMD_ACCESS_CODE_CHANGE) {
+		} else if (command == Command.ACCESS_CODE_CHANGE.id) {
 			//final int hasFailures = rxResponse.getData()[1];
 			final int keys[] =  new int[3];
 			keys[0] = rxResponse.getData()[1];
 			keys[1] = rxResponse.getData()[2];
 			keys[2] = rxResponse.getData()[3];
 			log.info("Access keys: " + keys[0] + ',' + keys[1] + ',' + keys[2]);
-		} else if (command == UGateUtil.CMD_SENSOR_GET_READINGS) {
+		} else if (command == Command.SENSOR_GET_READINGS.id) {
 			final SensorReadings sr = createSensorReadings(rxResponse);
 			log.info(String.format("=== Sensor Readings: %1$s ===", sr));
 			handleWirelessResponse(new WirelessResponse<SensorReadings>(command, statusCode, sr));
-		} else if (command == UGateUtil.CMD_SENSOR_GET_SETTINGS) {
+		} else if (command == Command.SENSOR_GET_SETTINGS.id) {
 			int i = 1;
 			log.info(String.format("=== Settings for %s START ===", remoteAddress));
 			log.info(String.format("Access Key Code: %1$s, %2$s, %3$s", 
