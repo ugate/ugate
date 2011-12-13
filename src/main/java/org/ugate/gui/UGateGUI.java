@@ -32,7 +32,6 @@ import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.TextAreaAppender;
@@ -53,12 +52,12 @@ public class UGateGUI extends Application {
 	private static final double TASKBAR_BUTTON_WIDTH = 100;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100;
 
-	public static final AudioClip mediaPlayerConfirm = RS.newAudioClip("x_confirm.wav");
-	public static final AudioClip mediaPlayerDoorBell = RS.newAudioClip("x_doorbell.wav");
-	public static final AudioClip mediaPlayerCam = RS.newAudioClip("x_cam.wav");
-	public static final AudioClip mediaPlayerComplete = RS.newAudioClip("x_complete.wav");
-	public static final AudioClip mediaPlayerError = RS.newAudioClip("x_error.wav");
-	public static final AudioClip mediaPlayerBlip = RS.newAudioClip("x_blip.wav");
+	public static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
+	public static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
+	public static final AudioClip mediaPlayerCam = RS.audioClip("x_cam.wav");
+	public static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
+	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
+	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	protected final StackPane centerView = new StackPane();
 	protected final HBox taskbar = new HBox(10);
 	protected final HBox connectionView = new HBox(10);
@@ -175,7 +174,7 @@ public class UGateGUI extends Application {
 					genFisheyeTaskbar(RS.IMG_PICS, new Runnable() {
 						public void run() {
 							changeCenterView(
-									new DisplayShelf(UGateUtil.imagePath(),
+									new DisplayShelf(RS.imgSavePath(),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP),
 									true);

@@ -11,6 +11,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.gui.components.UGateTextFieldPreferenceView;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
+import org.ugate.resources.RS;
 
 /**
  * Mail connection GUI responsible for connecting to the mail service
@@ -18,9 +19,9 @@ import org.ugate.mail.IEmailListener;
 public abstract class MailConnectionView extends StatusView {
 	
 	private static final Logger log = Logger.getLogger(MailConnectionView.class);
-	public static final String LABEL_CONNECT = "Connect To Mail";
-	public static final String LABEL_CONNECTING = "Connecting To Mail...";
-	public static final String LABEL_RECONNECT = "Reconnect To Mail";
+	public static final String LABEL_CONNECT = RS.rbLabel("mail.connect");
+	public static final String LABEL_CONNECTING = RS.rbLabel("mail.connecting");
+	public static final String LABEL_RECONNECT = RS.rbLabel("mail.reconnect");
 	public final UGateTextFieldPreferenceView smtpHost;
 	public final UGateTextFieldPreferenceView smtpPort;
 	public final UGateTextFieldPreferenceView imapHost;
@@ -31,18 +32,24 @@ public abstract class MailConnectionView extends StatusView {
 
 	public MailConnectionView() {
 	    super(20);
-		smtpHost = new UGateTextFieldPreferenceView(Settings.PV_MAIL_SMTP_HOST_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "SMTP Host", "Outgoing email host");
-		smtpPort = new UGateTextFieldPreferenceView(Settings.PV_MAIL_SMTP_PORT_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "SMTP Port", "Outgoing email port");
-	    imapHost = new UGateTextFieldPreferenceView(Settings.PV_MAIL_IMAP_HOST_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "IMAP Host", "Incoming email host");
-		imapPort = new UGateTextFieldPreferenceView(Settings.PV_MAIL_IMAP_PORT_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "IMAP Port", "Incoming email port");
-		username = new UGateTextFieldPreferenceView(Settings.PV_MAIL_USERNAME_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, "Username", "Username to login with");
-		password = new UGateTextFieldPreferenceView(Settings.PV_MAIL_PASSWORD_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_PASSWORD, "Password", "Password to login with");
+		smtpHost = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_HOST_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.host"), 
+				RS.rbLabel("mail.smtp.host.desc"));
+		smtpPort = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.port"), 
+				RS.rbLabel("mail.smtp.port.desc"));
+	    imapHost = new UGateTextFieldPreferenceView(Settings.MAIL_IMAP_HOST_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.imap.host"), 
+				RS.rbLabel("mail.imap.host.desc"));
+		imapPort = new UGateTextFieldPreferenceView(Settings.MAIL_IMAP_PORT_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.imap.port"), 
+				RS.rbLabel("mail.imap.port.desc"));
+		username = new UGateTextFieldPreferenceView(Settings.MAIL_USERNAME_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.username"), 
+				RS.rbLabel("mail.username.desc"));
+		password = new UGateTextFieldPreferenceView(Settings.MAIL_PASSWORD_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_PASSWORD, RS.rbLabel("mail.password"), 
+				RS.rbLabel("mail.password.desc"));
 
 		connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -71,8 +78,10 @@ public abstract class MailConnectionView extends StatusView {
 	public void connect(final String smtpHost, final String smtpPort, final String imapHost, 
 			final String imapPort, final String username, final String password) {
 		connect.setText(LABEL_CONNECTING);
-		UGateKeeper.DEFAULT.emailConnect(smtpHost, smtpPort, imapHost, 
-				imapPort, username, password, "InBox", true, new IEmailListener(){
+		UGateKeeper.DEFAULT.emailConnect(smtpHost, smtpPort, imapHost,
+				imapPort, username, password,
+				UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_INBOX_NAME),
+				true, new IEmailListener() {
 
 					@Override
 					public void handle(EmailEvent event) {
@@ -88,13 +97,13 @@ public abstract class MailConnectionView extends StatusView {
 							setStatusFill(statusIcon, false);
 						}
 					}
-		});
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_SMTP_HOST_KEY, smtpHost);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_SMTP_PORT_KEY, smtpPort);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_IMAP_HOST_KEY, imapHost);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_IMAP_PORT_KEY, imapPort);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_USERNAME_KEY, username);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_PASSWORD_KEY, password);
+				});
+		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_HOST_KEY, smtpHost);
+		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_PORT_KEY, smtpPort);
+		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_HOST_KEY, imapHost);
+		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_PORT_KEY, imapPort);
+		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_USERNAME_KEY, username);
+		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_PASSWORD_KEY, password);
 	}
 	
 	public void disconnect() {

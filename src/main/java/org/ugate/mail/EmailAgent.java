@@ -29,6 +29,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
+import org.ugate.Command;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
@@ -128,7 +129,7 @@ public class EmailAgent implements Runnable {
 								final Address[] froms = msg.getFrom();
 								if (hasCommandPermission(froms)) {
 									final StringBuffer errorMessages = new StringBuffer();
-									final List<Integer> commands = getValidCommands(msg, errorMessages);
+									final List<Command> commands = getValidCommands(msg, errorMessages);
 									if (errorMessages.length() > 0) {
 										if (log.isInfoEnabled()) {
 											log.info("Invalid command(s) received from: " + Arrays.toString(froms));
@@ -277,8 +278,8 @@ public class EmailAgent implements Runnable {
 		}
 	}
 	
-	protected List<Integer> getValidCommands(MimeMessage msg, final StringBuffer invalidCommandErrors) {
-		final List<Integer> validCommands = new ArrayList<Integer>();
+	protected List<Command> getValidCommands(MimeMessage msg, final StringBuffer invalidCommandErrors) {
+		final List<Command> validCommands = new ArrayList<Command>();
 		try {
 			List<String> rawCommands = new ArrayList<String>();
 			if (msg.getSubject() != null && !msg.getSubject().isEmpty()) {
@@ -299,18 +300,19 @@ public class EmailAgent implements Runnable {
 			if (msgRawContent != null) {
 				rawCommands.addAll(Arrays.asList(msgRawContent.trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
 			}
-			int cmd = -1;
-			for (String command : rawCommands) {
+			int intCmd = -1;
+			Command cmd = null;
+			for (String rawCmd : rawCommands) {
 				try {
-					cmd = Integer.parseInt(command);
+					intCmd = Integer.parseInt(rawCmd);
 				} catch (NumberFormatException e) {
-					log.warn("Non-numeric command received: " + command, e);
+					log.warn("Non-numeric command received: " + rawCmd, e);
 					continue;
 				}
-				if (UGateUtil.CMDS.keySet().contains(cmd)) {
+				if ((cmd = Command.lookup(intCmd)) != null) {
 					validCommands.add(cmd);
 				} else if (invalidCommandErrors != null) {
-					invalidCommandErrors.append("Invalid Command \"" + cmd + "\"\n");
+					invalidCommandErrors.append("Invalid Command \"" + intCmd + "\"\n");
 				}
 			}
 		} catch (Exception e) {
@@ -320,7 +322,7 @@ public class EmailAgent implements Runnable {
 	}
 	
 	protected boolean hasCommandPermission(Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.PV_MAIL_RECIPIENTS_KEY, 
+		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_RECIPIENTS_KEY, 
 				UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;

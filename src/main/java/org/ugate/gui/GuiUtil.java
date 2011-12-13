@@ -12,12 +12,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -31,8 +31,6 @@ import javafx.util.Duration;
  * General GUI utility
  */
 public class GuiUtil {
-	
-	public static final String HELP_TEXT_DEFAULT = "Right-Click on any control for help";
 
 	/**
 	 * Private utility constructor
@@ -62,8 +60,13 @@ public class GuiUtil {
 	 * @return the progress alert service
 	 */
 	public static <T> Service<T> alertProgress(final Stage parent, final Task<T> progressTask) {
-		final Stage alert = alert(parent, 200, 150, 
-				Modality.APPLICATION_MODAL, new ProgressIndicator());
+		final ProgressIndicator pi = new ProgressIndicator();
+		final Light light = new Light.Distant();
+		final Lighting lighting = new Lighting();
+		lighting.setSurfaceScale(3d);
+		lighting.setLight(light);
+		pi.setEffect(lighting);
+		final Stage alert = alert(parent, 200, 150, Modality.APPLICATION_MODAL, pi);
 		final Service<T> service = new Service<T>() {
 			@Override
 			protected Task<T> createTask() {
@@ -152,26 +155,6 @@ public class GuiUtil {
 		alert.getContent().addAll(children);
 		alert.sizeToScene();
 		return alert;
-	}
-	
-	/**
-	 * Adds the help text when right clicked
-	 * 
-	 * @param helpText the scroll pane the contains a label as it's content
-	 * @param node the node to trigger the text
-	 * @param text the text to show
-	 */
-	public static void addHelpText(final ScrollPane helpText, final Node node, final String text) {
-		node.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (event.isSecondaryButtonDown()) {
-					helpText.setVvalue(helpText.getVmin());
-					((Label) helpText.getContent()).setText(text);
-					event.consume();
-				}
-			}
-		});
 	}
 	
 	/**

@@ -2,12 +2,14 @@ package org.ugate.wireless.data;
 
 import java.util.Calendar;
 
+import org.ugate.Command;
+
 public interface IResponse<T> {
 	
 	/**
-	 * @return the initiating command
+	 * @return the initiating {@linkplain Command}
 	 */
-	int getCommand();
+	Command getCommand();
 
 	/**
 	 * @return the response code if an error exists

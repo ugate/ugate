@@ -97,12 +97,17 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 	protected void handleRxResponse16(final RxResponse16 rxResponse) {
 		final String remoteAddress = Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[0]) + 
 				Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[1]);
-		final int command = rxResponse.getData()[0];
+		final Command command = Command.lookup(rxResponse.getData()[0]);
+		if (command == null) {
+			log.error(String.format("An unrecognized %1$s command was received from %2$s", 
+					rxResponse.getData()[0], remoteAddress));
+			return;
+		}
 		final int failures = rxResponse.getData()[1]; // TODO : Handle cases where failures exist
 		final WirelessStatusCode statusCode = failures == 0 ? WirelessStatusCode.NONE : WirelessStatusCode.GENERAL_FAILURE;
 		log.info(String.format("Recieved {0} command from wireless address {1} (signal strength: {2}) with {3} failures", 
 				command, remoteAddress, rxResponse.getRssi(), failures));
-		if (command == Command.CAM_TAKE_PIC.id) {
+		if (command == Command.CAM_TAKE_PIC) {
 			if (rxTxImage == null || rxTxImage.hasTimedOut()) {
 				if (rxTxImage != null) {
 					rxTxAttempts = 0;
@@ -119,14 +124,14 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			}
 			if (rxTxImage.isEof()) {
 				if (rxTxImage.getStatusCode() != WirelessStatusCode.NONE) {
-					final String retriesStr = UGateKeeper.DEFAULT.preferencesGet(Settings.PV_CAM_IMG_CAPTURE_RETRY_CNT_KEY);
+					final String retriesStr = UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IMG_CAPTURE_RETRY_CNT_KEY);
 					final int retries = retriesStr != null && retriesStr.length() > 0 ? Integer.parseInt(retriesStr) : 0;
 					rxTxImage = null;
 					if (retries != 0 && rxTxAttempts <= retries) {
 						rxTxAttempts++;
 						log.warn(String.format("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING (%1$s of %2$s)... =======", 
 								rxTxAttempts, retries));
-						UGateKeeper.DEFAULT.wirelessSendData(remoteAddress, new int[]{command});
+						UGateKeeper.DEFAULT.wirelessSendData(remoteAddress, command);
 					} else {
 						log.warn(String.format("======= LOST PACKETS WHEN CAPTURING IMAGE... FAILED after %1$s retry attempts =======",
 								rxTxAttempts));
@@ -150,18 +155,18 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					// UGateMain.getInstance().getUGate().refreshRecentTableViewerData();
 				}
 			}
-		} else if (command == Command.ACCESS_CODE_CHANGE.id) {
+		} else if (command == Command.ACCESS_CODE_CHANGE) {
 			//final int hasFailures = rxResponse.getData()[1];
 			final int keys[] =  new int[3];
 			keys[0] = rxResponse.getData()[1];
 			keys[1] = rxResponse.getData()[2];
 			keys[2] = rxResponse.getData()[3];
 			log.info("Access keys: " + keys[0] + ',' + keys[1] + ',' + keys[2]);
-		} else if (command == Command.SENSOR_GET_READINGS.id) {
+		} else if (command == Command.SENSOR_GET_READINGS) {
 			final SensorReadings sr = createSensorReadings(rxResponse);
 			log.info(String.format("=== Sensor Readings: %1$s ===", sr));
 			handleWirelessResponse(new WirelessResponse<SensorReadings>(command, statusCode, sr));
-		} else if (command == Command.SENSOR_GET_SETTINGS.id) {
+		} else if (command == Command.SENSOR_GET_SETTINGS) {
 			int i = 1;
 			log.info(String.format("=== Settings for %s START ===", remoteAddress));
 			log.info(String.format("Access Key Code: %1$s, %2$s, %3$s", 

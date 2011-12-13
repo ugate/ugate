@@ -5,7 +5,6 @@ import javafx.beans.Observable;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -24,10 +23,10 @@ public abstract class ControlPane extends GridPane {
 	public static final double KNOB_SIZE_SCALE = 0.25d;
 	public static final double NEEDLE_SIZE_SCALE = 0.5d;
 	public static final Color COLOR_PAN_TILT = Color.YELLOW;
-	private final ScrollPane helpText;
+	protected final Controls controls;
 	
-	public ControlPane(final ScrollPane helpText) {
-		this.helpText = helpText;
+	public ControlPane(final Controls controls) {
+		this.controls = controls;
 		getStyleClass().add("gauge-control-pane");
         setPrefHeight(Integer.MAX_VALUE);
 	}
@@ -47,16 +46,6 @@ public abstract class ControlPane extends GridPane {
 		view.getChildren().addAll(nodes);
 		group.getChildren().addAll(createBackground(view, resizeWidth, resizeHeight), view);
 		return group;
-	}
-	
-	/**
-	 * Adds the help text when right clicked
-	 * 
-	 * @param node the node to trigger the text
-	 * @param text the text to show
-	 */
-	protected void addHelpText(final Node node, final String text) {
-		GuiUtil.addHelpText(helpText, node, text);
 	}
 	
 	/**

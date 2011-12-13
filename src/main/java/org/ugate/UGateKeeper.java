@@ -78,14 +78,15 @@ public enum UGateKeeper {
 	/**
 	 * Sets a key/value preference
 	 * 
-	 * @param key the key
+	 * @param key the {@linkplain Settings}
 	 * @param value the value
 	 */
 	public void preferencesSet(final Settings key, final String value) {
 		final String oldValue = preferencesGet(key);
 		if (!oldValue.equals(value)) {
 			preferences.set(key.key, value);
-			preferencesNotify(IGateKeeperListener.Event.PREFERENCES_SET, null, key, oldValue, value);
+			preferencesNotify(IGateKeeperListener.Event.SETTINGS_SAVE_LOCAL, null, 
+					key, null, oldValue, value);
 		}
 	}
 	
@@ -115,15 +116,16 @@ public enum UGateKeeper {
 	 * 
 	 * @param type the {@linkplain IGateKeeperListener.Event} type
 	 * @param node the node the preference notification is for
-	 * @param key the key
+	 * @param key the {@linkplain Settings}
+	 * @param command the {@linkplain Command}
 	 * @param oldValue the old value
 	 * @param newValue the new value
 	 */
 	private void preferencesNotify(final IGateKeeperListener.Event type, 
-			final String node, final Settings key, final String oldValue, 
-			final String newValue) {
+			final String node, final Settings key, final Command command,
+			final String oldValue, final String newValue) {
 		for (final IGateKeeperListener pl : prefListeners) {
-			pl.handle(type, node, key.key, oldValue, newValue);
+			pl.handle(type, node, key, command, oldValue, newValue);
 		}
 	}
 	
@@ -160,10 +162,11 @@ public enum UGateKeeper {
 			public void handle(EmailEvent event) {
 				if (event.type == EmailEvent.TYPE_EXECUTE_COMMAND) {
 					if (wirelessIsConnected()) {
-						for (Integer command : event.commands) {
+						for (final Command command : event.commands) {
 							// send command to all the nodes defined in the email
 							for (int toNode : event.toNodes) {
-								wirelessSendData(Settings.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + toNode, new int[] { command });
+								wirelessSendData(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + toNode, 
+										command);
 							}
 						}
 					} else {
@@ -292,37 +295,47 @@ public enum UGateKeeper {
 	 * Sends the data string to the remote address in ASCII format array
 	 * 
 	 * @param wirelessNodeAddressHexKey the wireless node address preferences key used to get the address to send to
+	 * @param command the executing {@linkplain Command}
 	 * @param data the data string to send
 	 * @return true when successful
 	 */
-	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, final String data) {
-		return wirelessSendData(wirelessNodeAddressHexKey, ByteUtils.stringToIntArray(data));
+	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, 
+			final Command command, final String data) {
+		return wirelessSendData(wirelessNodeAddressHexKey, command, ByteUtils.stringToIntArray(data));
 	}
 	
 	/**
 	 * Sends the data string to the remote address in ASCII format array
 	 * 
 	 * @param wirelessNodeAddressHexKey the wireless node address preferences key used to get the address to send to
+	 * @param command the executing {@linkplain Command}
 	 * @param data the data string to send
 	 * @return true when successful
 	 */
-	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, final List<Integer> data) {
+	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, 
+			final Command command, final List<Integer> data) {
 		int[] dataInts = new int[data.size()];
 		for(int i=0; i<data.size(); i++) {
 			dataInts[i] = data.get(i);
 		}
-		return wirelessSendData(wirelessNodeAddressHexKey, dataInts);
+		return wirelessSendData(wirelessNodeAddressHexKey, command, dataInts);
 	}
 	
 	/**
 	 * Sends the data array to the remote address
 	 * 
 	 * @param wirelessNodeAddressHexKey the wireless node address preferences key used to get the address to send to
+	 * @param command the executing {@linkplain Command}
 	 * @param data the data to send
 	 * @return true when successful
 	 */
-	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, final int[] data) {
+	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, 
+			final Command command, final int... data) {
 		try {
+			// bytes header command and status/failure code
+			final int[] bytesHeader = new int[] { command.id, WirelessStatusCode.NONE.ordinal() };
+			final int[] bytes = data != null && data.length > 0 ? 
+					UGateUtil.arrayConcatInt(bytesHeader, data) : bytesHeader;
 			// TODO : allow for commands to be sent to more than one wireless node?
 			if (!preferences.hasKey(wirelessNodeAddressHexKey)) {
 				log.error(String.format("Wireless node address \"%1$s\" has not been defined", 
@@ -331,7 +344,7 @@ public enum UGateKeeper {
 			}
 			final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(wirelessNodeAddressHexKey);
 			// create a unicast packet to be delivered to the supplied address, with the pay load
-			final TxRequest16 request = new TxRequest16(xbeeAddress, data);
+			final TxRequest16 request = new TxRequest16(xbeeAddress, bytes);
 			// send the packet and wait up to 10 seconds for the transmit status reply
 			final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
 			if (response.isSuccess()) {
@@ -438,7 +451,7 @@ public enum UGateKeeper {
 		final List<String> waks = new ArrayList<String>();
 		int i = 1;
 		String addressKey;
-		while (preferences.hasKey((addressKey = Settings.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + i))) {
+		while (preferences.hasKey((addressKey = Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + i))) {
 			if (testConnections) {
 				if (wirelessTestAddressConnection(addressKey) != null) {
 					waks.add(addressKey);
@@ -467,26 +480,24 @@ public enum UGateKeeper {
 
 		// send the command, status code, and settings data
 		try {
-			final int[] sendData = UGateUtil.arrayConcatInt(new int[]{Command.SENSOR_SET_SETTINGS.id, 
-					WirelessStatusCode.NONE.ordinal()}, 
-					new SettingsData().toArray());
+			final int[] sendData = new SettingsData().toArray();
 			final List<String> waks = wirelessNodes == null || wirelessNodes.length == 0 ? 
 					wirelessGetNodeAddressKeys(false) : Arrays.asList(wirelessNodes);
 			int scnt = 0;
 			for (int i=0; i<waks.size(); i++) {
 				preferencesNotify(IGateKeeperListener.Event.SETTINGS_SENDING, 
-						waks.get(i), null, null, null);
+						waks.get(i), null, Command.SENSOR_SET_SETTINGS, null, null);
 				log.debug("Sending settings to node for key " + waks.get(i));
-				if (wirelessSendData(waks.get(i), sendData)) {
+				if (wirelessSendData(waks.get(i), Command.SENSOR_SET_SETTINGS, sendData)) {
 					log.debug("Sent settings to node for key " + waks.get(i));
 					preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS, 
-							waks.get(i), null, null, null);
+							waks.get(i), null, Command.SENSOR_SET_SETTINGS, null, null);
 					scnt++;
 				} else {
 					log.warn(String.format("Failed to send settings to node %2$s (preference key: %1$s)", 
 							waks.get(i), preferences.get(waks.get(i))));
 					preferencesNotify(IGateKeeperListener.Event.SETTINGS_SEND_FAILED, 
-							waks.get(i), null, null, null);
+							waks.get(i), null, Command.SENSOR_SET_SETTINGS, null, null);
 				}
 			}
 			log.info("Settings sent to " + scnt + " node(s)");

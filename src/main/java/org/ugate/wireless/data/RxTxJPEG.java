@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.ugate.ByteUtils;
+import org.ugate.Command;
 import org.ugate.UGateUtil;
 
 public class RxTxJPEG extends WirelessResponse<List<org.ugate.wireless.data.RxTxImage.ImageChunk>> 
@@ -20,8 +21,8 @@ public class RxTxJPEG extends WirelessResponse<List<org.ugate.wireless.data.RxTx
 	public static final String JPEG_EXT = "jpg";
 	public static final String JPEG_EOF = "0xff,0xd9";
 	
-	public RxTxJPEG(final int initCommandASCII, final WirelessStatusCode statusCode, final List<ImageChunk> data) {
-		super(initCommandASCII, statusCode, (data == null ? new ArrayList<ImageChunk>() : data));
+	public RxTxJPEG(final Command command, final WirelessStatusCode statusCode, final List<ImageChunk> data) {
+		super(command, statusCode, (data == null ? new ArrayList<ImageChunk>() : data));
 		log.debug("NEW " + this);
 	}
 	
