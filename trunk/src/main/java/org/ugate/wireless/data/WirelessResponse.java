@@ -3,6 +3,7 @@ package org.ugate.wireless.data;
 import java.util.Calendar;
 
 import org.apache.log4j.Logger;
+import org.ugate.Command;
 import org.ugate.UGateUtil;
 
 /**
@@ -12,16 +13,16 @@ public class WirelessResponse<T> implements IResponse<T> {
 	
 	private static final Logger log = Logger.getLogger(WirelessResponse.class);
 	private final Calendar created;
-	private final int initCommandASCII;
+	private final Command command;
 	private Calendar startTime;
 	private WirelessStatusCode statusCode = WirelessStatusCode.NONE;
 	private T data;
 
-	public WirelessResponse(final int initCommandASCII, final WirelessStatusCode statusCode, final T data) {
+	public WirelessResponse(final Command command, final WirelessStatusCode statusCode, final T data) {
 		setStatusCode(statusCode);
 		startTime = Calendar.getInstance();
 		this.created = Calendar.getInstance();
-		this.initCommandASCII = initCommandASCII;
+		this.command = command;
 		this.data = data;
 		log.debug("NEW " + this);
 	}
@@ -32,15 +33,15 @@ public class WirelessResponse<T> implements IResponse<T> {
 	@Override
 	public String toString() {
 		return String.format("COMMAND: %1$s, CREATED: %2$s, DATA: %3$s", 
-				getCommand(), UGateUtil.calFormat(getCreated()), getData());
+				getCommand().id, UGateUtil.calFormat(getCreated()), getData());
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getCommand() {
-		return initCommandASCII;
+	public Command getCommand() {
+		return command;
 	}
 	
 	/**

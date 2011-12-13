@@ -17,4 +17,19 @@ public enum Command {
 	private Command(final int id) {
 		this.id = id;
 	}
+	
+	/**
+	 * Looks up a command by ID
+	 * 
+	 * @param id the ID to lookup
+	 * @return the command (null if no command ID matches the supplied ID
+	 */
+	public static Command lookup(final int id) {
+		for (final Command command : Command.values()) {
+			if (id == command.id) {
+				return command;
+			}
+		}
+		return null;
+	}
 }

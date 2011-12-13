@@ -1,13 +1,17 @@
 package org.ugate.gui;
 
-import java.util.List;
-
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
+import org.ugate.Command;
+import org.ugate.IGateKeeperListener;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
@@ -22,11 +26,9 @@ import org.ugate.resources.RS;
 public class CameraGateControl extends ControlPane {
 
 	public static final double LABEL_WIDTH = 125d;
-	private UGateTextFieldPreferenceView recipients;
-	private UGateToggleSwitchPreferenceView recipientsToggleSwitch;
 	
-	public CameraGateControl(final ScrollPane helpText) {
-		super(helpText);
+	public CameraGateControl(final Controls controls) {
+		super(controls);
 		addCameraChildren();
 		addCameraSensorChildren();
 		addGateChildren();
@@ -36,46 +38,55 @@ public class CameraGateControl extends ControlPane {
 		final GridPane grid = new GridPane();
 		grid.setHgap(0d);
 		grid.setVgap(0d);
-		final Label panHeader = new Label("Cam Pan Angle");
+		final Label panHeader = new Label(RS.rbLabel("cam.pan"));
 		panHeader.getStyleClass().add("gauge-header");
 		grid.add(panHeader, 0, 0);
 		final UGateGaugePreferenceView camPanGauge = new UGateGaugePreferenceView(
-				Settings.SV_CAM_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0d, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(camPanGauge, "Camera Pan: Current camera pan angle (in degrees)");
+		controls.addHelpTextTrigger(camPanGauge, RS.rbLabel("cam.pan.desc"));
 		grid.add(camPanGauge, 0, 1);
-		final Label tiltHeader = new Label("Cam Tilt Angle");
+		final Label tiltHeader = new Label(RS.rbLabel("cam.tilt"));
 		tiltHeader.getStyleClass().add("gauge-header");
 		grid.add(tiltHeader, 1, 0);
 		final ImageView tiltImgView = RS.imgView(camPanGauge.imageView.getImage());
 		tiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView camTiltGauge = new UGateGaugePreferenceView(
-				Settings.SV_CAM_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, tiltImgView, COLOR_PAN_TILT);
-		addHelpText(camTiltGauge, "Camera Tilt: Current camera tilt angle (in degrees)");
+		controls.addHelpTextTrigger(camTiltGauge, RS.rbLabel("cam.tilt"));
 		grid.add(camTiltGauge, 1, 1);
-		final Label headerImageRes = new Label("Image Resolution");
+		final Label headerImageRes = new Label(RS.rbLabel("cam.resolution"));
 		headerImageRes.getStyleClass().add("gauge-header");
 //		final UGateGaugeDisplay camImgResGauge = new UGateGaugeDisplay(IndicatorType.KNOB, 0.12d,
 //				0, 0, 70d, 40d, 1, 0, 0d, "%03d", RS.IMG_CAM_RESOLUTION,
 //				"Sets the camera resolution of the images taken when an alarm is triggered", 
 //				Color.LIGHTGREEN, null, Orientation.HORIZONTAL);
-		final UGateToggleSwitchPreferenceView imgResToggleSwitch  = new UGateToggleSwitchPreferenceView(Settings.SV_CAM_RES_KEY, 
-				RS.IMG_CAM_RESOLUTION, RS.IMG_CAM_RESOLUTION, "VGA", "QVGA");
-		addHelpText(imgResToggleSwitch, 
-				"Sets the camera resolution of the images taken when an alarm is triggered");
-		final Label headerEmailConf = new Label("Email Alarm Notification");
+		final UGateToggleSwitchPreferenceView imgResToggleSwitch  = new UGateToggleSwitchPreferenceView(Settings.CAM_RES_KEY, 
+				RS.IMG_CAM_RESOLUTION, RS.IMG_CAM_RESOLUTION, 
+				RS.rbLabel("cam.resolution.vga"), RS.rbLabel("cam.resolution.qvga"));
+		controls.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel("cam.resolution.desc"));
+		final Label headerEmailConf = new Label(RS.rbLabel("mail.alarm.notify"));
 		headerEmailConf.getStyleClass().add("gauge-header");
-		recipientsToggleSwitch = new UGateToggleSwitchPreferenceView(Settings.PV_MAIL_ALARM_ON_KEY, 
-				RS.IMG_EMAIL_SELECTED, RS.IMG_EMAIL_DESELECTED);
-		addHelpText(recipientsToggleSwitch, 
-				"Toggle sending email notifications for images taken (by alarm trip or manually)");
-		recipients = new UGateTextFieldPreferenceView(Settings.PV_MAIL_RECIPIENTS_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, "Recipients (semi-colon delimited emails)", 
-				"Semi-colon delimited list of emails to send image to (blank if no emails should be sent)");
+		final UGateToggleSwitchPreferenceView recipientsToggleSwitch = new UGateToggleSwitchPreferenceView(
+				Settings.MAIL_ALARM_ON_KEY, RS.IMG_EMAIL_SELECTED, RS.IMG_EMAIL_DESELECTED);
+		controls.addHelpTextTrigger(recipientsToggleSwitch, RS.rbLabel("mail.alarm.notify.desc"));
+		final UGateTextFieldPreferenceView recipients = new UGateTextFieldPreferenceView(Settings.MAIL_RECIPIENTS_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, RS.rbLabel("mail.alarm.notify.emails"), 
+				"");
 		recipients.textArea.setPrefRowCount(5);
 		recipients.textArea.setWrapText(true);
-		addHelpText(recipients, "Recipients that will receive an email notification with an image image attachment when the alarm criteria is met.");
+		recipients.textArea.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable,
+					Boolean oldValue, Boolean newValue) {
+				if (!newValue) {
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_RECIPIENTS_KEY, 
+							recipients.textArea.getText());
+				}
+			}
+		});
+		controls.addHelpTextTrigger(recipients, RS.rbLabel("mail.alarm.notify.emails.desc"));
 		
 		final Group camCell = createCell(false, true, grid, headerImageRes, imgResToggleSwitch, 
 				headerEmailConf, recipientsToggleSwitch, recipients);
@@ -84,51 +95,47 @@ public class CameraGateControl extends ControlPane {
 	
 	protected void addCameraSensorChildren() {
 		final GridPane grid = new GridPane();
-		final Label sonarPirPanHeader = new Label("Cam Pan Angle (On Sonar/PIR Alarm)");
+		final Label sonarPirPanHeader = new Label(RS.rbLabel("cam.pan.sonarpir"));
 		sonarPirPanHeader.setWrapText(true);
 		sonarPirPanHeader.setPrefWidth(LABEL_WIDTH);
 		sonarPirPanHeader.getStyleClass().add("gauge-header");
 		grid.add(sonarPirPanHeader, 0, 0);
-		final Label sonarPirTiltHeader = new Label("Cam Tilt Angle (On Sonar/PIR Alarm)");
+		final Label sonarPirTiltHeader = new Label(RS.rbLabel("cam.tilt.sonarpir"));
 		sonarPirTiltHeader.setWrapText(true);
 		sonarPirTiltHeader.setPrefWidth(LABEL_WIDTH);
 		sonarPirTiltHeader.getStyleClass().add("gauge-header");
 		grid.add(sonarPirTiltHeader, 1, 0);
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
-				Settings.SV_CAM_IR_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_IR_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(sonarPirPanGauge, "Sonar/PIR Pan: Current trip alram sensor pan angle in degrees. " + 
-				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
+		controls.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("cam.pan.sonarpir.desc"));
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
-				Settings.SV_CAM_IR_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_IR_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
-		addHelpText(sonarPirTiltGauge, "Sonar/PIR Tilt: Current trip alarm sensor tilt angle in degrees. " + 
-				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
+		controls.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("cam.tilt.sonarpir.desc"));
 		grid.add(sonarPirTiltGauge, 1, 1);
-		final Label headerMwPanHeader = new Label("Cam Pan Angle (On Microwave Alarm)");
+		final Label headerMwPanHeader = new Label(RS.rbLabel("cam.pan.microwave"));
 		headerMwPanHeader.setWrapText(true);
 		headerMwPanHeader.setPrefWidth(LABEL_WIDTH);
 		headerMwPanHeader.getStyleClass().add("gauge-header");
 		grid.add(headerMwPanHeader, 0, 2);
-		final Label mwPanHeader = new Label("Cam Tilt Angle (On Microwave Alarm)");
+		final Label mwPanHeader = new Label(RS.rbLabel("cam.tilt.microwave"));
 		mwPanHeader.setWrapText(true);
 		mwPanHeader.setPrefWidth(LABEL_WIDTH);
 		mwPanHeader.getStyleClass().add("gauge-header");
 		grid.add(mwPanHeader, 1, 2);
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
-				Settings.SV_CAM_MW_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_MW_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(mwPanGauge, "Microwave Pan: Current trip alarm sensor pan angle in degrees. " + 
-				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
+		controls.addHelpTextTrigger(mwPanGauge, RS.rbLabel("cam.pan.microwave.desc"));
 		grid.add(mwPanGauge, 0, 3);
 		final UGateGaugePreferenceView mwTiltGauge = new UGateGaugePreferenceView(
-				Settings.SV_CAM_MW_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_MW_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		addHelpText(mwTiltGauge, "Microwave Tilt: Current trip alarm sensor pan angle in degrees. " + 
-				"An angle of 181 indicates the camera will maintain it's position when the alaram is triggered.");
+		controls.addHelpTextTrigger(mwTiltGauge, RS.rbLabel("cam.tilt.microwave.desc"));
 		grid.add(mwTiltGauge, 1, 3);
 		
 		final Group cell = createCell(false, true, grid);
@@ -136,31 +143,50 @@ public class CameraGateControl extends ControlPane {
 	}
 	
 	protected void addGateChildren() {
-		final Label gateHeader = new Label("Gate Configuration");
+		final Label gateHeader = new Label(RS.rbLabel("gate.conf"));
 		gateHeader.getStyleClass().add("gauge-header");
 		final UGateToggleSwitchPreferenceView gateToggleSwitchView = new UGateToggleSwitchPreferenceView(
-				Settings.SV_GATE_ACCESS_ON_KEY, RS.IMG_GATE_SELECTED,
+				Settings.GATE_ACCESS_ON_KEY, RS.IMG_GATE_SELECTED,
 				RS.IMG_GATE_DESELECTED);
-		addHelpText(gateToggleSwitchView, "Toogles gate access. When disabled the gate will not open regardless of key code entry using a remote control.");
-		final Label gateCtrlHeader = new Label("Gate State (open/close)");
+		controls.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
+		final Label gateCtrlHeader = new Label(RS.rbLabel("gate.state"));
 		gateCtrlHeader.getStyleClass().add("gauge-header");
 		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
-		final Group readingsGroup = Controls.createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 
+		final Group gateGroup = Controls.createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 
 				1, gateToggleButton);
-		addHelpText(readingsGroup, "Toogles opening/closing gate");
+		gateGroup.setCursor(Cursor.HAND);
+		controls.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
+		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				controls.createControlsService(Command.GATE_TOGGLE_OPEN_CLOSE).start();
+			}
+		});
+		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final IGateKeeperListener.Event type, final String node,
+					final Settings key, final Command command, final String oldValue, 
+					final String newValue) {
+				if (command == null || command != Command.GATE_TOGGLE_OPEN_CLOSE) {
+					return;
+				}
+				if (type == IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS) {
+					controls.setHelpText(null);
+					if (gateToggleButton.getImage().equals(RS.img(RS.IMG_GATE_CLOSED))) {
+						gateToggleButton.setImage(RS.img(RS.IMG_GATE_OPENED));
+					} else {
+						gateToggleButton.setImage(RS.img(RS.IMG_GATE_CLOSED));
+					}
+				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_FAILED) {
+					controls.setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
+							(controls.isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
+								controls.getRemoteNodeAddress())));
+				}
+			}
+		});
 		
 		final Group cell = createCell(false, true, gateHeader, gateToggleSwitchView, 
-				gateCtrlHeader, readingsGroup);
+				gateCtrlHeader, gateGroup);
 		add(cell, 2, 0);
-	}
-	
-	public boolean addValues(final List<Integer> values) {
-		// values need to be added in a predefined order
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_RECIPIENTS_ON_KEY, 
-				String.valueOf(recipientsToggleSwitch.getToggleItem().toggleSwitch.selectedProperty().get()));
-		UGateKeeper.DEFAULT.preferencesSet(Settings.PV_MAIL_RECIPIENTS_KEY, recipients.textField.getText());
-		values.add(recipientsToggleSwitch.getToggleItem().toggleSwitch.selectedProperty().get() ? 1 : 0);
-		//values.add(recipientsToggleSwitch.toggleSwitch.selectedProperty().get() ? 1 : 0);
-		return true;
 	}
 }

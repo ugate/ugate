@@ -1,8 +1,16 @@
 package org.ugate.resources;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import javafx.scene.CacheHint;
 import javafx.scene.image.Image;
@@ -35,6 +43,7 @@ public class RS {
 	public static final String IMG_GATE_SELECTED = "gate-selected.png";
 	public static final String IMG_GATE_DESELECTED = "gate.png";
 	public static final String IMG_GATE_CLOSED = "gate-closed.png";
+	public static final String IMG_GATE_OPENED = "gate-opened.png";
 	public static final String IMG_RULER = "ruler.png";
 	public static final String IMG_STOPWATCH = "stopwatch.png";
 	public static final String IMG_SONAR_ALARM_ON = "sonar-alarm-on.png";
@@ -50,6 +59,9 @@ public class RS {
 	public static final String IMG_SONAR = "sonar32x32.png";
 	public static final String IMG_PIR = "pir32x32.png";
 	public static final String IMG_MICROWAVE = "mw32x32.png";
+	private static final String RB_LOGS = "LogsBundle";
+	private static final String RB_GUI = "LabelsBundle";
+	private static final String CAPTURE_PATH = "/ugate";
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
 	private RS() {
@@ -144,8 +156,122 @@ public class RS {
 	 *            the file path with file name
 	 * @return the audio clip
 	 */
-	public static AudioClip newAudioClip(String fileName) {
+	public static AudioClip audioClip(final String fileName) {
 		return new AudioClip(RS.class.getResource(fileName).getPath()
 				.replace("/C", "file"));
+	}
+	
+	/**
+	 * @return the path to the image files
+	 */
+	public static File imgSavePath() {
+		final File filePath = new File(CAPTURE_PATH);
+		if (!filePath.exists()) {
+			try {
+				filePath.mkdirs();
+			} catch (Exception e) {
+
+			}
+		}
+		return filePath;
+	}
+
+	/**
+	 * Gets the image format name from a file
+	 * 
+	 * @param f
+	 *            the file
+	 * @return null if the format is not a known image format
+	 */
+	public static String imgFormatInFile(final File f) {
+		return imgFormatName(f);
+	}
+
+	/**
+	 * Gets the image format name from an input stream
+	 * 
+	 * @param is
+	 *            the input stream
+	 * @return null if the format is not a known image format
+	 */
+	public static String imgFormatFromStream(final InputStream is) {
+		return imgFormatName(is);
+	}
+
+	/**
+	 * Returns the format name of the image in the object
+	 * 
+	 * @param o
+	 *            can be either a File or InputStream object
+	 * @return null if the format is not a known image format
+	 */
+	private static String imgFormatName(final Object o) {
+		try {
+			// Create an image input stream on the image
+			final ImageInputStream iis = ImageIO.createImageInputStream(o);
+
+			// Find all image readers that recognize the image format
+			final Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+			if (!iter.hasNext()) {
+				// No readers found
+				return null;
+			}
+
+			// Use the first reader
+			final ImageReader reader = iter.next();
+
+			// Close stream
+			iis.close();
+
+			// Return the format name
+			return reader.getFormatName();
+		} catch (final Exception e) {
+		}
+		// The image could not be read
+		return null;
+	}
+	
+	/**
+	 * Gets the first available locale and the label resource bundles 
+	 * value for the specified key
+	 * 
+	 * @param key the key of the resource bundle value
+	 * @return the resource bundle value
+	 */
+	public static String rbLabel(final String key) {
+		return rbLabel(Locale.getAvailableLocales()[0], key);
+	}
+	
+	/**
+	 * Gets the a label resource bundles value for the specified key
+	 *  
+	 * @param locale the locale of the resource bundle
+	 * @param key the key of the resource bundle value
+	 * @return the resource bundle value
+	 */
+	public static String rbLabel(final Locale locale, final String key) {
+		return ResourceBundle.getBundle(RB_GUI, locale).getString(key);
+	}
+	
+	/**
+	 * Gets the first available locale and the log resource bundles 
+	 * value for the specified key
+	 * 
+	 * @param key the key of the resource bundle value
+	 * @return the resource bundle value
+	 */
+	public static String rbLog(final String key) {
+		return rbLog(Locale.getAvailableLocales()[0], key);
+	}
+	
+	/**
+	 * Gets the a log resource bundles value for the specified key
+	 *  
+	 * @param locale the locale of the resource bundle
+	 * @param key the key of the resource bundle value
+	 * @return the resource bundle value
+	 */
+	public static String rbLog(final Locale locale, final String key) {
+		return ResourceBundle.getBundle(RB_LOGS, locale).getString(key);
 	}
 }

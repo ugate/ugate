@@ -38,6 +38,7 @@ import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.PlateGroup;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
@@ -73,7 +74,7 @@ public class Controls extends StackPane {
 		helpTextPane.setPrefHeight(40d);
 		helpTextPane.setPrefWidth(200d);
 		helpTextPane.setEffect(helpTextDropShadow);
-		helpText = new Label(GuiUtil.HELP_TEXT_DEFAULT);
+		helpText = new Label(RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY));
 		helpText.setWrapText(true);
 		helpText.setPrefWidth(helpTextPane.getPrefWidth() - 35d);
 		helpText.textProperty().addListener(new ChangeListener<String>() {
@@ -82,7 +83,7 @@ public class Controls extends StackPane {
 					String newValue) {
 				helpTextTimeline.stop();
 				if (newValue != null && newValue.length() > 0 && 
-						!newValue.equals(GuiUtil.HELP_TEXT_DEFAULT)) {
+						!newValue.equals(RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY))) {
 					helpTextTimeline.play();
 				}
 			}
@@ -93,8 +94,8 @@ public class Controls extends StackPane {
 		final ToolBar mainBar = new ToolBar(createMainBarChildren());
 		final TabPane mainView = new TabPane();
 		mainView.setSide(Side.RIGHT);
-		final Tab camTab = createTab(null, "Camera/Gate", CameraGateControl.class);
-		final Tab sensorsTab = createTab(null, "Sensors", SensorControl.class);
+		final Tab camTab = createTab(null, RS.rbLabel("camgate"), CameraGateControl.class);
+		final Tab sensorsTab = createTab(null, RS.rbLabel("sensors"), SensorControl.class);
 		mainView.getTabs().addAll(camTab, sensorsTab);
 
 		// add main view
@@ -116,13 +117,11 @@ public class Controls extends StackPane {
 		// add the actions
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
-		GuiUtil.addHelpText(helpTextPane, camTakeQvga, "Takes a QVGA image at the current camera pan/tilt angle " + 
-		"and transfers the image back to the host. An email with the attached image will also be sent when enabled");
+		addHelpTextTrigger(camTakeQvga, RS.rbLabel("cam.take.qvga"));
 		camTakeQvga.setCursor(Cursor.HAND);
 		camTakeQvga.setEffect(ds);
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
-		GuiUtil.addHelpText(helpTextPane, camTakeVga, "Takes a VGA image at the current camera pan/tilt angle " + 
-				"and transfers the image back to the host. An email with the attached image will also be sent when enabled");
+		addHelpTextTrigger(camTakeVga, RS.rbLabel("cam.take.vga"));
 		camTakeVga.setCursor(Cursor.HAND);
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
@@ -135,8 +134,7 @@ public class Controls extends StackPane {
 				}
 			}
 	    });
-		GuiUtil.addHelpText(helpTextPane, settingsSet, "Sends the settings to the remote microcontroller node. " + 
-				"Blinks when settings updates have been made, but have not yet been sent");
+		addHelpTextTrigger(settingsSet, RS.rbLabel("settings.send"));
 		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
 		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
@@ -145,19 +143,20 @@ public class Controls extends StackPane {
 		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
 			@Override
 			public void handle(final IGateKeeperListener.Event type, final String node,
-					final String key, final String oldValue, final String newValue) {
-				if (type == IGateKeeperListener.Event.PREFERENCES_SET) {
-					settingsSetTimeline.play();
+					final Settings key, final Command command, 
+					final String oldValue, final String newValue) {
+				if (type == IGateKeeperListener.Event.SETTINGS_SAVE_LOCAL) {
+					if (key != null && key.canRemote) {
+						settingsSetTimeline.play();
+					}
 				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS) {
 					settingsSetTimeline.stop();
 				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_FAILED) {
-					
 				}
 			}
 		});
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
-		GuiUtil.addHelpText(helpTextPane, readingsGet, 
-				"Gets the current sensor readings and updates the readings display with the values");
+		addHelpTextTrigger(readingsGet, RS.rbLabel("sensors.readings.get"));
 		readingsGet.setCursor(Cursor.HAND);
 		readingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
 			@Override
@@ -180,20 +179,18 @@ public class Controls extends StackPane {
 				SensorControl.COLOR_MW, null);
 		final Group readingsGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
-		GuiUtil.addHelpText(helpTextPane, readingsGroup, "Current sensors readings display");
+		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
 		
 		
 		// add the multi-alarm trip state
 		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
-				Settings.SV_MULTI_ALARM_TRIP_STATE_KEY,
+				Settings.MULTI_ALARM_TRIP_STATE_KEY,
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
 		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				multiAlarmToggleSwitch);
-		GuiUtil.addHelpText(helpTextPane, multiAlarmGroup, "Multi-alarm trip state. When any combination of sensors have been selected those " + 
-				"selected sensors will ALL have to be tripped in order to cause an alarm. When NONE of the sensors have been selected ANY " + 
-				"sensor trip will cause an alarm. Keep in mind that the sensors selected should be on or no alarm will be triggered.");
+		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));
 		
 		// add the menu items
 		return new Node[] { camTakeQvga, camTakeVga, settingsSet, readingsGet, 
@@ -213,7 +210,7 @@ public class Controls extends StackPane {
 	 */
 	public static final Group createReadingsDisplay(final Insets padding, final double gapBetweenChildren, 
 			final int numItemsPerRow, final Node... nodes) {
-		final Label readingsHeader = new Label("Readings");
+		final Label readingsHeader = new Label(RS.rbLabel("sensors.readings"));
 		readingsHeader.getStyleClass().add("gauge-header");
 		final GridPane gridReadings = new GridPane();
 		gridReadings.setPadding(padding);
@@ -246,7 +243,7 @@ public class Controls extends StackPane {
 		final Tab tab = new Tab(text);
 		tab.setClosable(false);
 		try {
-			tab.setContent((T) cpc.getConstructor(helpTextPane.getClass()).newInstance(helpTextPane));
+			tab.setContent((T) cpc.getConstructor(Controls.class).newInstance(this));
 		} catch (final Throwable t) {
 			log.error("Unable to Instantiate " + cpc, t);
 		}
@@ -358,7 +355,7 @@ public class Controls extends StackPane {
 	 * @return the created button
 	 */
 	protected Button createReloadButton(final WebView webView) {
-		final Button reloadBtn = new Button("Reload");
+		final Button reloadBtn = new Button(RS.rbLabel("reload"));
 		reloadBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
@@ -375,24 +372,33 @@ public class Controls extends StackPane {
 	 * @return the service
 	 */
 	public Service<Boolean> createControlsService(final Command command) {
-		setHelpText(GuiUtil.HELP_TEXT_DEFAULT);
+		setHelpText(null);
 		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
 					if (command == Command.SENSOR_GET_READINGS) {
 						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
-								new int[] { Command.SENSOR_GET_READINGS.id })) {
-							setHelpText(String.format(
-									"Unable to get the sensor readings from node %1$s. See log for more details.",
-									getRemoteNodeIndex()));
+								Command.SENSOR_GET_READINGS)) {
+							setHelpText(String.format(RS.rbLabel("sensors.readings.failed"),
+									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
+										getRemoteNodeAddress())));
 							return false;
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!UGateKeeper.DEFAULT.wirelessSendSettings(
 								(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
-							setHelpText(
-									"Unable to send the settings to the remote node(s). See log for more details.");
+							setHelpText(String.format(RS.rbLabel("settings.send.failed"),
+									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
+										getRemoteNodeAddress())));
+							return false;
+						}
+					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
+						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
+								Command.GATE_TOGGLE_OPEN_CLOSE)) {
+							setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
+									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
+										getRemoteNodeAddress())));
 							return false;
 						}
 					} else {
@@ -411,6 +417,26 @@ public class Controls extends StackPane {
 		});
 	}
 	
+	
+	/**
+	 * Adds the help text when the node is right clicked
+	 * 
+	 * @param node the node to trigger the text
+	 * @param text the text to show
+	 */
+	public void addHelpTextTrigger(final Node node, final String text) {
+		node.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (event.isSecondaryButtonDown()) {
+					helpTextPane.setVvalue(helpTextPane.getVmin());
+					helpText.setText(text);
+					event.consume();
+				}
+			}
+		});
+	}
+	
 	/**
 	 * @return the current help text
 	 */
@@ -424,14 +450,14 @@ public class Controls extends StackPane {
 	 * @param text the help text to set
 	 */
 	public void setHelpText(final String text) {
-		helpText.setText(text);
+		helpText.setText(text == null || text.length() == 0 ? RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY) : text);
 	}
 	
 	/**
 	 * @return the remote node address of the device node for which the controls represent
 	 */
 	public String getRemoteNodeAddress() {
-		return Settings.SV_WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + getRemoteNodeIndex();
+		return Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + getRemoteNodeIndex();
 	}
 
 	/**

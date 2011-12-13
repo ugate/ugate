@@ -7,8 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -19,32 +19,39 @@ import javax.imageio.stream.ImageInputStream;
  */
 public class UGateUtil {
 	
-	/**
-	 * Commands that can be sent to the remote micro controller
-	 */
-	public static final HashMap<Command, String> CMDS = new HashMap<Command, String>();
-	static {
-		CMDS.put(Command.SERVO_TILT_UP, "Tilts the selected servo up");
-		CMDS.put(Command.SERVO_TILT_DOWN, "Tilts the selected servo down");
-		CMDS.put(Command.SERVO_PAN_RIGHT, "Pans the selected servo to the right");
-		CMDS.put(Command.SERVO_PAN_LEFT, "Pans the selected servo to the left");
-		CMDS.put(Command.IR_REMOTE_SESSION_RESET, "Resets the universal remote control session");
-		CMDS.put(Command.SENSOR_ALARM_TOGGLE, "Turns the sensor alarms on and off");
-		CMDS.put(Command.CAM_TAKE_PIC, "Takes a picture at a predefined resolution");
-		CMDS.put(Command.ACCESS_CODE_CHANGE, "Changes the access code");
-		CMDS.put(Command.SERVO_TOGGLE_CAM_SONARIR, "Toggle between the camera and sonar/IR servo");
-		CMDS.put(Command.GATE_TOGGLE_OPEN_CLOSE, "Toggle opening and closing the gate (if applicable)");
-		CMDS.put(Command.SERVO_CAM_MOVE, "Moves the camera (followed by a servo movement command)");
-		CMDS.put(Command.SERVO_SONAR_MOVE, "Moves the sonar/IR armature (followed by a servo movement command)");
-		CMDS.put(Command.SERVO_MICROWAVE_MOVE, "Moves the microwave armature (followed by a servo movement command)");
-		CMDS.put(Command.SENSOR_GET_READINGS, "Retrieves the current sensor readings");
-		CMDS.put(Command.SENSOR_GET_SETTINGS, "Gets all of the settings variables from the remote device");
-		CMDS.put(Command.SENSOR_SET_SETTINGS, "Sets all of the settings variables on the remote device");
-	}
+	public static final String HELP_TEXT_DEFAULT_KEY = "help.text.default";
+	
+//	/**
+//	 * Commands that can be sent to the remote micro controller
+//	 */
+//	public static final HashMap<Command, String> CMDS = new HashMap<Command, String>();
+//	static {
+//		CMDS.put(Command.SERVO_TILT_UP, "Tilts the selected servo up");
+//		CMDS.put(Command.SERVO_TILT_DOWN, "Tilts the selected servo down");
+//		CMDS.put(Command.SERVO_PAN_RIGHT, "Pans the selected servo to the right");
+//		CMDS.put(Command.SERVO_PAN_LEFT, "Pans the selected servo to the left");
+//		CMDS.put(Command.IR_REMOTE_SESSION_RESET, "Resets the universal remote control session");
+//		CMDS.put(Command.SENSOR_ALARM_TOGGLE, "Turns the sensor alarms on and off");
+//		CMDS.put(Command.CAM_TAKE_PIC, "Takes a picture at a predefined resolution");
+//		CMDS.put(Command.ACCESS_CODE_CHANGE, "Changes the access code");
+//		CMDS.put(Command.SERVO_TOGGLE_CAM_SONARIR, "Toggle between the camera and sonar/IR servo");
+//		CMDS.put(Command.GATE_TOGGLE_OPEN_CLOSE, "Toggle opening and closing the gate (if applicable)");
+//		CMDS.put(Command.SERVO_CAM_MOVE, "Moves the camera (followed by a servo movement command)");
+//		CMDS.put(Command.SERVO_SONAR_MOVE, "Moves the sonar/IR armature (followed by a servo movement command)");
+//		CMDS.put(Command.SERVO_MICROWAVE_MOVE, "Moves the microwave armature (followed by a servo movement command)");
+//		CMDS.put(Command.SENSOR_GET_READINGS, "Retrieves the current sensor readings");
+//		CMDS.put(Command.SENSOR_GET_SETTINGS, "Gets all of the settings variables from the remote device");
+//		CMDS.put(Command.SENSOR_SET_SETTINGS, "Sets all of the settings variables on the remote device");
+//	}
 	/**
 	 * Available XBee baud rates
 	 */
 	public static final Integer[] XBEE_BAUD_RATES = {1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400};
+	
+	/**
+	 * Supported locals
+	 */
+	public static final Locale[] SUPPORTED_LOCALS = { Locale.ENGLISH }; 
 	
 	// preference values (host use only) settings values (host and node use)
 	
@@ -54,10 +61,7 @@ public class UGateUtil {
 	// wireless network addresses
 	
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
-	public static final int WIRELESS_ADDRESS_NODE_1 = 0x33;
-	public static final int WIRELESS_ADDRESS_HOST = 0x77;
 
-	private static final String CAPTURE_PATH = "/ugate";
 	//public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd hh:mm:ss";
 	
@@ -71,76 +75,6 @@ public class UGateUtil {
 	 * Private utility constructor
 	 */
 	private UGateUtil() {
-	}
-
-	/**
-	 * @return the path to the image files
-	 */
-	public static File imagePath() {
-		File filePath = new File(CAPTURE_PATH);
-		if (!filePath.exists()) {
-			try {
-				filePath.mkdirs();
-			} catch (Exception e) {
-
-			}
-		}
-		return filePath;
-	}
-
-	/**
-	 * Gets the image format name from a file
-	 * 
-	 * @param f
-	 *            the file
-	 * @return null if the format is not a known image format
-	 */
-	public static String getImageFormatInFile(File f) {
-		return imageFormatName(f);
-	}
-
-	/**
-	 * Gets the image format name from an input stream
-	 * 
-	 * @param is
-	 *            the input stream
-	 * @return null if the format is not a known image format
-	 */
-	public static String imageFormatFromStream(final InputStream is) {
-		return imageFormatName(is);
-	}
-
-	/**
-	 * Returns the format name of the image in the object
-	 * 
-	 * @param o
-	 *            can be either a File or InputStream object
-	 * @return null if the format is not a known image format
-	 */
-	private static String imageFormatName(final Object o) {
-		try {
-			// Create an image input stream on the image
-			final ImageInputStream iis = ImageIO.createImageInputStream(o);
-
-			// Find all image readers that recognize the image format
-			final Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-			if (!iter.hasNext()) {
-				// No readers found
-				return null;
-			}
-
-			// Use the first reader
-			final ImageReader reader = iter.next();
-
-			// Close stream
-			iis.close();
-
-			// Return the format name
-			return reader.getFormatName();
-		} catch (final Exception e) {
-		}
-		// The image could not be read
-		return null;
 	}
 
 	/**

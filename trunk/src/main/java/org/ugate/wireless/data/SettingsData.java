@@ -106,29 +106,29 @@ public class SettingsData {
 	}
 
 	public void setPreferenceValues() {
-		keyCode1 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_ACCESS_CODE_1_KEY));
-		keyCode2 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_ACCESS_CODE_2_KEY));
-		keyCode3 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_ACCESS_CODE_3_KEY));
-		camResolution = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_RES_KEY));
-		sonarAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_SONAR_ALARM_ON_KEY));
-		pirAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_IR_ALARM_ON_KEY));
-		mwAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_MW_ALARM_ON_KEY));
-		gateAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_GATE_ACCESS_ON_KEY));
-		sonarDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_SONAR_DISTANCE_THRES_FEET_KEY));
-		sonarDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_SONAR_DISTANCE_THRES_INCHES_KEY));
-		sonarDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_SONAR_DELAY_BTWN_TRIPS_KEY));
-		irDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_IR_DISTANCE_THRES_FEET_KEY));
-		irDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_IR_DISTANCE_THRES_INCHES_KEY));
-		irDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_IR_DELAY_BTWN_TRIPS_KEY));
-		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_MW_SPEED_THRES_CYCLES_PER_SEC_KEY));
-		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_MW_DELAY_BTWN_TRIPS_KEY));
-		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_MULTI_ALARM_TRIP_STATE_KEY));
-		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_SONAR_TRIP_ANGLE_PAN_KEY));
-		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_SONAR_TRIP_ANGLE_TILT_KEY));
-		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_IR_TRIP_ANGLE_PAN_KEY));
-		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_IR_TRIP_ANGLE_TILT_KEY));
-		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_MW_TRIP_ANGLE_PAN_KEY));
-		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SV_CAM_MW_TRIP_ANGLE_TILT_KEY));
+		keyCode1 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_1_KEY));
+		keyCode2 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_2_KEY));
+		keyCode3 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_3_KEY));
+		camResolution = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_RES_KEY));
+		sonarAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_ALARM_ON_KEY));
+		pirAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_ALARM_ON_KEY));
+		mwAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_ALARM_ON_KEY));
+		gateAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.GATE_ACCESS_ON_KEY));
+		sonarDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_FEET_KEY));
+		sonarDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_INCHES_KEY));
+		sonarDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DELAY_BTWN_TRIPS_KEY));
+		irDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_FEET_KEY));
+		irDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_INCHES_KEY));
+		irDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DELAY_BTWN_TRIPS_KEY));
+		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_SPEED_THRES_CYCLES_PER_SEC_KEY));
+		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_DELAY_BTWN_TRIPS_KEY));
+		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MULTI_ALARM_TRIP_STATE_KEY));
+		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_PAN_KEY));
+		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_TILT_KEY));
+		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_PAN_KEY));
+		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_TILT_KEY));
+		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_PAN_KEY));
+		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_TILT_KEY));
 	}
 
 	/**
