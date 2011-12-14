@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
@@ -14,6 +15,8 @@ import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.UGateChoiceBox;
+import org.ugate.gui.components.UGateTextFieldPreferenceView;
+import org.ugate.resources.RS;
 
 /**
  * Wireless connection GUI responsible for connecting to the wireless service
@@ -21,12 +24,12 @@ import org.ugate.gui.components.UGateChoiceBox;
 public abstract class WirelessConnectionView extends StatusView {
 	
 	private static final Logger log = Logger.getLogger(WirelessConnectionView.class);
-	public static final String LABEL_CONNECT = "Connect To Local XBee";
-	public static final String LABEL_CONNECTING = "Connecting To Local XBee...";
-	public static final String LABEL_SYNC = "Syncronizing Remote XBees...";
-	public static final String LABEL_RECONNECT = "Reconnect To Local XBee";
+	public static final String ACCESS_KEY_CODE_FORMAT = "%01d";
 	public final UGateChoiceBox<String> port;
 	public final UGateChoiceBox<Integer> baud;
+	public final UGateTextFieldPreferenceView accessKey1;
+	public final UGateTextFieldPreferenceView accessKey2;
+	public final UGateTextFieldPreferenceView accessKey3;
 	public final Button connect;
 
 	/**
@@ -35,10 +38,21 @@ public abstract class WirelessConnectionView extends StatusView {
 	public WirelessConnectionView() {
 		super(20);
 		
-		port = new UGateChoiceBox<String>("Serial Port", new String[]{});
+		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
+		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
 		loadComPorts();
-	    baud = new UGateChoiceBox<Integer>("Baud Rate", new Integer[]{});
+	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
 	    loadBaudRates();
+
+	    accessKey1 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_1_KEY, 
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), 
+				RS.rbLabel("wireless.access.key.desc", 1));
+	    accessKey2 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_2_KEY, 
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 2), 
+				RS.rbLabel("wireless.access.key.desc", 2));
+	    accessKey3 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_3_KEY, 
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), 
+				RS.rbLabel("wireless.access.key.desc", 3));
 	    
 	    connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -51,12 +65,14 @@ public abstract class WirelessConnectionView extends StatusView {
 			}
 	    };
 	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, connectionHandler);
-	    connect.setText(LABEL_CONNECT);
+	    connect.setText(RS.rbLabel("wireless.connect"));
 	    connect.setTooltip(new Tooltip(connect.getText()));	    
 	    
-	    final HBox xbeeContainer = new HBox(10);
-	    xbeeContainer.getChildren().addAll(port, baud, statusIcon);
-	    getChildren().addAll(xbeeContainer, connect);
+	    final HBox wirelessContainer = new HBox(10);
+	    wirelessContainer.getChildren().addAll(port, baud, statusIcon);
+	    final HBox accessKeysContainer = new HBox(5);
+	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
+	    getChildren().addAll(icon, wirelessContainer, accessKeysContainer, connect);
 	}
 	
 	/**
@@ -97,11 +113,11 @@ public abstract class WirelessConnectionView extends StatusView {
 	public void connect(String comPort, int baudRate) {
 		disconnect();
 		connect.setDisable(true);
-		connect.setText(LABEL_CONNECTING);
+		connect.setText(RS.rbLabel("wireless.connecting"));
 		try {
 			if (UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate)) {
 				setStatusFill(statusIcon, true);
-				connect.setText(LABEL_SYNC);
+				connect.setText(RS.rbLabel("wireless.synchronizing"));
 				new Timer().schedule(new TimerTask() {
 					@Override
 					public void run() {
@@ -110,21 +126,24 @@ public abstract class WirelessConnectionView extends StatusView {
 						} catch (final Throwable t) {
 							log.warn("Unable to sync local settings to remote wireless nodes", t);
 						}
-						connect.setText(LABEL_RECONNECT);
+						connect.setText(RS.rbLabel("wireless.reconnect"));
 						connect.setDisable(false);
 					}
 				}, 1000);
 			} else {
-				connect.setText(LABEL_CONNECT);
+				connect.setText(RS.rbLabel("wireless.connect"));
 				connect.setDisable(false);
 			}
 		} catch (final Throwable t) {
 			log.warn(String.format("Unable to connect to COM port: {0} @ {1}", comPort, baudRate), t);
-			connect.setText(LABEL_CONNECT);
+			connect.setText(RS.rbLabel("wireless.connect"));
 			connect.setDisable(false);
 		}
 		UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_COM_PORT_KEY, comPort);
 		UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
+		UGateKeeper.DEFAULT.preferencesSet(Settings.ACCESS_CODE_1_KEY, accessKey1.getValue().toString());
+		UGateKeeper.DEFAULT.preferencesSet(Settings.ACCESS_CODE_2_KEY, accessKey2.getValue().toString());
+		UGateKeeper.DEFAULT.preferencesSet(Settings.ACCESS_CODE_3_KEY, accessKey3.getValue().toString());
 	}
 
 	/**
@@ -135,7 +154,7 @@ public abstract class WirelessConnectionView extends StatusView {
 			UGateKeeper.DEFAULT.wirelessDisconnect();
 			setStatusFill(statusIcon, false);
 			connect.setDisable(false);
-			connect.setText(LABEL_CONNECT);
+			connect.setText(RS.rbLabel("wireless.connect"));
 		}
 	}
 }

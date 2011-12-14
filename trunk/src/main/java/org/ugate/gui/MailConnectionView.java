@@ -2,6 +2,7 @@ package org.ugate.gui;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
@@ -32,6 +33,7 @@ public abstract class MailConnectionView extends StatusView {
 
 	public MailConnectionView() {
 	    super(20);
+		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		smtpHost = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_HOST_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.host"), 
 				RS.rbLabel("mail.smtp.host.desc"));
@@ -72,7 +74,7 @@ public abstract class MailConnectionView extends StatusView {
 	    hostContainer.getChildren().addAll(smtpHost, smtpPort, imapHost, imapPort);
 	    final HBox credContainer = new HBox(10);
 	    credContainer.getChildren().addAll(username, password);
-	    getChildren().addAll(hostContainer, credContainer, statusIcon, connect);
+	    getChildren().addAll(icon, hostContainer, credContainer, statusIcon, connect);
 	}
 	
 	public void connect(final String smtpHost, final String smtpPort, final String imapHost, 

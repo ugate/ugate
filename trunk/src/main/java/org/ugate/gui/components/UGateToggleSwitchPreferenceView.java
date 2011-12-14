@@ -44,8 +44,8 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 */
 	public UGateToggleSwitchPreferenceView(final Settings preferenceKey, final String onImageFileName, 
 			final String offImageFileName) {
-		this(preferenceKey, onImageFileName, offImageFileName, ToggleSwitch.DEFAULT_ON_TEXT, 
-				ToggleSwitch.DEFAULT_OFF_TEXT);
+		this(preferenceKey, onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
+				RS.rbLabel("toggleswitch.off"));
 	}
 	
 	/**
@@ -261,8 +261,8 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 		 */
 		public ToggleItem(final String onImageFileName, final String offImageFileName, 
 				final boolean showToggleSwitch) {
-			this(onImageFileName, offImageFileName, ToggleSwitch.DEFAULT_ON_TEXT, 
-					ToggleSwitch.DEFAULT_OFF_TEXT, false, showToggleSwitch);
+			this(onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
+					RS.rbLabel("toggleswitch.off"), false, showToggleSwitch);
 		}
 		
 		/**

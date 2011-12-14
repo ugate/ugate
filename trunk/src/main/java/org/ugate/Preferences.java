@@ -22,6 +22,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.log4j.Logger;
+import org.ugate.resources.RS;
 
 /**
  * Preferences are used to store simple key/value pair data to disk. The file approach is taken
@@ -62,7 +63,7 @@ public class Preferences {
 				out = new BufferedWriter(new FileWriter(fileName + ".properties"));
 		        out.write("");
 			} catch (IOException e2) {
-				throw new RuntimeException("Unable to create preferences file \"" + fileName + ".properties\"", e2);
+				throw new RuntimeException(RS.rbLog("pref.create.failed", fileName), e2);
 			} finally {
 				if (out != null) {
 					try {
@@ -74,7 +75,7 @@ public class Preferences {
 				}
 			}
 		} catch (IOException e) {
-			log.error("Unable to retrieve preferences", e);
+			log.error(RS.rbLog("pref.create.io.failed"), e);
 		}
 	}
 	
@@ -114,7 +115,7 @@ public class Preferences {
 			try {
 				value = new String(encryptDecrypt(eValue, Cipher.DECRYPT_MODE));
 			} catch (Exception e) {
-				throw new RuntimeException("Unable to encrypt", e);
+				throw new RuntimeException(RS.rbLog("pref.encrypt.failed"), e);
 			}
 		}
 		return value;
@@ -144,14 +145,14 @@ public class Preferences {
 					value = asHex(encryptDecrypt(value, Cipher.ENCRYPT_MODE));
 					key += ENCRYPTION_POSTFIX;
 				} catch (Exception e) {
-					throw new RuntimeException("Unable to encrypt");
+					throw new RuntimeException(RS.rbLog("pref.encrypt.failed"), e);
 				}
 			}
 			properties.setProperty(key, value);
 			properties.store(new FileOutputStream(fileName + ".properties"),
 					null);
 		} catch (IOException e) {
-			log.error("Unable to store preferences", e);
+			log.error(RS.rbLog("pref.save.failed"), e);
 		}
 	}
 

@@ -63,6 +63,7 @@ public class DisplayShelf extends Region {
     public final double displayAngle;
     private double spacing;
     public final int toolBarPosition;
+    public final String imageFullSizeToolTip;
     
     /**
      * Constructor using a file directory where all image files within the immediate directory will be displayed.
@@ -76,9 +77,11 @@ public class DisplayShelf extends Region {
      * @param displayAngle the angle of images that are not in the center viewing area
      * @param spacing the spacing between images
      * @param toolBarPosition the position of the tool bar that shows the image information
+     * @param imageFullSizeToolTip the tool tip for viewing image full size
      */
     public DisplayShelf(final File imageDirectory, final double imageWidth, final double imageHeight, final double reflectionSize,
-    		final double displayAngle, final double spacing, final int toolBarPosition) {
+    		final double displayAngle, final double spacing, final int toolBarPosition, final String imageFullSizeToolTip) {
+    	this.imageFullSizeToolTip = imageFullSizeToolTip;
     	this.imageDirectory = imageDirectory;
     	this.imageWidth = imageWidth;
     	this.imageHeight = imageHeight;
@@ -99,9 +102,11 @@ public class DisplayShelf extends Region {
      * @param displayAngle the angle of images that are not in the center viewing area
      * @param spacing the spacing between images
      * @param toolBarPosition the position of the tool bar that shows the image information
+     * @param imageFullSizeToolTip the tool tip for viewing image full size
      */
     public DisplayShelf(final Image[] images, final double imageWidth, final double imageHeight, final double reflectionSize, 
-    		final double displayAngle, final double spacing, final int toolBarPosition) {
+    		final double displayAngle, final double spacing, final int toolBarPosition, final String imageFullSizeToolTip) {
+    	this.imageFullSizeToolTip = imageFullSizeToolTip;
     	this.imageDirectory = null;
     	this.imageWidth = imageWidth;
     	this.imageHeight = imageHeight;
@@ -199,9 +204,9 @@ public class DisplayShelf extends Region {
     protected DisplayShelfImage addItem(final File file, final Image image, final int index) {
         final DisplayShelfImage item = image != null ?  
 			new DisplayShelfImage(null, image, reflectionSize, displayAngle, 
-					toolBarPosition, imageWidth, imageHeight, false, false) :
+					toolBarPosition, imageWidth, imageHeight, false, false, imageFullSizeToolTip) :
         		new DisplayShelfImage(file, null, reflectionSize, displayAngle, 
-        				toolBarPosition, imageWidth, imageHeight, false, false);
+        				toolBarPosition, imageWidth, imageHeight, false, false, imageFullSizeToolTip);
         items.add(item);
         item.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent me) {

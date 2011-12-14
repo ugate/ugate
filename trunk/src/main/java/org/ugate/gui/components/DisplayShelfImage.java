@@ -54,6 +54,7 @@ public class DisplayShelfImage extends Parent {
     protected final boolean preserveRatio;
     protected final boolean smooth;
     protected final int toolBarPosition;
+    private final String imageFullSizeToolTip;
     private File file;
 
     /**
@@ -68,10 +69,12 @@ public class DisplayShelfImage extends Parent {
      * @param fileImageHeight the height used for the image created from the file
      * @param fileImagePreserveRatio true to preserve the image ratio when creating an image from the file
      * @param fileImageSmooth true to smooth the image when creating an image from the file
+     * @param imageFullSizeToolTip the tool tip for viewing image full size
      */
     public DisplayShelfImage(final File file, Image image, final double reflectionSize, final double displayAngle, 
     		final int toolBarPosition, final double fileImageWidth, final double fileImageHeight, 
-    		final boolean fileImagePreserveRatio, final boolean fileImageSmooth) {
+    		final boolean fileImagePreserveRatio, final boolean fileImageSmooth, final String imageFullSizeToolTip) {
+    	this.imageFullSizeToolTip = imageFullSizeToolTip;
     	this.angle = new SimpleDoubleProperty(displayAngle);
     	this.toolBarPosition = toolBarPosition;
     	this.preserveRatio = fileImagePreserveRatio;
@@ -177,7 +180,7 @@ public class DisplayShelfImage extends Parent {
     	if (file != null) {
     		final Group btnGraphic = createButtonGraphic(0.2);
     		final Button zoomButton = new Button();
-    		zoomButton.setTooltip(new Tooltip("View Original Image Size"));
+    		zoomButton.setTooltip(new Tooltip(imageFullSizeToolTip));
     		zoomButton.setGraphic(btnGraphic);
     		zoomButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
     			@Override

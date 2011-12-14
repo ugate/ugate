@@ -177,7 +177,7 @@ public class Controls extends StackPane {
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
 		final Digits mwReading = new Digits(String.format(SensorControl.FORMAT_MW, 0), 0.15f, 
 				SensorControl.COLOR_MW, null);
-		final Group readingsGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 10,
+		final Group readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
 		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
 		
@@ -188,7 +188,7 @@ public class Controls extends StackPane {
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
-		final Group multiAlarmGroup = createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 0,
+		final Group multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				multiAlarmToggleSwitch);
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));
 		
@@ -197,37 +197,6 @@ public class Controls extends StackPane {
 				new Separator(Orientation.VERTICAL), readingsGroup, 
 				new Separator(Orientation.VERTICAL), multiAlarmGroup,
 				new Separator(Orientation.VERTICAL), helpTextPane};
-	}
-	
-	/**
-	 * Creates a readings display
-	 * 
-	 * @param padding the padding in the grid group
-	 * @param gapBetweenChildren the vertical and/or horizontal gap between cells
-	 * @param numItemsPerRow the number of items per row
-	 * @param nodes the nodes to add to the display
-	 * @return the readings display
-	 */
-	public static final Group createReadingsDisplay(final Insets padding, final double gapBetweenChildren, 
-			final int numItemsPerRow, final Node... nodes) {
-		final Label readingsHeader = new Label(RS.rbLabel("sensors.readings"));
-		readingsHeader.getStyleClass().add("gauge-header");
-		final GridPane gridReadings = new GridPane();
-		gridReadings.setPadding(padding);
-		gridReadings.setHgap(gapBetweenChildren);
-		gridReadings.setVgap(gapBetweenChildren);
-		int col = -1, row = 0;
-		for (final Node node : nodes) {
-			node.getStyleClass().add("gauge");
-			gridReadings.add(node, ++col, row);
-			row = col == (numItemsPerRow - 1) ? row + 1 : row;
-			col = col == (numItemsPerRow - 1) ? -1 : col;
-		}
-		final PlateGroup readingsGroup = new PlateGroup(gridReadings.widthProperty(), 
-				gridReadings.heightProperty(), 
-				gridReadings.paddingProperty());
-		readingsGroup.getChildren().add(gridReadings);
-		return readingsGroup;
 	}
 	
 	/**
@@ -380,7 +349,7 @@ public class Controls extends StackPane {
 					if (command == Command.SENSOR_GET_READINGS) {
 						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
 								Command.SENSOR_GET_READINGS)) {
-							setHelpText(String.format(RS.rbLabel("sensors.readings.failed"),
+							setHelpText(RS.rbLabel("sensors.readings.failed",
 									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
 										getRemoteNodeAddress())));
 							return false;
@@ -388,7 +357,7 @@ public class Controls extends StackPane {
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!UGateKeeper.DEFAULT.wirelessSendSettings(
 								(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
-							setHelpText(String.format(RS.rbLabel("settings.send.failed"),
+							setHelpText(RS.rbLabel("settings.send.failed",
 									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
 										getRemoteNodeAddress())));
 							return false;
@@ -396,13 +365,13 @@ public class Controls extends StackPane {
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
 						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
 								Command.GATE_TOGGLE_OPEN_CLOSE)) {
-							setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
+							setHelpText(RS.rbLabel("gate.toggle.failed",
 									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
 										getRemoteNodeAddress())));
 							return false;
 						}
 					} else {
-						log.warn(String.format("%1$c is not a valid command for %2$s", 
+						log.warn(String.format("%1$s is not a valid command for %2$s", 
 								command, Controls.class.getName()));
 						return false;
 					}

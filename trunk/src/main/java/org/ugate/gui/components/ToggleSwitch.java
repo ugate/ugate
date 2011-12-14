@@ -28,9 +28,6 @@ public class ToggleSwitch extends Group {
 	public static final double REC_STROKE_WIDTH = .5D;
 	public static final double REC_ARC = 15D;
 	public static final Insets TEXT_INSETS = new Insets(0.3, 5, 0.3, 5);
-	
-	public static final String DEFAULT_ON_TEXT = "ON";
-	public static final String DEFAULT_OFF_TEXT = "OFF";
 	private final String onText;
 	private final String offText;
 	private SimpleBooleanProperty boolProperty;
@@ -40,8 +37,8 @@ public class ToggleSwitch extends Group {
 	/**
 	 * Default toggle switch constructor
 	 */
-	public ToggleSwitch() {
-		this(null, null, true);
+	public ToggleSwitch(final String onText, final String offText) {
+		this(onText, offText, true);
 	}
 
 	/**
@@ -54,8 +51,8 @@ public class ToggleSwitch extends Group {
 	public ToggleSwitch(final String onText, final String offText, final boolean on) {
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
-		this.onText = onText != null ? onText : DEFAULT_ON_TEXT;
-		this.offText = offText != null ? offText : DEFAULT_OFF_TEXT;
+		this.onText = onText;
+		this.offText = offText;
 		this.boolProperty = new SimpleBooleanProperty(on);
 		selectedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
