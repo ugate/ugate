@@ -33,17 +33,17 @@ public class SensorControl extends ControlPane {
 	
 	protected void addSensorMovementAdjustments() {
 		final GridPane grid = new GridPane();
-		final Label sonarPirPanHeader = new Label("Sonar/PIR Pan Angle");
+		final Label sonarPirPanHeader = new Label(RS.rbLabel("sonarpir.pan"));
 		sonarPirPanHeader.setWrapText(true);
 		sonarPirPanHeader.setPrefWidth(LABEL_WIDTH);
 		sonarPirPanHeader.getStyleClass().add("gauge-header");
 		grid.add(sonarPirPanHeader, 0, 0);
-		final Label sonarPirTiltHeader = new Label("Sonar/PIR Tilt Angle");
+		final Label sonarPirTiltHeader = new Label(RS.rbLabel("sonarpir.tilt"));
 		sonarPirTiltHeader.setWrapText(true);
 		sonarPirTiltHeader.setPrefWidth(LABEL_WIDTH);
 		sonarPirTiltHeader.getStyleClass().add("gauge-header");
 		grid.add(sonarPirTiltHeader, 1, 0);
-		final Label headerMW = new Label("Microwave Pan Angle");
+		final Label headerMW = new Label(RS.rbLabel("microwave.pan"));
 		headerMW.setWrapText(true);
 		headerMW.setPrefWidth(LABEL_WIDTH);
 		headerMW.getStyleClass().add("gauge-header");
@@ -51,19 +51,19 @@ public class SensorControl extends ControlPane {
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_IR_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(sonarPirPanGauge, "Sonar/PIR Pan: Current trip alram sensor pan angle (in degrees)");
+		controls.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("sonarpir.pan.desc"));
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_IR_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(sonarPirTiltGauge, "Sonar/PIR Tilt: Current trip alarm sensor tilt angle (in degrees)");
+		controls.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("sonarpir.tilt.desc"));
 		grid.add(sonarPirTiltGauge, 1, 1);
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
 				Settings.MW_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(mwPanGauge, "Microwave Pan: Current trip alarm sensor pan angle (in degrees)");
+		controls.addHelpTextTrigger(mwPanGauge, RS.rbLabel("microwave.pan.desc"));
 		grid.add(mwPanGauge, 0, 3);
 		
 		final Group cell = createCell(false, true, grid);
@@ -72,41 +72,36 @@ public class SensorControl extends ControlPane {
 	
 	protected void addSensorChildren() {
 		final GridPane grid = new GridPane();
-		final Label headerSonar = new Label("Sonar Configuration");
+		final Label headerSonar = new Label(RS.rbLabel("sonar.conf"));
 		headerSonar.getStyleClass().add("gauge-header");
 		grid.add(headerSonar, 0, 0);
-		final Label headerPIR = new Label("PIR Configuration");
+		final Label headerPIR = new Label(RS.rbLabel("pir.conf"));
 		headerPIR.getStyleClass().add("gauge-header");
 		grid.add(headerPIR, 1, 0);
-		final Label headerMW = new Label("Micorwave Configuration");
+		final Label headerMW = new Label(RS.rbLabel("microwave.conf"));
 		headerMW.getStyleClass().add("gauge-header");
 		grid.add(headerMW, 2, 0);
 		final UGateToggleSwitchPreferenceView sonarToggleSwitchView = new UGateToggleSwitchPreferenceView(Settings.SONAR_ALARM_ON_KEY, 
 				RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF);
-		controls.addHelpTextTrigger(sonarToggleSwitchView, 
-				"Toggle sonar intruder alarm that when tripped takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
+		controls.addHelpTextTrigger(sonarToggleSwitchView, RS.rbLabel("sonar.toggle.desc"));
 		grid.add(sonarToggleSwitchView, 0, 1);
 		final UGateGaugePreferenceView sonarTripGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_DISTANCE_THRES_FEET_KEY, Settings.SONAR_DISTANCE_THRES_INCHES_KEY, 
 				IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 2, 0, 180d, 9, 4, FORMAT_SONAR, RS.IMG_RULER, COLOR_SONAR);
 		sonarTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
-		controls.addHelpTextTrigger(sonarTripGauge, 
-				"Sonar Distance Threshold: Distance at which an image will be taken and sent to the computer and recipients (if alarm is turned on)");
+		controls.addHelpTextTrigger(sonarTripGauge, RS.rbLabel("sonar.threshold.distance"));
 		sonarTripGauge.gauge.setIntensity(80d, 15d, 5d);
 		grid.add(sonarTripGauge, 0, 2);
 		final UGateGaugePreferenceView sonarTripRateGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_SONAR);
-		controls.addHelpTextTrigger(sonarTripRateGauge, 
-				"Sonar Delay Between Photos: Delay in minutes between pictures taken/sent when an object is within the distance threshold.\n" +
-				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate");
+		controls.addHelpTextTrigger(sonarTripRateGauge, RS.rbLabel("sonar.alarm.delay"));
 		sonarTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(sonarTripRateGauge, 0, 3);
 		final UGateToggleSwitchPreferenceView pirToggleSwitchView = new UGateToggleSwitchPreferenceView(Settings.IR_ALARM_ON_KEY, 
 				RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF);
-		controls.addHelpTextTrigger(pirToggleSwitchView, 
-				"Toggle PIR intruder alarm that when tripped takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
+		controls.addHelpTextTrigger(pirToggleSwitchView, RS.rbLabel("pir.toggle.desc"));
 		grid.add(pirToggleSwitchView, 1, 1);
 //		final UGateGaugeDisplay pirTripGauge = new UGateGaugeDisplay(IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 //				1d, 2, 0, 180d, 24, 1, 15d, FORMAT_PIR, RS.IMG_RULER,
@@ -116,30 +111,23 @@ public class SensorControl extends ControlPane {
 		final UGateGaugePreferenceView pirTripRateGauge = new UGateGaugePreferenceView(
 				Settings.IR_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_PIR);
-		controls.addHelpTextTrigger(pirTripRateGauge, 
-				"PIR Delay Between Photos: Delay in minutes between pictures taken/sent when an object is within the distance threshold.\n" +
-				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate");
+		controls.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel("pir.alarm.delay"));
 		pirTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(pirTripRateGauge, 1, 3);
 
 		final UGateToggleSwitchPreferenceView mwToggleSwitchView = new UGateToggleSwitchPreferenceView(Settings.MW_ALARM_ON_KEY, 
 				RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF);
-		controls.addHelpTextTrigger(mwToggleSwitchView, 
-				"Toggle Microwave intruder alarm that when tripped takes a picture, stores it on the computer, and sends email notification with image attachment (if on)");
+		controls.addHelpTextTrigger(mwToggleSwitchView, RS.rbLabel("microwave.toggle.desc"));
 		grid.add(mwToggleSwitchView, 2, 1);
 		final UGateGaugePreferenceView mwTripGauge = new UGateGaugePreferenceView(
 				Settings.MW_SPEED_THRES_CYCLES_PER_SEC_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 2, 0, 180d, 50, 0, FORMAT_MW, RS.IMG_SPEEDOMETER, COLOR_MW);
-		controls.addHelpTextTrigger(mwTripGauge, 
-				"Microwave Speed Threshold: Cycles/Second at which an image will be taken and sent to the computer and recipients (if alarm is turned on)");
+		controls.addHelpTextTrigger(mwTripGauge, RS.rbLabel("microwave.threshold.speed"));
 		grid.add(mwTripGauge, 2, 2);
 		final UGateGaugePreferenceView mwTripRateGauge = new UGateGaugePreferenceView(
 				Settings.MW_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
-				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, 
-				COLOR_MW);
-		controls.addHelpTextTrigger(mwTripRateGauge, 
-				"Microwave Delay Between Photos: Delay in minutes between pictures taken/sent when an object is within the speed threshold.\n" +
-				"When zero, there may still be a few seconds beween photos due to the wireless transfer rate");
+				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_MW);
+		controls.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel("microwave.alarm.delay"));
 		mwTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(mwTripRateGauge, 2, 3);
 		

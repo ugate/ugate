@@ -32,6 +32,7 @@ public class RS {
 	public static final String IMG_CONNECT = "power-red.png";
 	public static final String IMG_PICS = "pics.png";
 	public static final String IMG_WIRELESS = "wireless-globe.png";
+	public static final String IMG_WIRELESS_ICON = "wireless-icon.png";
 	public static final String IMG_GRAPH = "graph.png";
 	public static final String IMG_LOGS = "logs.png";
 	public static final String IMG_CAM_VGA = "cam-vga.png";
@@ -40,6 +41,7 @@ public class RS {
 	public static final String IMG_SENSOR_ARM = "camera.png";
 	public static final String IMG_EMAIL_SELECTED = "email-selected.png";
 	public static final String IMG_EMAIL_DESELECTED = "email.png";
+	public static final String IMG_EMAIL_ICON = "email-icon.png";
 	public static final String IMG_GATE_SELECTED = "gate-selected.png";
 	public static final String IMG_GATE_DESELECTED = "gate.png";
 	public static final String IMG_GATE_CLOSED = "gate-closed.png";
@@ -236,10 +238,11 @@ public class RS {
 	 * value for the specified key
 	 * 
 	 * @param key the key of the resource bundle value
+	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
 	 * @return the resource bundle value
 	 */
-	public static String rbLabel(final String key) {
-		return rbLabel(Locale.getAvailableLocales()[0], key);
+	public static String rbLabel(final String key, final Object... formatArguments) {
+		return rbLabel(Locale.getAvailableLocales()[0], key, formatArguments);
 	}
 	
 	/**
@@ -247,10 +250,11 @@ public class RS {
 	 *  
 	 * @param locale the locale of the resource bundle
 	 * @param key the key of the resource bundle value
+	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
 	 * @return the resource bundle value
 	 */
-	public static String rbLabel(final Locale locale, final String key) {
-		return ResourceBundle.getBundle(RB_GUI, locale).getString(key);
+	public static String rbLabel(final Locale locale, final String key, final Object... formatArguments) {
+		return rbValue(RB_GUI, locale, key, formatArguments);
 	}
 	
 	/**
@@ -258,10 +262,11 @@ public class RS {
 	 * value for the specified key
 	 * 
 	 * @param key the key of the resource bundle value
+	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
 	 * @return the resource bundle value
 	 */
-	public static String rbLog(final String key) {
-		return rbLog(Locale.getAvailableLocales()[0], key);
+	public static String rbLog(final String key, final Object... formatArguments) {
+		return rbLog(Locale.getAvailableLocales()[0], key, formatArguments);
 	}
 	
 	/**
@@ -269,9 +274,24 @@ public class RS {
 	 *  
 	 * @param locale the locale of the resource bundle
 	 * @param key the key of the resource bundle value
+	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
 	 * @return the resource bundle value
 	 */
-	public static String rbLog(final Locale locale, final String key) {
-		return ResourceBundle.getBundle(RB_LOGS, locale).getString(key);
+	public static String rbLog(final Locale locale, final String key, final Object... formatArguments) {
+		return rbValue(RB_LOGS, locale, key, formatArguments);
+	}
+	
+	/**
+	 * Gets the a resource bundles value for the specified key
+	 *  
+	 * @param rb the resource bundle name
+	 * @param locale the locale of the resource bundle
+	 * @param key the key of the resource bundle value
+	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
+	 * @return the resource bundle value
+	 */
+	private static String rbValue(final String rb, final Locale locale, final String key, final Object... formatArguments) {
+		final String rbStr = ResourceBundle.getBundle(rb, locale).getString(key);
+		return formatArguments != null && formatArguments.length > 0 ? String.format(locale, rbStr, formatArguments) : rbStr;
 	}
 }

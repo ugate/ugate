@@ -134,7 +134,7 @@ public class UGateGUI extends Application {
 					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d);
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_DISPLAY_SHELF));
-			stage.setTitle("UGate Application Interface");
+			stage.setTitle(RS.rbLabel("app.title"));
 	
 			taskbar.setId("taskbar");
 			taskbar.setCache(true);
@@ -156,7 +156,7 @@ public class UGateGUI extends Application {
 			content.setBottom(taskbar);
 	
 			taskbar.getChildren().add(
-					createConnectionStatusView(genFisheyeTaskbar(RS.IMG_CONNECT,
+					createConnectionStatusView(genFisheyeTaskbar(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"),
 							new Runnable() {
 	
 								public void run() {
@@ -164,35 +164,35 @@ public class UGateGUI extends Application {
 								}
 							})));
 			taskbar.getChildren().add(
-					genFisheyeTaskbar(RS.IMG_WIRELESS, new Runnable() {
-	
-						public void run() {
-							changeCenterView(controls, true);
-						}
-					}));
+					genFisheyeTaskbar(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), new Runnable() {
+									public void run() {
+										changeCenterView(controls, true);
+									}
+								}));
 			taskbar.getChildren().add(
-					genFisheyeTaskbar(RS.IMG_PICS, new Runnable() {
+					genFisheyeTaskbar(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), new Runnable() {
 						public void run() {
 							changeCenterView(
 									new DisplayShelf(RS.imgSavePath(),
 											350, 350, 0.25, 45, 80,
-											DisplayShelf.TOOLBAR_POSITION_TOP),
+											DisplayShelf.TOOLBAR_POSITION_TOP, 
+											RS.rbLabel("displayshelf.fullsize.tooltip")),
 									true);
 						}
 					}));
 			taskbar.getChildren().add(
-					genFisheyeTaskbar(RS.IMG_GRAPH, new Runnable() {
+					genFisheyeTaskbar(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), new Runnable() {
 	
 						public void run() {
 							NumberAxis xAxis = new NumberAxis();
 							NumberAxis yAxis = new NumberAxis();
 							LineChart<Number, Number> chart = new LineChart<Number, Number>(
 									xAxis, yAxis);
-							chart.setTitle("XBee Notifications");
-							xAxis.setLabel("Hour");
-							yAxis.setLabel("Occurrences");
+							chart.setTitle(RS.rbLabel("graph.alarm.notify"));
+							xAxis.setLabel(RS.rbLabel("graph.axis.x"));
+							yAxis.setLabel(RS.rbLabel("graph.axis.y"));
 							XYChart.Series<Number, Number> sonarTrippedSeries = new XYChart.Series<Number, Number>();
-							sonarTrippedSeries.setName("Tripped Image Snapshot");
+							sonarTrippedSeries.setName(RS.rbLabel("graph.series.alarm"));
 							Random random = new Random();
 							for (int i = 0; i < 10 + random.nextInt(20); i++) {
 								sonarTrippedSeries.getData().add(
@@ -203,7 +203,7 @@ public class UGateGUI extends Application {
 							chart.getData().add(sonarTrippedSeries);
 							XYChart.Series<Number, Number> manualImageSeries = new XYChart.Series<Number, Number>();
 							manualImageSeries
-									.setName("Manually Initiated Image Snapshots");
+									.setName(RS.rbLabel("graph.series.activity.manual"));
 							for (int i = 0; i < 10 + random.nextInt(20); i++) {
 								manualImageSeries.getData().add(
 										new XYChart.Data<Number, Number>(
@@ -214,7 +214,7 @@ public class UGateGUI extends Application {
 							changeCenterView(chart, true);
 						}
 					}));
-			taskbar.getChildren().add(genFisheyeTaskbar(RS.IMG_LOGS, new Runnable() {
+			taskbar.getChildren().add(genFisheyeTaskbar(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), new Runnable() {
 	
 				public void run() {
 					loggingView.setEditable(false);
@@ -283,17 +283,17 @@ public class UGateGUI extends Application {
 		return node;
 	}
 
-	public static ImageView genFisheyeTaskbar(final String iconName,
-			final Runnable action) {
+	public ImageView genFisheyeTaskbar(final String iconName,
+			final String helpText, final Runnable action) {
 		return genFisheye(iconName, TASKBAR_BUTTON_WIDTH,
 				TASKBAR_BUTTON_HEIGHT, TASKBAR_BUTTON_SCALE,
-				TASKBAR_BUTTON_SCALE, true, action);
+				TASKBAR_BUTTON_SCALE, true, helpText, action);
 	}
 
-	public static ImageView genFisheye(final String iconName,
+	public ImageView genFisheye(final String iconName,
 			final double width, final double height, final double scaleX,
 			final double scaleY, final boolean showReflection,
-			final Runnable action) {
+			final String helpText, final Runnable action) {
 		final ImageView node = RS.imgView(iconName);
 		node.setCacheHint(CacheHint.SCALE);
 		node.setFitWidth(width);
@@ -313,11 +313,14 @@ public class UGateGUI extends Application {
 		if (showReflection) {
 			node.setEffect(effect);
 		}
-
-		node.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		node.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				action.run();
+				if (GuiUtil.isPrimaryPress(event)) {
+					action.run();
+				} else {
+					controls.setHelpText(helpText);
+				}
 			}
 		});
 		node.setOnMouseEntered(new EventHandler<MouseEvent>() {

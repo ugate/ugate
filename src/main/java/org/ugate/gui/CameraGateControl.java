@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -65,6 +66,7 @@ public class CameraGateControl extends ControlPane {
 		final UGateToggleSwitchPreferenceView imgResToggleSwitch  = new UGateToggleSwitchPreferenceView(Settings.CAM_RES_KEY, 
 				RS.IMG_CAM_RESOLUTION, RS.IMG_CAM_RESOLUTION, 
 				RS.rbLabel("cam.resolution.vga"), RS.rbLabel("cam.resolution.qvga"));
+		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
 		controls.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel("cam.resolution.desc"));
 		final Label headerEmailConf = new Label(RS.rbLabel("mail.alarm.notify"));
 		headerEmailConf.getStyleClass().add("gauge-header");
@@ -152,14 +154,16 @@ public class CameraGateControl extends ControlPane {
 		final Label gateCtrlHeader = new Label(RS.rbLabel("gate.state"));
 		gateCtrlHeader.getStyleClass().add("gauge-header");
 		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
-		final Group gateGroup = Controls.createReadingsDisplay(PADDING_INSETS, CHILD_SPACING, 
+		final Group gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
 				1, gateToggleButton);
 		gateGroup.setCursor(Cursor.HAND);
 		controls.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
 		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
-				controls.createControlsService(Command.GATE_TOGGLE_OPEN_CLOSE).start();
+				if (GuiUtil.isPrimaryPress(event)){
+					controls.createControlsService(Command.GATE_TOGGLE_OPEN_CLOSE).start();
+				}
 			}
 		});
 		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
