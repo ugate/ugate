@@ -56,7 +56,7 @@ public class GaugeDemo extends VBox {
 	}
 	
 	private Gauge createRegionKnob(final Color color, final double percentValue) {
-		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4, -1, 0, 0, null, 
+		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4, -1, 0, null, 
 				Font.font("Verdina", 7d));
 		gaugeRegion.indicatorFillProperty.set(color);
 		//gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);

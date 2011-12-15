@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.UGateTextFieldPreferenceView;
+import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
@@ -29,11 +30,14 @@ public abstract class MailConnectionView extends StatusView {
 	public final UGateTextFieldPreferenceView imapPort;
 	public final UGateTextFieldPreferenceView username;
 	public final UGateTextFieldPreferenceView password;
+	public final UGateToggleSwitchPreferenceView soundsToggleSwitch;
 	public final Button connect;
 
 	public MailConnectionView() {
 	    super(20);
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
+		soundsToggleSwitch = new UGateToggleSwitchPreferenceView(
+				Settings.SOUNDS_ON_KEY, RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
 		smtpHost = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_HOST_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.host"), 
 				RS.rbLabel("mail.smtp.host.desc"));
@@ -74,7 +78,8 @@ public abstract class MailConnectionView extends StatusView {
 	    hostContainer.getChildren().addAll(smtpHost, smtpPort, imapHost, imapPort);
 	    final HBox credContainer = new HBox(10);
 	    credContainer.getChildren().addAll(username, password);
-	    getChildren().addAll(icon, hostContainer, credContainer, statusIcon, connect);
+	    getChildren().addAll(icon, 
+	    		soundsToggleSwitch, hostContainer, credContainer, statusIcon, connect);
 	}
 	
 	public void connect(final String smtpHost, final String smtpPort, final String imapHost, 

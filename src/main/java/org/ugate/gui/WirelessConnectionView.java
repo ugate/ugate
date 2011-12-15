@@ -16,6 +16,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.UGateChoiceBox;
 import org.ugate.gui.components.UGateTextFieldPreferenceView;
+import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
 
 /**
@@ -27,6 +28,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	public static final String ACCESS_KEY_CODE_FORMAT = "%01d";
 	public final UGateChoiceBox<String> port;
 	public final UGateChoiceBox<Integer> baud;
+	public final UGateToggleSwitchPreferenceView universalRemoteAccessToggleSwitch;
 	public final UGateTextFieldPreferenceView accessKey1;
 	public final UGateTextFieldPreferenceView accessKey2;
 	public final UGateTextFieldPreferenceView accessKey3;
@@ -39,11 +41,9 @@ public abstract class WirelessConnectionView extends StatusView {
 		super(20);
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
-		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
-		loadComPorts();
-	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
-	    loadBaudRates();
-
+		
+		universalRemoteAccessToggleSwitch = new UGateToggleSwitchPreferenceView(
+				Settings.UNIVERSAL_REMOTE_ACCESS_ON, RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
 	    accessKey1 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_1_KEY, 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), 
 				RS.rbLabel("wireless.access.key.desc", 1));
@@ -53,6 +53,11 @@ public abstract class WirelessConnectionView extends StatusView {
 	    accessKey3 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_3_KEY, 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), 
 				RS.rbLabel("wireless.access.key.desc", 3));
+		
+		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
+		loadComPorts();
+	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
+	    loadBaudRates();
 	    
 	    connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -72,7 +77,8 @@ public abstract class WirelessConnectionView extends StatusView {
 	    wirelessContainer.getChildren().addAll(port, baud, statusIcon);
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
-	    getChildren().addAll(icon, wirelessContainer, accessKeysContainer, connect);
+	    getChildren().addAll(icon, 
+	    		universalRemoteAccessToggleSwitch, accessKeysContainer, wirelessContainer, connect);
 	}
 	
 	/**
