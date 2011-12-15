@@ -5,6 +5,7 @@ package org.ugate;
  */
 public enum Settings {
 	SOUNDS_ON_KEY("sounds.on", false),
+	UNIVERSAL_REMOTE_ACCESS_ON("universal.remote.access.on", false),
 	USE_METRIC_KEY("metric.on", false),
 	CAM_IMG_CAPTURE_RETRY_CNT_KEY("cam.img.capture.retries", false),
 	WIRELESS_COM_PORT_KEY("wireless.com.port", false),

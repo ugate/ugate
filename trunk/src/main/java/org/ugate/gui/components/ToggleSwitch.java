@@ -30,7 +30,7 @@ public class ToggleSwitch extends Group {
 	public static final Insets TEXT_INSETS = new Insets(0.3, 5, 0.3, 5);
 	private final String onText;
 	private final String offText;
-	private SimpleBooleanProperty boolProperty;
+	private BooleanProperty boolProperty;
 	private Rectangle mainRec;
 	private Rectangle middleRec;
 
@@ -106,7 +106,6 @@ public class ToggleSwitch extends Group {
     	final HBox textView = new HBox(TEXT_SPACING);
     	textView.setCache(true);
     	textView.setCacheHint(CacheHint.SPEED);
-    	textView.setStyle("-fx-color: #FFFFFF; -fx-font-size: 12pt; -fx-font-weight: bold;");
     	textView.widthProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable,
@@ -132,9 +131,12 @@ public class ToggleSwitch extends Group {
         onLabel.setCache(true);
         onLabel.setCacheHint(CacheHint.SPEED);
         onLabel.setText(onText);
+        onLabel.setTextFill(Color.WHITE);
+        onLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 12pt; -fx-font-weight: bold;");
         final Label offLabel = new Label();
         offLabel.setCache(true);
         offLabel.setText(offText);
+        offLabel.setStyle("-fx-text-fill: #333333; -fx-font-size: 12pt; -fx-font-weight: bold;");
         HBox.setMargin(onLabel, TEXT_INSETS);
         HBox.setMargin(offLabel, TEXT_INSETS);
 		textView.getChildren().addAll(onLabel, offLabel);

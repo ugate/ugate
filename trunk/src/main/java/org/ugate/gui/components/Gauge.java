@@ -87,7 +87,6 @@ public class Gauge extends Group {
 	public final double indicatorHeight;
 	public final double indicatorPointDistance;
 	public final int dialNumberOfSides;
-	public final double dialCenterInnerRadius;
 	public final double dialCenterOuterRadius;
 	public final double dialCenterBackgroundRadius;
 	public final double outerRadius;
@@ -131,7 +130,7 @@ public class Gauge extends Group {
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
 			final int numberOfMinorTickMarksPerMajorTick) {
 		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numberOfMinorTickMarksPerMajorTick, -1, 0, 0, null, null);
+				numberOfMinorTickMarksPerMajorTick, -1, 0, null, null);
 	}
 	
 	/**
@@ -149,7 +148,6 @@ public class Gauge extends Group {
 	 * 		{@code tickValueScale}.
 	 * @param dialNumberOfSides the number of sides of the dial that appears in the pivot point of the indicator arm (default
 	 * 		is transparent for knob indicator types).
-	 * @param dialCenterInnerRadius the dial center inner radius
 	 * @param dialCenterOuterRadius the dial center outer radius
 	 * @param intensityRegions the intensity regions that will render a visual aid to indicate when a tick value is moderate, 
 	 * 		medium, or intense.
@@ -158,7 +156,7 @@ public class Gauge extends Group {
 	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks, 
 			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, 
-			final double dialCenterInnerRadius, final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions, 
+			final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions, 
 			final Font tickValueFont) {
 		this.indicatorType = indicatorType == null ? IndicatorType.NEEDLE : indicatorType;
 		this.sizeScale = sizeScale == 0 ? 1d : sizeScale;
@@ -179,13 +177,13 @@ public class Gauge extends Group {
 		this.tickValueScale = tickValueScale == 0 ? 1d : tickValueScale;
 		this.tickValueZeroOffset = tickValueZeroOffset;
 		this.tickValueFormat = createTickValueFormat();
-		this.indicatorWidth = this.innerRadius;
-		this.indicatorHeight = 24d * this.sizeScale;
+		this.indicatorWidth = this.outerRadius / 1.1d;
+		this.indicatorHeight = (this.indicatorType == IndicatorType.KNOB ? 30d : 24d) * this.sizeScale;
 		this.indicatorPointDistance = 12d * this.sizeScale;
 		this.dialNumberOfSides = dialNumberOfSides < 0 ? 24 : dialNumberOfSides;
-		this.dialCenterInnerRadius = dialCenterInnerRadius <= 0 ? this.innerRadius / 16.5d : dialCenterInnerRadius;
-		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? this.innerRadius / 17d : dialCenterOuterRadius;
-		this.dialCenterBackgroundRadius = this.dialCenterOuterRadius * 4.5d;
+		this.dialCenterOuterRadius = dialCenterOuterRadius <= 0 ? 
+				this.indicatorType == IndicatorType.KNOB ? this.innerRadius / 2.5d : this.innerRadius / 17d : dialCenterOuterRadius;
+		this.dialCenterBackgroundRadius = (this.innerRadius / 17d) * 4.5d;
 		this.indicatorMoveEffect = new Glow(0);
 		this.tickValueFont = tickValueFont == null ? Font.font(FONT_NAME, 17d * sizeScale) : tickValueFont;
 		
@@ -217,7 +215,12 @@ public class Gauge extends Group {
 			}
 		};
 		this.dialCenterFillProperty = new SimpleObjectProperty<Paint>(
-				this.indicatorType == IndicatorType.KNOB ? Color.TRANSPARENT : Color.BLACK);
+				this.indicatorType == IndicatorType.KNOB ? 
+						new RadialGradient(0, 0, this.centerX, this.centerY, 
+								this.dialCenterOuterRadius, false, CycleMethod.NO_CYCLE, 
+								new Stop(0, Color.DARKGRAY.darker()), new Stop(0.8d, Color.DARKGRAY.darker()), 
+								new Stop(0.85d, Color.LIGHTGRAY), new Stop(0.97d, Color.DARKGRAY.darker()))
+								: Color.BLACK);
 		this.minorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.GRAY.brighter());
 		this.majorTickMarkFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.tickMarkLabelFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
@@ -667,6 +670,7 @@ public class Gauge extends Group {
 		final double ix = centerX - (indicatorWidth / 1.2);
 		final double iy = centerY - (indicatorHeight / 2);
 		
+		// indicator shape
 		final Rotate indicatorRotate = new Rotate(this.angleProperty.get(), centerX, centerY);
 		Bindings.bindBidirectional(indicatorRotate.angleProperty(), this.angleProperty);
 		Shape indicatorShape;
@@ -678,7 +682,7 @@ public class Gauge extends Group {
     		final Group knobSurface = createKnobSurface(0, centerX, centerY, 
     				knobSurfaceRadius, knobSurfaceRadius, DEFAULT_KNOB_SURFACE_COLORS);
 	    	final Group indicatorShapeGroup = createKnob(indicatorShape, knobSurface);
-			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);
+			indicatorShapeGroup.getTransforms().addAll(indicatorRotate);			
 			indicatorBase.getChildren().add(indicatorShapeGroup);
 		} else {
 			indicatorShape = createIndicatorShape(indicatorType, ix, iy, indicatorWidth, 
@@ -686,6 +690,7 @@ public class Gauge extends Group {
 			indicatorShape.getTransforms().addAll(indicatorRotate);
 			indicatorBase.getChildren().add(indicatorShape);
 		}
+		
 		final Lighting lighting = createLighting();
 		if (indicatorType == IndicatorType.KNOB) {
 			lighting.setSpecularConstant(0.4d);
@@ -694,13 +699,14 @@ public class Gauge extends Group {
 		}
 		indicatorBase.setEffect(lighting);
 		
-		final Circle indicatorCenter = new Circle(centerX, centerY, dialCenterOuterRadius);
-		indicatorCenter.setCache(true);
-		indicatorCenter.setCacheHint(CacheHint.SPEED);
-		Bindings.bindBidirectional(indicatorCenter.fillProperty(), dialCenterFillProperty);
-		Bindings.bindBidirectional(indicatorCenter.opacityProperty(), dialCenterOpacityProperty);
-		indicatorBase.getChildren().add(indicatorCenter);
 		indicator.getChildren().add(indicatorBase);
+		
+		// create/add the bolt that holds the indicator in place
+		if (indicatorType != IndicatorType.KNOB) {
+			final Shape indicatorBolt = createIndicatorBolt();
+			indicator.getChildren().add(indicatorBolt);
+			indicatorBolt.setEffect(lighting);
+		}
 		return indicator;
 	}
 	
@@ -865,8 +871,23 @@ public class Gauge extends Group {
     	indicatorShape.setCache(true);
     	indicatorShape.setCacheHint(CacheHint.QUALITY);
     	//indicatorShape.setEffect(createLighting());
-    	return indicatorShape;
-    	
+    	return indicatorShape;	
+    }
+    
+    /**
+     * Creates the bolt that hold the indicator in place
+     * 
+     * @return the indicator bolt
+     */
+    protected Shape createIndicatorBolt() {
+		final Shape indicatorBolt = new Circle(centerX, centerY, dialCenterOuterRadius);
+//			createSproket(centerX, centerY, 24, dialCenterOuterRadius / 1.1d, 
+//				dialCenterOuterRadius, angleStart, dialCenterFillProperty);
+		indicatorBolt.setCache(true);
+		indicatorBolt.setCacheHint(CacheHint.SPEED);
+		Bindings.bindBidirectional(indicatorBolt.fillProperty(), dialCenterFillProperty);
+		Bindings.bindBidirectional(indicatorBolt.opacityProperty(), dialCenterOpacityProperty);
+		return indicatorBolt;
     }
     
     /**
@@ -877,10 +898,15 @@ public class Gauge extends Group {
 	 * @return the completed knob
 	 */
     protected Group createKnob(final Shape indicatorShape, final Node dialNode) {
+		final Lighting lighting = createLighting();
+		lighting.setSurfaceScale(5d * sizeScale);
+		final Shape indicatorBolt = createIndicatorBolt();
+		indicatorBolt.setEffect(lighting);
+		
     	final Group handShapeGroup = new Group();
     	handShapeGroup.setCache(true);
     	handShapeGroup.setCacheHint(CacheHint.ROTATE);
-		handShapeGroup.getChildren().addAll(dialNode, indicatorShape);
+		handShapeGroup.getChildren().addAll(dialNode, indicatorBolt, indicatorShape);
 		return handShapeGroup;
     }
     
@@ -899,6 +925,12 @@ public class Gauge extends Group {
     		final double centerY, final double radiusX, final double radiusY, 
     		final Color... colors) {
     	Group group = new Group();
+    	final Shape background = new Ellipse(centerX, centerY, radiusX, radiusY);
+    	background.setFill(new RadialGradient(0, 0, this.centerX, this.centerY, 
+				Math.max(radiusX, radiusY), false, CycleMethod.NO_CYCLE, 
+				new Stop(0, Color.BLACK), new Stop(0.95d, Color.DARKGRAY.darker()),
+				new Stop(0.97d, Color.GRAY.brighter())));
+    	group.getChildren().add(background);
     	double startRadians = startAngle * 2d * Math.PI;
     	//double stepRadians = (2d * Math.PI) / colors.length;
     	//double oldX = centerX + Math.cos(startRadians) * radiusX;
@@ -908,10 +940,10 @@ public class Gauge extends Group {
     	//angleLength *= 2d;
     	for (double i=0; i<colors.length; i++) {
     		//newRadians = startRadians + stepRadians * (i + 2d);
-    		//newX = centerX + Math.cos(newRadians) * radiusX;
-    		//newY = centerY + Math.sin(newRadians) * radiusY;
+    		//newX = centerX + Math.cos(newRadians) * radiusX / 1.1d;
+    		//newY = centerY + Math.sin(newRadians) * radiusY / 1.1d;
     		//Polygon shape = new Polygon(oldX, oldY, centerX, centerY, newX, newY, oldX, oldY);
-    		Arc shape = new Arc(centerX, centerY, radiusX, radiusY, angle, angleLength);
+    		final Arc shape = new Arc(centerX, centerY, radiusX / 1.1d, radiusY / 1.1d, angle, angleLength);
     		angle += angleLength;
     		shape.setType(ArcType.ROUND);
     		shape.setSmooth(false);
@@ -925,6 +957,9 @@ public class Gauge extends Group {
     		//oldX = newX;
             //oldY = newY;
     	}
+    	//final Ellipse cap = new Ellipse(radiusX, radiusY);
+    	//cap
+    	//group.getChildren().add(shape);
 //    	Ellipse brush;
 //    	double rX, rY;
 //    	int i = 1;
