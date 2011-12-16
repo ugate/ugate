@@ -1,7 +1,5 @@
 package org.ugate.gui;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -17,7 +15,6 @@ import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.gui.components.UGateGaugePreferenceView;
-import org.ugate.gui.components.UGateTextFieldPreferenceView;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
 
@@ -28,8 +25,8 @@ public class CameraGateControl extends ControlPane {
 
 	public static final double LABEL_WIDTH = 125d;
 	
-	public CameraGateControl(final Controls controls) {
-		super(controls);
+	public CameraGateControl(final ControlBar controlBar) {
+		super(controlBar);
 		addCameraChildren();
 		addCameraSensorChildren();
 		addGateChildren();
@@ -45,7 +42,7 @@ public class CameraGateControl extends ControlPane {
 		final UGateGaugePreferenceView camPanGauge = new UGateGaugePreferenceView(
 				Settings.CAM_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0d, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(camPanGauge, RS.rbLabel("cam.pan.desc"));
+		controlBar.addHelpTextTrigger(camPanGauge, RS.rbLabel("cam.pan.desc"));
 		grid.add(camPanGauge, 0, 1);
 		final Label tiltHeader = new Label(RS.rbLabel("cam.tilt"));
 		tiltHeader.getStyleClass().add("gauge-header");
@@ -55,7 +52,7 @@ public class CameraGateControl extends ControlPane {
 		final UGateGaugePreferenceView camTiltGauge = new UGateGaugePreferenceView(
 				Settings.CAM_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, tiltImgView, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(camTiltGauge, RS.rbLabel("cam.tilt"));
+		controlBar.addHelpTextTrigger(camTiltGauge, RS.rbLabel("cam.tilt"));
 		grid.add(camTiltGauge, 1, 1);
 		final Label headerImageRes = new Label(RS.rbLabel("cam.resolution"));
 		headerImageRes.getStyleClass().add("gauge-header");
@@ -67,31 +64,12 @@ public class CameraGateControl extends ControlPane {
 				RS.IMG_CAM_RESOLUTION, RS.IMG_CAM_RESOLUTION, 
 				RS.rbLabel("cam.resolution.vga"), RS.rbLabel("cam.resolution.qvga"));
 		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
-		controls.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel("cam.resolution.desc"));
+		controlBar.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel("cam.resolution.desc"));
 		final Label headerEmailConf = new Label(RS.rbLabel("mail.alarm.notify"));
 		headerEmailConf.getStyleClass().add("gauge-header");
-		final UGateToggleSwitchPreferenceView recipientsToggleSwitch = new UGateToggleSwitchPreferenceView(
-				Settings.MAIL_ALARM_ON_KEY, RS.IMG_EMAIL_SELECTED, RS.IMG_EMAIL_DESELECTED);
-		controls.addHelpTextTrigger(recipientsToggleSwitch, RS.rbLabel("mail.alarm.notify.desc"));
-		final UGateTextFieldPreferenceView recipients = new UGateTextFieldPreferenceView(Settings.MAIL_RECIPIENTS_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, RS.rbLabel("mail.alarm.notify.emails"), 
-				"");
-		recipients.textArea.setPrefRowCount(5);
-		recipients.textArea.setWrapText(true);
-		recipients.textArea.focusedProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable,
-					Boolean oldValue, Boolean newValue) {
-				if (!newValue) {
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_RECIPIENTS_KEY, 
-							recipients.textArea.getText());
-				}
-			}
-		});
-		controls.addHelpTextTrigger(recipients, RS.rbLabel("mail.alarm.notify.emails.desc"));
 		
 		final Group camCell = createCell(false, true, grid, headerImageRes, imgResToggleSwitch, 
-				headerEmailConf, recipientsToggleSwitch, recipients);
+				headerEmailConf);
 		add(camCell, 0, 0);
 	}
 	
@@ -110,14 +88,14 @@ public class CameraGateControl extends ControlPane {
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
 				Settings.CAM_IR_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("cam.pan.sonarpir.desc"));
+		controlBar.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("cam.pan.sonarpir.desc"));
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
 				Settings.CAM_IR_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("cam.tilt.sonarpir.desc"));
+		controlBar.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("cam.tilt.sonarpir.desc"));
 		grid.add(sonarPirTiltGauge, 1, 1);
 		final Label headerMwPanHeader = new Label(RS.rbLabel("cam.pan.microwave"));
 		headerMwPanHeader.setWrapText(true);
@@ -132,12 +110,12 @@ public class CameraGateControl extends ControlPane {
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
 				Settings.CAM_MW_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(mwPanGauge, RS.rbLabel("cam.pan.microwave.desc"));
+		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel("cam.pan.microwave.desc"));
 		grid.add(mwPanGauge, 0, 3);
 		final UGateGaugePreferenceView mwTiltGauge = new UGateGaugePreferenceView(
 				Settings.CAM_MW_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(mwTiltGauge, RS.rbLabel("cam.tilt.microwave.desc"));
+		controlBar.addHelpTextTrigger(mwTiltGauge, RS.rbLabel("cam.tilt.microwave.desc"));
 		grid.add(mwTiltGauge, 1, 3);
 		
 		final Group cell = createCell(false, true, grid);
@@ -148,21 +126,21 @@ public class CameraGateControl extends ControlPane {
 		final Label gateHeader = new Label(RS.rbLabel("gate.conf"));
 		gateHeader.getStyleClass().add("gauge-header");
 		final UGateToggleSwitchPreferenceView gateToggleSwitchView = new UGateToggleSwitchPreferenceView(
-				Settings.GATE_ACCESS_ON_KEY, RS.IMG_GATE_SELECTED,
-				RS.IMG_GATE_DESELECTED);
-		controls.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
+				Settings.GATE_ACCESS_ON_KEY, RS.IMG_GATE_ON,
+				RS.IMG_GATE_OFF);
+		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
 		final Label gateCtrlHeader = new Label(RS.rbLabel("gate.state"));
 		gateCtrlHeader.getStyleClass().add("gauge-header");
 		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
 		final Group gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
 				1, gateToggleButton);
 		gateGroup.setCursor(Cursor.HAND);
-		controls.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
+		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
 		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)){
-					controls.createControlsService(Command.GATE_TOGGLE_OPEN_CLOSE).start();
+					controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE).start();
 				}
 			}
 		});
@@ -175,16 +153,16 @@ public class CameraGateControl extends ControlPane {
 					return;
 				}
 				if (type == IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS) {
-					controls.setHelpText(null);
+					controlBar.setHelpText(null);
 					if (gateToggleButton.getImage().equals(RS.img(RS.IMG_GATE_CLOSED))) {
 						gateToggleButton.setImage(RS.img(RS.IMG_GATE_OPENED));
 					} else {
 						gateToggleButton.setImage(RS.img(RS.IMG_GATE_CLOSED));
 					}
 				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_FAILED) {
-					controls.setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
-							(controls.isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
-								controls.getRemoteNodeAddress())));
+					controlBar.setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
+							(controlBar.isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
+								controlBar.getRemoteNodeAddress())));
 				}
 			}
 		});

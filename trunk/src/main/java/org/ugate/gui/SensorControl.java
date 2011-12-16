@@ -25,8 +25,8 @@ public class SensorControl extends ControlPane {
 	public static final String FORMAT_MW = "%03d";
 	public static final Color COLOR_MW = Color.CHARTREUSE;
 	
-	public SensorControl(final Controls controls) {
-		super(controls);
+	public SensorControl(final ControlBar controlBar) {
+		super(controlBar);
 		addSensorMovementAdjustments();
 		addSensorChildren();
 	}
@@ -51,19 +51,19 @@ public class SensorControl extends ControlPane {
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_IR_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("sonarpir.pan.desc"));
+		controlBar.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("sonarpir.pan.desc"));
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_IR_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("sonarpir.tilt.desc"));
+		controlBar.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("sonarpir.tilt.desc"));
 		grid.add(sonarPirTiltGauge, 1, 1);
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
 				Settings.MW_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
-		controls.addHelpTextTrigger(mwPanGauge, RS.rbLabel("microwave.pan.desc"));
+		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel("microwave.pan.desc"));
 		grid.add(mwPanGauge, 0, 3);
 		
 		final Group cell = createCell(false, true, grid);
@@ -83,25 +83,25 @@ public class SensorControl extends ControlPane {
 		grid.add(headerMW, 2, 0);
 		final UGateToggleSwitchPreferenceView sonarToggleSwitchView = new UGateToggleSwitchPreferenceView(Settings.SONAR_ALARM_ON_KEY, 
 				RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF);
-		controls.addHelpTextTrigger(sonarToggleSwitchView, RS.rbLabel("sonar.toggle.desc"));
+		controlBar.addHelpTextTrigger(sonarToggleSwitchView, RS.rbLabel("sonar.toggle.desc"));
 		grid.add(sonarToggleSwitchView, 0, 1);
 		final UGateGaugePreferenceView sonarTripGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_DISTANCE_THRES_FEET_KEY, Settings.SONAR_DISTANCE_THRES_INCHES_KEY, 
 				IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 2, 0, 180d, 9, 4, FORMAT_SONAR, RS.IMG_RULER, COLOR_SONAR);
 		sonarTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
-		controls.addHelpTextTrigger(sonarTripGauge, RS.rbLabel("sonar.threshold.distance"));
+		controlBar.addHelpTextTrigger(sonarTripGauge, RS.rbLabel("sonar.threshold.distance"));
 		sonarTripGauge.gauge.setIntensity(80d, 15d, 5d);
 		grid.add(sonarTripGauge, 0, 2);
 		final UGateGaugePreferenceView sonarTripRateGauge = new UGateGaugePreferenceView(
 				Settings.SONAR_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_SONAR);
-		controls.addHelpTextTrigger(sonarTripRateGauge, RS.rbLabel("sonar.alarm.delay"));
+		controlBar.addHelpTextTrigger(sonarTripRateGauge, RS.rbLabel("sonar.alarm.delay"));
 		sonarTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(sonarTripRateGauge, 0, 3);
 		final UGateToggleSwitchPreferenceView pirToggleSwitchView = new UGateToggleSwitchPreferenceView(Settings.IR_ALARM_ON_KEY, 
 				RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF);
-		controls.addHelpTextTrigger(pirToggleSwitchView, RS.rbLabel("pir.toggle.desc"));
+		controlBar.addHelpTextTrigger(pirToggleSwitchView, RS.rbLabel("pir.toggle.desc"));
 		grid.add(pirToggleSwitchView, 1, 1);
 //		final UGateGaugeDisplay pirTripGauge = new UGateGaugeDisplay(IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 //				1d, 2, 0, 180d, 24, 1, 15d, FORMAT_PIR, RS.IMG_RULER,
@@ -111,23 +111,23 @@ public class SensorControl extends ControlPane {
 		final UGateGaugePreferenceView pirTripRateGauge = new UGateGaugePreferenceView(
 				Settings.IR_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_PIR);
-		controls.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel("pir.alarm.delay"));
+		controlBar.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel("pir.alarm.delay"));
 		pirTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(pirTripRateGauge, 1, 3);
 
 		final UGateToggleSwitchPreferenceView mwToggleSwitchView = new UGateToggleSwitchPreferenceView(Settings.MW_ALARM_ON_KEY, 
 				RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF);
-		controls.addHelpTextTrigger(mwToggleSwitchView, RS.rbLabel("microwave.toggle.desc"));
+		controlBar.addHelpTextTrigger(mwToggleSwitchView, RS.rbLabel("microwave.toggle.desc"));
 		grid.add(mwToggleSwitchView, 2, 1);
 		final UGateGaugePreferenceView mwTripGauge = new UGateGaugePreferenceView(
 				Settings.MW_SPEED_THRES_CYCLES_PER_SEC_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 2, 0, 180d, 50, 0, FORMAT_MW, RS.IMG_SPEEDOMETER, COLOR_MW);
-		controls.addHelpTextTrigger(mwTripGauge, RS.rbLabel("microwave.threshold.speed"));
+		controlBar.addHelpTextTrigger(mwTripGauge, RS.rbLabel("microwave.threshold.speed"));
 		grid.add(mwTripGauge, 2, 2);
 		final UGateGaugePreferenceView mwTripRateGauge = new UGateGaugePreferenceView(
 				Settings.MW_DELAY_BTWN_TRIPS_KEY, null, IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_MW);
-		controls.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel("microwave.alarm.delay"));
+		controlBar.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel("microwave.alarm.delay"));
 		mwTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(mwTripRateGauge, 2, 3);
 		

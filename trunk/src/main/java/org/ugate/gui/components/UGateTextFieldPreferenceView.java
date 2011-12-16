@@ -1,5 +1,7 @@
 package org.ugate.gui.components;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -8,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -28,7 +31,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	public final TextField textField;
 	public final TextArea textArea;
 	public final PasswordField passwordField;
-	public final Digits numericStepperDigits;
+	private final Digits numericStepperDigits;
 	public final Type type;
 	protected static final double NUMERIC_STEPPER_WIDTH = 30d;
 	protected static final double NUMERIC_STEPPER_HEIGHT = 30d;
@@ -40,6 +43,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	private final int numericStepperDigitCount;
 	private final Number minValue;
 	private final Number maxValue;
+	private final Settings settings;
 	
 	/**
 	 * Creates a text field preference view
@@ -73,7 +77,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	/**
 	 * Creates a text field preference view
 	 * 
-	 * @param preferenceKey the preference key
+	 * @param settings the settings
 	 * @param type the type
 	 * @param numericStepperFormat the {@linkplain String#format(String, Object...)} (integer of float)
 	 * @param minValue the minimum allowed value
@@ -81,16 +85,17 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
-	protected UGateTextFieldPreferenceView(final Settings preferenceKey, final Type type, 
+	protected UGateTextFieldPreferenceView(final Settings settings, final Type type, 
 			final String numericStepperFormat, final Number minValue, final Number maxValue, 
 			final String labelText, final String toolTip) {
 	    super();
+	    this.settings = settings;
 	    this.type = type;
 		label = new Label();
 	    label.setText(labelText);
 	    label.setTooltip(new Tooltip(toolTip));
-	    final String textValue = preferenceKey != null ? 
-	    		UGateKeeper.DEFAULT.preferencesGet(preferenceKey) : "";
+	    final String textValue = settings != null ? 
+	    		UGateKeeper.DEFAULT.preferencesGet(settings) : "";
 		this.numericStepperFormat = type != Type.TYPE_NUMERIC_STEPPER ? null :
 			numericStepperFormat == null || numericStepperFormat.length() == 0 ? 
 				"%03d" : numericStepperFormat;
@@ -105,16 +110,16 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	textArea = null;
 	    	numericStepperDigits = null;
 	    	passwordField = new PasswordField();
-	    	passwordField.setPrefWidth(100);
 	    	passwordField.setText(textValue);
+	    	addPreferenceUpdateListener(passwordField);
 		    getChildren().addAll(label, passwordField);
 	    } else if (type == Type.TYPE_TEXT_AREA) {
 	    	textField = null;
 	    	passwordField = null;
 	    	numericStepperDigits = null;
 	    	textArea = new TextArea();
-	    	textArea.setPrefWidth(100);
 	    	textArea.setText(textValue);
+	    	addPreferenceUpdateListener(textArea);
 		    getChildren().addAll(label, textArea);
 	    } else if (type == Type.TYPE_NUMERIC_STEPPER) {
 	    	textField = null;
@@ -137,8 +142,26 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 		    textField = new TextField();
 		    textField.setText(textValue);
+		    addPreferenceUpdateListener(textField);
 		    getChildren().addAll(label, textField);
 	    }
+	}
+	
+	/**
+	 * Adds a listener that will update the preference when focus is lost
+	 * 
+	 * @param control the control to add the listener to
+	 */
+	protected void addPreferenceUpdateListener(final TextInputControl control) {
+		control.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable,
+					Boolean oldValue, Boolean newValue) {
+				if (!newValue) {
+					UGateKeeper.DEFAULT.preferencesSet(settings, control.getText());
+				}
+			}
+		});
 	}
 	
 	/**
@@ -167,6 +190,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 					if (newValue.floatValue() >= minValue.floatValue() && 
 							newValue.floatValue() <= maxValue.floatValue()) {
 						numericStepperDigits.setValue(String.format(numericStepperFormat, newValue));
+						UGateKeeper.DEFAULT.preferencesSet(settings, newValue.toString());
 					}
 				}
 			}

@@ -23,6 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
@@ -58,13 +59,13 @@ public class UGateGUI extends Application {
 	public static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
 	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
-	protected final StackPane centerView = new StackPane();
 	protected final HBox taskbar = new HBox(10);
 	protected final HBox connectionView = new HBox(10);
 	protected final TextArea loggingView = new TextArea();
+	protected ControlBar controlBar;
 	protected MailConnectionView mailConnectionView;
 	protected WirelessConnectionView wirelessConnectionView;
-	protected Controls controls;
+	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 
 	/**
@@ -126,7 +127,6 @@ public class UGateGUI extends Application {
 					}
 				}
 			};
-			controls = new Controls(stage);
 	
 			final BorderPane content = new BorderPane();
 			content.setId("content");
@@ -141,18 +141,29 @@ public class UGateGUI extends Application {
 			taskbar.setAlignment(Pos.CENTER);
 			taskbar.setPadding(new Insets(10, 10, 50, 10));
 			taskbar.setPrefHeight(100);
-	
-			centerView.setPrefHeight(300);
+			
+			centerView = new StackPane();
+			//centerView.setPrefHeight(300);
 			//VBox.getVgrow(centerView);
 			centerView.setId("center-view");
-			centerView.setPadding(new Insets(10, 10, 70, 10));
-			connectionView.setAlignment(Pos.CENTER);
+			centerView.setPadding(new Insets(0, 0, 70d, 0));
+			HBox.setHgrow(centerView, Priority.ALWAYS);
+			VBox.setVgrow(centerView, Priority.ALWAYS);
+			
+			controlBar = new ControlBar(stage);
+			final Controls controls = new Controls(controlBar);
+			final VBox main = new VBox(0);
+			main.setStyle("-fx-background-color: #000000;");
+			HBox.setHgrow(main, Priority.ALWAYS);
+			VBox.setVgrow(main, Priority.ALWAYS);
+			main.getChildren().addAll(controlBar, centerView);
 			changeCenterView(connectionView, false);
 	
+			connectionView.setAlignment(Pos.CENTER);
 			connectionView.getChildren().addAll(wirelessConnectionView,
 					createSeparator(Orientation.VERTICAL), mailConnectionView);
 	
-			content.setCenter(centerView);
+			content.setCenter(main);
 			content.setBottom(taskbar);
 	
 			taskbar.getChildren().add(
@@ -319,7 +330,7 @@ public class UGateGUI extends Application {
 				if (GuiUtil.isPrimaryPress(event)) {
 					action.run();
 				} else {
-					controls.setHelpText(helpText);
+					controlBar.setHelpText(helpText);
 				}
 			}
 		});

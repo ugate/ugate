@@ -167,7 +167,7 @@ public class UGateGaugePreferenceView extends VBox {
 		gaugeDigits.setEffect(new DropShadow());
         HBox.setMargin(gaugeDigits, new Insets(0, 5, 0, 5));
         //gaugeDigits.getTransforms().add(new Scale(0.2f, 0.2f, 0, 0));
-		gaugeDigits.getValueProperty().addListener(new ChangeListener<String>() {
+		gaugeDigits.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				setPreferenceValue(preferenceKeyInteger, preferenceKeyFraction, newValue);
