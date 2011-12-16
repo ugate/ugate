@@ -480,7 +480,9 @@ public enum UGateKeeper {
 
 		// send the command, status code, and settings data
 		try {
-			final int[] sendData = new SettingsData().toArray();
+			final SettingsData sd = new SettingsData();
+			final int[] sendData = sd.toArray();
+			log.info(String.format("Attempting to send: %s", sd));
 			final List<String> waks = wirelessNodes == null || wirelessNodes.length == 0 ? 
 					wirelessGetNodeAddressKeys(false) : Arrays.asList(wirelessNodes);
 			int scnt = 0;
