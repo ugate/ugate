@@ -133,7 +133,7 @@ public class Digits extends HBox {
 	/**
 	 * @return the value property
 	 */
-	public StringProperty getValueProperty() {
+	public StringProperty valueProperty() {
 		return valueProperty;
 	}
 

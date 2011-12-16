@@ -331,16 +331,17 @@ public enum UGateKeeper {
 	 */
 	public boolean wirelessSendData(final String wirelessNodeAddressHexKey, 
 			final Command command, final int... data) {
-		if (!preferences.hasKey(wirelessNodeAddressHexKey)) {
-			log.error(String.format("Wireless node address \"%1$s\" has not been defined", 
-					wirelessNodeAddressHexKey));
-			return false;
-		}
 		try {
 			// bytes header command and status/failure code
 			final int[] bytesHeader = new int[] { command.id, WirelessStatusCode.NONE.ordinal() };
 			final int[] bytes = data != null && data.length > 0 ? 
 					UGateUtil.arrayConcatInt(bytesHeader, data) : bytesHeader;
+			// TODO : allow for commands to be sent to more than one wireless node?
+			if (!preferences.hasKey(wirelessNodeAddressHexKey)) {
+				log.error(String.format("Wireless node address \"%1$s\" has not been defined", 
+						wirelessNodeAddressHexKey));
+				return false;
+			}
 			final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(wirelessNodeAddressHexKey);
 			// create a unicast packet to be delivered to the supplied address, with the pay load
 			final TxRequest16 request = new TxRequest16(xbeeAddress, bytes);
@@ -348,20 +349,18 @@ public enum UGateKeeper {
 			final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
 			if (response.isSuccess()) {
 				// packet was delivered successfully
-				log.info(String.format("Data successfully sent to remote address %1$s", 
-						preferences.get(wirelessNodeAddressHexKey)));
+				log.info("Data successfully sent");
 			} else {
 				// packet was not delivered
-				throw new XBeeException(String.format("Packet could not be delivered to remote address %1$s... Return status %2$s", 
-						preferences.get(wirelessNodeAddressHexKey), response.getStatus()));
+				throw new XBeeException("Packet was not delivered. status: " + response.getStatus());
 			}
 			return response.isSuccess();
 		} catch (XBeeTimeoutException e) {
-			log.error(String.format("Wireless transfer failed. No response from remote address %1$s was received in the allotted time",
-					preferences.get(wirelessNodeAddressHexKey)), e);
+			log.error(String.format("Wireless transfer failed. No response from %1$s was received in the allotted time",
+					preferences.hasKey(wirelessNodeAddressHexKey)), e);
 		} catch (XBeeException e) {
-			log.error(String.format("Unexpected error occurred when wirelessly transferring data to address %1$s",
-					preferences.get(wirelessNodeAddressHexKey)), e);
+			log.error(String.format("Unexpected error occurred when wirelessly transferring data to %1$s",
+					wirelessNodeAddressHexKey), e);
 		}
 		return false;
 	}

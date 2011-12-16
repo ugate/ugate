@@ -11,6 +11,7 @@ import org.ugate.UGateKeeper;
  */
 public class SettingsData {
 
+	private int universalRemoteOn;
 	private int keyCode1;
 	private int keyCode2;
 	private int keyCode3;
@@ -45,6 +46,7 @@ public class SettingsData {
 	/**
 	 * Full constructor
 	 * 
+	 * @param universalRemoteOn
 	 * @param keyCode1
 	 * @param keyCode2
 	 * @param keyCode3
@@ -69,7 +71,7 @@ public class SettingsData {
 	 * @param camMicrowaveTripPanAngle
 	 * @param camMicrowaveTripTiltAngle
 	 */
-	public SettingsData(int keyCode1, int keyCode2, int keyCode3,
+	public SettingsData(int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3,
 			int camResolution, int sonarAlarmOn, int pirAlarmOn, int mwAlarmOn,
 			int gateAlarmOn, int sonarDistanceThresholdFeet,
 			int sonarDistanceThresholdInches, int sonarDelayBetweenTrips,
@@ -80,6 +82,7 @@ public class SettingsData {
 			int camIrTripPanAngle, int camIrTripTiltAngle,
 			int camMicrowaveTripPanAngle, int camMicrowaveTripTiltAngle) {
 		super();
+		this.universalRemoteOn = universalRemoteOn;
 		this.keyCode1 = keyCode1;
 		this.keyCode2 = keyCode2;
 		this.keyCode3 = keyCode3;
@@ -106,6 +109,7 @@ public class SettingsData {
 	}
 
 	public void setPreferenceValues() {
+		universalRemoteOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.UNIVERSAL_REMOTE_ACCESS_ON));
 		keyCode1 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_1_KEY));
 		keyCode2 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_2_KEY));
 		keyCode3 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_3_KEY));
@@ -130,35 +134,28 @@ public class SettingsData {
 		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_PAN_KEY));
 		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_TILT_KEY));
 	}
-
+	
 	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return SettingsData.class.getSimpleName() + " [keyCode1=" + keyCode1 + ", keyCode2=" + keyCode2
-				+ ", keyCode3=" + keyCode3 + ", camResolution=" + camResolution
-				+ ", sonarAlarmOn=" + sonarAlarmOn + ", pirAlarmOn="
-				+ pirAlarmOn + ", mwAlarmOn=" + mwAlarmOn + ", gateAlarmOn="
-				+ gateAlarmOn + ", sonarDistanceThresholdFeet="
-				+ sonarDistanceThresholdFeet
-				+ ", sonarDistanceThresholdInches="
-				+ sonarDistanceThresholdInches + ", sonarDelayBetweenTrips="
-				+ sonarDelayBetweenTrips + ", irDistanceThresholdFeet="
-				+ irDistanceThresholdFeet + ", irDistanceThresholdInches="
-				+ irDistanceThresholdInches + ", irDelayBetweenTrips="
-				+ irDelayBetweenTrips + ", mwSpeedThresholdCyclesPerSecond="
-				+ mwSpeedThresholdCyclesPerSecond + ", mwDelayBetweenTrips="
-				+ mwDelayBetweenTrips + ", multiAlarmTripState="
-				+ multiAlarmTripState + ", camSonarTripPanAngle="
-				+ camSonarTripPanAngle + ", camSonarTripTiltAngle="
-				+ camSonarTripTiltAngle + ", camIrTripPanAngle="
-				+ camIrTripPanAngle + ", camIrTripTiltAngle="
-				+ camIrTripTiltAngle + ", camMicrowaveTripPanAngle="
-				+ camMicrowaveTripPanAngle + ", camMicrowaveTripTiltAngle="
-				+ camMicrowaveTripTiltAngle + "]";
+		final Field[] fields = getClass().getDeclaredFields();
+		final StringBuffer sb = new StringBuffer(SettingsData.class.getSimpleName() + " [");
+		for (final Field field : fields) {
+			try {
+				sb.append(field.getName());
+				sb.append('=');
+				sb.append(field.getInt(this));
+				sb.append(", ");
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
+		sb.append(']');
+		return sb.toString();
 	}
-	
+
 	/**
 	 * @return the list of field values in the order they are declared
 	 */
@@ -175,6 +172,13 @@ public class SettingsData {
 			}
 		}
 		return Arrays.copyOf(list, i);
+	}
+	
+	/**
+	 * @return the universalRemoteOn
+	 */
+	public int getGniversalRemoteOn() {
+		return universalRemoteOn;
 	}
 
 	/**

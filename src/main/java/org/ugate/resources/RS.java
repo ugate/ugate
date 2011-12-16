@@ -39,11 +39,11 @@ public class RS {
 	public static final String IMG_CAM_QVGA = "cam-qvga.png";
 	public static final String IMG_CAM_RESOLUTION = "resolution32x32.png";
 	public static final String IMG_SENSOR_ARM = "camera.png";
-	public static final String IMG_EMAIL_SELECTED = "email-selected.png";
-	public static final String IMG_EMAIL_DESELECTED = "email.png";
+	public static final String IMG_EMAIL_NOTIFY_ON = "email-notify-on.png";
+	public static final String IMG_EMAIL_NOTIFY_OFF = "email-notify-off.png";
 	public static final String IMG_EMAIL_ICON = "email-icon.png";
-	public static final String IMG_GATE_SELECTED = "gate-selected.png";
-	public static final String IMG_GATE_DESELECTED = "gate.png";
+	public static final String IMG_GATE_ON = "gate-on.png";
+	public static final String IMG_GATE_OFF = "gate-off.png";
 	public static final String IMG_GATE_CLOSED = "gate-closed.png";
 	public static final String IMG_GATE_OPENED = "gate-opened.png";
 	public static final String IMG_RULER = "ruler.png";

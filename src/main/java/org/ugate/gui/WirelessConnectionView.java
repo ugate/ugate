@@ -3,12 +3,18 @@ package org.ugate.gui;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import org.apache.log4j.Logger;
 import org.ugate.Settings;
@@ -55,9 +61,9 @@ public abstract class WirelessConnectionView extends StatusView {
 				RS.rbLabel("wireless.access.key.desc", 3));
 		
 		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
-		loadComPorts();
+		configComPorts();
 	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
-	    loadBaudRates();
+	    configBaudRates();
 	    
 	    connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -71,43 +77,83 @@ public abstract class WirelessConnectionView extends StatusView {
 	    };
 	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, connectionHandler);
 	    connect.setText(RS.rbLabel("wireless.connect"));
-	    connect.setTooltip(new Tooltip(connect.getText()));	    
+	    connect.setTooltip(new Tooltip(connect.getText()));
 	    
-	    final HBox wirelessContainer = new HBox(10);
-	    wirelessContainer.getChildren().addAll(port, baud, statusIcon);
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
-	    getChildren().addAll(icon, 
-	    		universalRemoteAccessToggleSwitch, accessKeysContainer, wirelessContainer, connect);
+	    
+	    final GridPane grid = new GridPane();
+	    grid.setHgap(10d);
+	    grid.setVgap(30d);
+	    
+	    final VBox toggleView = new VBox(10d);
+	    toggleView.getChildren().addAll(icon, universalRemoteAccessToggleSwitch);
+	    
+	    final GridPane connectionGrid = new GridPane();
+	    connectionGrid.setPadding(new Insets(20d, 0, 0, 0));
+		connectionGrid.setHgap(5d);
+		connectionGrid.setVgap(15d);
+	    connectionGrid.add(port, 0, 0);
+	    connectionGrid.add(baud, 0, 1);
+	    
+	    grid.add(toggleView, 0, 0);
+	    grid.add(connectionGrid, 1, 0);
+	    grid.add(accessKeysContainer, 0, 1, 2, 1);
+	    grid.add(connect, 0, 2, 2, 1);
+	    getChildren().add(grid);
 	}
 	
 	/**
-	 * Loads the available COM ports
+	 * Configures the COM ports
 	 */
-	public void loadComPorts() {
+	public void configComPorts() {
+		log.debug("Loading available serial ports");
 		port.choice.getItems().addAll(UGateKeeper.DEFAULT.getSerialPorts());
 		final String xbeeComPort = UGateKeeper.DEFAULT.preferencesGet(Settings.WIRELESS_COM_PORT_KEY);
-		if (xbeeComPort != null && xbeeComPort.length() > 0 && 
-				port.choice.getItems().contains(xbeeComPort)) {
+		final boolean hasItem = xbeeComPort != null && xbeeComPort.length() > 0 && port.choice.getItems().contains(xbeeComPort);
+		if (hasItem) {
 			port.choice.getSelectionModel().select(xbeeComPort);
-		} else if (!port.choice.getItems().isEmpty()) {
+		}
+		port.choice.selectionModelProperty().addListener(new ChangeListener<SingleSelectionModel<String>>() {
+			@Override
+			public void changed(final ObservableValue<? extends SingleSelectionModel<String>> observable, 
+					final SingleSelectionModel<String> oldValue, final SingleSelectionModel<String> newValue) {
+				UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_COM_PORT_KEY, newValue.getSelectedItem());
+			}
+		});
+		if (!hasItem && !port.choice.getItems().isEmpty()) {
 			port.choice.getSelectionModel().select(0);
 		}
+		port.choice.autosize();
 	}
 	
 	/**
-	 * Loads the available Baud rates
+	 * Configures the Baud rates
 	 */
-	public void loadBaudRates() {
+	public void configBaudRates() {
 		log.debug("Loading available baud rates");
 		baud.choice.getItems().addAll(UGateUtil.XBEE_BAUD_RATES);
 		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferencesGet(Settings.WIRELESS_BAUD_RATE_KEY);
-		if (xbeeBaudRateStr != null && xbeeBaudRateStr.length() > 0) {
+		boolean hasItem = xbeeBaudRateStr != null && xbeeBaudRateStr.length() > 0;
+		if (hasItem) {
 			final Integer xbeeBaudRate = Integer.parseInt(xbeeBaudRateStr);
 			if (baud.choice.getItems().contains(xbeeBaudRate)) {
 				baud.choice.getSelectionModel().select(xbeeBaudRate);
+			} else {
+				hasItem = false;
 			}
 		}
+		port.choice.selectionModelProperty().addListener(new ChangeListener<SingleSelectionModel<String>>() {
+			@Override
+			public void changed(final ObservableValue<? extends SingleSelectionModel<String>> observable, 
+					final SingleSelectionModel<String> oldValue, final SingleSelectionModel<String> newValue) {
+				UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_BAUD_RATE_KEY, newValue.getSelectedItem());
+			}
+		});
+		if (!hasItem && !baud.choice.getItems().isEmpty()) {
+			baud.choice.getSelectionModel().select(0);
+		}
+		baud.choice.autosize();
 	}
 	
 	/**
@@ -145,11 +191,6 @@ public abstract class WirelessConnectionView extends StatusView {
 			connect.setText(RS.rbLabel("wireless.connect"));
 			connect.setDisable(false);
 		}
-		UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_COM_PORT_KEY, comPort);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_BAUD_RATE_KEY, String.valueOf(baudRate));
-		UGateKeeper.DEFAULT.preferencesSet(Settings.ACCESS_CODE_1_KEY, accessKey1.getValue().toString());
-		UGateKeeper.DEFAULT.preferencesSet(Settings.ACCESS_CODE_2_KEY, accessKey2.getValue().toString());
-		UGateKeeper.DEFAULT.preferencesSet(Settings.ACCESS_CODE_3_KEY, accessKey3.getValue().toString());
 	}
 
 	/**

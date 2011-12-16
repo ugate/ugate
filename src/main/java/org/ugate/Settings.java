@@ -5,7 +5,6 @@ package org.ugate;
  */
 public enum Settings {
 	SOUNDS_ON_KEY("sounds.on", false),
-	UNIVERSAL_REMOTE_ACCESS_ON("universal.remote.access.on", false),
 	USE_METRIC_KEY("metric.on", false),
 	CAM_IMG_CAPTURE_RETRY_CNT_KEY("cam.img.capture.retries", false),
 	WIRELESS_COM_PORT_KEY("wireless.com.port", false),
@@ -22,6 +21,7 @@ public enum Settings {
 	MAIL_USERNAME_KEY("mail.username", false),
 	MAIL_PASSWORD_KEY("mail.password", false),
 	MAIL_ALARM_ON_KEY("mail.alarm.on", false),
+	UNIVERSAL_REMOTE_ACCESS_ON("universal.remote.access.on", true),
 	ACCESS_CODE_1_KEY("access.code.one", true),
 	ACCESS_CODE_2_KEY("access.code.two", true),
 	ACCESS_CODE_3_KEY("access.code.three", true),

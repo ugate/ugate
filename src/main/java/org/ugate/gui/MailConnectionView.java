@@ -1,10 +1,12 @@
 package org.ugate.gui;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 import org.apache.log4j.Logger;
 import org.ugate.Settings;
@@ -31,6 +33,8 @@ public abstract class MailConnectionView extends StatusView {
 	public final UGateTextFieldPreferenceView username;
 	public final UGateTextFieldPreferenceView password;
 	public final UGateToggleSwitchPreferenceView soundsToggleSwitch;
+	public final UGateToggleSwitchPreferenceView emailToggleSwitch;
+	public final UGateTextFieldPreferenceView recipients;
 	public final Button connect;
 
 	public MailConnectionView() {
@@ -38,6 +42,16 @@ public abstract class MailConnectionView extends StatusView {
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		soundsToggleSwitch = new UGateToggleSwitchPreferenceView(
 				Settings.SOUNDS_ON_KEY, RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
+		emailToggleSwitch = new UGateToggleSwitchPreferenceView(Settings.MAIL_ALARM_ON_KEY, 
+				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
+		//controls.addHelpTextTrigger(recipientsToggleSwitch, RS.rbLabel("mail.alarm.notify.desc"));
+		recipients = new UGateTextFieldPreferenceView(
+				Settings.MAIL_RECIPIENTS_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, 
+				RS.rbLabel("mail.alarm.notify.emails"), "");
+		recipients.textArea.setPrefRowCount(5);
+		recipients.textArea.setWrapText(true);
+		//controls.addHelpTextTrigger(recipients, RS.rbLabel("mail.alarm.notify.emails.desc"));
 		smtpHost = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_HOST_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.host"), 
 				RS.rbLabel("mail.smtp.host.desc"));
@@ -73,13 +87,30 @@ public abstract class MailConnectionView extends StatusView {
 	    };
 	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, connectionHandler);
 	    connect.setText(LABEL_CONNECT);
+	   
+	    final GridPane grid = new GridPane();
+	    grid.setHgap(10d);
+	    grid.setVgap(30d);
 	    
-	    final HBox hostContainer = new HBox(10);
-	    hostContainer.getChildren().addAll(smtpHost, smtpPort, imapHost, imapPort);
-	    final HBox credContainer = new HBox(10);
-	    credContainer.getChildren().addAll(username, password);
-	    getChildren().addAll(icon, 
-	    		soundsToggleSwitch, hostContainer, credContainer, statusIcon, connect);
+	    final VBox toggleView = new VBox(10d);
+	    toggleView.getChildren().addAll(icon, soundsToggleSwitch, emailToggleSwitch);
+	    
+	    final GridPane connectionGrid = new GridPane();
+	    connectionGrid.setPadding(new Insets(20d, 0, 0, 0));
+		connectionGrid.setHgap(15d);
+		connectionGrid.setVgap(15d);
+	    connectionGrid.add(smtpHost, 0, 0);
+	    connectionGrid.add(smtpPort, 1, 0);
+	    connectionGrid.add(imapHost, 0, 1);
+	    connectionGrid.add(imapPort, 1, 1);
+	    connectionGrid.add(username, 0, 2);
+	    connectionGrid.add(password, 1, 2);
+	    connectionGrid.add(recipients, 0, 3, 2, 1);
+	    
+	    grid.add(toggleView, 0, 0);
+	    grid.add(connectionGrid, 1, 0);
+	    grid.add(connect, 1, 1, 2, 1);
+	    getChildren().add(grid);
 	}
 	
 	public void connect(final String smtpHost, final String smtpPort, final String imapHost, 

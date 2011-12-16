@@ -28,6 +28,7 @@ public class UGateChoiceBox<T> extends VBox {
 	    choice.setTooltip(new Tooltip(label.getText()));
 	    if (!choice.getItems().isEmpty()) {
 	    	choice.getSelectionModel().select(0);
+	    	choice.autosize();
 	    }
 	    getChildren().addAll(label, choice);
 	}

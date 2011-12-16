@@ -23,10 +23,10 @@ public abstract class ControlPane extends GridPane {
 	public static final double KNOB_SIZE_SCALE = 0.25d;
 	public static final double NEEDLE_SIZE_SCALE = 0.5d;
 	public static final Color COLOR_PAN_TILT = Color.YELLOW;
-	protected final Controls controls;
+	protected final ControlBar controlBar;
 	
-	public ControlPane(final Controls controls) {
-		this.controls = controls;
+	public ControlPane(final ControlBar controlBar) {
+		this.controlBar = controlBar;
 		getStyleClass().add("gauge-control-pane");
         setPrefHeight(Integer.MAX_VALUE);
 	}
