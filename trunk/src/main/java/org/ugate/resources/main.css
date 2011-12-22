@@ -158,6 +158,157 @@
     -fx-background-insets: 1 0 -1 0, 0;
 }
 /* ====== CUSTOM ============================================================== */
+/*******************************************************************************
+ *                                                                             *
+ * Button                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+.button {
+    -fx-background-color:
+        #a6b5c9,
+        linear-gradient(#303842 0%, #3e5577 20%, #375074 100%),
+        linear-gradient(#768aa5 0%, #849cbb 5%, #5877a2 50%, #486a9a 51%, #4a6c9b 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-padding: 7 30 7 30;
+    -fx-text-fill: #242d35;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+}
+.button Text {
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 0 , -1 );
+}
+.button:focused {
+    -fx-color: -fx-focused-base;
+    /*-fx-background-color: -fx-focus-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 2, 2);
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
+}
+
+.button:hover {
+    -fx-color: -fx-focused-base;
+    -fx-background-color:
+        #b6c5d9,
+        linear-gradient(#404852 0%, #4e6587 20%, #476084 100%),
+        linear-gradient(#869ab5 0%, #94accb 5%, #6887b2 50%, #587aaa 51%, #5a7cab 100%);
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 2, 2);
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
+}
+
+.button:armed {
+    -fx-color: -fx-pressed-base;
+}
+
+.button:default {
+    -fx-base: -fx-accent;
+}
+
+.button:cancel {
+     -fx-base: -fx-accent;
+ }
+
+.button:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+
+.button:show-mnemonics .mnemonic-underline {
+    -fx-stroke: -fx-text-fill;
+}
+/*******************************************************************************
+ *                                                                             *
+ * TextField                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+.text-field {
+    -fx-background-color:
+        linear-gradient(#f2f2f2, #d6d6d6),
+        linear-gradient(#fcfcfc 0%, #d9d9d9 20%, #d6d6d6 100%),
+        linear-gradient(#dddddd 0%, #f6f6f6 50%);
+    -fx-background-radius: 8,7,6;
+    -fx-background-insets: 0,1,2;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+	-fx-font-family: "Helvetica";
+    -fx-text-fill: linear-gradient(black, #38424b);
+    -fx-font-size: 12px;
+    -fx-cursor: text;
+    -fx-padding: 10 5 10 5;
+}
+/* .text-field Text { */
+/*     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 ); */
+/* } */
+.text-field:focused {
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3);
+}
+.text-field:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+/*******************************************************************************
+ *                                                                             *
+ * TextArea                                                                    *
+ *                                                                             *
+ ******************************************************************************/
+.text-area {
+    -fx-background-color:
+        linear-gradient(#f2f2f2, #d6d6d6),
+        linear-gradient(#fcfcfc 0%, #d9d9d9 20%, #d6d6d6 100%),
+        linear-gradient(#dddddd 0%, #f6f6f6 50%);
+    -fx-background-radius: 8,7,6;
+    -fx-background-insets: 0,1,2;
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+	-fx-font-family: "Helvetica";
+    -fx-text-fill: linear-gradient(black, #38424b);
+    -fx-font-size: 12px;
+    -fx-cursor: text;
+    -fx-padding: 10 5 10 5;
+}
+.text-area .scroll-pane {
+    -fx-background-color: transparent;
+}
+.text-area .content {
+    -fx-padding: 3 5 3 5; 
+    -fx-cursor: text;
+}
+.text-area:focused {
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3);
+}
+
+.text-area:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+/*******************************************************************************
+ *                                                                             *
+ * ChoiceBox                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+.choice-box {
+    -fx-background-color:
+        #000000,
+        linear-gradient(#7ebcea, #2f4b8f),
+        linear-gradient(#426ab7, #263e75),
+        linear-gradient(#395cab, #223768);
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 0.0em 0.5em 0.0em 0.0em; /* 0 6 0 0 */
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+}
+/* .choice-box Text { */
+/* 	-fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 0 , 1); */
+/* } */
+.choice-box:focused {
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3);
+}
+.choice-box:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+/*******************************************************************************
+ *                                                                             *
+ * Other                                                                       *
+ *                                                                             *
+ ******************************************************************************/
 .tab-content-area {
     -fx-background-color: transparent;
     -fx-padding: 0.0em; /* 0 */
