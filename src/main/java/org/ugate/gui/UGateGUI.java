@@ -80,7 +80,7 @@ public class UGateGUI extends Application {
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		try {
 			// Set up a simple configuration that logs on the console.
 			// BasicConfigurator.configure();
@@ -131,7 +131,7 @@ public class UGateGUI extends Application {
 			final BorderPane content = new BorderPane();
 			content.setId("content");
 			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
-					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d);
+					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false);
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_DISPLAY_SHELF));
 			stage.setTitle(RS.rbLabel("app.title"));
@@ -239,13 +239,19 @@ public class UGateGUI extends Application {
 						@Override
 						public void handle(WindowEvent event) {
 							if (event.getEventType() == WindowEvent.WINDOW_SHOWN) {
+								if (UGateKeeper.DEFAULT.emailIsConnected() && 
+										UGateKeeper.DEFAULT.wirelessIsConnected()) {
+									return;
+								}
 								Platform.runLater(new Runnable() {
 									public void run() {
 										// attempt connections
-										wirelessConnectionView.getStatusHandler()
-												.handle(null);
-										mailConnectionView.getStatusHandler()
-												.handle(null);
+										if (!UGateKeeper.DEFAULT.wirelessIsConnected()) {
+											wirelessConnectionView.getStatusHandler().handle(null);
+										}
+										if (UGateKeeper.DEFAULT.emailIsConnected()) {
+											mailConnectionView.getStatusHandler().handle(null);
+										}
 									}
 								});
 							} else if (event.getEventType() == WindowEvent.WINDOW_CLOSE_REQUEST) {
@@ -254,6 +260,7 @@ public class UGateGUI extends Application {
 						}
 					});
 			stage.show();
+			SystemTray.createSystemTray(stage);
 		} catch (final Throwable t) {
 			log.error("Unable to start GUI", t);
 			throw new RuntimeException("Unable to start GUI", t);
@@ -266,10 +273,10 @@ public class UGateGUI extends Application {
 	 */
 	@Override
 	public void stop() throws Exception {
-		super.stop();
-		wirelessConnectionView.disconnect();
-		mailConnectionView.disconnect();
 		log.info("Exiting application");
+		SystemTray.exit();
+		UGateKeeper.DEFAULT.exit();
+		// TODO : remove dependency on System.exit(0)
 		System.exit(0);
 	}
 
@@ -365,7 +372,7 @@ public class UGateGUI extends Application {
 	private void changeCenterView(Node node, boolean checkConnection) {
 		if (!checkConnection
 				|| (UGateKeeper.DEFAULT.wirelessIsConnected() && UGateKeeper.DEFAULT
-						.isEmailConnected())) {
+						.emailIsConnected())) {
 			centerView.getChildren().clear();
 			centerView.getChildren().add(node);
 		}

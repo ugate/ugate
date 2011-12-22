@@ -83,8 +83,9 @@ public class EmailAgent implements Runnable {
 		this.debug = debug;
 		
 		LISTENERS.addAll(Arrays.asList(listener));
-		
-		this.emailThread = new Thread(this, getThreadName("main"));
+
+		this.emailThread = new Thread(Thread.currentThread().getThreadGroup(), this, getThreadName("main"));
+		this.emailThread.setDaemon(true);
 		this.runIt.set(true);
 		this.emailThread.start();
 	}
@@ -171,11 +172,11 @@ public class EmailAgent implements Runnable {
 						log.info("Stopped listening for incoming messages (from disconnect)");
 					}
 				}
-			} catch (FolderClosedException e) {
+			} catch (final FolderClosedException e) {
 				if (runIt.get()) {
 					log.info("Folder closed... attempting to reconnect...");
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				if (runIt.get()) {
 					log.warn("Unable to connect... attempting to reconnect...", e);
 				}

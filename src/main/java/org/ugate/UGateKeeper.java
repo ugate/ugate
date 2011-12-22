@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.ugate.mail.EmailAgent;
@@ -37,10 +36,8 @@ public enum UGateKeeper {
 	DEFAULT;
 
 	private static final Logger log = Logger.getLogger(UGateKeeper.class);
-	private static final List<IEmailListener> REQUESTS = new CopyOnWriteArrayList<IEmailListener>();
 	private final List<IGateKeeperListener> prefListeners = new ArrayList<IGateKeeperListener>();
 	private final Preferences preferences;
-	private final List<IEmailListener> emailListeners = new ArrayList<IEmailListener>();
 	private static final List<IWirelessListener> wirelessListeners = new ArrayList<IWirelessListener>();
 	private final XBee xbee;
 	private EmailAgent emailAgent;
@@ -49,6 +46,18 @@ public enum UGateKeeper {
 	private UGateKeeper() {
 		preferences = new Preferences("ugate");
 		xbee = new XBee();
+	}
+	
+	public void init() {
+		
+	}
+	
+	/**
+	 * Exit the gate keeper services
+	 */
+	public void exit() {
+		emailDisconnect();
+		wirelessDisconnect();
 	}
 	
 	/* ======= Preferences ======= */
@@ -144,22 +153,24 @@ public enum UGateKeeper {
 	 * @param debug true when the low level protocol calls made should be echoed to the console
 	 * @param listener email listeners that can detect connections, disconnections, command executions, etc.
 	 */
-	public void emailConnect(String smtpHost, String smtpPort, String imapHost, String imapPort, String username, 
-			String password, String mainFolderName, boolean debug, IEmailListener... listener) {
+	public void emailConnect(final String smtpHost, final String smtpPort, final String imapHost, 
+			final String imapPort, final String username, final String password, 
+			final String mainFolderName, final boolean debug, final IEmailListener... listener) {
 		// test email connection
-		isEmailConnected = true;
-		listener[0].handle(new EmailEvent(EmailEvent.TYPE_CONNECT, null, null));
-		if (true) {
+//		isEmailConnected = true;
+//		if (true) {
+//			return;
+//		}
+		// connect to email
+		//emailDisconnect();
+		if (isEmailConnected) {
 			return;
 		}
-		// connect to email
-		emailDisconnect();
 		log.info("Connecting to email");
 		final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
 		listeners.add(new IEmailListener() {
-			
 			@Override
-			public void handle(EmailEvent event) {
+			public void handle(final EmailEvent event) {
 				if (event.type == EmailEvent.TYPE_EXECUTE_COMMAND) {
 					if (wirelessIsConnected()) {
 						for (final Command command : event.commands) {
@@ -197,6 +208,30 @@ public enum UGateKeeper {
 	}
 	
 	/**
+	 * Adds an email listener to the currently connected agent
+	 * 
+	 * @param listener the listener to add
+	 */
+	public void emailAddListener(final IEmailListener listener){
+		if (emailIsConnected()) {
+			this.emailAgent.addListener(listener);
+		} else {
+			throw new IllegalStateException("Email is not connected");
+		}
+	}
+	
+	/**
+	 * Removes an email listener to the currently connected agent
+	 * 
+	 * @param listener the listener to add
+	 */
+	public void emailRemoveListener(final IEmailListener listener){
+		if (emailIsConnected()) {
+			this.emailAgent.removeListener(listener);
+		}
+	}
+	
+	/**
 	 * Sends an email
 	 * 
 	 * @param subject the subject of the email
@@ -213,6 +248,13 @@ public enum UGateKeeper {
 		}
 	}
 	
+	/**
+	 * @return true if the email agent is connected
+	 */
+	public boolean emailIsConnected() {
+		return isEmailConnected;
+	}
+
 	/* ======= Serial Ports ======= */
 	
 	/**
@@ -253,8 +295,11 @@ public enum UGateKeeper {
 	 * @param baudRate the baud rate to connect at (if applicable)
 	 * @return true when on successful connection
 	 */
-	public boolean wirelessConnect(String comPort, int baudRate) {
-		wirelessDisconnect();
+	public boolean wirelessConnect(final String comPort, final int baudRate) {
+		//wirelessDisconnect();
+		if (xbee.isConnected()) {
+			return true;
+		}
 		log.info("Connecting to local XBee");
 		try {
 			xbee.open(comPort, baudRate);
@@ -510,12 +555,5 @@ public enum UGateKeeper {
 			log.error("Error while sending settings", t);
 		}
 		return allSuccess;
-	}
-
-	/**
-	 * @return true if the email agent is connected
-	 */
-	public boolean isEmailConnected() {
-		return isEmailConnected;
 	}
 }

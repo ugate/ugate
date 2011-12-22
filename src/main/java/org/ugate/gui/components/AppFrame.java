@@ -33,7 +33,7 @@ import com.sun.javafx.Utils;
  * The content will be sized to fit in the frame.
  */
 public class AppFrame extends StackPane {
-
+	
 	public static final double TOP_LEFT_WIDTH = 90;
 	public static final double TOP_RIGHT_WIDTH = 140;
 	public static final double TOP_BORDER_HEIGHT = 80;
@@ -50,10 +50,18 @@ public class AppFrame extends StackPane {
 	private Rectangle2D backupWindowBounds;
     private double mouseDragOffsetX = 0;
     private double mouseDragOffsetY = 0;
-    private boolean isExiting = false;
 
 	public AppFrame(final Stage stage, final Region content, final double sceneWidth, final double sceneHeight,
-			final double minResizableWidth, final double minResizableHeight) {
+			final double minResizableWidth, final double minResizableHeight, final boolean isResizable) {
+		// TODO : when showing/hiding the width/height end up skewed
+		stage.setOnShown(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(final WindowEvent event) {
+				stage.setWidth(minResizableWidth);
+				stage.setHeight(minResizableHeight);
+				stage.toFront();
+			}
+		});
 		// stage/scene adjustment for transparency/size
 		this.setMinSize(minResizableWidth, minResizableHeight);
 		stage.initStyle(StageStyle.TRANSPARENT);
@@ -153,9 +161,11 @@ public class AppFrame extends StackPane {
 	    statusBarRight.setId("status-bar-right");
 	    statusBarRight.setPrefWidth(BOTTOM_RIGHT_WIDTH);
 	    statusBarRight.setMaxWidth(BOTTOM_RIGHT_WIDTH);
-	    final WindowReziseButton windowResizeButton = new WindowReziseButton(stage, this.getMinWidth(), this.getMinHeight());
-	    HBox.setMargin(windowResizeButton, new Insets(BOTTOM_BORDER_HEIGHT - 11, 0, 0, 0));
-	    statusBarRight.getChildren().addAll(windowResizeButton);
+	    if (isResizable) {
+		    final WindowReziseButton windowResizeButton = new WindowReziseButton(stage, this.getMinWidth(), this.getMinHeight());
+		    HBox.setMargin(windowResizeButton, new Insets(BOTTOM_BORDER_HEIGHT - 11, 0, 0, 0));
+		    statusBarRight.getChildren().addAll(windowResizeButton);
+	    }
         statusBar.getChildren().addAll(statusBarLeft, statusBarCenter, statusBarRight);
 	    
 	    // content adjustment
@@ -180,41 +190,11 @@ public class AppFrame extends StackPane {
 
 	private HBox newMinMaxClose(final Stage stage) {
 		final HBox box = new HBox(4);
-		final java.awt.SystemTray st = java.awt.SystemTray.isSupported() ? java.awt.SystemTray.getSystemTray() : null;
-		if (st != null && st.getTrayIcons().length == 0) {
-			final String imageName = st.getTrayIconSize().width > 16 ? st.getTrayIconSize().width > 64 ? RS.IMG_LOGO_128 : RS.IMG_LOGO_64 : RS.IMG_LOGO_16;
-			try {
-				try {
-					final java.awt.Image image = javax.imageio.ImageIO.read(RS.stream(imageName));
-					final java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(image);
-					trayIcon.setToolTip("Hello");
-					st.add(trayIcon);
-				} catch (java.io.IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				//final java.awt.Image image = java.awt.Toolkit.getDefaultToolkit().createImage(imageFileName);
-			} catch (java.awt.AWTException e) {
-				// TODO : Log error?
-				e.printStackTrace();
-			}
-		}
 		final ImageView minBtn = newTitleBarButton(RS.IMG_SKIN_MIN, 0.9, 0);
 		minBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
-			public void handle(MouseEvent event) {
-				if (st != null && st.getTrayIcons().length > 0) {
-					// Linux/Windows
-					if (stage.isShowing()) {
-						stage.hide();
-					} else {
-						stage.show();
-					}
-					//st.getTrayIcons()[0].displayMessage("Hey", "Hello World", java.awt.TrayIcon.MessageType.INFO);
-				} else {
-					// Mac just minimize/restore
-					stage.setIconified(!stage.isIconified());
-				}
+			public void handle(final MouseEvent event) {
+				stage.setIconified(true);
 			}
 		});
 		final ImageView maxBtn = newTitleBarButton(RS.IMG_SKIN_MAX, 0.9, 0);
@@ -246,27 +226,10 @@ public class AppFrame extends StackPane {
                 }
 			}
 		});
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-	        public void handle(final WindowEvent event) {
-	            if (isExiting) {
-	                stage.close();
-	            }
-	            event.consume();
-	        }
-	    });
 		final ImageView closeBtn = newTitleBarButton(RS.IMG_SKIN_CLOSE, 0.7, 0);
 		closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				if (isExiting) {
-					return;
-				}
-				isExiting = true;
-				if (st != null) {
-					for (java.awt.TrayIcon trayIcon : st.getTrayIcons()) {
-						st.remove(trayIcon);
-					}
-				}
 				Platform.exit();
 			}
 		});
