@@ -1,26 +1,66 @@
 package org.ugate.mail;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.mail.Address;
 
 import org.ugate.Command;
 
+/**
+ * Email event
+ */
 public class EmailEvent {
 
-	public static final String TYPE_EXECUTE_COMMAND = "executeCommand";
-	public static final String TYPE_CONNECT = "connect";
-	public static final String TYPE_DISCONNECT = "disconnect";
-	public static final String TYPE_CLOSED = "closed";
-	public final String type;
+	public final Type type;
 	public final List<Command> commands;
 	public final Address[] from;
-	public final int[] toNodes;
+	public final Set<String> toAddresses;
 	
-	public EmailEvent(String type, List<Command> commands, Address[] from, int... toNodes) {
+	/**
+	 * Email event constructor
+	 * 
+	 * @param type the {@linkplain Type} of email event
+	 * @param commands the list of {@linkplain Command}s to execute
+	 * @param from the list of {@linkplain Address}es that initiated the event
+	 * @param toAddresses the remote node address(es) where the command(s) will be sent to
+	 */
+	public EmailEvent(final Type type, final List<Command> commands, final Address[] from, final Set<String> toAddresses) {
 		this.type = type;
 		this.commands = commands;
 		this.from = from;
-		this.toNodes = toNodes;
+		this.toAddresses = toAddresses;
+	}
+	
+	/**
+	 * @return the semicolon delimited from addresses
+	 */
+	public String getFromAddressString() {
+		final StringBuilder sb = new StringBuilder();
+		if (from != null) {
+			int i = 0;
+			for (final Address addy : from) {
+				sb.append(addy.toString());
+				if (i < (from.length - 1)) {
+					sb.append(';');
+				}
+				i++;
+			}
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Email event types
+	 */
+	public enum Type {
+		/** Event triggered when executing a command from email */
+		EXECUTE_COMMAND,
+		/** Event triggered when connecting to email */
+		CONNECT,
+		/** Event triggered when disconnecting from email */
+		DISCONNECT,
+		/** Event triggered when the connection to email has been closed */
+		CLOSED;
 	}
 }

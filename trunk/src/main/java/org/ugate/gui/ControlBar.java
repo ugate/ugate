@@ -1,15 +1,5 @@
 package org.ugate.gui;
 
-import org.apache.log4j.Logger;
-import org.ugate.Command;
-import org.ugate.IGateKeeperListener;
-import org.ugate.Settings;
-import org.ugate.UGateKeeper;
-import org.ugate.UGateUtil;
-import org.ugate.gui.components.Digits;
-import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
-import org.ugate.resources.RS;
-
 import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,6 +20,17 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import org.apache.log4j.Logger;
+import org.ugate.Command;
+import org.ugate.IGateKeeperListener;
+import org.ugate.Settings;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateUtil;
+import org.ugate.gui.components.Digits;
+import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
+import org.ugate.resources.RS;
 
 /**
  * Main menu control bar
@@ -101,18 +102,18 @@ public class ControlBar extends ToolBar {
 		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
 				settingsDS, Color.RED, Color.BLACK, Timeline.INDEFINITE);
 		// show a visual indication that the settings need updated
-		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final IGateKeeperListener.Event type, final String node,
-					final Settings key, final Command command, 
-					final String oldValue, final String newValue) {
-				if (type == IGateKeeperListener.Event.SETTINGS_SAVE_LOCAL) {
-					if (key != null && key.canRemote) {
+			public void handle(final UGateKeeperEvent<?> event) {
+				if (event.getType() == UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL) {
+					if (event.getKey() != null && event.getKey().canRemote) {
 						settingsSetTimeline.play();
 					}
-				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS) {
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
 					settingsSetTimeline.stop();
-				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_FAILED) {
+					setHelpText(event.getMessageString());
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_FAILED) {
+					setHelpText(event.getMessageString());
 				}
 			}
 		});
@@ -161,7 +162,8 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * Creates a service for the command
+	 * Creates a service for the command that will show a progress indicator preventing
+	 * further action until the command execution has completed.
 	 * 
 	 * @param command the command
 	 * @return the service
@@ -173,7 +175,7 @@ public class ControlBar extends ToolBar {
 			protected Boolean call() throws Exception {
 				try {
 					if (command == Command.SENSOR_GET_READINGS) {
-						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
+						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeIndex(), 
 								Command.SENSOR_GET_READINGS)) {
 							setHelpText(RS.rbLabel("sensors.readings.failed",
 									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
@@ -182,14 +184,14 @@ public class ControlBar extends ToolBar {
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!UGateKeeper.DEFAULT.wirelessSendSettings(
-								(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeAddress()))) {
+								(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeIndex()))) {
 							setHelpText(RS.rbLabel("settings.send.failed",
 									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
 										getRemoteNodeAddress())));
 							return false;
 						}
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
-						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeAddress(), 
+						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeIndex(), 
 								Command.GATE_TOGGLE_OPEN_CLOSE)) {
 							setHelpText(RS.rbLabel("gate.toggle.failed",
 									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
@@ -202,12 +204,40 @@ public class ControlBar extends ToolBar {
 						return false;
 					}
 				} catch (final Throwable t) {
-					setHelpText(
-							"An error occurred while executing command. See log for more details.");
+					setHelpText(RS.rbLabel("service.command.failed"));
 					log.error("Unable to execute " + command, t);
 					return false;
 				}
 				return true;
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 * @param comPort
+	 * @param baudRate
+	 * @return
+	 */
+	public Service<Boolean> createWirelessConnectionService(final String comPort, final int baudRate) {
+		setHelpText(null);
+		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+			@Override
+			protected Boolean call() throws Exception {
+				try {
+					// establish wireless connection (blocking)
+					UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate);
+					// Synchronize settings with wireless devices node(s)
+					if (!UGateKeeper.DEFAULT.wirelessSendSettings()) {
+						log.error("Unable to synchronize local settings with remote wireless nodes");
+					} else {
+						log.info("Synchronize local settings with remote wireless nodes");
+					}
+				} catch (final Throwable t) {
+					setHelpText(RS.rbLabel("service.wireless.failed"));
+					log.error("Unable to establish a wireless connection", t);
+				}
+				return false;
 			}
 		});
 	}
@@ -248,10 +278,10 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * @return the remote node address of the device node for which the controls represent
+	 * @return the remote node address for the current {@linkplain #getRemoteNodeIndex()}
 	 */
 	public String getRemoteNodeAddress() {
-		return Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + getRemoteNodeIndex();
+		return UGateKeeper.DEFAULT.wirelessGetAddress(getRemoteNodeIndex());
 	}
 
 	/**

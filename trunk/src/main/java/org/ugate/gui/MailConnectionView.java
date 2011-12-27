@@ -1,5 +1,6 @@
 package org.ugate.gui;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -9,12 +10,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import org.apache.log4j.Logger;
+import org.ugate.IGateKeeperListener;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.UGateTextFieldPreferenceView;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
-import org.ugate.mail.EmailEvent;
-import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
 
 /**
@@ -25,6 +26,7 @@ public abstract class MailConnectionView extends StatusView {
 	private static final Logger log = Logger.getLogger(MailConnectionView.class);
 	public static final String LABEL_CONNECT = RS.rbLabel("mail.connect");
 	public static final String LABEL_CONNECTING = RS.rbLabel("mail.connecting");
+	public static final String LABEL_DISCONNECTING = RS.rbLabel("mail.disconnecting");
 	public static final String LABEL_RECONNECT = RS.rbLabel("mail.reconnect");
 	public final UGateTextFieldPreferenceView smtpHost;
 	public final UGateTextFieldPreferenceView smtpPort;
@@ -32,13 +34,14 @@ public abstract class MailConnectionView extends StatusView {
 	public final UGateTextFieldPreferenceView imapPort;
 	public final UGateTextFieldPreferenceView username;
 	public final UGateTextFieldPreferenceView password;
+	public final UGateTextFieldPreferenceView inboxFolder;
 	public final UGateToggleSwitchPreferenceView soundsToggleSwitch;
 	public final UGateToggleSwitchPreferenceView emailToggleSwitch;
 	public final UGateTextFieldPreferenceView recipients;
 	public final Button connect;
 
-	public MailConnectionView() {
-	    super(20);
+	public MailConnectionView(final ControlBar controlBar) {
+	    super(controlBar, 20);
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		soundsToggleSwitch = new UGateToggleSwitchPreferenceView(
 				Settings.SOUNDS_ON_KEY, RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
@@ -70,6 +73,46 @@ public abstract class MailConnectionView extends StatusView {
 		password = new UGateTextFieldPreferenceView(Settings.MAIL_PASSWORD_KEY, 
 				UGateTextFieldPreferenceView.Type.TYPE_PASSWORD, RS.rbLabel("mail.password"), 
 				RS.rbLabel("mail.password.desc"));
+		inboxFolder = new UGateTextFieldPreferenceView(Settings.MAIL_INBOX_NAME, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.folder"), 
+				RS.rbLabel("mail.folder.desc"));
+		
+	    // update the status when email connections are made/lost
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final UGateKeeperEvent<?> event) {
+				if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTING) {
+					connect.setDisable(true);
+					connect.setText(LABEL_CONNECTING);
+				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTED) {
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_HOST_KEY, smtpHost.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_PORT_KEY, smtpPort.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_HOST_KEY, imapHost.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_PORT_KEY, imapPort.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_USERNAME_KEY, username.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_PASSWORD_KEY, password.passwordField.getText());
+					connect.setDisable(false);
+					connect.setText(LABEL_RECONNECT);
+					log.debug("Turning ON email connection icon");
+					setStatusFill(statusIcon, true);
+				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTING) {
+					connect.setDisable(true);
+					connect.setText(LABEL_DISCONNECTING);
+				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTED || 
+						event.getType() == UGateKeeperEvent.Type.EMAIL_CLOSED) {
+					// run later in case the application is going to exit which will cause an issue with FX thread
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							connect.setDisable(false);
+							connect.setText(LABEL_CONNECT);
+							log.debug("Turning OFF email connection icon");
+							setStatusFill(statusIcon, false);
+						}
+					});
+				}
+			}
+		});
 
 		connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -79,9 +122,10 @@ public abstract class MailConnectionView extends StatusView {
 						imapHost.textField.getText().length() > 0 && imapPort.textField.getText().length() > 0 && 
 						username.textField.getText().length() > 0 && password.passwordField.getText().length() > 0) {
 					log.debug("Connecting to email...");
-					connect(smtpHost.textField.getText(), smtpPort.textField.getText(),
+					UGateKeeper.DEFAULT.emailConnect(smtpHost.textField.getText(), smtpPort.textField.getText(),
 							imapHost.textField.getText(), imapPort.textField.getText(), 
-							username.textField.getText(), password.passwordField.getText());
+							username.textField.getText(), password.passwordField.getText(), 
+							inboxFolder.textField.getText());
 				}
 			}
 	    };
@@ -96,7 +140,7 @@ public abstract class MailConnectionView extends StatusView {
 	    toggleView.getChildren().addAll(icon, soundsToggleSwitch, emailToggleSwitch);
 	    
 	    final GridPane connectionGrid = new GridPane();
-	    connectionGrid.setPadding(new Insets(20d, 0, 0, 0));
+	    connectionGrid.setPadding(new Insets(20d, 5, 5, 5));
 		connectionGrid.setHgap(15d);
 		connectionGrid.setVgap(15d);
 	    connectionGrid.add(smtpHost, 0, 0);
@@ -105,43 +149,13 @@ public abstract class MailConnectionView extends StatusView {
 	    connectionGrid.add(imapPort, 1, 1);
 	    connectionGrid.add(username, 0, 2);
 	    connectionGrid.add(password, 1, 2);
-	    connectionGrid.add(recipients, 0, 3, 2, 1);
+	    connectionGrid.add(inboxFolder, 0, 3, 2, 1);
+	    connectionGrid.add(recipients, 0, 4, 2, 1);
 	    
 	    grid.add(toggleView, 0, 0);
 	    grid.add(connectionGrid, 1, 0);
 	    grid.add(connect, 1, 1, 2, 1);
 	    getChildren().add(grid);
-	}
-	
-	public void connect(final String smtpHost, final String smtpPort, final String imapHost, 
-			final String imapPort, final String username, final String password) {
-		connect.setText(LABEL_CONNECTING);
-		UGateKeeper.DEFAULT.emailConnect(smtpHost, smtpPort, imapHost,
-				imapPort, username, password,
-				UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_INBOX_NAME),
-				true, new IEmailListener() {
-
-					@Override
-					public void handle(EmailEvent event) {
-						if (event.type == EmailEvent.TYPE_CONNECT) {
-							connect.setDisable(false);
-							connect.setText(LABEL_RECONNECT);
-							log.debug("Turning ON email connection icon");
-							setStatusFill(statusIcon, true);
-						} else if (event.type == EmailEvent.TYPE_DISCONNECT) {
-							connect.setDisable(false);
-							connect.setText(LABEL_CONNECT);
-							log.debug("Turning OFF email connection icon");
-							setStatusFill(statusIcon, false);
-						}
-					}
-				});
-		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_HOST_KEY, smtpHost);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_PORT_KEY, smtpPort);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_HOST_KEY, imapHost);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_PORT_KEY, imapPort);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_USERNAME_KEY, username);
-		UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_PASSWORD_KEY, password);
 	}
 	
 	public void disconnect() {

@@ -43,7 +43,7 @@ public class Preferences {
 	 * 
 	 * @param fileName the file name
 	 */
-	public Preferences(String fileName) {
+	public Preferences(final String fileName) {
 		this.fileName = fileName;
 		this.properties = new Properties();
 		try {
@@ -83,7 +83,7 @@ public class Preferences {
 	 * @param key the key to check for
 	 * @return true when the key exists
 	 */
-	public boolean hasKey(String key) {
+	public boolean hasKey(final String key) {
 		return properties.containsKey(key);
 	}
 	
@@ -94,7 +94,7 @@ public class Preferences {
 	 * @param delimiter the delimiter for the multi-value preference
 	 * @return the list of values
 	 */
-	public List<String> get(String key, String delimiter) {
+	public List<String> get(final String key, final String delimiter) {
 		final String value = get(key);
 		return value != null ? Arrays.asList(value.split(delimiter)) : new ArrayList<String>();
 	}
@@ -105,7 +105,7 @@ public class Preferences {
 	 * @param key the key
 	 * @return the value
 	 */
-	public String get(String key) {
+	public String get(final String key) {
 		if (hasKey(key)) {
 			return properties.getProperty(key);
 		}
@@ -127,7 +127,7 @@ public class Preferences {
 	 * @param key the key
 	 * @param value the value
 	 */
-	public void set(String key, String value) {
+	public void set(final String key, final String value) {
 		set(key, value, false);
 	}
 	
@@ -138,7 +138,7 @@ public class Preferences {
 	 * @param value the value
 	 * @param encrypt true to encrypt the value
 	 */
-	private void set(String key, String value, boolean encrypt) {
+	private void set(String key, String value, final boolean encrypt) {
 		try {
 			if (encrypt) {
 				try {
@@ -156,7 +156,7 @@ public class Preferences {
 		}
 	}
 
-	private byte[] encryptDecrypt(String value, int encryptDecryptMode) throws NoSuchAlgorithmException,
+	private byte[] encryptDecrypt(final String value, final int encryptDecryptMode) throws NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher cipher = Cipher.getInstance(ENCRYPTION_TYPE);
 		cipher.init(encryptDecryptMode, skeySpec);
@@ -170,7 +170,7 @@ public class Preferences {
 	 *            array of bytes to convert to hex string
 	 * @return generated hex string
 	 */
-	private static String asHex(byte buf[]) {
+	private static String asHex(final byte buf[]) {
 		StringBuffer strbuf = new StringBuffer(buf.length * 2);
 		for (int i = 0; i < buf.length; i++) {
 			if (((int) buf[i] & 0xff) < 0x10) {

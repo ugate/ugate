@@ -17,16 +17,19 @@ import javafx.scene.shape.StrokeType;
 public abstract class StatusView extends VBox {
 	
 	public final Group statusIcon;
+	protected final ControlBar controlBar;
 	protected EventHandler<MouseEvent> connectionHandler;
 
-	public StatusView() {
+	public StatusView(final ControlBar controlBar) {
 		super();
-		statusIcon = createStatusImage();
+		this.controlBar = controlBar;
+		this.statusIcon = createStatusImage();
 	}
 
-	public StatusView(double spacing) {
+	public StatusView(final ControlBar controlBar, double spacing) {
 		super(spacing);
-		statusIcon = createStatusImage();
+		this.controlBar = controlBar;
+		this.statusIcon = createStatusImage();
 	}
 	
 	protected Group createStatusImage() {

@@ -13,6 +13,7 @@ import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.gui.components.UGateGaugePreferenceView;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
@@ -144,22 +145,20 @@ public class CameraGateControl extends ControlPane {
 				}
 			}
 		});
-		UGateKeeper.DEFAULT.preferencesAddListener(new IGateKeeperListener() {
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final IGateKeeperListener.Event type, final String node,
-					final Settings key, final Command command, final String oldValue, 
-					final String newValue) {
-				if (command == null || command != Command.GATE_TOGGLE_OPEN_CLOSE) {
+			public void handle(final UGateKeeperEvent<?> event) {
+				if (event.getCommand() == null || event.getCommand() != Command.GATE_TOGGLE_OPEN_CLOSE) {
 					return;
 				}
-				if (type == IGateKeeperListener.Event.SETTINGS_SEND_SUCCESS) {
+				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
 					controlBar.setHelpText(null);
 					if (gateToggleButton.getImage().equals(RS.img(RS.IMG_GATE_CLOSED))) {
 						gateToggleButton.setImage(RS.img(RS.IMG_GATE_OPENED));
 					} else {
 						gateToggleButton.setImage(RS.img(RS.IMG_GATE_CLOSED));
 					}
-				} else if (type == IGateKeeperListener.Event.SETTINGS_SEND_FAILED) {
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_FAILED) {
 					controlBar.setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
 							(controlBar.isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
 								controlBar.getRemoteNodeAddress())));

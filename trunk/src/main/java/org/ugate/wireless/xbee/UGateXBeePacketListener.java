@@ -131,7 +131,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 						rxTxAttempts++;
 						log.warn(String.format("======= LOST PACKETS WHEN CAPTURING IMAGE... RETRYING (%1$s of %2$s)... =======", 
 								rxTxAttempts, retries));
-						UGateKeeper.DEFAULT.wirelessSendData(remoteAddress, command);
+						UGateKeeper.DEFAULT.wirelessSendData(UGateKeeper.DEFAULT.wirelessGetAddressIndex(remoteAddress), command);
 					} else {
 						log.warn(String.format("======= LOST PACKETS WHEN CAPTURING IMAGE... FAILED after %1$s retry attempts =======",
 								rxTxAttempts));
