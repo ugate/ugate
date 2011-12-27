@@ -3,10 +3,14 @@ package org.ugate.mail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -39,12 +43,13 @@ import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.imap.IMAPStore;
 
 /**
- * Mail provider for sending UGate results and receiving incoming commands. 
- * NOTE: Due to IMAP idle processes constantly listening for new messages the process is blocking.
+ * Email agent service provider that will listen for incoming emails for {@linkplain Command}(s) to execute. 
  */
 public class EmailAgent implements Runnable {
 
 	private static final Logger log = Logger.getLogger(EmailAgent.class);
+	public static final Pattern SUBJECT_LINE_PATTERN = Pattern.compile("(?:\\[?(?:[Ff][Ww][Dd]?|[Rr][Ee])(?:\\s*[:;-]+\\s*\\]?))+");
+	public static final String DEFAULT_INBOX_FOLDER_NAME = "Inbox";
 	public static final String GMAIL_SMTP_HOST = "smtp.gmail.com";
 	public static final String GMAIL_IMAP_HOST = "imap.gmail.com";
 	public static final String GMAIL_STMP_TLS_PORT = "587";
@@ -56,19 +61,39 @@ public class EmailAgent implements Runnable {
 	private final URLName smtpUrlName;
 	private final URLName imapUrlName;
 	private final String mainFolderName;
-	private final boolean debug;
 	private final Properties props;
 	private final Thread emailThread;
 	
 	private volatile IMAPFolder mainFolder;
 	private volatile IMAPStore store;
 	
-	public EmailAgent(String username, String password, String mainFolderName, boolean debug, IEmailListener... listener) {
+	/**
+	 * Creates/Starts an email agent service using <a href="http://mail.google.com">gmail</a>.
+	 * 
+	 * @param username the email user name that the service will use
+	 * @param password the email password that the service will use
+	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
+	 * @param listeners any email listeners
+	 */
+	public EmailAgent(final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
 		this(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, 
-				username, password, mainFolderName, debug, listener);
+				username, password, mainFolderName, listeners);
 	}
+	
+	/**
+	 * Creates/Starts an email agent service
+	 * 
+	 * @param smtpHost the SMTP host
+	 * @param smtpPort the SMTP port
+	 * @param imapHost the IMAP host
+	 * @param imapPort the IMAP port
+	 * @param username the email user name that the service will use
+	 * @param password the email password that the service will use
+	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
+	 * @param listeners any email listeners
+	 */
 	public EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
-			final String username, final String password, String mainFolderName, boolean debug, IEmailListener... listener) {
+			final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
 		// connect using TLS
 		this.props = new Properties();
 		props.put("mail.smtps.auth", "true");
@@ -79,10 +104,9 @@ public class EmailAgent implements Runnable {
 		props.setProperty("mail.imaps.starttls.enable", "true");
 		this.smtpUrlName = new URLName("smtps", smtpHost, Integer.parseInt(smtpPort), null, username, password);
 		this.imapUrlName = new URLName("imaps", imapHost, Integer.parseInt(imapPort), null, username, password);
-		this.mainFolderName = mainFolderName;
-		this.debug = debug;
+		this.mainFolderName = mainFolderName == null || mainFolderName.isEmpty() ? DEFAULT_INBOX_FOLDER_NAME : mainFolderName;
 		
-		LISTENERS.addAll(Arrays.asList(listener));
+		LISTENERS.addAll(Arrays.asList(listeners));
 
 		this.emailThread = new Thread(Thread.currentThread().getThreadGroup(), this, getThreadName("main"));
 		this.emailThread.setDaemon(true);
@@ -90,6 +114,9 @@ public class EmailAgent implements Runnable {
 		this.emailThread.start();
 	}
 	
+	/**
+	 * The email thread that is automatically started when a new {@linkplain EmailAgent} is created
+	 */
 	@Override
 	public void run() {
 		while(runIt.get()) {
@@ -98,7 +125,7 @@ public class EmailAgent implements Runnable {
 				
 				log.info("Connecting to store/floder...");
 				final Session session = Session.getInstance(props);
-				session.setDebug(debug);
+				session.setDebug(log.isDebugEnabled());
 	
 				store = (IMAPStore) session.getStore(imapUrlName);
 	
@@ -118,12 +145,12 @@ public class EmailAgent implements Runnable {
 								log.warn("No listeners available for executing remote commands");
 								return;
 							}
-							Message[] msgs = event.getMessages();
+							final Message[] msgs = event.getMessages();
 							IMAPMessage msg;
 							for (final Message rmsg : msgs) {
 								if (!(rmsg instanceof IMAPMessage)) {
-									log.info("Expected \"" + IMAPMessage.class.getSimpleName() + "\", but received \"" + 
-											rmsg.getClass().getSimpleName() + "\" subject: " + rmsg.getSubject());
+									log.info(String.format("Expected %1$s, but received %2$s subject: %3$s", 
+											IMAPMessage.class.getSimpleName(), rmsg.getClass().getSimpleName(), rmsg.getSubject()));
 									continue;
 								}
 								msg = (IMAPMessage) rmsg;
@@ -131,29 +158,32 @@ public class EmailAgent implements Runnable {
 								if (hasCommandPermission(froms)) {
 									final StringBuffer errorMessages = new StringBuffer();
 									final List<Command> commands = getValidCommands(msg, errorMessages);
+									final Set<String> destinations = getValidCommandDestinations(msg, errorMessages);
 									if (errorMessages.length() > 0) {
 										if (log.isInfoEnabled()) {
-											log.info("Invalid command(s) received from: " + Arrays.toString(froms));
+											log.info(String.format("Invalid command(s) received from: %1$s", Arrays.toString(froms)));
 										}
 										sendReply(msg, errorMessages.toString());
 										return;
 									}
 									if (log.isInfoEnabled()) {
-										log.info("Received raw commands: " + Arrays.toString(commands.toArray()) + " from: " + Arrays.toString(froms));
+										log.info(String.format("Received raw commands: %1$s from: %2$s", 
+												Arrays.toString(commands.toArray()), Arrays.toString(froms)));
 									}
 									final Thread newThread = new Thread(getThreadName(msg.getMessageID())) {
-										
 										@Override
 										public void run() {
-											final EmailEvent event = new EmailEvent(EmailEvent.TYPE_EXECUTE_COMMAND, commands, froms);
-											for (IEmailListener listener : LISTENERS) {
+											final EmailEvent event = new EmailEvent(EmailEvent.Type.EXECUTE_COMMAND, commands, 
+													froms, destinations);
+											for (final IEmailListener listener : LISTENERS) {
 												listener.handle(event);
 											}
 										}
 									};
 									newThread.start();
 								} else if (log.isInfoEnabled()) {
-									log.info(Arrays.toString(froms) + " does not have permission to execute commands");
+									log.info(String.format("Received an email message from %1$s, but they do not have permission to execute commands", 
+											Arrays.toString(froms)));
 								}
 							}
 						} catch (Exception e) {
@@ -167,7 +197,7 @@ public class EmailAgent implements Runnable {
 				while (runIt.get()) {
 					mainFolder.idle();
 					if (runIt.get()) {
-						log.info("Stopped listening for incoming messages... attempting to reconnect...");
+						log.debug("Stopped listening for incoming messages... attempting to reconnect...");
 					} else {
 						log.info("Stopped listening for incoming messages (from disconnect)");
 					}
@@ -192,7 +222,13 @@ public class EmailAgent implements Runnable {
 		disconnect(store, mainFolder);
 	}
 	
-	private void disconnect(IMAPStore store, IMAPFolder mainFolder) {		
+	/**
+	 * Disconnects from the email service
+	 * 
+	 * @param store the {@linkplain IMAPStore}
+	 * @param mainFolder the {@linkplain IMAPFolder}
+	 */
+	private void disconnect(final IMAPStore store, final IMAPFolder mainFolder) {		
 		try {
 			if (mainFolder != null && mainFolder.isOpen()) {
 				mainFolder.close(false);
@@ -207,13 +243,22 @@ public class EmailAgent implements Runnable {
 		}
 	}
 
-	public void send(String subject, String message, String from, String[] to, String... fileNames) {
+	/**
+	 * Sends a message
+	 * 
+	 * @param subject the subject of the message
+	 * @param message the message body
+	 * @param from the email address whom the email is from
+	 * @param to the email address(es) that the email will be sent to
+	 * @param fileNames the file path(s)/name(s) that will be attached to the email
+	 */
+	public void send(final String subject, final String message, final String from, final String[] to, final String... fileNames) {
 		try {
 			log.info("Sending message...");
 			final Session session = Session.getInstance(props);
-			MimeMessage msg = new MimeMessage(session);
+			final MimeMessage msg = new MimeMessage(session);
 			msg.setFrom(new InternetAddress(from));
-			InternetAddress[] addresses = new InternetAddress[to.length];
+			final InternetAddress[] addresses = new InternetAddress[to.length];
 			int toIndex = 0;
 			for (String t : to) {
 				addresses[toIndex++] = new InternetAddress(t);
@@ -221,14 +266,14 @@ public class EmailAgent implements Runnable {
 			msg.setRecipients(Message.RecipientType.TO, addresses);
 			msg.setSubject(subject);
 			msg.setSentDate(new Date());
-			Multipart mp = new MimeMultipart();
-			MimeBodyPart mbp1 = new MimeBodyPart();
+			final Multipart mp = new MimeMultipart();
+			final MimeBodyPart mbp1 = new MimeBodyPart();
 			mbp1.setText(message);
 			mp.addBodyPart(mbp1);
 			if (fileNames != null && fileNames.length > 0) {
 				for (String fileName : fileNames) {
-					MimeBodyPart mbp = new MimeBodyPart();
-					FileDataSource fds = new FileDataSource(fileName);
+					final MimeBodyPart mbp = new MimeBodyPart();
+					final FileDataSource fds = new FileDataSource(fileName);
 					mbp.setDataHandler(new DataHandler(fds));
 					mbp.setFileName(fds.getName());
 					mp.addBodyPart(mbp);
@@ -254,10 +299,10 @@ public class EmailAgent implements Runnable {
 	 * @param session the email session
 	 * @param msg the message to send
 	 */
-	protected void send(Session session, MimeMessage msg) {
+	protected void send(final Session session, final MimeMessage msg) {
 		try {
 			log.debug("Opening transport to: " + smtpUrlName);
-			Transport transport = session.getTransport(smtpUrlName);
+			final Transport transport = session.getTransport(smtpUrlName);
 			transport.connect(smtpUrlName.getHost(), smtpUrlName.getPort(), smtpUrlName.getUsername(), smtpUrlName.getPassword());
 			transport.sendMessage(msg, msg.getAllRecipients());
 			transport.close();
@@ -269,9 +314,15 @@ public class EmailAgent implements Runnable {
 		}
 	}
 	
-	protected void sendReply(MimeMessage originalMessage, String replyMessage) {
+	/**
+	 * Sends a reply email
+	 * 
+	 * @param originalMessage the original message
+	 * @param replyMessage the reply message
+	 */
+	protected void sendReply(final MimeMessage originalMessage, final String replyMessage) {
 		try {
-			MimeMessage replyMsg = (MimeMessage) originalMessage.reply(false);
+			final MimeMessage replyMsg = (MimeMessage) originalMessage.reply(false);
 			replyMsg.setFrom(originalMessage.getFrom()[0]);
 			send(Session.getInstance(props), replyMsg);
 		} catch (Exception e) {
@@ -279,20 +330,47 @@ public class EmailAgent implements Runnable {
 		}
 	}
 	
-	protected List<Command> getValidCommands(MimeMessage msg, final StringBuffer invalidCommandErrors) {
+	/**
+	 * Extracts the to destinations from the email message subject (if any)
+	 * 
+	 * @param msg the message to extract commands from
+	 * @param invalidCommandErrors <code>\n</code> delimited buffer to add error messages to (if they occur)
+	 * @return the set of to destinations
+	 */
+	protected Set<String> getValidCommandDestinations(final MimeMessage msg, final StringBuffer invalidCommandErrors) {
+		final Set<String> commandDestitiantions = new HashSet<String>();
+		try {
+			if (msg.getSubject() != null && !msg.getSubject().isEmpty()) {
+				log.debug(String.format("Checking message subject for destinations: %1$s", msg.getSubject()));
+		        final Matcher m = SUBJECT_LINE_PATTERN.matcher(msg.getSubject());
+		        final String subject = m.replaceAll("");
+		        log.debug(String.format("Adjusted subject: %1$s", subject));
+				commandDestitiantions.addAll(Arrays.asList(subject.trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
+			}
+		} catch (final Exception e) {
+			log.error("Unable to get command destinations from message", e);
+			invalidCommandErrors.append("An unexpected error occurred during command destination extraction: " + e.getMessage());
+		}
+		return commandDestitiantions;
+	}
+	
+	/**
+	 * Extracts any valid commands from an email message body (delimited by {@linkplain UGateUtil#MAIL_COMMAND_DELIMITER})
+	 * 
+	 * @param msg the message to extract commands from
+	 * @param invalidCommandErrors <code>\n</code> delimited buffer to add error messages to (if they occur)
+	 * @return the list of valid commands
+	 */
+	protected List<Command> getValidCommands(final MimeMessage msg, final StringBuffer invalidCommandErrors) {
 		final List<Command> validCommands = new ArrayList<Command>();
 		try {
-			List<String> rawCommands = new ArrayList<String>();
-			if (msg.getSubject() != null && !msg.getSubject().isEmpty()) {
-				log.debug("Checking message subject for commands");
-				rawCommands.addAll(Arrays.asList(msg.getSubject().replace("Re:", "").replace("RE:", "").trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
-			}
+			final List<String> rawCommands = new ArrayList<String>();
 			log.debug("Checking message body for commands");
 			String msgRawContent = null;
 			if (msg.getContentType().toLowerCase().indexOf("text") > -1) {
 				msgRawContent = (String) msg.getContent();
 			} else if (msg.getContentType().toLowerCase().indexOf("multipart") > -1) {
-				Multipart multipart = (Multipart) msg.getContent();
+				final Multipart multipart = (Multipart) msg.getContent();
 				BodyPart bodyPart = multipart.getBodyPart(0);
 				msgRawContent = bodyPart.getContent().toString(); 
 			} else {
@@ -316,13 +394,20 @@ public class EmailAgent implements Runnable {
 					invalidCommandErrors.append("Invalid Command \"" + intCmd + "\"\n");
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log.error("Unable to get valid commands from message", e);
+			invalidCommandErrors.append("An unexpected error occurred during command extraction: " + e.getMessage());
 		}
 		return validCommands;
 	}
 	
-	protected boolean hasCommandPermission(Address... addresses) {
+	/**
+	 * Determines if the addresses have permission to execute commands
+	 * 
+	 * @param addresses the addresses to check for
+	 * @return true when the addresses have permission to execute commands
+	 */
+	protected boolean hasCommandPermission(final Address... addresses) {
 		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_RECIPIENTS_KEY, 
 				UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
@@ -337,15 +422,31 @@ public class EmailAgent implements Runnable {
 		return hasPermission;
 	}
 	
-	public void addListener(IEmailListener listener) {
+	/**
+	 * Adds an email listener
+	 * 
+	 * @param listener the listener
+	 */
+	public void addListener(final IEmailListener listener) {
 		LISTENERS.add(listener);
 	}
 	
-	public void removeListener(IEmailListener listener) {
+	/**
+	 * Removes an email listener
+	 * 
+	 * @param listener the listener
+	 */
+	public void removeListener(final IEmailListener listener) {
 		LISTENERS.remove(listener);
 	}
 	
-	private static String getThreadName(String postfix) {
+	/**
+	 * Gets a thread name for internally spawned threads
+	 * 
+	 * @param postfix the name appended to the end of the thread name
+	 * @return the thread name
+	 */
+	private static String getThreadName(final String postfix) {
 		return EmailAgent.class.getSimpleName() + '-' + postfix;
 	}
 	
@@ -355,13 +456,13 @@ public class EmailAgent implements Runnable {
 	class InternalConnectionListener implements ConnectionListener {
 		
 		@Override
-		public void opened(ConnectionEvent event) {
+		public void opened(final ConnectionEvent event) {
 			log.info("Mail Store/Folder opened: " + event.getType());
 			final Thread newThread = new Thread(getThreadName("opened")) {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_CONNECT, null, null);
+					final EmailEvent event = new EmailEvent(EmailEvent.Type.CONNECT, null, null, null);
 					for (IEmailListener listener : LISTENERS) {
 						listener.handle(event);
 					}
@@ -371,13 +472,13 @@ public class EmailAgent implements Runnable {
 		}
 		
 		@Override
-		public void disconnected(ConnectionEvent event) {
+		public void disconnected(final ConnectionEvent event) {
 			log.info("Mail Store/Folder disconnected unexpectedly: " + event.getType());
 			final Thread newThread = new Thread(getThreadName("disconnected")) {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_DISCONNECT, null, null);
+					final EmailEvent event = new EmailEvent(EmailEvent.Type.DISCONNECT, null, null, null);
 					for (IEmailListener listener : LISTENERS) {
 						listener.handle(event);
 					}
@@ -387,13 +488,13 @@ public class EmailAgent implements Runnable {
 		}
 		
 		@Override
-		public void closed(ConnectionEvent event) {
+		public void closed(final ConnectionEvent event) {
 			log.info("Mail Store/Folder disconnected: " + event.getType());
 			final Thread newThread = new Thread(getThreadName("closed")) {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.TYPE_CLOSED, null, null);
+					final EmailEvent event = new EmailEvent(EmailEvent.Type.CLOSED, null, null, null);
 					for (IEmailListener listener : LISTENERS) {
 						listener.handle(event);
 					}

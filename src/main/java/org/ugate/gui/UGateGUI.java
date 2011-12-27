@@ -107,26 +107,6 @@ public class UGateGUI extends Application {
 		log.debug("Starting GUI...");
 		try {
 			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
-			// public final AudioClip mediaPlayerBeep = new
-			// AudioClip(RS.class.getResource("x_beep.wav").getPath());
-			wirelessConnectionView = new WirelessConnectionView() {
-	
-				@Override
-				public void handleStatusChange(Boolean on) {
-					if (!on) {
-						changeCenterView(connectionView, false);
-					}
-				}
-			};
-			mailConnectionView = new MailConnectionView() {
-	
-				@Override
-				public void handleStatusChange(Boolean on) {
-					if (!on) {
-						changeCenterView(connectionView, false);
-					}
-				}
-			};
 	
 			final BorderPane content = new BorderPane();
 			content.setId("content");
@@ -159,6 +139,22 @@ public class UGateGUI extends Application {
 			main.getChildren().addAll(controlBar, centerView);
 			changeCenterView(connectionView, false);
 	
+			wirelessConnectionView = new WirelessConnectionView(controlBar) {
+				@Override
+				public void handleStatusChange(Boolean on) {
+					if (!on) {
+						changeCenterView(connectionView, false);
+					}
+				}
+			};
+			mailConnectionView = new MailConnectionView(controlBar) {
+				@Override
+				public void handleStatusChange(Boolean on) {
+					if (!on) {
+						changeCenterView(connectionView, false);
+					}
+				}
+			};
 			connectionView.setAlignment(Pos.CENTER);
 			connectionView.getChildren().addAll(wirelessConnectionView,
 					createSeparator(Orientation.VERTICAL), mailConnectionView);
@@ -249,7 +245,7 @@ public class UGateGUI extends Application {
 										if (!UGateKeeper.DEFAULT.wirelessIsConnected()) {
 											wirelessConnectionView.getStatusHandler().handle(null);
 										}
-										if (UGateKeeper.DEFAULT.emailIsConnected()) {
+										if (!UGateKeeper.DEFAULT.emailIsConnected()) {
 											mailConnectionView.getStatusHandler().handle(null);
 										}
 									}

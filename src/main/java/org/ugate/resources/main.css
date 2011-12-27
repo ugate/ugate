@@ -239,9 +239,9 @@
 /* .text-field Text { */
 /*     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 ); */
 /* } */
-.text-field:focused {
-    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3);
-}
+/* .text-field:focused { */
+/*     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3); */
+/* } */
 .text-field:disabled {
     -fx-opacity: -fx-disabled-opacity;
 }

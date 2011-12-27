@@ -17,8 +17,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import org.apache.log4j.Logger;
+import org.ugate.IGateKeeperListener;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.UGateChoiceBox;
 import org.ugate.gui.components.UGateTextFieldPreferenceView;
@@ -43,8 +45,8 @@ public abstract class WirelessConnectionView extends StatusView {
 	/**
 	 * Creates the wireless connection view
 	 */
-	public WirelessConnectionView() {
-		super(20);
+	public WirelessConnectionView(final ControlBar controlBar) {
+		super(controlBar, 20);
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
 		
@@ -64,6 +66,18 @@ public abstract class WirelessConnectionView extends StatusView {
 		configComPorts();
 	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
 	    configBaudRates();
+	    
+	    // update the status when wireless connections are made/lost
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final UGateKeeperEvent<?> event) {
+				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
+					if (event.getKey() != null && event.getKey().canRemote) {
+						// TODO :
+					}
+				}
+			}
+		});
 	    
 	    connect = new Button();
 	    connectionHandler = new EventHandler<MouseEvent>(){
@@ -162,7 +176,7 @@ public abstract class WirelessConnectionView extends StatusView {
 	 * @param comPort the COM port to connect to
 	 * @param baudRate the baud rate to connect at
 	 */
-	public void connect(String comPort, int baudRate) {
+	public void connect(final String comPort, final int baudRate) {
 		disconnect();
 		connect.setDisable(true);
 		connect.setText(RS.rbLabel("wireless.connecting"));

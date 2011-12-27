@@ -53,6 +53,7 @@ public class UGateUtil {
 	
 	// wireless network addresses
 	
+	public static final int WIRELESS_ADDRESS_START_INDEX = 1;
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
 
 	//public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
