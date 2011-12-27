@@ -3,6 +3,7 @@ package org.ugate.gui;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -17,6 +18,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import org.apache.log4j.Logger;
+import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
@@ -37,6 +39,8 @@ public abstract class WirelessConnectionView extends StatusView {
 	public final UGateChoiceBox<String> port;
 	public final UGateChoiceBox<Integer> baud;
 	public final UGateToggleSwitchPreferenceView universalRemoteAccessToggleSwitch;
+	public final UGateTextFieldPreferenceView hostAddress;
+	public final UGateTextFieldPreferenceView remoteAddress;
 	public final UGateTextFieldPreferenceView accessKey1;
 	public final UGateTextFieldPreferenceView accessKey2;
 	public final UGateTextFieldPreferenceView accessKey3;
@@ -61,11 +65,64 @@ public abstract class WirelessConnectionView extends StatusView {
 	    accessKey3 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_3_KEY, 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), 
 				RS.rbLabel("wireless.access.key.desc", 3));
+	    hostAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_HOST_KEY, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), 
+				RS.rbLabel("wireless.host.desc"));
+	    // TODO : add GUI support for multiple remote wireless nodes
+	    remoteAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
+				UGateUtil.WIRELESS_ADDRESS_START_INDEX, 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, 
+				RS.rbLabel("wireless.remote", UGateUtil.WIRELESS_ADDRESS_START_INDEX), 
+				RS.rbLabel("wireless.remote.desc", UGateUtil.WIRELESS_ADDRESS_START_INDEX));
 		
 		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
 		configComPorts();
 	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
 	    configBaudRates();
+	    
+	    // update the status when wireless connections are made/lost
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final UGateKeeperEvent<?> event) {
+				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECTING) {
+					connect.setDisable(true);
+					connect.setText(RS.rbLabel("wireless.connecting"));
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECTED) {
+					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_HOST_KEY, hostAddress.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
+							UGateUtil.WIRELESS_ADDRESS_START_INDEX, remoteAddress.textField.getText());
+					connect.setDisable(false);
+					connect.setText(RS.rbLabel("wireless.reconnect"));
+					log.debug("Turning ON email connection icon");
+					setStatusFill(statusIcon, true);
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							log.info("Synchronizing the host settings to remote node(s)");
+							controlBar.createCommandService(Command.SENSOR_SET_SETTINGS).start();
+						}
+					});
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECT_FAILED) {
+					connect.setDisable(false);
+					connect.setText(RS.rbLabel("wireless.connect"));
+					controlBar.setHelpText(event.getMessageString());
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECTING) {
+					connect.setDisable(true);
+					connect.setText(RS.rbLabel("wireless.disconnecting"));
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECTED) {
+					// run later in case the application is going to exit which will cause an issue with FX thread
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							connect.setDisable(false);
+							connect.setText(RS.rbLabel("wireless.connect"));
+							log.debug("Turning OFF email connection icon");
+							setStatusFill(statusIcon, false);
+						}
+					});
+				}
+			}
+		});
 	    
 	    // update the status when wireless connections are made/lost
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
@@ -84,8 +141,8 @@ public abstract class WirelessConnectionView extends StatusView {
 			@Override
 			public void handle(MouseEvent event) {
 				if (!port.choice.getSelectionModel().isEmpty() && !baud.choice.getSelectionModel().isEmpty()) {
-					connect(port.choice.getSelectionModel().getSelectedItem(), 
-							baud.choice.getSelectionModel().getSelectedItem());
+					controlBar.createWirelessConnectionService(port.choice.getSelectionModel().getSelectedItem(), 
+							baud.choice.getSelectionModel().getSelectedItem()).start();
 				}
 			}
 	    };
@@ -96,25 +153,21 @@ public abstract class WirelessConnectionView extends StatusView {
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
 	    
-	    final GridPane grid = new GridPane();
-	    grid.setHgap(10d);
-	    grid.setVgap(30d);
+	    final VBox portBaudView = new VBox(10d);
+	    portBaudView.setPadding(new Insets(30d, 0, 0, 0));
+	    portBaudView.getChildren().addAll(port, baud);
 	    
-	    final VBox toggleView = new VBox(10d);
-	    toggleView.getChildren().addAll(icon, universalRemoteAccessToggleSwitch);
+	    final GridPane iconGrid = new GridPane();
+	    //iconGrid.setPadding(new Insets(20d, 0, 0, 0));
+		iconGrid.setHgap(5d);
+		iconGrid.setVgap(15d);
+		iconGrid.add(icon, 0, 0);
+	    iconGrid.add(portBaudView, 1, 0);
 	    
-	    final GridPane connectionGrid = new GridPane();
-	    connectionGrid.setPadding(new Insets(20d, 0, 0, 0));
-		connectionGrid.setHgap(5d);
-		connectionGrid.setVgap(15d);
-	    connectionGrid.add(port, 0, 0);
-	    connectionGrid.add(baud, 0, 1);
-	    
-	    grid.add(toggleView, 0, 0);
-	    grid.add(connectionGrid, 1, 0);
-	    grid.add(accessKeysContainer, 0, 1, 2, 1);
-	    grid.add(connect, 0, 2, 2, 1);
-	    getChildren().add(grid);
+	    final VBox main = new VBox(10d);
+	    main.getChildren().addAll(iconGrid, hostAddress, remoteAddress, 
+	    		universalRemoteAccessToggleSwitch, accessKeysContainer);
+	    getChildren().addAll(main, connect);
 	}
 	
 	/**
@@ -171,51 +224,42 @@ public abstract class WirelessConnectionView extends StatusView {
 	}
 	
 	/**
-	 * Establishes a wireless connection
-	 * 
-	 * @param comPort the COM port to connect to
-	 * @param baudRate the baud rate to connect at
+	 * Establishes a wireless connection using the internal parameters.
 	 */
-	public void connect(final String comPort, final int baudRate) {
-		disconnect();
-		connect.setDisable(true);
-		connect.setText(RS.rbLabel("wireless.connecting"));
-		try {
-			if (UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate)) {
-				setStatusFill(statusIcon, true);
-				connect.setText(RS.rbLabel("wireless.synchronizing"));
-				new Timer().schedule(new TimerTask() {
-					@Override
-					public void run() {
-						try {
-							UGateKeeper.DEFAULT.wirelessSendSettings();
-						} catch (final Throwable t) {
-							log.warn("Unable to sync local settings to remote wireless nodes", t);
-						}
-						connect.setText(RS.rbLabel("wireless.reconnect"));
-						connect.setDisable(false);
-					}
-				}, 1000);
-			} else {
-				connect.setText(RS.rbLabel("wireless.connect"));
-				connect.setDisable(false);
-			}
-		} catch (final Throwable t) {
-			log.warn(String.format("Unable to connect to COM port: {0} @ {1}", comPort, baudRate), t);
-			connect.setText(RS.rbLabel("wireless.connect"));
-			connect.setDisable(false);
+	public void connect() {
+		if (!UGateKeeper.DEFAULT.wirelessIsConnected() && port.choice.getSelectionModel() != null && 
+				port.choice.getSelectionModel().getSelectedItem() != null && baud.choice.getSelectionModel() != null && 
+				baud.choice.getSelectionModel().getSelectedItem() != null) {
+			controlBar.createWirelessConnectionService(port.choice.getSelectionModel().getSelectedItem(), 
+					baud.choice.getSelectionModel().getSelectedItem()).start();
 		}
-	}
-
-	/**
-	 * Disconnects wireless connection (if connected)
-	 */
-	public void disconnect() {
-		if (UGateKeeper.DEFAULT.wirelessIsConnected()) {
-			UGateKeeper.DEFAULT.wirelessDisconnect();
-			setStatusFill(statusIcon, false);
-			connect.setDisable(false);
-			connect.setText(RS.rbLabel("wireless.connect"));
-		}
+//		disconnect();
+//		connect.setDisable(true);
+//		connect.setText(RS.rbLabel("wireless.connecting"));
+//		try {
+//			if (UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate)) {
+//				setStatusFill(statusIcon, true);
+//				connect.setText(RS.rbLabel("wireless.synchronizing"));
+//				new Timer().schedule(new TimerTask() {
+//					@Override
+//					public void run() {
+//						try {
+//							UGateKeeper.DEFAULT.wirelessSendSettings();
+//						} catch (final Throwable t) {
+//							log.warn("Unable to sync local settings to remote wireless nodes", t);
+//						}
+//						connect.setText(RS.rbLabel("wireless.reconnect"));
+//						connect.setDisable(false);
+//					}
+//				}, 1000);
+//			} else {
+//				connect.setText(RS.rbLabel("wireless.connect"));
+//				connect.setDisable(false);
+//			}
+//		} catch (final Throwable t) {
+//			log.warn(String.format("Unable to connect to COM port: {0} @ {1}", comPort, baudRate), t);
+//			connect.setText(RS.rbLabel("wireless.connect"));
+//			connect.setDisable(false);
+//		}
 	}
 }

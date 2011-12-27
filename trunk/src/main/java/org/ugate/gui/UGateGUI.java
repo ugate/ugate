@@ -242,9 +242,7 @@ public class UGateGUI extends Application {
 								Platform.runLater(new Runnable() {
 									public void run() {
 										// attempt connections
-										if (!UGateKeeper.DEFAULT.wirelessIsConnected()) {
-											wirelessConnectionView.getStatusHandler().handle(null);
-										}
+										wirelessConnectionView.connect();
 										if (!UGateKeeper.DEFAULT.emailIsConnected()) {
 											mailConnectionView.getStatusHandler().handle(null);
 										}

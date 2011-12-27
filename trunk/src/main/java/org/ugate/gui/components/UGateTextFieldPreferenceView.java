@@ -49,13 +49,27 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * Creates a text field preference view
 	 * 
 	 * @param preferenceKey the preference key
+	 * @param preferenceIndex the preference index to append to the {@linkplain Settings#key}
+	 * @param type the type
+	 * @param labelText the label text
+	 * @param toolTip the tool tip
+	 */
+	public UGateTextFieldPreferenceView(final Settings preferenceKey, final int preferenceIndex, 
+			final Type type, final String labelText, final String toolTip) {
+		this(preferenceKey, preferenceIndex, type, null, null, null, labelText, toolTip);
+	}
+	
+	/**
+	 * Creates a text field preference view
+	 * 
+	 * @param preferenceKey the preference key
 	 * @param type the type
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
 	public UGateTextFieldPreferenceView(final Settings preferenceKey, 
 			final Type type, final String labelText, final String toolTip) {
-		this(preferenceKey, type, null, null, null, labelText, toolTip);
+		this(preferenceKey, null, type, null, null, null, labelText, toolTip);
 	}
 	
 	/**
@@ -71,13 +85,14 @@ public class UGateTextFieldPreferenceView extends VBox {
 	public UGateTextFieldPreferenceView(final Settings preferenceKey, 
 			final String numericStepperFormat, final Number minValue, final Number maxValue, 
 			final String labelText, final String toolTip) {
-		this(preferenceKey, Type.TYPE_NUMERIC_STEPPER, numericStepperFormat, minValue, maxValue, labelText, toolTip);
+		this(preferenceKey, null, Type.TYPE_NUMERIC_STEPPER, numericStepperFormat, minValue, maxValue, labelText, toolTip);
 	}
 
 	/**
 	 * Creates a text field preference view
 	 * 
 	 * @param settings the settings
+	 * @param preferenceIndex the preference index to append to the {@linkplain Settings#key}
 	 * @param type the type
 	 * @param numericStepperFormat the {@linkplain String#format(String, Object...)} (integer of float)
 	 * @param minValue the minimum allowed value
@@ -85,7 +100,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
-	protected UGateTextFieldPreferenceView(final Settings settings, final Type type, 
+	protected UGateTextFieldPreferenceView(final Settings settings, final Integer preferenceIndex, final Type type, 
 			final String numericStepperFormat, final Number minValue, final Number maxValue, 
 			final String labelText, final String toolTip) {
 	    super();
@@ -95,7 +110,8 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    label.setText(labelText);
 	    label.setTooltip(new Tooltip(toolTip));
 	    final String textValue = settings != null ? 
-	    		UGateKeeper.DEFAULT.preferencesGet(settings) : "";
+	    		preferenceIndex != null ? UGateKeeper.DEFAULT.preferencesGet(settings, preferenceIndex) : 
+	    			UGateKeeper.DEFAULT.preferencesGet(settings) : "";
 		this.numericStepperFormat = type != Type.TYPE_NUMERIC_STEPPER ? null :
 			numericStepperFormat == null || numericStepperFormat.length() == 0 ? 
 				"%03d" : numericStepperFormat;

@@ -276,6 +276,8 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		EMAIL_CONNECTING,
 		/** Event triggered when connected to email */
 		EMAIL_CONNECTED,
+		/** Event triggered when connection to email failed */
+		EMAIL_CONNECT_FAILED,
 		/** Event triggered when disconnecting from email */
 		EMAIL_DISCONNECTING,
 		/** Event triggered when disconnected from email */
