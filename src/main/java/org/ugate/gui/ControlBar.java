@@ -214,10 +214,12 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
+	 * Creates a wireless connection service that will show a progress indicator preventing
+	 * further action until the wireless connection has been established.
 	 * 
-	 * @param comPort
-	 * @param baudRate
-	 * @return
+	 * @param comPort the COM port to connect to
+	 * @param baudRate the baud rate to connect at
+	 * @return the service
 	 */
 	public Service<Boolean> createWirelessConnectionService(final String comPort, final int baudRate) {
 		setHelpText(null);
@@ -227,14 +229,35 @@ public class ControlBar extends ToolBar {
 				try {
 					// establish wireless connection (blocking)
 					UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate);
-					// Synchronize settings with wireless devices node(s)
-					if (!UGateKeeper.DEFAULT.wirelessSendSettings()) {
-						log.error("Unable to synchronize local settings with remote wireless nodes");
-					} else {
-						log.info("Synchronize local settings with remote wireless nodes");
-					}
 				} catch (final Throwable t) {
 					setHelpText(RS.rbLabel("service.wireless.failed"));
+					log.error("Unable to establish a wireless connection", t);
+				}
+				return false;
+			}
+		});
+	}
+	
+	/**
+	 * Creates an email connection service that will show a progress indicator preventing
+	 * further action until the email connection has been established.
+	 * 
+	 * @param comPort the COM port to connect to
+	 * @param baudRate the baud rate to connect at
+	 * @return the service
+	 */
+	public Service<Boolean> createEmailConnectionService(final String smtpHost, final String smtpPort, final String imapHost, 
+			final String imapPort, final String username, final String password, 
+			final String mainFolderName) {
+		setHelpText(null);
+		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+			@Override
+			protected Boolean call() throws Exception {
+				try {
+					// establish wireless connection (blocking)
+					UGateKeeper.DEFAULT.emailConnect(smtpHost, smtpPort, imapHost, imapPort, username, password, mainFolderName);
+				} catch (final Throwable t) {
+					setHelpText(RS.rbLabel("service.email.failed"));
 					log.error("Unable to establish a wireless connection", t);
 				}
 				return false;

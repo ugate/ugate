@@ -24,10 +24,6 @@ import org.ugate.resources.RS;
 public abstract class MailConnectionView extends StatusView {
 	
 	private static final Logger log = Logger.getLogger(MailConnectionView.class);
-	public static final String LABEL_CONNECT = RS.rbLabel("mail.connect");
-	public static final String LABEL_CONNECTING = RS.rbLabel("mail.connecting");
-	public static final String LABEL_DISCONNECTING = RS.rbLabel("mail.disconnecting");
-	public static final String LABEL_RECONNECT = RS.rbLabel("mail.reconnect");
 	public final UGateTextFieldPreferenceView smtpHost;
 	public final UGateTextFieldPreferenceView smtpPort;
 	public final UGateTextFieldPreferenceView imapHost;
@@ -83,7 +79,7 @@ public abstract class MailConnectionView extends StatusView {
 			public void handle(final UGateKeeperEvent<?> event) {
 				if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTING) {
 					connect.setDisable(true);
-					connect.setText(LABEL_CONNECTING);
+					connect.setText(RS.rbLabel("mail.connecting"));
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTED) {
 					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_HOST_KEY, smtpHost.textField.getText());
 					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_PORT_KEY, smtpPort.textField.getText());
@@ -92,12 +88,17 @@ public abstract class MailConnectionView extends StatusView {
 					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_USERNAME_KEY, username.textField.getText());
 					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_PASSWORD_KEY, password.passwordField.getText());
 					connect.setDisable(false);
-					connect.setText(LABEL_RECONNECT);
+					connect.setText(RS.rbLabel("mail.reconnect"));
 					log.debug("Turning ON email connection icon");
 					setStatusFill(statusIcon, true);
+				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED) {
+					connect.setDisable(false);
+					connect.setText(RS.rbLabel("mail.connect"));
+					controlBar.setHelpText(event.getMessageString());
+					setStatusFill(statusIcon, false);
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTING) {
 					connect.setDisable(true);
-					connect.setText(LABEL_DISCONNECTING);
+					connect.setText(RS.rbLabel("mail.disconnecting"));
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTED || 
 						event.getType() == UGateKeeperEvent.Type.EMAIL_CLOSED) {
 					// run later in case the application is going to exit which will cause an issue with FX thread
@@ -105,7 +106,7 @@ public abstract class MailConnectionView extends StatusView {
 						@Override
 						public void run() {
 							connect.setDisable(false);
-							connect.setText(LABEL_CONNECT);
+							connect.setText(RS.rbLabel("mail.connect"));
 							log.debug("Turning OFF email connection icon");
 							setStatusFill(statusIcon, false);
 						}
@@ -118,19 +119,11 @@ public abstract class MailConnectionView extends StatusView {
 	    connectionHandler = new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent event) {
-				if (smtpHost.textField.getText().length() > 0 && smtpPort.textField.getText().length() > 0 && 
-						imapHost.textField.getText().length() > 0 && imapPort.textField.getText().length() > 0 && 
-						username.textField.getText().length() > 0 && password.passwordField.getText().length() > 0) {
-					log.debug("Connecting to email...");
-					UGateKeeper.DEFAULT.emailConnect(smtpHost.textField.getText(), smtpPort.textField.getText(),
-							imapHost.textField.getText(), imapPort.textField.getText(), 
-							username.textField.getText(), password.passwordField.getText(), 
-							inboxFolder.textField.getText());
-				}
+				connect();
 			}
 	    };
 	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, connectionHandler);
-	    connect.setText(LABEL_CONNECT);
+	    connect.setText(RS.rbLabel("mail.connect"));
 	   
 	    final GridPane grid = new GridPane();
 	    grid.setHgap(10d);
@@ -158,8 +151,18 @@ public abstract class MailConnectionView extends StatusView {
 	    getChildren().add(grid);
 	}
 	
-	public void disconnect() {
-		log.info("Disconnecting from Email");
-		UGateKeeper.DEFAULT.emailDisconnect();
+	/**
+	 * Establishes an email connection using internal parameters
+	 */
+	public void connect() {
+		if (smtpHost.textField.getText().length() > 0 && smtpPort.textField.getText().length() > 0 && 
+				imapHost.textField.getText().length() > 0 && imapPort.textField.getText().length() > 0 && 
+				username.textField.getText().length() > 0 && password.passwordField.getText().length() > 0) {
+			log.debug("Connecting to email...");
+			controlBar.createEmailConnectionService(smtpHost.textField.getText(), smtpPort.textField.getText(),
+					imapHost.textField.getText(), imapPort.textField.getText(), 
+					username.textField.getText(), password.passwordField.getText(), 
+					inboxFolder.textField.getText()).start();
+		}
 	}
 }

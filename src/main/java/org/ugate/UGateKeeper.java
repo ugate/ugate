@@ -79,15 +79,26 @@ public enum UGateKeeper {
 	 * Sets a key/value preference
 	 * 
 	 * @param key the {@linkplain Settings}
+	 * @param index the index of the preference that will be appended to the {@linkplain Settings#key}
 	 * @param value the value
 	 */
-	public void preferencesSet(final Settings key, final String value) {
+	public void preferencesSet(final Settings key, final Integer index, final String value) {
 		final String oldValue = preferencesGet(key);
 		if (!oldValue.equals(value)) {
-			preferences.set(key.key, value);
+			preferences.set(key.key + (index == null ? "" : index.toString()), value);
 			notifyListeners(new UGateKeeperEvent<String>(this, UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL, null, 0,
 					key, null, oldValue, value));
 		}
+	}
+	
+	/**
+	 * Sets a key/value preference
+	 * 
+	 * @param key the {@linkplain Settings}
+	 * @param value the value
+	 */
+	public void preferencesSet(final Settings key, final String value) {
+		preferencesSet(key, null, value);
 	}
 	
 	/**
@@ -98,6 +109,17 @@ public enum UGateKeeper {
 	 */
 	public String preferencesGet(final Settings key) {
 		return preferences.get(key.key);
+	}
+	
+	/**
+	 * Gets a preference value
+	 * 
+	 * @param key the key to get the value for
+	 * @param index the index of the preference that will be appended to the {@linkplain Settings#key}
+	 * @return the preference value
+	 */
+	public String preferencesGet(final Settings key, final int index) {
+		return preferences.get(key.key + index);
 	}
 	
 	/**
@@ -175,56 +197,67 @@ public enum UGateKeeper {
 			return;
 		}
 		log.info("Connecting to email");
-		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECTING));
-		final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
-		listeners.add(new IEmailListener() {
-			@Override
-			public void handle(final EmailEvent event) {
-				if (event.type == EmailEvent.Type.EXECUTE_COMMAND) {
-					if (wirelessIsConnected()) {
-						int nodeIndex;
-						final Map<Integer, String> addys = new HashMap<Integer, String>();
-						for (final Command command : event.commands) {
-							// send command to all the nodes defined in the email
-							for (final String toAddress : event.toAddresses) {
-								try {
-									nodeIndex = wirelessGetAddressIndex(toAddress);
-									addys.put(nodeIndex, toAddress);
-									wirelessSendData(nodeIndex, command);
-								} catch (final Throwable t) {
-									log.error(String.format(
-											"Unable to execute the %1$s command from email %2$s for invalid node %3$s"
-											, command, event.from, toAddress), t);
+		try {
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECTING));
+			final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
+			listeners.add(new IEmailListener() {
+				@Override
+				public void handle(final EmailEvent event) {
+					if (event.type == EmailEvent.Type.EXECUTE_COMMAND) {
+						if (wirelessIsConnected()) {
+							int nodeIndex;
+							final Map<Integer, String> addys = new HashMap<Integer, String>();
+							for (final Command command : event.commands) {
+								// send command to all the nodes defined in the email
+								for (final String toAddress : event.toAddresses) {
+									try {
+										nodeIndex = wirelessGetAddressIndex(toAddress);
+										addys.put(nodeIndex, toAddress);
+										wirelessSendData(nodeIndex, command);
+									} catch (final Throwable t) {
+										log.error(String.format(
+												"Unable to execute the %1$s command from email %2$s for invalid node %3$s"
+												, command, event.from, toAddress), t);
+									}
 								}
 							}
+							if (!addys.isEmpty()) {
+								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, addys, 0, 
+										Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands));
+							}
+						} else {
+							log.warn("Incoming mail command received, but an XBee connection has not been made");
 						}
-						if (!addys.isEmpty()) {
-							notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, addys, 0, 
-									Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands));
-						}
-					} else {
-						log.warn("Incoming mail command received, but an XBee connection has not been made");
+					} else if (event.type == EmailEvent.Type.CONNECT) {
+						isEmailConnected = true;
+						log.info("Connected to email");
+						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CONNECTED, null, 0, 
+								null, null, null, event.commands));
+					} else if (event.type == EmailEvent.Type.DISCONNECT) {
+						isEmailConnected = false;
+						log.info("Disconnected from email");
+						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTED, null, 0, 
+								null, null, null, event.commands));
+					} else if (event.type == EmailEvent.Type.CLOSED) {
+						isEmailConnected = false;
+						log.info("Closed email connection");
+						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CLOSED, null, 0, 
+								null, null, null, event.commands));
 					}
-				} else if (event.type == EmailEvent.Type.CONNECT) {
-					isEmailConnected = true;
-					log.info("Connected to email");
-					notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CONNECTED, null, 0, 
-							null, null, null, event.commands));
-				} else if (event.type == EmailEvent.Type.DISCONNECT) {
-					isEmailConnected = false;
-					log.info("Disconnected from email");
-					notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTED, null, 0, 
-							null, null, null, event.commands));
-				} else if (event.type == EmailEvent.Type.CLOSED) {
-					isEmailConnected = false;
-					log.info("Closed email connection");
-					notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CLOSED, null, 0, 
-							null, null, null, event.commands));
 				}
-			}
-		});
-		this.emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, 
-				username, password, mainFolderName, listeners.toArray(new IEmailListener[0]));
+			});
+			this.emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, 
+					username, password, mainFolderName, listeners.toArray(new IEmailListener[0]));
+		} catch (final Throwable t) {
+			final String errorMsg = String.format(
+					"Unable to connect to email using SMTP host: %1$s, SMTP port: %2$s, IMAP host: %3$s, IMAP port: %4$s Username: %5$s, Folder: %6$s", 
+					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);
+			log.error(errorMsg, t);
+			final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED);
+			event.addMessage(errorMsg);
+			event.addMessage(t.getMessage());
+			notifyListeners(event);
+		}
 	}
 	
 	/**
