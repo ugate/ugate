@@ -32,7 +32,7 @@ import org.ugate.resources.RS;
 /**
  * Wireless connection GUI responsible for connecting to the wireless service
  */
-public abstract class WirelessConnectionView extends StatusView {
+public class WirelessConnectionView extends StatusView {
 	
 	private static final Logger log = Logger.getLogger(WirelessConnectionView.class);
 	public static final String ACCESS_KEY_CODE_FORMAT = "%01d";
@@ -54,40 +54,45 @@ public abstract class WirelessConnectionView extends StatusView {
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
 		
-		universalRemoteAccessToggleSwitch = new UGateToggleSwitchPreferenceView(
-				Settings.UNIVERSAL_REMOTE_ACCESS_ON, RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
 	    accessKey1 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_1_KEY, 
-	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), 
-				RS.rbLabel("wireless.access.key.desc", 1));
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), null);
+	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel("wireless.access.key.desc", 1));
 	    accessKey2 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_2_KEY, 
-	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 2), 
-				RS.rbLabel("wireless.access.key.desc", 2));
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 2), null);
+	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel("wireless.access.key.desc", 2));
 	    accessKey3 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_3_KEY, 
-	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), 
-				RS.rbLabel("wireless.access.key.desc", 3));
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), null);
+	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel("wireless.access.key.desc", 3));
 	    hostAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_HOST_KEY, 
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), 
-				RS.rbLabel("wireless.host.desc"));
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
+	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel("wireless.host.desc"));
 	    // TODO : add GUI support for multiple remote wireless nodes
 	    remoteAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
 				UGateUtil.WIRELESS_ADDRESS_START_INDEX, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, 
-				RS.rbLabel("wireless.remote", UGateUtil.WIRELESS_ADDRESS_START_INDEX), 
-				RS.rbLabel("wireless.remote.desc", UGateUtil.WIRELESS_ADDRESS_START_INDEX));
+				RS.rbLabel("wireless.remote", UGateUtil.WIRELESS_ADDRESS_START_INDEX), null);
+	    controlBar.addHelpTextTrigger(remoteAddress, 
+	    		RS.rbLabel("wireless.remote.desc", UGateUtil.WIRELESS_ADDRESS_START_INDEX));
+		universalRemoteAccessToggleSwitch = new UGateToggleSwitchPreferenceView(
+				Settings.UNIVERSAL_REMOTE_ACCESS_ON, RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
+		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, RS.rbLabel("wireless.remote.universal.desc", 
+				UGateUtil.WIRELESS_ADDRESS_START_INDEX));
 		
 		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
+		controlBar.addHelpTextTrigger(port, RS.rbLabel("wireless.port.desc"));
 		configComPorts();
 	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
+	    controlBar.addHelpTextTrigger(baud, RS.rbLabel("wireless.speed.desc"));
 	    configBaudRates();
 	    
 	    // update the status when wireless connections are made/lost
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
 			public void handle(final UGateKeeperEvent<?> event) {
-				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECTING) {
+				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel("wireless.connecting"));
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECTED) {
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED) {
 					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_HOST_KEY, hostAddress.textField.getText());
 					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
 							UGateUtil.WIRELESS_ADDRESS_START_INDEX, remoteAddress.textField.getText());
@@ -99,27 +104,26 @@ public abstract class WirelessConnectionView extends StatusView {
 						@Override
 						public void run() {
 							log.info("Synchronizing the host settings to remote node(s)");
-							controlBar.createCommandService(Command.SENSOR_SET_SETTINGS).start();
+							controlBar.createCommandService(Command.SENSOR_SET_SETTINGS, true);
 						}
 					});
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECT_FAILED) {
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("wireless.connect"));
 					controlBar.setHelpText(event.getMessageString());
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECTING) {
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel("wireless.disconnecting"));
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECTED) {
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED) {
 					// run later in case the application is going to exit which will cause an issue with FX thread
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							connect.setDisable(false);
-							connect.setText(RS.rbLabel("wireless.connect"));
-							log.debug("Turning OFF email connection icon");
-							setStatusFill(statusIcon, false);
-						}
-					});
+					try {
+						connect.setDisable(false);
+						connect.setText(RS.rbLabel("wireless.connect"));
+						log.debug("Turning OFF email connection icon");
+						setStatusFill(statusIcon, false);
+					} catch (final Throwable t) {
+						
+					}
 				}
 			}
 		});
@@ -137,18 +141,13 @@ public abstract class WirelessConnectionView extends StatusView {
 		});
 	    
 	    connect = new Button();
-	    connectionHandler = new EventHandler<MouseEvent>(){
+	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent event) {
-				if (!port.choice.getSelectionModel().isEmpty() && !baud.choice.getSelectionModel().isEmpty()) {
-					controlBar.createWirelessConnectionService(port.choice.getSelectionModel().getSelectedItem(), 
-							baud.choice.getSelectionModel().getSelectedItem()).start();
-				}
+				connect();
 			}
-	    };
-	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, connectionHandler);
+	    });
 	    connect.setText(RS.rbLabel("wireless.connect"));
-	    connect.setTooltip(new Tooltip(connect.getText()));
 	    
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
@@ -226,10 +225,10 @@ public abstract class WirelessConnectionView extends StatusView {
 	/**
 	 * Establishes a wireless connection using the internal parameters.
 	 */
+	@Override
 	public void connect() {
-		if (!UGateKeeper.DEFAULT.wirelessIsConnected() && port.choice.getSelectionModel() != null && 
-				port.choice.getSelectionModel().getSelectedItem() != null && baud.choice.getSelectionModel() != null && 
-				baud.choice.getSelectionModel().getSelectedItem() != null) {
+		if (!port.choice.getSelectionModel().isEmpty() && port.choice.getSelectionModel().getSelectedItem() != null && 
+				baud.choice.getSelectionModel().isEmpty() && baud.choice.getSelectionModel().getSelectedItem() != null) {
 			controlBar.createWirelessConnectionService(port.choice.getSelectionModel().getSelectedItem(), 
 					baud.choice.getSelectionModel().getSelectedItem()).start();
 		}

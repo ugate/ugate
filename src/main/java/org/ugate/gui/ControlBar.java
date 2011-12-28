@@ -92,7 +92,7 @@ public class ControlBar extends ToolBar {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					createCommandService(Command.SENSOR_SET_SETTINGS).start();
+					createCommandService(Command.SENSOR_SET_SETTINGS, true);
 				}
 			}
 	    });
@@ -124,7 +124,7 @@ public class ControlBar extends ToolBar {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					createCommandService(Command.SENSOR_GET_READINGS).start();
+					createCommandService(Command.SENSOR_GET_READINGS, true);
 				}
 			}
 	    });
@@ -166,11 +166,16 @@ public class ControlBar extends ToolBar {
 	 * further action until the command execution has completed.
 	 * 
 	 * @param command the command
+	 * @param start true to start the service immediately after creating the service
 	 * @return the service
 	 */
-	public Service<Boolean> createCommandService(final Command command) {
+	public Service<Boolean> createCommandService(final Command command, final boolean start) {
+		if (!UGateKeeper.DEFAULT.wirelessIsConnected()) {
+			setHelpText(RS.rbLabel("service.wireless.connection.required"));
+			return null;
+		}
 		setHelpText(null);
-		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+		final Service<Boolean> service = GuiUtil.alertProgress(stage, new Task<Boolean>() {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
@@ -211,6 +216,10 @@ public class ControlBar extends ToolBar {
 				return true;
 			}
 		});
+		if (start) {
+			service.start();
+		}
+		return service;
 	}
 	
 	/**

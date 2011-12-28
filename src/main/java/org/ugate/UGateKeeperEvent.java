@@ -234,18 +234,18 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		INITIALIZE, 
 		/** Event when preferences/settings are being set on the host */
 		SETTINGS_SAVE_LOCAL, 
-		/** Event when connecting to the local wireless device */
-		WIRELESS_LOCAL_CONNECTING,
-		/** Event when a connection has been established with the local wireless device */
-		WIRELESS_LOCAL_CONNECTED,
+		/** Event when connecting to the local host wireless device */
+		WIRELESS_HOST_CONNECTING,
+		/** Event when a connection has been established with the local host wireless device */
+		WIRELESS_HOST_CONNECTED,
 		/** Event when a connection attempt has been made, but failed to connect */
-		WIRELESS_LOCAL_CONNECT_FAILED,
-		/** Event when disconnecting from the local wireless device */
-		WIRELESS_LOCAL_DISCONNECTING,
-		/** Event when a connection with the local wireless device has been terminated */
-		WIRELESS_LOCAL_DISCONNECTED,
+		WIRELESS_HOST_CONNECT_FAILED,
+		/** Event when disconnecting from the local host wireless device */
+		WIRELESS_HOST_DISCONNECTING,
+		/** Event when a connection with the local host wireless device has been terminated */
+		WIRELESS_HOST_DISCONNECTED,
 		/** Event when a disconnection attempt has been made, but failed to be completed */
-		WIRELESS_LOCAL_DISCONNECT_FAILED,
+		WIRELESS_HOST_DISCONNECT_FAILED,
 		/** Event when wireless data is being sent to ALL THE SPECIFIED remote node(s) */
 		WIRELESS_DATA_ALL_TX,
 		/** Event when wireless data is being sent to a SINGLE remote node */
