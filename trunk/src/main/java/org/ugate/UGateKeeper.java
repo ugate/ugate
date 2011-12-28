@@ -336,12 +336,9 @@ public enum UGateKeeper {
 	 * @return true when on successful connection
 	 */
 	public boolean wirelessConnect(final String comPort, final int baudRate) {
-		//wirelessDisconnect();
-		if (xbee.isConnected()) {
-			return true;
-		}
+		wirelessDisconnect();
 		log.info("Connecting to local XBee");
-		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECTING));
+		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING));
 		try {
 			xbee.open(comPort, baudRate);
 			xbee.addPacketListener(new UGateXBeePacketListener(){
@@ -354,16 +351,26 @@ public enum UGateKeeper {
 			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
 					comPort, baudRate));
 			// XBee connection is blocking so notification can be sent here
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECTED));
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED));
 			return true;
 		} catch (final Throwable t) {
 			final String errorMsg = String.format("Unable to establish a connection to the local XBee using port %1$s and baud rate %2$s", 
 					comPort, baudRate);
 			log.error(errorMsg, t);
-			final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_LOCAL_CONNECT_FAILED);
+			final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED);
 			event.addMessage(errorMsg);
 			event.addMessage(t.getMessage());
 			notifyListeners(event);
+			if (t instanceof XBeeException) {
+				// bug in XBee connection that will show xbee.isConnected() as true after an XBeeException unless we close it here
+				try {
+					log.debug(String.format("Closing connection due to %1$s", XBeeException.class.getName()));
+					wirelessDisconnect();
+				} catch (final Throwable t2) {
+					log.warn(String.format("Unable to close %1$s connection (diconnecting because connection threw error", 
+							XBee.class.getName()), t2);
+				}
+			}
 			return false;
 		}
 	}
@@ -374,15 +381,15 @@ public enum UGateKeeper {
 	public void wirelessDisconnect() {
 		if (wirelessIsConnected()) {
 			log.info("Disconnecting from XBee");
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECTING));
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING));
 			try {
 				xbee.close();
 				// XBee close is blocking so notification can be sent here
-				notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECTED));
+				notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED));
 			} catch (final Throwable t) {
 				final String errorMsg = "Unable to close wireless connection";
 				log.error(errorMsg, t);
-				final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_LOCAL_DISCONNECT_FAILED);
+				final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED);
 				event.addMessage(errorMsg);
 				event.addMessage(t.getMessage());
 				notifyListeners(event);

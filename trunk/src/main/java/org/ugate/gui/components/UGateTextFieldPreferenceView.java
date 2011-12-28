@@ -108,7 +108,9 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    this.type = type;
 		label = new Label();
 	    label.setText(labelText);
-	    label.setTooltip(new Tooltip(toolTip));
+	    if (toolTip != null && !toolTip.isEmpty()) {
+	    	label.setTooltip(new Tooltip(toolTip));
+	    }
 	    final String textValue = settings != null ? 
 	    		preferenceIndex != null ? UGateKeeper.DEFAULT.preferencesGet(settings, preferenceIndex) : 
 	    			UGateKeeper.DEFAULT.preferencesGet(settings) : "";

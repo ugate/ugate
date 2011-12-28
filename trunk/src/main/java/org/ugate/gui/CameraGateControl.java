@@ -141,7 +141,7 @@ public class CameraGateControl extends ControlPane {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)){
-					controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE).start();
+					controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE, true);
 				}
 			}
 		});

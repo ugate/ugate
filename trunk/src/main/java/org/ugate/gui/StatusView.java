@@ -1,8 +1,6 @@
 package org.ugate.gui;
 
-import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -18,29 +16,48 @@ public abstract class StatusView extends VBox {
 	
 	public final Group statusIcon;
 	protected final ControlBar controlBar;
-	protected EventHandler<MouseEvent> connectionHandler;
 
-	public StatusView(final ControlBar controlBar) {
+	/**
+	 * Constructor
+	 * 
+	 * @param controlBar the control bar
+	 */
+	protected StatusView(final ControlBar controlBar) {
 		super();
 		this.controlBar = controlBar;
 		this.statusIcon = createStatusImage();
 	}
 
-	public StatusView(final ControlBar controlBar, double spacing) {
+	/**
+	 * Constructor
+	 * 
+	 * @param controlBar the control bar
+	 * @param spacing the spacing
+	 */
+	protected StatusView(final ControlBar controlBar, double spacing) {
 		super(spacing);
 		this.controlBar = controlBar;
 		this.statusIcon = createStatusImage();
 	}
 	
+	/**
+	 * @return a status indicator {@linkplain Group} that will visually indicate an on/off status
+	 */
 	protected Group createStatusImage() {
-		Group circles = new Group();
+		final Group circles = new Group();
 		circles.getChildren().add(createStatusCircle(null));
 		circles.getChildren().add(createStatusCircle(false));
 		return circles;
 	}
 	
+	/**
+	 * Creates status indicator {@linkplain Circle} that will visually indicate an on/off status
+	 * 
+	 * @param on true to show the the status {@linkplain Circle} as on, false to show it as off
+	 * @return the status {@linkplain Circle}
+	 */
 	private Circle createStatusCircle(Boolean on) {
-		Circle circle = new Circle(on == null ? 7 : 5, Color.web("white", 0.05));
+		final Circle circle = new Circle(on == null ? 7 : 5, Color.web("white", 0.05));
 		circle.setFill(getStatusFill(on));
 		circle.setStroke(Color.web("#D0E6FA", 0.16));
 		circle.setStrokeType(StrokeType.OUTSIDE);
@@ -48,10 +65,16 @@ public abstract class StatusView extends VBox {
 		return circle;
 	}
 	
+	/**
+	 * Gets the status indicator fill
+	 * 
+	 * @param on true for a an on fill, false for an off fill
+	 * @return the status fill
+	 */
 	private LinearGradient getStatusFill(Boolean on) {
-		String color1 = on == null ? "#4977A3" : on ? "#00FF00" : "#FF0000";
-		String color2 = on == null ? "#B0C6DA" : on ? "#00FF99" : "#FF3333";
-		String color3 = on == null ? "#9CB6CF" : on ? "#00FF00" : "#FF0000";
+		final String color1 = on == null ? "#4977A3" : on ? "#00FF00" : "#FF0000";
+		final String color2 = on == null ? "#B0C6DA" : on ? "#00FF99" : "#FF3333";
+		final String color3 = on == null ? "#9CB6CF" : on ? "#00FF00" : "#FF0000";
 		return new LinearGradient(0,0,0,1, true, CycleMethod.NO_CYCLE,
 	    new Stop[]{
 			new Stop(0, Color.web(color1, 0.7)),
@@ -60,16 +83,20 @@ public abstract class StatusView extends VBox {
 	    });
 	}
 	
-	protected void setStatusFill(Group group, Boolean on) {
+	/**
+	 * Sets the status fill for the indicator
+	 * 
+	 * @param group the group that contains the status {@linkplain Circle}
+	 * @param on true to show the the status {@linkplain Circle} as on, false to show it as off
+	 */
+	protected void setStatusFill(final Group group, final Boolean on) {
 		if (group != null) {
 			((Circle)group.getChildren().get(1)).setFill(getStatusFill(on));
-			handleStatusChange(on);
 		}
 	}
 	
-	public EventHandler<MouseEvent> getStatusHandler() {
-		return connectionHandler;
-	}
-	
-	public abstract void handleStatusChange(Boolean on);
+	/**
+	 * Connects to the status service
+	 */
+	public abstract void connect();
 }

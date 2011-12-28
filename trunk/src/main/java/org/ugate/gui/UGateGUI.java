@@ -32,7 +32,9 @@ import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
+import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.TextAreaAppender;
@@ -137,24 +139,20 @@ public class UGateGUI extends Application {
 			HBox.setHgrow(main, Priority.ALWAYS);
 			VBox.setVgrow(main, Priority.ALWAYS);
 			main.getChildren().addAll(controlBar, centerView);
-			changeCenterView(connectionView, false);
+			
+			wirelessConnectionView = new WirelessConnectionView(controlBar);
+			mailConnectionView = new MailConnectionView(controlBar);
 	
-			wirelessConnectionView = new WirelessConnectionView(controlBar) {
+			// change the center view back to the connection view when connections are lost
+			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 				@Override
-				public void handleStatusChange(Boolean on) {
-					if (!on) {
-						changeCenterView(connectionView, false);
+				public void handle(final UGateKeeperEvent<?> event) {
+					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED ||
+							event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTED) {
+						changeCenterView(connectionView);
 					}
 				}
-			};
-			mailConnectionView = new MailConnectionView(controlBar) {
-				@Override
-				public void handleStatusChange(Boolean on) {
-					if (!on) {
-						changeCenterView(connectionView, false);
-					}
-				}
-			};
+			});
 			connectionView.setAlignment(Pos.CENTER);
 			connectionView.getChildren().addAll(wirelessConnectionView,
 					createSeparator(Orientation.VERTICAL), mailConnectionView);
@@ -165,31 +163,32 @@ public class UGateGUI extends Application {
 			taskbar.getChildren().add(
 					createConnectionStatusView(genFisheyeTaskbar(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"),
 							new Runnable() {
-	
+								@Override
 								public void run() {
-									changeCenterView(connectionView, true);
+									changeCenterView(connectionView);
 								}
 							})));
 			taskbar.getChildren().add(
 					genFisheyeTaskbar(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), new Runnable() {
-									public void run() {
-										changeCenterView(controls, true);
-									}
-								}));
+						@Override			
+						public void run() {
+							changeCenterView(controls);
+						}
+					}));
 			taskbar.getChildren().add(
 					genFisheyeTaskbar(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), new Runnable() {
+						@Override
 						public void run() {
 							changeCenterView(
 									new DisplayShelf(RS.imgSavePath(),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP, 
-											RS.rbLabel("displayshelf.fullsize.tooltip")),
-									true);
+											RS.rbLabel("displayshelf.fullsize.tooltip")));
 						}
 					}));
 			taskbar.getChildren().add(
 					genFisheyeTaskbar(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), new Runnable() {
-	
+						@Override
 						public void run() {
 							NumberAxis xAxis = new NumberAxis();
 							NumberAxis yAxis = new NumberAxis();
@@ -218,41 +217,35 @@ public class UGateGUI extends Application {
 												random.nextDouble() * 150));
 							}
 							chart.getData().add(manualImageSeries);
-							changeCenterView(chart, true);
+							changeCenterView(chart);
 						}
 					}));
 			taskbar.getChildren().add(genFisheyeTaskbar(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), new Runnable() {
-	
+				@Override
 				public void run() {
 					loggingView.setEditable(false);
-					changeCenterView(loggingView, true);
+					changeCenterView(loggingView);
 				}
 			}));
 	
-			stage.addEventHandler(WindowEvent.ANY,
+			stage.addEventHandler(WindowEvent.WINDOW_SHOWN,
 					new EventHandler<WindowEvent>() {
-	
 						@Override
-						public void handle(WindowEvent event) {
-							if (event.getEventType() == WindowEvent.WINDOW_SHOWN) {
-								if (UGateKeeper.DEFAULT.emailIsConnected() && 
-										UGateKeeper.DEFAULT.wirelessIsConnected()) {
-									return;
-								}
-								Platform.runLater(new Runnable() {
-									public void run() {
-										// attempt connections
-										wirelessConnectionView.connect();
-										if (!UGateKeeper.DEFAULT.emailIsConnected()) {
-											mailConnectionView.getStatusHandler().handle(null);
-										}
-									}
-								});
-							} else if (event.getEventType() == WindowEvent.WINDOW_CLOSE_REQUEST) {
-								log.debug("Window close requested");
+						public void handle(final WindowEvent event) {
+							if (UGateKeeper.DEFAULT.emailIsConnected() && 
+									UGateKeeper.DEFAULT.wirelessIsConnected()) {
+								return;
 							}
+							Platform.runLater(new Runnable() {
+								public void run() {
+									// attempt connections
+									wirelessConnectionView.connect();
+									mailConnectionView.connect();
+								}
+							});
 						}
 					});
+			changeCenterView(connectionView);
 			stage.show();
 			SystemTray.createSystemTray(stage);
 		} catch (final Throwable t) {
@@ -274,7 +267,7 @@ public class UGateGUI extends Application {
 		System.exit(0);
 	}
 
-	private Separator createSeparator(Orientation orientation) {
+	private Separator createSeparator(final Orientation orientation) {
 		Separator topSeparator = new Separator();
 		topSeparator.setOrientation(orientation);
 		topSeparator.setHalignment(HPos.CENTER);
@@ -282,7 +275,7 @@ public class UGateGUI extends Application {
 		return topSeparator;
 	}
 
-	private Node createConnectionStatusView(Node connectionButton) {
+	private Node createConnectionStatusView(final Node connectionButton) {
 		final VBox node = new VBox();
 		node.setCache(true);
 		final HBox statusNode = new HBox(10);
@@ -358,17 +351,9 @@ public class UGateGUI extends Application {
 	 * 
 	 * @param node
 	 *            the node to change the center view to
-	 * @param checkConnection
-	 *            true to check for the connection when changing the view, false
-	 *            will change the center view only when both the XBee and email
-	 *            agent are connected
 	 */
-	private void changeCenterView(Node node, boolean checkConnection) {
-		if (!checkConnection
-				|| (UGateKeeper.DEFAULT.wirelessIsConnected() && UGateKeeper.DEFAULT
-						.emailIsConnected())) {
-			centerView.getChildren().clear();
-			centerView.getChildren().add(node);
-		}
+	private void changeCenterView(final Node node) {
+		centerView.getChildren().clear();
+		centerView.getChildren().add(node);
 	}
 }
