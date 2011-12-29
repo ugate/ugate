@@ -270,8 +270,10 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		WIRELESS_DATA_RX_SUCCESS,
 		/** Event when wireless data has been received by a remote node, but failures exist */
 		WIRELESS_DATA_RX_FAILED,
-		/** Event triggered when executing command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of remote nodes address(es) */
+		/** Event triggered when executed command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of remote nodes address(es) */
 		EMAIL_EXECUTED_COMMANDS,
+		/** Event triggered when failure occurs while executing command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of remote nodes address(es) */
+		EMAIL_EXECUTE_COMMANDS_FAILED,
 		/** Event triggered when connecting to email */
 		EMAIL_CONNECTING,
 		/** Event triggered when connected to email */

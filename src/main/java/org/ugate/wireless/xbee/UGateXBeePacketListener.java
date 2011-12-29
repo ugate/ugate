@@ -189,7 +189,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			log.info(String.format("=== Settings for %s END ===", remoteAddress));
 			//handleWirelessResponse(sr);
 		} else {
-			log.warn("Unrecognized command: " + command);
+			log.error("Unrecognized command: " + command);
 		}
 	}
 	
