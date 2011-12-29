@@ -53,13 +53,20 @@ public class AppFrame extends StackPane {
 
 	public AppFrame(final Stage stage, final Region content, final double sceneWidth, final double sceneHeight,
 			final double minResizableWidth, final double minResizableHeight, final boolean isResizable) {
-		// TODO : when showing/hiding the width/height end up skewed
+		// when showing/hiding the width/height end up skewed
 		stage.setOnShown(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(final WindowEvent event) {
-				stage.setWidth(minResizableWidth);
-				stage.setHeight(minResizableHeight);
-				stage.toFront();
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						stage.setIconified(false);
+						stage.setWidth(minResizableWidth);
+						stage.setHeight(minResizableHeight);
+						stage.toFront();
+						stage.centerOnScreen();
+					}
+				});
 			}
 		});
 		// stage/scene adjustment for transparency/size

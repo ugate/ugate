@@ -222,6 +222,11 @@
  * TextField                                                                   *
  *                                                                             *
  ******************************************************************************/
+/* .text-input { */
+/*     -fx-text-fill: -fx-text-inner-color; */
+/*     -fx-highlight-fill: -fx-accent; */
+/*     -fx-highlight-text-fill: white; */
+/* } */
 .text-field {
     -fx-background-color:
         linear-gradient(#f2f2f2, #d6d6d6),

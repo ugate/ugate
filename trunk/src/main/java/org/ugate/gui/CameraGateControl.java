@@ -152,13 +152,14 @@ public class CameraGateControl extends ControlPane {
 					return;
 				}
 				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
-					controlBar.setHelpText(null);
+					// update the gate state image
 					if (gateToggleButton.getImage().equals(RS.img(RS.IMG_GATE_CLOSED))) {
 						gateToggleButton.setImage(RS.img(RS.IMG_GATE_OPENED));
 					} else {
 						gateToggleButton.setImage(RS.img(RS.IMG_GATE_CLOSED));
 					}
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_FAILED) {
+					// TODO : move help text capture to event creation
 					controlBar.setHelpText(String.format(RS.rbLabel("gate.toggle.failed"),
 							(controlBar.isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
 								controlBar.getRemoteNodeAddress())));

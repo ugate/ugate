@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,16 +54,19 @@ public class EmailAgent implements Runnable {
 	public static final String GMAIL_STMP_SSL_PORT = "465";
 	public static final String GMAIL_IMAP_PORT = "993";
 
-	private static final List<IEmailListener> LISTENERS = new CopyOnWriteArrayList<IEmailListener>();
-	private AtomicBoolean runIt = new AtomicBoolean(true);
+//	private static final List<IEmailListener> LISTENERS = new CopyOnWriteArrayList<IEmailListener>();
+	private final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
+//	private static final AtomicBoolean runIt = new AtomicBoolean(true);
+	private boolean runIt = true;
 	private final URLName smtpUrlName;
 	private final URLName imapUrlName;
 	private final String mainFolderName;
 	private final Properties props;
-	private final Thread emailThread;
 	
-	private volatile IMAPFolder mainFolder;
-	private volatile IMAPStore store;
+//	private volatile IMAPFolder mainFolder;
+//	private volatile IMAPStore store;
+	private IMAPFolder mainFolder;
+	private IMAPStore store;
 	
 	/**
 	 * Creates/Starts an email agent service using <a href="http://mail.google.com">gmail</a>.
@@ -74,9 +75,11 @@ public class EmailAgent implements Runnable {
 	 * @param password the email password that the service will use
 	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
 	 * @param listeners any email listeners
+	 * @return the created/started email agent
 	 */
-	public EmailAgent(final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
-		this(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, 
+	public static EmailAgent start(final String username, final String password, final String mainFolderName, 
+			final IEmailListener... listeners) {
+		return start(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, 
 				username, password, mainFolderName, listeners);
 	}
 	
@@ -91,8 +94,31 @@ public class EmailAgent implements Runnable {
 	 * @param password the email password that the service will use
 	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
 	 * @param listeners any email listeners
+	 * @return the created/started email agent
 	 */
-	public EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
+	public static EmailAgent start(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
+			final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
+		final EmailAgent emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, username, 
+				password, mainFolderName, listeners);
+		final Thread emailAgentThread = new Thread(Thread.currentThread().getThreadGroup(), emailAgent, getThreadName("main"));
+		emailAgentThread.setDaemon(true);
+		emailAgentThread.start();
+		return emailAgent;
+	}
+	
+	/**
+	 * Creates/Starts an email agent service
+	 * 
+	 * @param smtpHost the SMTP host
+	 * @param smtpPort the SMTP port
+	 * @param imapHost the IMAP host
+	 * @param imapPort the IMAP port
+	 * @param username the email user name that the service will use
+	 * @param password the email password that the service will use
+	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
+	 * @param listeners any email listeners
+	 */
+	private EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
 			final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
 		// connect using TLS
 		this.props = new Properties();
@@ -105,13 +131,10 @@ public class EmailAgent implements Runnable {
 		this.smtpUrlName = new URLName("smtps", smtpHost, Integer.parseInt(smtpPort), null, username, password);
 		this.imapUrlName = new URLName("imaps", imapHost, Integer.parseInt(imapPort), null, username, password);
 		this.mainFolderName = mainFolderName == null || mainFolderName.isEmpty() ? DEFAULT_INBOX_FOLDER_NAME : mainFolderName;
-		
-		LISTENERS.addAll(Arrays.asList(listeners));
 
-		this.emailThread = new Thread(Thread.currentThread().getThreadGroup(), this, getThreadName("main"));
-		this.emailThread.setDaemon(true);
-		this.runIt.set(true);
-		this.emailThread.start();
+		this.listeners.addAll(Arrays.asList(listeners));
+		
+		this.runIt = true;
 	}
 	
 	/**
@@ -119,7 +142,7 @@ public class EmailAgent implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while(runIt.get()) {
+		while(runIt) {
 			try {
 				disconnect(store, mainFolder);
 				
@@ -141,7 +164,7 @@ public class EmailAgent implements Runnable {
 					public void messagesAdded(MessageCountEvent event) {
 						log.debug("Incoming messages...");
 						try {
-							if (LISTENERS.isEmpty()) {
+							if (listeners.isEmpty()) {
 								log.warn("No listeners available for executing remote commands");
 								return;
 							}
@@ -175,7 +198,7 @@ public class EmailAgent implements Runnable {
 										public void run() {
 											final EmailEvent event = new EmailEvent(EmailEvent.Type.EXECUTE_COMMAND, commands, 
 													froms, destinations);
-											for (final IEmailListener listener : LISTENERS) {
+											for (final IEmailListener listener : listeners) {
 												listener.handle(event);
 											}
 										}
@@ -194,20 +217,20 @@ public class EmailAgent implements Runnable {
 				log.info("Connected to " + imapUrlName.getHost() + " waiting for messages...");
 				// when idle (blocking) gets interrupted (by host, sending an email, getting message content, etc.)
 				// try to reinstate the idle process, if that fails (usually due to a closed folder) try to reconnect
-				while (runIt.get()) {
+				while (runIt) {
 					mainFolder.idle();
-					if (runIt.get()) {
+					if (runIt) {
 						log.debug("Stopped listening for incoming messages... attempting to reconnect...");
 					} else {
 						log.info("Stopped listening for incoming messages (from disconnect)");
 					}
 				}
 			} catch (final FolderClosedException e) {
-				if (runIt.get()) {
+				if (runIt) {
 					log.info("Folder closed... attempting to reconnect...");
 				}
 			} catch (final Exception e) {
-				if (runIt.get()) {
+				if (runIt) {
 					log.warn("Unable to connect... attempting to reconnect...", e);
 				}
 			}
@@ -218,7 +241,7 @@ public class EmailAgent implements Runnable {
 	 * Disconnects the email agent
 	 */
 	public void disconnect() {
-		runIt.set(false);
+		runIt = false;
 		disconnect(store, mainFolder);
 	}
 	
@@ -428,7 +451,7 @@ public class EmailAgent implements Runnable {
 	 * @param listener the listener
 	 */
 	public void addListener(final IEmailListener listener) {
-		LISTENERS.add(listener);
+		listeners.add(listener);
 	}
 	
 	/**
@@ -437,7 +460,7 @@ public class EmailAgent implements Runnable {
 	 * @param listener the listener
 	 */
 	public void removeListener(final IEmailListener listener) {
-		LISTENERS.remove(listener);
+		listeners.remove(listener);
 	}
 	
 	/**
@@ -462,10 +485,7 @@ public class EmailAgent implements Runnable {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.Type.CONNECT, null, null, null);
-					for (IEmailListener listener : LISTENERS) {
-						listener.handle(event);
-					}
+					dispatchEmailEvent(EmailEvent.Type.CONNECT);
 				}
 			};
 			newThread.start();
@@ -478,10 +498,7 @@ public class EmailAgent implements Runnable {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.Type.DISCONNECT, null, null, null);
-					for (IEmailListener listener : LISTENERS) {
-						listener.handle(event);
-					}
+					dispatchEmailEvent(EmailEvent.Type.DISCONNECT);
 				}
 			};
 			newThread.start();
@@ -494,13 +511,26 @@ public class EmailAgent implements Runnable {
 				
 				@Override
 				public void run() {
-					final EmailEvent event = new EmailEvent(EmailEvent.Type.CLOSED, null, null, null);
-					for (IEmailListener listener : LISTENERS) {
-						listener.handle(event);
-					}
+					dispatchEmailEvent(EmailEvent.Type.CLOSED);
 				}
 			};
 			newThread.start();
+		}
+		
+		/**
+		 * Dispatches an email event
+		 * 
+		 * @param type the {@linkplain EmailEvent.Type}
+		 */
+		private void dispatchEmailEvent(final EmailEvent.Type type) {
+			try {
+				final EmailEvent event = new EmailEvent(type, null, null, null);
+				for (final IEmailListener listener : listeners) {
+					listener.handle(event);
+				}
+			} catch (final Throwable t) {
+				log.error(String.format("Unable to dispatch %1$s", EmailEvent.class.getName(), type), t);
+			}
 		}
 	};
 }

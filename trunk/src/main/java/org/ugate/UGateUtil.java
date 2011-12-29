@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
@@ -204,5 +205,38 @@ public class UGateUtil {
 		long elapsedSeconds = diff / secondInMillis;
 		
 		return elapsedYears + " years, " + elapsedDays + " days, " + elapsedHours + " hrs, " + elapsedMinutes + " mins, " + elapsedSeconds + " secs";
+	}
+	
+	/**
+	 * Converts an array of objects to a comma separated string
+	 * 
+	 * @param objs the objects
+	 * @return a comma separated string
+	 */
+	public static String toString(final Collection<?> objs) {
+		return objs != null ? toString(objs.toArray()) : toString(new Object[]{});
+	}
+	
+	/**
+	 * Converts an array of objects to a comma separated string
+	 * 
+	 * @param objs the objects
+	 * @return a comma separated string
+	 */
+	public static String toString(final Object[] objs) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		if (objs != null) {
+			int i = 0;
+			for (final Object obj : objs) {
+				sb.append(obj.toString());
+				if (i < (objs.length - 1)) {
+					sb.append(',');
+				}
+				i++;
+			}
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 }

@@ -21,7 +21,7 @@ public abstract class ControlPane extends GridPane {
 	public static final double CHILD_PADDING = 30d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	public static final double KNOB_SIZE_SCALE = 0.25d;
-	public static final double NEEDLE_SIZE_SCALE = 0.5d;
+	public static final double NEEDLE_SIZE_SCALE = 0.53d;
 	public static final Color COLOR_PAN_TILT = Color.YELLOW;
 	protected final ControlBar controlBar;
 	

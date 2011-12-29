@@ -95,7 +95,6 @@ public class MailConnectionView extends StatusView {
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("mail.connect"));
-					controlBar.setHelpText(event.getMessageString());
 					setStatusFill(statusIcon, false);
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTING) {
 					connect.setDisable(true);

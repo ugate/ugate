@@ -18,8 +18,8 @@ import org.ugate.resources.RS;
 public class SensorControl extends ControlPane {
 
 	public static final double LABEL_WIDTH = 100d;
-	public static final String FORMAT_SONAR = "%04.1f";
-	public static final String FORMAT_PIR = "%04.1f";
+	public static final String FORMAT_SONAR = "%04.2f";
+	public static final String FORMAT_PIR = "%04.2f";
 	public static final Color COLOR_SONAR = Color.TURQUOISE;
 	public static final Color COLOR_PIR = Color.RED;
 	public static final String FORMAT_MW = "%03d";

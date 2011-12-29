@@ -1,8 +1,5 @@
 package org.ugate.gui;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -10,7 +7,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.SingleSelectionModel;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -84,8 +80,7 @@ public class WirelessConnectionView extends StatusView {
 	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
 	    controlBar.addHelpTextTrigger(baud, RS.rbLabel("wireless.speed.desc"));
 	    configBaudRates();
-	    
-	    // update the status when wireless connections are made/lost
+
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
 			public void handle(final UGateKeeperEvent<?> event) {
@@ -93,6 +88,7 @@ public class WirelessConnectionView extends StatusView {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel("wireless.connecting"));
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED) {
+					// save the connected parameters (done here instead of automatic in case a connection cannot be made)
 					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_HOST_KEY, hostAddress.textField.getText());
 					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
 							UGateUtil.WIRELESS_ADDRESS_START_INDEX, remoteAddress.textField.getText());
@@ -110,7 +106,6 @@ public class WirelessConnectionView extends StatusView {
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("wireless.connect"));
-					controlBar.setHelpText(event.getMessageString());
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel("wireless.disconnecting"));
@@ -123,18 +118,6 @@ public class WirelessConnectionView extends StatusView {
 						setStatusFill(statusIcon, false);
 					} catch (final Throwable t) {
 						
-					}
-				}
-			}
-		});
-	    
-	    // update the status when wireless connections are made/lost
-		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
-			@Override
-			public void handle(final UGateKeeperEvent<?> event) {
-				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
-					if (event.getKey() != null && event.getKey().canRemote) {
-						// TODO :
 					}
 				}
 			}

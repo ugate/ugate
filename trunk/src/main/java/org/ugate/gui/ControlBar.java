@@ -31,6 +31,7 @@ import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
+import org.ugate.wireless.data.SensorReadings;
 
 /**
  * Main menu control bar
@@ -99,24 +100,6 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(settingsSet, RS.rbLabel("settings.send"));
 		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
-		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				settingsDS, Color.RED, Color.BLACK, Timeline.INDEFINITE);
-		// show a visual indication that the settings need updated
-		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
-			@Override
-			public void handle(final UGateKeeperEvent<?> event) {
-				if (event.getType() == UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL) {
-					if (event.getKey() != null && event.getKey().canRemote) {
-						settingsSetTimeline.play();
-					}
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
-					settingsSetTimeline.stop();
-					setHelpText(event.getMessageString());
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_FAILED) {
-					setHelpText(event.getMessageString());
-				}
-			}
-		});
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
 		addHelpTextTrigger(readingsGet, RS.rbLabel("sensors.readings.get"));
 		readingsGet.setCursor(Cursor.HAND);
@@ -159,6 +142,36 @@ public class ControlBar extends ToolBar {
 				new Separator(Orientation.VERTICAL), readingsGroup, 
 				new Separator(Orientation.VERTICAL), multiAlarmGroup,
 				new Separator(Orientation.VERTICAL), helpTextPane);
+		
+		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
+				settingsDS, Color.RED, Color.BLACK, Timeline.INDEFINITE);
+		// show a visual indication that the settings need updated
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final UGateKeeperEvent<?> event) {
+				setHelpText(event.getMessageString());
+				if (event.getType() == UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL) {
+					if (event.getKey() != null && event.getKey().canRemote) {
+						settingsSetTimeline.play();
+					}
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
+					settingsSetTimeline.stop();
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
+					if (event.getNewValue() instanceof SensorReadings) {
+						final SensorReadings sr = (SensorReadings) event.getNewValue();
+						sonarReading.setValue(String.format(SensorControl.FORMAT_SONAR, 
+								Double.parseDouble(sr.getSonarFeet() + "." + sr.getSonarInches())));
+						pirReading.setValue(String.format(SensorControl.FORMAT_PIR, 
+								Double.parseDouble(sr.getIrFeet() + "." + sr.getIrInches())));
+						mwReading.setValue(String.format(SensorControl.FORMAT_MW, 
+								Math.round(sr.getSpeedMPH())));
+					}
+				}
+			}
+		});
+		sonarReading.setValue(String.format(SensorControl.FORMAT_SONAR, 5.3f));
+		pirReading.setValue(String.format(SensorControl.FORMAT_PIR, 3.7f));
+		mwReading.setValue(String.format(SensorControl.FORMAT_MW, 24L));
 	}
 	
 	/**

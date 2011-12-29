@@ -166,7 +166,11 @@ public enum UGateKeeper {
 	 */
 	private <V> void notifyListeners(final UGateKeeperEvent<V> event) {
 		for (final IGateKeeperListener pl : listeners) {
-			pl.handle(event);
+			try {
+				pl.handle(event);
+			} catch (final Throwable t) {
+				log.warn("Unable to notify listener: " + pl, t);
+			}
 		}
 	}
 	
@@ -196,17 +200,24 @@ public enum UGateKeeper {
 		if (isEmailConnected) {
 			return;
 		}
-		log.info("Connecting to email");
+		String msg;
+		UGateKeeperEvent<Void> event;
 		try {
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECTING));
+			msg = RS.rbLabel("mail.connecting");
+			log.info(msg);
+			event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECTING);
+			event.addMessage(msg);
+			notifyListeners(event);
 			final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
 			listeners.add(new IEmailListener() {
 				@Override
 				public void handle(final EmailEvent event) {
+					String msg;
 					if (event.type == EmailEvent.Type.EXECUTE_COMMAND) {
 						if (wirelessIsConnected()) {
 							int nodeIndex;
 							final Map<Integer, String> addys = new HashMap<Integer, String>();
+							final List<String> commandMsgs = new ArrayList<String>();
 							for (final Command command : event.commands) {
 								// send command to all the nodes defined in the email
 								for (final String toAddress : event.toAddresses) {
@@ -214,47 +225,59 @@ public enum UGateKeeper {
 										nodeIndex = wirelessGetAddressIndex(toAddress);
 										addys.put(nodeIndex, toAddress);
 										wirelessSendData(nodeIndex, command);
+										msg = RS.rbLabel("service.email.commandexec", command, event.from, toAddress);
+										log.info(msg);
+										commandMsgs.add(msg);
 									} catch (final Throwable t) {
-										log.error(String.format(
-												"Unable to execute the %1$s command from email %2$s for invalid node %3$s"
-												, command, event.from, toAddress), t);
+										msg = RS.rbLabel("service.email.commandexec.failed", command, event.from, toAddress);
+										log.error(msg, t);
+										commandMsgs.add(msg);
 									}
 								}
 							}
 							if (!addys.isEmpty()) {
 								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, addys, 0, 
-										Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands));
+										Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+							} else {
+								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, addys, 0, 
+										Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands, commandMsgs.toArray(new String[]{})));
 							}
 						} else {
-							log.warn("Incoming mail command received, but an XBee connection has not been made");
+							msg = RS.rbLabel("service.email.commandexec.failed", UGateUtil.toString(event.commands), UGateUtil.toString(event.from), 
+									UGateUtil.toString(event.toAddresses), RS.rbLabel("service.wireless.connection.required"));
+							log.warn(msg);
+							notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, null, 0, 
+									Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
 						isEmailConnected = true;
-						log.info("Connected to email");
+						msg = RS.rbLabel("mail.connected");
+						log.info(msg);
 						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CONNECTED, null, 0, 
-								null, null, null, event.commands));
+								null, null, null, event.commands, msg));
 					} else if (event.type == EmailEvent.Type.DISCONNECT) {
 						isEmailConnected = false;
-						log.info("Disconnected from email");
+						msg = RS.rbLabel("mail.disconnected");
+						log.info(msg);
 						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTED, null, 0, 
-								null, null, null, event.commands));
+								null, null, null, event.commands, msg));
 					} else if (event.type == EmailEvent.Type.CLOSED) {
 						isEmailConnected = false;
-						log.info("Closed email connection");
+						msg = RS.rbLabel("mail.closed");
+						log.info(msg);
 						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CLOSED, null, 0, 
-								null, null, null, event.commands));
+								null, null, null, event.commands, msg));
 					}
 				}
 			});
-			this.emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, 
+			this.emailAgent = EmailAgent.start(smtpHost, smtpPort, imapHost, imapPort, 
 					username, password, mainFolderName, listeners.toArray(new IEmailListener[0]));
 		} catch (final Throwable t) {
-			final String errorMsg = String.format(
-					"Unable to connect to email using SMTP host: %1$s, SMTP port: %2$s, IMAP host: %3$s, IMAP port: %4$s Username: %5$s, Folder: %6$s", 
+			msg = RS.rbLabel("mail.connect.failed", 
 					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);
-			log.error(errorMsg, t);
-			final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED);
-			event.addMessage(errorMsg);
+			log.error(msg, t);
+			event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED);
+			event.addMessage(msg);
 			event.addMessage(t.getMessage());
 			notifyListeners(event);
 		}
