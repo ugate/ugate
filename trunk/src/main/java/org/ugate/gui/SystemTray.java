@@ -224,7 +224,7 @@ public class SystemTray {
 	        log.debug("Showing notification window with message: " + message);
 		} else {
 			positionNotification();
-			//((Button) notifyPopup.getScene().getRoot()).setText(message);
+			((Button) ((VBox) notifyPopup.getScene().getRoot()).getChildren().get(0)).setText(message);
 			if (!notifyPopup.isShowing()) {
 				notifyPopup.show();
 				notifyPopup.toFront();
