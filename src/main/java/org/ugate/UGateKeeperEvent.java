@@ -7,6 +7,8 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
+import org.ugate.wireless.data.RxData;
+
 /**
  * Gate keeper event
  * 
@@ -258,6 +260,12 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		WIRELESS_DATA_TX_ACK_FAILED,
 		/** Event when wireless data has been sent to a SINGLE remote node and the REMOTE node successfully responded to the sent data */
 		WIRELESS_DATA_TX_SUCCESS,
+		/** Event when wireless data has been sent and an unrecognized response has been received by a remote node. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
+		WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED,
+		/** Event when wireless data has been sent and a response has been received by a remote node. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
+		WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS,
+		/** Event when wireless data has been sent and an error response has been received by a remote node(s). {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
+		WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED,
 		/** Event when wireless data has been sent to ALL THE SPECIFIED remote node(s) and a sent acknowledgment has been received for each REMOTE node from the LOCAL node */
 		WIRELESS_DATA_ALL_TX_ACK,
 		/** Event when wireless data has been sent to ALL THE SPECIFIED remote node(s) and an acknowledgment from ANY number of REMOTE node(s) were never received by the LOCAL node */
@@ -266,8 +274,12 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		WIRELESS_DATA_ALL_TX_SUCCESS,
 		/** Event when wireless data has been sent to ALL THE SPECIFIED remote node(s) and at least one of the REMOTE node(s) responded with a failure to the sent data */
 		WIRELESS_DATA_ALL_TX_FAILED,
-		/** Event when wireless data has been received by a remote node without any failures */
+		/** Event when wireless data has been received by a remote node that requires multiple transmissions. {@linkplain UGateKeeperEvent#getNewValue()} will contain a partial {@linkplain RxData} */
+		WIRELESS_DATA_RX_MULTIPART,
+		/** Event when wireless data has been received by a remote node without any failures. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxData} */
 		WIRELESS_DATA_RX_SUCCESS,
+		/** Event when wireless data has been received by a remote node, but failures exist- retrying attempt */
+		WIRELESS_DATA_RX_FAILED_RETRYING,
 		/** Event when wireless data has been received by a remote node, but failures exist */
 		WIRELESS_DATA_RX_FAILED,
 		/** Event triggered when executed command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of remote nodes address(es) */

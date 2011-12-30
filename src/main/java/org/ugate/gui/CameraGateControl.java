@@ -41,7 +41,7 @@ public class CameraGateControl extends ControlPane {
 		panHeader.getStyleClass().add("gauge-header");
 		grid.add(panHeader, 0, 0);
 		final UGateGaugePreferenceView camPanGauge = new UGateGaugePreferenceView(
-				Settings.CAM_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_ANGLE_PAN, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0d, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		controlBar.addHelpTextTrigger(camPanGauge, RS.rbLabel("cam.pan.desc"));
 		grid.add(camPanGauge, 0, 1);
@@ -51,7 +51,7 @@ public class CameraGateControl extends ControlPane {
 		final ImageView tiltImgView = RS.imgView(camPanGauge.imageView.getImage());
 		tiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView camTiltGauge = new UGateGaugePreferenceView(
-				Settings.CAM_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_ANGLE_TILT, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, tiltImgView, COLOR_PAN_TILT);
 		controlBar.addHelpTextTrigger(camTiltGauge, RS.rbLabel("cam.tilt"));
 		grid.add(camTiltGauge, 1, 1);
@@ -61,7 +61,7 @@ public class CameraGateControl extends ControlPane {
 //				0, 0, 70d, 40d, 1, 0, 0d, "%03d", RS.IMG_CAM_RESOLUTION,
 //				"Sets the camera resolution of the images taken when an alarm is triggered", 
 //				Color.LIGHTGREEN, null, Orientation.HORIZONTAL);
-		final UGateToggleSwitchPreferenceView imgResToggleSwitch  = new UGateToggleSwitchPreferenceView(Settings.CAM_RES_KEY, 
+		final UGateToggleSwitchPreferenceView imgResToggleSwitch  = new UGateToggleSwitchPreferenceView(Settings.CAM_RES, 
 				RS.IMG_CAM_RESOLUTION, RS.IMG_CAM_RESOLUTION, 
 				RS.rbLabel("cam.resolution.vga"), RS.rbLabel("cam.resolution.qvga"));
 		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
@@ -87,14 +87,14 @@ public class CameraGateControl extends ControlPane {
 		sonarPirTiltHeader.getStyleClass().add("gauge-header");
 		grid.add(sonarPirTiltHeader, 1, 0);
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
-				Settings.CAM_IR_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_IR_TRIP_ANGLE_PAN, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		controlBar.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("cam.pan.sonarpir.desc"));
 		grid.add(sonarPirPanGauge, 0, 1);
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
-				Settings.CAM_IR_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_IR_TRIP_ANGLE_TILT, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_PAN_TILT);
 		controlBar.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("cam.tilt.sonarpir.desc"));
 		grid.add(sonarPirTiltGauge, 1, 1);
@@ -109,12 +109,12 @@ public class CameraGateControl extends ControlPane {
 		mwPanHeader.getStyleClass().add("gauge-header");
 		grid.add(mwPanHeader, 1, 2);
 		final UGateGaugePreferenceView mwPanGauge = new UGateGaugePreferenceView(
-				Settings.CAM_MW_TRIP_ANGLE_PAN_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_MW_TRIP_ANGLE_PAN, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel("cam.pan.microwave.desc"));
 		grid.add(mwPanGauge, 0, 3);
 		final UGateGaugePreferenceView mwTiltGauge = new UGateGaugePreferenceView(
-				Settings.CAM_MW_TRIP_ANGLE_TILT_KEY, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
+				Settings.CAM_MW_TRIP_ANGLE_TILT, null, IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_PAN_TILT);
 		controlBar.addHelpTextTrigger(mwTiltGauge, RS.rbLabel("cam.tilt.microwave.desc"));
 		grid.add(mwTiltGauge, 1, 3);
@@ -127,7 +127,7 @@ public class CameraGateControl extends ControlPane {
 		final Label gateHeader = new Label(RS.rbLabel("gate.conf"));
 		gateHeader.getStyleClass().add("gauge-header");
 		final UGateToggleSwitchPreferenceView gateToggleSwitchView = new UGateToggleSwitchPreferenceView(
-				Settings.GATE_ACCESS_ON_KEY, RS.IMG_GATE_ON,
+				Settings.GATE_ACCESS_ON, RS.IMG_GATE_ON,
 				RS.IMG_GATE_OFF);
 		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
 		final Label gateCtrlHeader = new Label(RS.rbLabel("gate.state"));

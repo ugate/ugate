@@ -1,12 +1,87 @@
 package org.ugate.wireless.data;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+import org.ugate.Settings;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateUtil;
 
 /**
- * Wireless receive / transmit image
+ * Image response that requires multiple received image transmissions chunks before an image can be assembled/written
  */
-public interface RxTxImage<T> extends IResponse<T> {
+public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> {
+	
+	private static final Logger log = Logger.getLogger(RxTxImage.class);
+	private Calendar endTime = null;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param status the {@linkplain Status}
+	 * @param signalStrength the signal strength
+	 * @param data the image chunk data
+	 */
+	public RxTxImage(final Status status, final int signalStrength, final List<RxTxImage.ImageChunk> data) {
+		super(status, signalStrength, (data == null ? new ArrayList<RxTxImage.ImageChunk>() : data));
+		log.debug("NEW " + this);
+	}
+	
+	/**
+	 * @return true when it has been determined that the last added image segments 
+	 * 		contains an end of file termination character(s)
+	 */
+	public abstract boolean isEof();
+	
+	/**
+	 * @return the file extension fo the image
+	 */
+	public abstract String getImageExtension();
+	
+	/**
+	 * @return the current bytes of for the image chunks
+	 */
+	public ByteBuffer getBytes() {
+		if (getData() == null) {
+			return null;
+		}
+		int[] imageData = null;
+		for (final ImageChunk imageChunk : getData()) {
+			if (imageData == null) {
+				imageData = imageChunk.data;
+			} else {
+				imageData = UGateUtil.arrayConcatInt(imageData, imageChunk.data);
+			}
+		}
+		if (imageData == null) {
+			return null;
+		}
+		final ByteBuffer byteBuffer = ByteBuffer.allocate(imageData.length);
+		for (final int value : imageData) {
+			// convert uint8_t to java integer
+			//int byteValue = value & 0xFF;
+			//byteBuffer.putInt(value);
+			byteBuffer.put((byte) value);
+		}
+		return byteBuffer;
+	}
+	
+	/**
+	 * @return the file path/name to where the image will/has been written
+	 */
+	public String getImagePath() {
+		//return "C:\\ugate\\" + UGateUtil.calFormat(getCreated()).replaceAll(":", "-") + '.' + getImageExtension();
+		final String imgFileName = getCreatedTimeString().replaceAll(":", "-") + '.' + getImageExtension();
+		final String imgRootPath = UGateKeeper.DEFAULT.preferencesGet(Settings.WORKING_DIR_PATH);
+		return imgRootPath + imgFileName;
+	}
 
 	/**
 	 * Adds a segment of image data to the image
@@ -14,33 +89,70 @@ public interface RxTxImage<T> extends IResponse<T> {
 	 * @param data the segment of image data
 	 * @param startIndex the start index to use for the data 
 	 * 					(in case data has unrelated preceding bytes)
+	 * @throws IllegalStateException when the image has already been assembled/written
 	 * @return the new image segment added
 	 */
-	int[] addImageSegment(int[] data, int startIndex);
+	public int[] addImageSegment(int[] data, int startIndex) throws IllegalStateException {
+		if (endTime != null) {
+			throw new IllegalStateException("Image has already been written to");
+		}
+		final ImageChunk imageChunk = new ImageChunk(data, startIndex, data.length - startIndex);
+		getData().add(imageChunk);
+		return imageChunk.data;
+	}
 	
 	/**
 	 * Writes all the previously added image chunk data to an image file
 	 * 
-	 * @return the newly written image file
+	 * @return the newly written image capture
 	 * @throws IOException thrown if an error occurs when writing the image to disk
 	 */
-	ImageFile writeImageSegments() throws IOException;
+	public ImageCapture writeImageSegments() throws IOException {
+		if (endTime != null) {
+			throw new IOException(String.format("Image has already been written to path %1$s at %2$s",
+					getImagePath(), UGateUtil.calFormat(endTime)));
+		}
+		try {
+			final ByteBuffer byteBuffer = getBytes();
+			final String filePath = getImagePath();
+			writeImage(byteBuffer.array(), filePath);
+			endTime = Calendar.getInstance();
+			if (log.isInfoEnabled()) {
+				log.info(String.format("Wrote (%1$s) bytes from (%2$s) image chunks to \"%3$s\" (took: %4$s)", 
+						byteBuffer.array().length, getData().size(), filePath, getCreatedTimeDiffernce(endTime)));
+			}
+			return new ImageCapture(getStatus(), getSignalStrength(), filePath, byteBuffer.array().length);
+		} finally {
+			setData(new ArrayList<RxTxJPEG.ImageChunk>());
+		}
+	}
 	
 	/**
-	 * @return true when it has been determined that the last added image segments 
-	 * 		contains an end of file termination character(s)
+	 * @return a snapshot of the current image segments {@linkplain ImageCapture#getFilePath()} will be <code>null</code>
+	 * 		until {@linkplain #writeImageSegments()} is called
 	 */
-	boolean isEof();
+	public ImageCapture createImageSegmentsSnapshot() {
+		final ByteBuffer byteBuffer = getBytes();
+		return new ImageCapture(getStatus(), getSignalStrength(), null, byteBuffer != null ? byteBuffer.array().length : 0);
+	}
 	
 	/**
-	 * Image file data
+	 * Writes the image to file
+	 * 
+	 * @param bytes the image bytes
+	 * @param filePath the file path/name
+	 * @throws IOException any {@linkplain IOException} that may occur
 	 */
-	public class ImageFile {
-		public final String filePath;
-		public final int fileSize;
-		public ImageFile(String filePath, int fileSize) {
-			this.filePath = filePath;
-			this.fileSize = fileSize;
+	protected void writeImage(final byte[] bytes, final String filePath) throws IOException {
+		final File imageFile = new File(filePath);
+		if (!imageFile.exists()) {
+			imageFile.createNewFile();
+		}
+		final FileOutputStream fos = new FileOutputStream(imageFile);
+		try {
+			fos.write(bytes);
+		} finally {
+			fos.close();
 		}
 	}
 	

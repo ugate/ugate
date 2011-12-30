@@ -33,12 +33,14 @@ import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
+import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.TextAreaAppender;
 import org.ugate.resources.RS;
+import org.ugate.wireless.data.ImageCapture;
 
 /**
  * The main GUI application entry point
@@ -55,12 +57,12 @@ public class UGateGUI extends Application {
 	private static final double TASKBAR_BUTTON_WIDTH = 100;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100;
 
-	public static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
-	public static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
-	public static final AudioClip mediaPlayerCam = RS.audioClip("x_cam.wav");
-	public static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
-	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
-	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
+	private static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
+	private static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
+	private static final AudioClip mediaPlayerCam = RS.audioClip("x_cam.wav");
+	private static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
+	private static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
+	private static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	protected final HBox taskbar = new HBox(10);
 	protected final HBox connectionView = new HBox(10);
 	protected final TextArea loggingView = new TextArea();
@@ -147,6 +149,7 @@ public class UGateGUI extends Application {
 			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 				@Override
 				public void handle(final UGateKeeperEvent<?> event) {
+					playSound(event);
 					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED ||
 							event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTED) {
 						changeCenterView(connectionView);
@@ -247,7 +250,7 @@ public class UGateGUI extends Application {
 					});
 			changeCenterView(connectionView);
 			stage.show();
-			SystemTray.createSystemTray(stage);
+			SystemTray.initSystemTray(stage);
 		} catch (final Throwable t) {
 			log.error("Unable to start GUI", t);
 			throw new RuntimeException("Unable to start GUI", t);
@@ -261,10 +264,9 @@ public class UGateGUI extends Application {
 	@Override
 	public void stop() throws Exception {
 		log.info("Exiting application");
-		SystemTray.exit();
 		UGateKeeper.DEFAULT.exit();
-		// TODO : remove dependency on System.exit(0)
-		System.exit(0);
+		SystemTray.exit();
+		//System.exit(0);
 	}
 
 	private Separator createSeparator(final Orientation orientation) {
@@ -355,5 +357,35 @@ public class UGateGUI extends Application {
 	private void changeCenterView(final Node node) {
 		centerView.getChildren().clear();
 		centerView.getChildren().add(node);
+	}
+	
+	/**
+	 * Plays a sound for predefined events if preferences is set to do so
+	 * 
+	 * @param event the event
+	 */
+	private void playSound(final UGateKeeperEvent<?> event) {
+		final String soundsOn = UGateKeeper.DEFAULT.preferencesGet(Settings.SOUNDS_ON);
+		if (soundsOn == null || soundsOn.isEmpty() || Integer.parseInt(soundsOn) != 1) {
+			return;
+		}
+		if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
+			mediaPlayerConfirm.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+			mediaPlayerBlip.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
+			mediaPlayerError.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && 
+				event.getNewValue() instanceof ImageCapture) {
+			mediaPlayerDoorBell.play();
+//			UGateKeeper.DEFAULT.emailSend("UGate Tripped", trippedImage.toString(), 
+//					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY), 
+//					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY, UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}), 
+//					imageFile.filePath);
+			mediaPlayerComplete.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && 
+				event.getNewValue() instanceof ImageCapture) {
+			mediaPlayerCam.play();
+		}
 	}
 }

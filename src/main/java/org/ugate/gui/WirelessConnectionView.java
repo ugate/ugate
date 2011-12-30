@@ -50,20 +50,20 @@ public class WirelessConnectionView extends StatusView {
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
 		
-	    accessKey1 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_1_KEY, 
+	    accessKey1 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_1, 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), null);
 	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel("wireless.access.key.desc", 1));
-	    accessKey2 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_2_KEY, 
+	    accessKey2 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_2, 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 2), null);
 	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel("wireless.access.key.desc", 2));
-	    accessKey3 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_3_KEY, 
+	    accessKey3 = new UGateTextFieldPreferenceView(Settings.ACCESS_CODE_3, 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), null);
 	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel("wireless.access.key.desc", 3));
-	    hostAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_HOST_KEY, 
+	    hostAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_HOST, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
 	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel("wireless.host.desc"));
 	    // TODO : add GUI support for multiple remote wireless nodes
-	    remoteAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
+	    remoteAddress = new UGateTextFieldPreferenceView(Settings.WIRELESS_ADDRESS_NODE_PREFIX, 
 				UGateUtil.WIRELESS_ADDRESS_START_INDEX, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, 
 				RS.rbLabel("wireless.remote", UGateUtil.WIRELESS_ADDRESS_START_INDEX), null);
@@ -89,8 +89,8 @@ public class WirelessConnectionView extends StatusView {
 					connect.setText(RS.rbLabel("wireless.connecting"));
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED) {
 					// save the connected parameters (done here instead of automatic in case a connection cannot be made)
-					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_HOST_KEY, hostAddress.textField.getText());
-					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, 
+					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_HOST, hostAddress.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_ADDRESS_NODE_PREFIX, 
 							UGateUtil.WIRELESS_ADDRESS_START_INDEX, remoteAddress.textField.getText());
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("wireless.reconnect"));
@@ -158,7 +158,7 @@ public class WirelessConnectionView extends StatusView {
 	public void configComPorts() {
 		log.debug("Loading available serial ports");
 		port.choice.getItems().addAll(UGateKeeper.DEFAULT.getSerialPorts());
-		final String xbeeComPort = UGateKeeper.DEFAULT.preferencesGet(Settings.WIRELESS_COM_PORT_KEY);
+		final String xbeeComPort = UGateKeeper.DEFAULT.preferencesGet(Settings.WIRELESS_COM_PORT);
 		final boolean hasItem = xbeeComPort != null && xbeeComPort.length() > 0 && port.choice.getItems().contains(xbeeComPort);
 		if (hasItem) {
 			port.choice.getSelectionModel().select(xbeeComPort);
@@ -167,7 +167,7 @@ public class WirelessConnectionView extends StatusView {
 			@Override
 			public void changed(final ObservableValue<? extends SingleSelectionModel<String>> observable, 
 					final SingleSelectionModel<String> oldValue, final SingleSelectionModel<String> newValue) {
-				UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_COM_PORT_KEY, newValue.getSelectedItem());
+				UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_COM_PORT, newValue.getSelectedItem());
 			}
 		});
 		if (!hasItem && !port.choice.getItems().isEmpty()) {
@@ -182,7 +182,7 @@ public class WirelessConnectionView extends StatusView {
 	public void configBaudRates() {
 		log.debug("Loading available baud rates");
 		baud.choice.getItems().addAll(UGateUtil.XBEE_BAUD_RATES);
-		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferencesGet(Settings.WIRELESS_BAUD_RATE_KEY);
+		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.preferencesGet(Settings.WIRELESS_BAUD_RATE);
 		boolean hasItem = xbeeBaudRateStr != null && xbeeBaudRateStr.length() > 0;
 		if (hasItem) {
 			final Integer xbeeBaudRate = Integer.parseInt(xbeeBaudRateStr);
@@ -196,7 +196,7 @@ public class WirelessConnectionView extends StatusView {
 			@Override
 			public void changed(final ObservableValue<? extends SingleSelectionModel<String>> observable, 
 					final SingleSelectionModel<String> oldValue, final SingleSelectionModel<String> newValue) {
-				UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_BAUD_RATE_KEY, newValue.getSelectedItem());
+				UGateKeeper.DEFAULT.preferencesSet(Settings.WIRELESS_BAUD_RATE, newValue.getSelectedItem());
 			}
 		});
 		if (!hasItem && !baud.choice.getItems().isEmpty()) {

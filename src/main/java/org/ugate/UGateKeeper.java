@@ -16,10 +16,8 @@ import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
+import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.SettingsData;
-import org.ugate.wireless.data.WirelessResponse;
-import org.ugate.wireless.data.WirelessStatusCode;
-import org.ugate.wireless.xbee.UGateXBeePacketListener;
 
 import com.rapplogic.xbee.api.AtCommand;
 import com.rapplogic.xbee.api.AtCommandResponse;
@@ -237,17 +235,17 @@ public enum UGateKeeper {
 							}
 							if (!addys.isEmpty()) {
 								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, addys, 0, 
-										Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+										Settings.WIRELESS_ADDRESS_NODE_PREFIX, null, null, event.commands, commandMsgs.toArray(new String[]{})));
 							} else {
 								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, addys, 0, 
-										Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+										Settings.WIRELESS_ADDRESS_NODE_PREFIX, null, null, event.commands, commandMsgs.toArray(new String[]{})));
 							}
 						} else {
 							msg = RS.rbLabel("service.email.commandexec.failed", UGateUtil.toString(event.commands), UGateUtil.toString(event.from), 
 									UGateUtil.toString(event.toAddresses), RS.rbLabel("service.wireless.connection.required"));
 							log.warn(msg);
 							notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, null, 0, 
-									Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY, null, null, event.commands, msg));
+									Settings.WIRELESS_ADDRESS_NODE_PREFIX, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
 						isEmailConnected = true;
@@ -366,9 +364,8 @@ public enum UGateKeeper {
 			xbee.open(comPort, baudRate);
 			xbee.addPacketListener(new UGateXBeePacketListener(){
 				@Override
-				protected <T, R extends WirelessResponse<T>> void handleWirelessResponse(
-						R wirelessResponse) {
-					//wirelessResponse;
+				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<V> event) {
+					notifyListeners(event);
 				}
 			});
 			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
@@ -492,7 +489,7 @@ public enum UGateKeeper {
 		for (; i<=it; i++) {
 			try {
 				// bytes header command and status/failure code
-				final int[] bytesHeader = new int[] { event.getCommand().id, WirelessStatusCode.NONE.ordinal() };
+				final int[] bytesHeader = new int[] { event.getCommand().id, RxData.Status.NORMAL.ordinal() };
 				final int[] bytes = event.getNewValue() != null && event.getNewValue().length > 0 ? 
 						UGateUtil.arrayConcatInt(bytesHeader, event.getNewValue()) : bytesHeader;
 				final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(i);
@@ -620,7 +617,7 @@ public enum UGateKeeper {
 	 * @throws ArrayIndexOutOfBoundsException thrown when the index does not exist
 	 */
 	public String wirelessGetAddress(final int nodeIndex) throws ArrayIndexOutOfBoundsException {
-		final String key = Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + nodeIndex;
+		final String key = Settings.WIRELESS_ADDRESS_NODE_PREFIX.key + nodeIndex;
 		if (preferences.hasKey(key)) {
 			return preferences.get(key);
 		} else {
@@ -686,7 +683,7 @@ public enum UGateKeeper {
 		final Map<Integer, String> waks = new HashMap<Integer, String>();
 		int i = UGateUtil.WIRELESS_ADDRESS_START_INDEX;
 		String addressKey;
-		while (preferences.hasKey((addressKey = Settings.WIRELESS_ADDRESS_NODE_PREFIX_KEY.key + i))) {
+		while (preferences.hasKey((addressKey = Settings.WIRELESS_ADDRESS_NODE_PREFIX.key + i))) {
 			if (testConnections) {
 				if (wirelessTestAddressConnection(i) != null) {
 					waks.put(i, addressKey);

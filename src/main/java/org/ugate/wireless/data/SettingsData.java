@@ -6,15 +6,14 @@ import java.util.Arrays;
 import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 
+
 /**
  * Settings data
  */
-public class SettingsData {
+public class SettingsData extends RxData {
 
 	private int universalRemoteOn;
-	private int keyCode1;
-	private int keyCode2;
-	private int keyCode3;
+	private KeyCodes keyCodes;
 	private int camResolution;
 	private int sonarAlarmOn;
 	private int pirAlarmOn;
@@ -40,16 +39,16 @@ public class SettingsData {
 	 * Constructs settings data with the current preference data
 	 */
 	public SettingsData() {
+		super(Status.NORMAL, 0);
 		setPreferenceValues();
 	}
 	
 	/**
 	 * Full constructor
 	 * 
+	 * @param status
 	 * @param universalRemoteOn
-	 * @param keyCode1
-	 * @param keyCode2
-	 * @param keyCode3
+	 * @param keyCodes
 	 * @param camResolution
 	 * @param sonarAlarmOn
 	 * @param pirAlarmOn
@@ -71,7 +70,7 @@ public class SettingsData {
 	 * @param camMicrowaveTripPanAngle
 	 * @param camMicrowaveTripTiltAngle
 	 */
-	public SettingsData(int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3,
+	public SettingsData(final Status status, final int signalStrength, int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3,
 			int camResolution, int sonarAlarmOn, int pirAlarmOn, int mwAlarmOn,
 			int gateAlarmOn, int sonarDistanceThresholdFeet,
 			int sonarDistanceThresholdInches, int sonarDelayBetweenTrips,
@@ -81,11 +80,9 @@ public class SettingsData {
 			int camSonarTripPanAngle, int camSonarTripTiltAngle,
 			int camIrTripPanAngle, int camIrTripTiltAngle,
 			int camMicrowaveTripPanAngle, int camMicrowaveTripTiltAngle) {
-		super();
+		super(status, signalStrength);
 		this.universalRemoteOn = universalRemoteOn;
-		this.keyCode1 = keyCode1;
-		this.keyCode2 = keyCode2;
-		this.keyCode3 = keyCode3;
+		this.keyCodes = new KeyCodes(status, signalStrength, keyCode1, keyCode2, keyCode3);
 		this.camResolution = camResolution;
 		this.sonarAlarmOn = sonarAlarmOn;
 		this.pirAlarmOn = pirAlarmOn;
@@ -108,40 +105,45 @@ public class SettingsData {
 		this.camMicrowaveTripTiltAngle = camMicrowaveTripTiltAngle;
 	}
 
+	/**
+	 * Sets the parameter values from data stored in the preferences
+	 */
 	public void setPreferenceValues() {
 		universalRemoteOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.UNIVERSAL_REMOTE_ACCESS_ON));
-		keyCode1 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_1_KEY));
-		keyCode2 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_2_KEY));
-		keyCode3 = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_3_KEY));
-		camResolution = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_RES_KEY));
-		sonarAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_ALARM_ON_KEY));
-		pirAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_ALARM_ON_KEY));
-		mwAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_ALARM_ON_KEY));
-		gateAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.GATE_ACCESS_ON_KEY));
-		sonarDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_FEET_KEY));
-		sonarDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_INCHES_KEY));
-		sonarDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DELAY_BTWN_TRIPS_KEY));
-		irDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_FEET_KEY));
-		irDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_INCHES_KEY));
-		irDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DELAY_BTWN_TRIPS_KEY));
-		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_SPEED_THRES_CYCLES_PER_SEC_KEY));
-		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_DELAY_BTWN_TRIPS_KEY));
-		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MULTI_ALARM_TRIP_STATE_KEY));
-		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_PAN_KEY));
-		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_TILT_KEY));
-		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_PAN_KEY));
-		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_TILT_KEY));
-		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_PAN_KEY));
-		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_TILT_KEY));
+		keyCodes.setKeyCode1(Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_1)));
+		keyCodes.setKeyCode2(Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_2)));
+		keyCodes.setKeyCode3(Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_3)));
+		camResolution = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_RES));
+		sonarAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_ALARM_ON));
+		pirAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_ALARM_ON));
+		mwAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_ALARM_ON));
+		gateAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.GATE_ACCESS_ON));
+		sonarDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_FEET));
+		sonarDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_INCHES));
+		sonarDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DELAY_BTWN_TRIPS));
+		irDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_FEET));
+		irDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_INCHES));
+		irDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DELAY_BTWN_TRIPS));
+		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_SPEED_THRES_CYCLES_PER_SEC));
+		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_DELAY_BTWN_TRIPS));
+		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MULTI_ALARM_TRIP_STATE));
+		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_PAN));
+		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_TILT));
+		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_PAN));
+		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_TILT));
+		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_PAN));
+		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_TILT));
 	}
 	
 	/**
-	 * @see java.lang.Object#toString()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String toString() {
 		final Field[] fields = getClass().getDeclaredFields();
-		final StringBuffer sb = new StringBuffer(SettingsData.class.getSimpleName() + " [");
+		final StringBuilder sb = new StringBuilder();
+		sb.append(super.toString());
+		sb.append(" [");
 		for (final Field field : fields) {
 			try {
 				sb.append(field.getName());
@@ -182,45 +184,10 @@ public class SettingsData {
 	}
 
 	/**
-	 * @return the keyCode1
+	 * @return the keyCodes
 	 */
-	public int getKeyCode1() {
-		return keyCode1;
-	}
-
-	/**
-	 * @param keyCode1 the keyCode1 to set
-	 */
-	public void setKeyCode1(int keyCode1) {
-		this.keyCode1 = keyCode1;
-	}
-
-	/**
-	 * @return the keyCode2
-	 */
-	public int getKeyCode2() {
-		return keyCode2;
-	}
-
-	/**
-	 * @param keyCode2 the keyCode2 to set
-	 */
-	public void setKeyCode2(int keyCode2) {
-		this.keyCode2 = keyCode2;
-	}
-
-	/**
-	 * @return the keyCode3
-	 */
-	public int getKeyCode3() {
-		return keyCode3;
-	}
-
-	/**
-	 * @param keyCode3 the keyCode3 to set
-	 */
-	public void setKeyCode3(int keyCode3) {
-		this.keyCode3 = keyCode3;
+	public KeyCodes getKeyCodes() {
+		return keyCodes;
 	}
 
 	/**

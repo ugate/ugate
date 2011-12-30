@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 /**
  * Sensor readings
  */
-public class SensorReadings {
+public class SensorReadings extends RxData  {
 	
 	private static final Logger log = Logger.getLogger(SensorReadings.class);
 	private final int sonarFeet;
@@ -14,8 +14,20 @@ public class SensorReadings {
 	private final int irFeet;
 	private final int irInches;
 	
-	public SensorReadings(int sonarFeet, 
-			int sonarInches, int microwaveCycleCnt, int irFeet, int irInches) {
+	/**
+	 * Constructor
+	 * 
+	 * @param status the {@linkplain Status}
+	 * @param signalStrength the signal strength
+	 * @param sonarFeet sonar feet portion
+	 * @param sonarInches the sonar inches portion
+	 * @param microwaveCycleCnt the microwave cycle count
+	 * @param irFeet the IR feet portion
+	 * @param irInches the IR inches portion
+	 */
+	public SensorReadings(final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
+			final int microwaveCycleCnt, final int irFeet, final int irInches) {
+		super(status, signalStrength);
 		this.sonarFeet = sonarFeet;
 		this.sonarInches = sonarInches;
 		this.microwaveCycleCnt = microwaveCycleCnt;
@@ -24,57 +36,65 @@ public class SensorReadings {
 		log.debug("NEW " + this);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
-		return "[Sonar Distance: " + sonarFeet + '\'' + sonarInches
-				+ "\"] [Speed: " + getMicrowaveCycleCnt() + " (changes/sec) "
-				+ getSpeedMillimetersPerSec() + " (mm/sec) "
-				+ getSpeedInchesPerSec() + " (inches/sec) " + getSpeedMPH()
-				+ " (MPH)] [IR Disatance: " + getIrFeet() + '\''
-				+ getIrInches() + "\"]";
+		return String.format(
+				"%1$s [Sonar Distance: %2$s' %3$s\"] [Speed: %4$s (changes/sec) %5$s (mm/sec) %6$s (inches/sec) %7$s (MPH)] [IR Distance: %8$s' %9$s\"]", 
+				super.toString(), getSonarFeet(), getSonarInches(), getMicrowaveCycleCnt(), getSpeedMillimetersPerSec(), 
+				getSpeedInchesPerSec(), getSpeedMPH(), getIrFeet(), getIrInches());
 	}
 
 	/**
-	 * @return the distance in feet that the image was taken at
-	 * 		(difference from {@link #getSonarInches()}
+	 * @return the distance that the sonar was read at 
+	 * 		(<code>feet</code> portion minus the <code>inches</code> from {@link #getSonarInches()})
 	 */
 	public int getSonarFeet() {
 		return sonarFeet;
 	}
 
 	/**
-	 * @return the distance in feet that the image was taken at 
-	 * 		(difference from {@link #getSonarFeet()}
+	 * @return the distance that the sonar was read at 
+	 * 		(<code>inches</code> portion minus the <code>feet</code> from {@link #getSonarFeet()})
 	 */
 	public int getSonarInches() {
 		return sonarInches;
 	}
+	
+	/**
+	 * @return the distance that the sonar was read at (in <code>meters</code>)
+	 */
+	public double getSonarMeters() {
+		return ((getSonarFeet() * 12) + getSonarInches()) * 0.0254d;
+	}
 
 	/**
-	 * @return the distance in feet that the image was taken at
-	 * 		(difference from {@link #getSonarInches()}
+	 * @return the distance that the IR was read at 
+	 * 		(<code>feet</code> portion minus the <code>inches</code> from {@link #getIrInches()})
 	 */
 	public int getIrFeet() {
 		return irFeet;
 	}
 
 	/**
-	 * @return the distance in feet that the image was taken at 
-	 * 		(difference from {@link #getSonarFeet()}
+	 * @return the distance that the IR was read at 
+	 * 		(<code>inches</code> portion minus the <code>feet</code> from {@link #getIrFeet()})
 	 */
 	public int getIrInches() {
 		return irInches;
 	}
 
 	/**
-	 * @return the number of cycle changes clocked when the image was taken 
+	 * @return the number of cycle changes clocked when the microwave sensor was read 
 	 */
 	public int getMicrowaveCycleCnt() {
 		return microwaveCycleCnt;
 	}
 
 	/**
-	 * @return the speed clocked when the image was taken (mm/second) 
+	 * @return the speed clocked when the microwave sensor was read (mm/second) 
 	 * 		(calculated from {@link #getMicrowaveCycleCnt()}
 	 */
 	public long getSpeedMillimetersPerSec() {
@@ -82,7 +102,7 @@ public class SensorReadings {
 	}
 
 	/**
-	 * @return the speed clocked when the image was taken (inches/second) 
+	 * @return the speed clocked when the microwave sensor was read (inches/second) 
 	 * 		(calculated from {@link #getMicrowaveCycleCnt()}
 	 */
 	public long getSpeedInchesPerSec() {
@@ -90,7 +110,7 @@ public class SensorReadings {
 	}
 
 	/**
-	 * @return the speed clocked when the image was taken (miles/hour) 
+	 * @return the speed clocked when the microwave sensor was read (miles/hour) 
 	 * 		(calculated from {@link #getMicrowaveCycleCnt()}
 	 */
 	public double getSpeedMPH() {
