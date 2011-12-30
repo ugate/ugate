@@ -431,7 +431,7 @@ public class EmailAgent implements Runnable {
 	 * @return true when the addresses have permission to execute commands
 	 */
 	protected boolean hasCommandPermission(final Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_RECIPIENTS_KEY, 
+		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_RECIPIENTS, 
 				UGateUtil.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;

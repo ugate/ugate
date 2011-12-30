@@ -40,34 +40,34 @@ public class MailConnectionView extends StatusView {
 	    super(controlBar, 20);
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		soundsToggleSwitch = new UGateToggleSwitchPreferenceView(
-				Settings.SOUNDS_ON_KEY, RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
+				Settings.SOUNDS_ON, RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
 		controlBar.addHelpTextTrigger(soundsToggleSwitch, RS.rbLabel("service.command.sounds.toggle"));
-		emailToggleSwitch = new UGateToggleSwitchPreferenceView(Settings.MAIL_ALARM_ON_KEY, 
+		emailToggleSwitch = new UGateToggleSwitchPreferenceView(Settings.MAIL_ALARM_ON, 
 				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
 		controlBar.addHelpTextTrigger(emailToggleSwitch, RS.rbLabel("mail.alarm.notify.desc"));
 		recipients = new UGateTextFieldPreferenceView(
-				Settings.MAIL_RECIPIENTS_KEY, 
+				Settings.MAIL_RECIPIENTS, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, 
 				RS.rbLabel("mail.alarm.notify.emails"), "");
 		controlBar.addHelpTextTrigger(recipients, RS.rbLabel("mail.alarm.notify.emails.desc"));
 		recipients.textArea.setPrefRowCount(5);
 		recipients.textArea.setWrapText(true);
-		smtpHost = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_HOST_KEY, 
+		smtpHost = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_HOST, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.host"), null);
 		controlBar.addHelpTextTrigger(smtpHost, RS.rbLabel("mail.smtp.host.desc"));
-		smtpPort = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_PORT_KEY, 
+		smtpPort = new UGateTextFieldPreferenceView(Settings.MAIL_SMTP_PORT, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.smtp.port"), null);
 		controlBar.addHelpTextTrigger(smtpPort, RS.rbLabel("mail.smtp.port.desc"));
-	    imapHost = new UGateTextFieldPreferenceView(Settings.MAIL_IMAP_HOST_KEY, 
+	    imapHost = new UGateTextFieldPreferenceView(Settings.MAIL_IMAP_HOST, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.imap.host"), null);
 	    controlBar.addHelpTextTrigger(imapHost, RS.rbLabel("mail.imap.host.desc"));
-		imapPort = new UGateTextFieldPreferenceView(Settings.MAIL_IMAP_PORT_KEY, 
+		imapPort = new UGateTextFieldPreferenceView(Settings.MAIL_IMAP_PORT, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.imap.port"), null);
 		controlBar.addHelpTextTrigger(imapPort, RS.rbLabel("mail.imap.port.desc"));
-		username = new UGateTextFieldPreferenceView(Settings.MAIL_USERNAME_KEY, 
+		username = new UGateTextFieldPreferenceView(Settings.MAIL_USERNAME, 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("mail.username"), null);
 		controlBar.addHelpTextTrigger(username, RS.rbLabel("mail.username.desc"));
-		password = new UGateTextFieldPreferenceView(Settings.MAIL_PASSWORD_KEY, 
+		password = new UGateTextFieldPreferenceView(Settings.MAIL_PASSWORD, 
 				UGateTextFieldPreferenceView.Type.TYPE_PASSWORD, RS.rbLabel("mail.password"), null);
 		controlBar.addHelpTextTrigger(password, RS.rbLabel("mail.password.desc"));
 		inboxFolder = new UGateTextFieldPreferenceView(Settings.MAIL_INBOX_NAME, 
@@ -82,12 +82,12 @@ public class MailConnectionView extends StatusView {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel("mail.connecting"));
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTED) {
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_HOST_KEY, smtpHost.textField.getText());
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_PORT_KEY, smtpPort.textField.getText());
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_HOST_KEY, imapHost.textField.getText());
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_PORT_KEY, imapPort.textField.getText());
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_USERNAME_KEY, username.textField.getText());
-					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_PASSWORD_KEY, password.passwordField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_HOST, smtpHost.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_SMTP_PORT, smtpPort.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_HOST, imapHost.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_IMAP_PORT, imapPort.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_USERNAME, username.textField.getText());
+					UGateKeeper.DEFAULT.preferencesSet(Settings.MAIL_PASSWORD, password.passwordField.getText());
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("mail.reconnect"));
 					log.debug("Turning ON email connection icon");

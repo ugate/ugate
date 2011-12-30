@@ -27,58 +27,74 @@ import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
+import org.ugate.mail.EmailAgent;
 import org.ugate.resources.RS;
 
 /**
  * System tray that uses AWT until JavaFX 3.0 is released 
  * {@linkplain http://javafx-jira.kenai.com/browse/RT-17503}.
  */
-public class SystemTray {
+public class SystemTray implements Runnable {
 
 	private static final Logger log = Logger.getLogger(SystemTray.class);
+	private static SystemTray systemTray;
 	public static final double NOTIFY_WINDOW_WIDTH = 350d;
 	public static final double NOTIFY_WINDOW_HEIGHT = 100d;
 	public static final double NOTIFY_WINDOW_CLOSE_DELAY = 4d;
-	private static volatile Stage stage;
-	private static volatile Stage dummyPopup;
-	private static volatile Stage notifyPopup;
-	private static volatile FadeTransition notifyFadeTrans;
+	private final Stage stage;
+	private Stage dummyPopup;
+	private Stage notifyPopup;
+	private FadeTransition notifyFadeTrans;
 	//private static final Semaphore waitForFX = new Semaphore(-1, true);
 	
 	/**
 	 * Private utility constructor
+	 * 
+	 * @param stage the primary stage
 	 */
-	private SystemTray() {
+	private SystemTray(final Stage stage) {
+		this.stage = stage;
 	}
 	
 	/**
-	 * Creates a system tray icon that when clicked will restore the specified stage.
+	 * Initializes a system tray icon that when clicked will restore the specified stage.
 	 * When the stage is {@linkplain Stage#setIconified(boolean)} is set to <code>true</code>
 	 * the stage is hidden/closed. When it is set to <code>false</code> the stage will be restored.
 	 * 
 	 * @param stage the stage that will be controlled by the system tray
-	 * @return true when the creation is successful
+	 * @return the system tray thread (null if not supported)
 	 */
-	public static boolean createSystemTray(final Stage stage) {
+	public static Thread initSystemTray(final Stage stage) {
 		if (!isSystemTraySupported()) {
-			return false;
+			return null;
 		}
 		if (stage == null) {
 			throw new NullPointerException("Stage cannot be null and must not be showing");
 		}
-		if (SystemTray.stage != null) {
-			throw new IllegalStateException(SystemTray.class.getName() + " can only be created once");
+		if (systemTray != null) {
+			throw new IllegalStateException(SystemTray.class.getName() + " can only be initialized once");
 		}
 		if (!Platform.isFxApplicationThread()) {
 			throw new IllegalStateException(SystemTray.class.getName() + 
 					" can only be create within the JavaFX application thread");
 		}
+		systemTray = new SystemTray(stage);
+		final Thread systemTrayThread = new Thread(systemTray, SystemTray.class.getSimpleName() + "-main");
+		systemTrayThread.setDaemon(true);
+		systemTrayThread.start();
+		return systemTrayThread;
+	}
+	
+	/**
+	 * The email thread that is automatically started when a new {@linkplain EmailAgent} is created
+	 */
+	@Override
+	public void run() {
 		final java.awt.SystemTray st = isSystemTraySupported() ? java.awt.SystemTray.getSystemTray() : null;
 		if (st != null && st.getTrayIcons().length == 0) {
 			// listen for minimize changes and handle minimize/restore functions from the system tray
-			SystemTray.stage = stage;
 			// translate primary stage min/max to system tray
-			SystemTray.stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+			this.stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> paramObservableValue, Boolean oldValue, Boolean newValue) {
 					if (newValue) {
@@ -92,7 +108,7 @@ public class SystemTray {
 			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 				@Override
 				public void handle(final UGateKeeperEvent<?> event) {
-					if (!SystemTray.stage.isShowing()) {
+					if (!SystemTray.this.stage.isShowing()) {
 						final String msg = event.getMessageString();
 						if (msg != null && !msg.isEmpty()) {
 							if (Platform.isFxApplicationThread()) {
@@ -146,14 +162,12 @@ public class SystemTray {
 						exit();
 					}
 				});
-				return true;
 			} catch (final java.io.IOException e) {
 				log.error("Unable to add system tray icons", e);
 			} catch (java.awt.AWTException e) {
 				log.error("Unable to add system tray icons", e);
 			}
 		}
-		return false;
 	}
 	
 	/**
@@ -174,11 +188,26 @@ public class SystemTray {
 	 * @param mouseEventHandler a mouse event handler for the message
 	 */
 	public static void showNotification(final String message, final EventHandler<MouseEvent> mouseEventHandler) {
+		if (systemTray == null) {
+			log.warn("System tray has not been initialized or is not supported");
+			return;
+		}
+		systemTray.showNotificationInternal(message, mouseEventHandler);
+	}
+	
+	/**
+	 * Shows a notification window displaying the specified message. The window will be closed after a short duration, 
+	 * when focus is lost on the window, or when the window is clicked (unless consumed by the passed mouse event handler).
+	 * 
+	 * @param message the message to display
+	 * @param mouseEventHandler a mouse event handler for the message
+	 */
+	private void showNotificationInternal(final String message, final EventHandler<MouseEvent> mouseEventHandler) {
 		if (notifyPopup == null) {
-	        notifyPopup = new Stage(StageStyle.TRANSPARENT);
-	        notifyPopup.initOwner(dummyPopup);
-	        notifyPopup.initModality(Modality.WINDOW_MODAL);
-//	        notifyPopup.focusedProperty().addListener(new ChangeListener<Boolean>() {
+			notifyPopup = new Stage(StageStyle.TRANSPARENT);
+			notifyPopup.initOwner(systemTray.dummyPopup);
+			notifyPopup.initModality(Modality.WINDOW_MODAL);
+//			notifyPopup.focusedProperty().addListener(new ChangeListener<Boolean>() {
 //				@Override
 //				public void changed(final ObservableValue<? extends Boolean> observable, 
 //						final Boolean oldValue, final Boolean newValue) {
@@ -249,7 +278,7 @@ public class SystemTray {
 	/**
 	 * Positions the notification window
 	 */
-	private static void positionNotification() {
+	private void positionNotification() {
         final Screen screen = Screen.getPrimary();
         final Rectangle2D bounds = screen.getVisualBounds();
         notifyPopup.setX(bounds.getMaxX() - NOTIFY_WINDOW_WIDTH - 10d);
@@ -259,7 +288,7 @@ public class SystemTray {
 	/**
 	 * Stops the notification animation and closes the notification window
 	 */
-	private static void closeNotification() {
+	private void closeNotification() {
 		if (!Platform.isFxApplicationThread()) {
 			return;
 		}
@@ -279,7 +308,17 @@ public class SystemTray {
 	 * Minimizes/Hides the primary stage and shows
 	 */
 	public static void minimizeToSystemTray() {
-		if (!isSystemTraySupported() || !stage.isShowing()) {
+		if (systemTray == null || !isSystemTraySupported()) {
+			return;
+		}
+		systemTray.minimizeToSystemTrayInternal();
+	}
+	
+	/**
+	 * Minimizes/Hides the primary stage and shows
+	 */
+	private void minimizeToSystemTrayInternal() {
+		if (!stage.isShowing()) {
 			return;
 		}
 		log.debug("Minimizing application to system tray");
@@ -309,7 +348,17 @@ public class SystemTray {
 	 * Restores the primary stage and removes the system tray windows (if any)
 	 */
 	public static void restoreFromSystemTray() {
-		if (!isSystemTraySupported() || stage.isShowing()) {
+		if (systemTray == null || !isSystemTraySupported()) {
+			return;
+		}
+		systemTray.restoreFromSystemTrayInternal();
+	}
+	
+	/**
+	 * Restores the primary stage and removes the system tray windows (if any)
+	 */
+	private void restoreFromSystemTrayInternal() {
+		if (stage.isShowing()) {
 			return;
 		}
 		stage.show();
@@ -320,7 +369,7 @@ public class SystemTray {
 	/**
 	 * Closes the hidden window that prevents the application from closing while the primary stage is closed
 	 */
-	private static void closeHidden() {
+	private void closeHidden() {
 		if (dummyPopup != null) {
 			dummyPopup.close();
 			dummyPopup = null;
@@ -331,6 +380,16 @@ public class SystemTray {
 	 * Exits the system tray and performs any cleanup operations
 	 */
 	public static void exit() {
+		if (systemTray == null || !isSystemTraySupported()) {
+			return;
+		}
+		systemTray.exitInternal();
+	}
+	
+	/**
+	 * Exits the system tray and performs any cleanup operations
+	 */
+	private void exitInternal() {
 		final java.awt.SystemTray st = isSystemTraySupported() ? java.awt.SystemTray.getSystemTray() : null;
 		if (st != null && st.getTrayIcons().length > 0) {
 			log.debug("Removing system tray icon(s)...");
@@ -344,7 +403,12 @@ public class SystemTray {
 		}
 		closeNotification();
 		closeHidden();
-		// TODO : shutdown AWT
+		// close any AWT windows
+		for (final java.awt.Frame win : java.awt.Frame.getFrames()) {
+			win.dispose();
+			win.setVisible(false);
+		}
+		//java.awt.Frame.getFrames()[0].getParent();
 	}
 	
 	/**
