@@ -183,7 +183,7 @@ public class UGateGUI extends Application {
 						@Override
 						public void run() {
 							changeCenterView(
-									new DisplayShelf(RS.imgSavePath(),
+									new DisplayShelf(UGateKeeper.DEFAULT.wirelessImgCapturePath(),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP, 
 											RS.rbLabel("displayshelf.fullsize.tooltip")));
@@ -266,7 +266,8 @@ public class UGateGUI extends Application {
 		log.info("Exiting application");
 		UGateKeeper.DEFAULT.exit();
 		SystemTray.exit();
-		//System.exit(0);
+		// TODO : remove dependency on System#exit
+		System.exit(0);
 	}
 
 	private Separator createSeparator(final Orientation orientation) {

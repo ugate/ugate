@@ -67,7 +67,6 @@ public class RS {
 	public static final String IMG_UNIVERSAL_REMOTE_OFF = "universal-remote-off.png";
 	private static final String RB_LOGS = "LogsBundle";
 	private static final String RB_GUI = "LabelsBundle";
-	private static final String CAPTURE_PATH = "/ugate";
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
 	private RS() {
@@ -165,21 +164,6 @@ public class RS {
 	public static AudioClip audioClip(final String fileName) {
 		return new AudioClip(RS.class.getResource(fileName).getPath()
 				.replace("/C", "file"));
-	}
-	
-	/**
-	 * @return the path to the image files
-	 */
-	public static File imgSavePath() {
-		final File filePath = new File(CAPTURE_PATH);
-		if (!filePath.exists()) {
-			try {
-				filePath.mkdirs();
-			} catch (Exception e) {
-
-			}
-		}
-		return filePath;
 	}
 
 	/**
