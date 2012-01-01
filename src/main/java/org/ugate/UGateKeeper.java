@@ -2,6 +2,7 @@ package org.ugate;
 
 import gnu.io.CommPortIdentifier;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -423,6 +424,25 @@ public enum UGateKeeper {
 	 */
 	public boolean wirelessIsConnected() {
 		return xbee != null && xbee.isConnected();
+	}
+	
+	/**
+	 * @return the path that will be used to store captured images
+	 */
+	public File wirelessImgCapturePath() {
+		final String imgFilePath = preferencesGet(Settings.WORKING_DIR_PATH);
+		final File filePath = new File(imgFilePath);
+		if (!filePath.exists()) {
+			try {
+				filePath.mkdirs();
+			} catch (final Exception e) {
+				log.warn("Unable to initialize the image capture path at: " + imgFilePath, e);
+			}
+		} else if(!filePath.isDirectory() || !filePath.canWrite()) {
+			log.error(String.format("The %1$s path %2$s must be an accessible/writable directory", 
+					Settings.WORKING_DIR_PATH, filePath));
+		}
+		return filePath;
 	}
 
 	/**
