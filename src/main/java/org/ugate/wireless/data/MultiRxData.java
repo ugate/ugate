@@ -12,12 +12,13 @@ public abstract class MultiRxData<T> extends RxRawData<T> {
 	/**
 	 * Constructor
 	 * 
+	 * @param nodeIndex the remote node index
 	 * @param status the initial {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 * @param data the data
 	 */
-	public MultiRxData(final Status status, final int signalStrength, final T data) {
-		super(status, signalStrength, data);
+	public MultiRxData(final Integer nodeIndex, final Status status, final int signalStrength, final T data) {
+		super(nodeIndex, status, signalStrength, data);
 	}
 	
 	/**

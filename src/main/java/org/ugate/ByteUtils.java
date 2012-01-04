@@ -2,8 +2,6 @@ package org.ugate;
 
 import java.io.IOException;
 
-import org.ugate.resources.RS;
-
 public class ByteUtils {
 	
 	// not to be instantiated
@@ -23,10 +21,10 @@ public class ByteUtils {
 	public static int convertMultiByteToInt(int[] bytes) {
 		
 		if (bytes.length > 4) {
-			throw new RuntimeException(RS.rbLog("byte.convert.toobig"));
+			throw new RuntimeException("Bytes cannot be converted to because the bytes are too big");
 		} else if (bytes.length == 4 && ((bytes[0] & 0x80) == 0x80)) {
 			// 0x80 == 10000000, 0x7e == 01111111
-			throw new IllegalArgumentException(RS.rbLog("byte.convert.size"));
+			throw new IllegalArgumentException("Java int can't support a four byte value with msb byte greater than 7e");
 		}
 		
 		int val = 0;
@@ -34,7 +32,7 @@ public class ByteUtils {
 		for (int i = 0; i < bytes.length; i++) {
 			
 			if (bytes[i] > 0xFF) {
-				throw new IllegalArgumentException(RS.rbLog("byte.convert.outofrange", bytes[i]));
+				throw new IllegalArgumentException(String.format("Values exceeds byte range: %1$s", bytes[i]));
 			}
 			
 			if (i == (bytes.length - 1)) {
@@ -56,7 +54,7 @@ public class ByteUtils {
 	public static int[] convertInttoMultiByte(int val) {
 
         if (val < 0) {
-            throw new IllegalArgumentException(RS.rbLog("byte.convert.negative"));
+            throw new IllegalArgumentException("Negative values are not supported");
         }
         
 		// must decompose into a max of 4 bytes
@@ -206,11 +204,11 @@ public class ByteUtils {
 	public static boolean getBit(int b, int position) {
 		
 		if (position < 1 || position > 8) {
-			throw new IllegalArgumentException(RS.rbLog("byte.convert.position"));
+			throw new IllegalArgumentException("Position is out of range");
 		}
 		
 		if (b > 0xff) {
-			throw new IllegalArgumentException(RS.rbLog("byte.convert.overbyte", b));
+			throw new IllegalArgumentException(String.format("Input value [%1$s] is larger than a byte", b));
 		}
 
         return ((b >> (--position)) & 0x1) == 0x1;
@@ -220,7 +218,7 @@ public class ByteUtils {
 	public static String toBase16(int b) {
 		
 		if (b > 0xff) {
-			throw new IllegalArgumentException(RS.rbLog("byte.convert.overbyte", b));
+			throw new IllegalArgumentException(String.format("Input value [%1$s] is larger than a byte", b));
 		}
 		
 		if (b < 0x10) {
@@ -233,7 +231,7 @@ public class ByteUtils {
 	public static String toBase2(int b) {
 		
 		if (b > 0xff) {
-			throw new IllegalArgumentException(RS.rbLog("byte.convert.overbyte", b));
+			throw new IllegalArgumentException(String.format("Input value [%1$s] is larger than a byte", b));
 		}
 		
 		return padBase2(Integer.toBinaryString(b));

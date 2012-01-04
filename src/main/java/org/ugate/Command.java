@@ -13,7 +13,7 @@ public enum Command {
 	CAM_TAKE_PIC(29, false, true), 
 	ACCESS_CODE_CHANGE(37, true, true), 
 	SERVO_TOGGLE_CAM_SONARIR(58, false, true), 
-	GATE_TOGGLE_OPEN_CLOSE(59, false, true), 
+	GATE_TOGGLE_OPEN_CLOSE(59, true, true), 
 	SERVO_CAM_MOVE(100, false, true), 
 	SERVO_SONAR_MOVE(101, false, true), 
 	SERVO_MICROWAVE_MOVE(102, false, true), 

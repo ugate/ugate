@@ -32,9 +32,8 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
 import org.ugate.Command;
-import org.ugate.Settings;
+import org.ugate.HostSettings;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateUtil;
 
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
@@ -368,7 +367,7 @@ public class EmailAgent implements Runnable {
 		        final Matcher m = SUBJECT_LINE_PATTERN.matcher(msg.getSubject());
 		        final String subject = m.replaceAll("");
 		        log.debug(String.format("Adjusted subject: %1$s", subject));
-				commandDestitiantions.addAll(Arrays.asList(subject.trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
+				commandDestitiantions.addAll(Arrays.asList(subject.trim().split(HostSettings.MAIL_COMMAND_DELIMITER)));
 			}
 		} catch (final Exception e) {
 			log.error("Unable to get command destinations from message", e);
@@ -378,7 +377,7 @@ public class EmailAgent implements Runnable {
 	}
 	
 	/**
-	 * Extracts any valid commands from an email message body (delimited by {@linkplain UGateUtil#MAIL_COMMAND_DELIMITER})
+	 * Extracts any valid commands from an email message body (delimited by {@linkplain HostSettings#MAIL_COMMAND_DELIMITER})
 	 * 
 	 * @param msg the message to extract commands from
 	 * @param invalidCommandErrors <code>\n</code> delimited buffer to add error messages to (if they occur)
@@ -400,7 +399,7 @@ public class EmailAgent implements Runnable {
 				log.warn("Commands being ignored for content type: " + msg.getContentType());
 			}
 			if (msgRawContent != null) {
-				rawCommands.addAll(Arrays.asList(msgRawContent.trim().split(UGateUtil.MAIL_COMMAND_DELIMITER)));
+				rawCommands.addAll(Arrays.asList(msgRawContent.trim().split(HostSettings.MAIL_COMMAND_DELIMITER)));
 			}
 			int intCmd = -1;
 			Command cmd = null;
@@ -431,8 +430,8 @@ public class EmailAgent implements Runnable {
 	 * @return true when the addresses have permission to execute commands
 	 */
 	protected boolean hasCommandPermission(final Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.preferencesGet(Settings.MAIL_RECIPIENTS, 
-				UGateUtil.MAIL_RECIPIENTS_DELIMITER);
+		List<String> authRecipients = UGateKeeper.DEFAULT.settingsGet(HostSettings.MAIL_RECIPIENTS, 
+				null, HostSettings.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false; 
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {

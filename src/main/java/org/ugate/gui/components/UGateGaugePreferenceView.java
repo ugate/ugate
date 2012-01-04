@@ -12,7 +12,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import org.ugate.Settings;
+import org.ugate.ISettings;
+import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.resources.RS;
@@ -33,6 +34,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * 
 	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
 	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param nodeIndex the node index (if applicable)
 	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
 	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
 	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
@@ -45,12 +47,12 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param icon the icon of the gauge
 	 * @param onColor the color of the on digits
 	 */
-	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
-			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+	public UGateGaugePreferenceView(final RemoteSettings preferenceKeyInteger, final RemoteSettings preferenceKeyFraction, 
+			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final String format, final ImageView icon, final Color onColor) {
-		this(preferenceKeyInteger, preferenceKeyFraction, indicatorType, sizeScale, tickValueScale, 
+		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
 				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
 				numOfMinorTickMarksPerMajorTick, format, icon, onColor, null, Orientation.VERTICAL);
 	}
@@ -60,6 +62,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * 
 	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
 	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param nodeIndex the node index (if applicable)
 	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
 	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
 	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
@@ -72,12 +75,12 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param iconFileName the icon of the gauge
 	 * @param onColor the color of the on digits
 	 */
-	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
-			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+	public UGateGaugePreferenceView(final RemoteSettings preferenceKeyInteger, final RemoteSettings preferenceKeyFraction, 
+			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final String format, final String iconFileName, final Color onColor) {
-		this(preferenceKeyInteger, preferenceKeyFraction, indicatorType, sizeScale, tickValueScale, 
+		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
 				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
 				numOfMinorTickMarksPerMajorTick, format, iconFileName, onColor, null, Orientation.VERTICAL);
 	}
@@ -87,6 +90,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * 
 	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
 	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param nodeIndex the node index (if applicable)
 	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
 	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
 	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
@@ -101,13 +105,13 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param offColor the color of the off digits
 	 * @param orientation the orientation of the control
 	 */
-	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
-			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+	public UGateGaugePreferenceView(final RemoteSettings preferenceKeyInteger, final RemoteSettings preferenceKeyFraction, 
+			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final String format, final String iconFileName, final Color onColor, 
 			final Color offColor, final Orientation orientation) {
-		this(preferenceKeyInteger, preferenceKeyFraction, indicatorType, sizeScale, tickValueScale, 
+		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
 				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
 				numOfMinorTickMarksPerMajorTick, format, RS.imgView(iconFileName), onColor, offColor, orientation);
 	}
@@ -115,8 +119,9 @@ public class UGateGaugePreferenceView extends VBox {
 	/**
 	 * Constructs a new gauge display
 	 * 
-	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
-	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param settingsKeyInteger the settings key used to sync the controls integer portion of the value to
+	 * @param settingsKeyFraction the settings key used to sync the controls decimal portion of the value to
+	 * @param nodeIndex the node index (if applicable)
 	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
 	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
 	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
@@ -131,8 +136,8 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param offColor the color of the off digits
 	 * @param orientation the orientation of the control
 	 */
-	public UGateGaugePreferenceView(final Settings preferenceKeyInteger, final Settings preferenceKeyFraction, 
-			final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+	public UGateGaugePreferenceView(final ISettings settingsKeyInteger, final ISettings settingsKeyFraction, 
+			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final String format, final ImageView icon, final Color onColor, final Color offColor, 
@@ -156,8 +161,8 @@ public class UGateGaugePreferenceView extends VBox {
 		});
 		
 		// create the value display
-		String initPrefValStr = UGateKeeper.DEFAULT.preferencesGet(preferenceKeyInteger);
-		String initPrefValStr2 = preferenceKeyFraction != null ? UGateKeeper.DEFAULT.preferencesGet(preferenceKeyFraction) : null;
+		String initPrefValStr = UGateKeeper.DEFAULT.settingsGet(settingsKeyInteger, nodeIndex);
+		String initPrefValStr2 = settingsKeyFraction != null ? UGateKeeper.DEFAULT.settingsGet(settingsKeyFraction, nodeIndex) : null;
 		final double val1 = initPrefValStr != null && initPrefValStr.length() > 0 ? Double.valueOf(initPrefValStr) : 0d;
 		final double val2 = initPrefValStr2 != null && initPrefValStr2.length() > 0 ? Double.valueOf(initPrefValStr2) : 0d;
 		final Double initPrefVal = val1 + val2;
@@ -170,7 +175,7 @@ public class UGateGaugePreferenceView extends VBox {
 		gaugeDigits.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				setPreferenceValue(preferenceKeyInteger, preferenceKeyFraction, newValue);
+				setPreferenceValue(settingsKeyInteger, settingsKeyFraction, nodeIndex, newValue);
 			}
 		});
         
@@ -200,20 +205,20 @@ public class UGateGaugePreferenceView extends VBox {
 	/**
 	 * Sets the preference value using the preference keys
 	 * 
-	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
-	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param settingsKeyInteger the settings key used to sync the controls integer portion of the value to
+	 * @param settingsKeyFraction the settings key used to sync the controls decimal portion of the value to
 	 * @param newValue the new value to set
 	 */
-	protected void setPreferenceValue(final Settings preferenceKeyInteger, 
-			final Settings preferenceKeyFraction, final String newValue) {
-		if (preferenceKeyFraction != null) {
+	protected void setPreferenceValue(final ISettings settingsKeyInteger, 
+			final ISettings settingsKeyFraction, final Integer nodeIndex, final String newValue) {
+		if (settingsKeyFraction != null) {
 			final double value = Double.parseDouble(newValue);
 			final int feet = (int) value;
 			final int inches = (int) (12d * (value - feet));
-			UGateKeeper.DEFAULT.preferencesSet(preferenceKeyInteger, String.valueOf(feet));
-			UGateKeeper.DEFAULT.preferencesSet(preferenceKeyFraction, String.valueOf(inches));
+			UGateKeeper.DEFAULT.settingsSet(settingsKeyInteger, nodeIndex, String.valueOf(feet));
+			UGateKeeper.DEFAULT.settingsSet(settingsKeyFraction, nodeIndex, String.valueOf(inches));
 		} else {
-			UGateKeeper.DEFAULT.preferencesSet(preferenceKeyInteger, newValue);
+			UGateKeeper.DEFAULT.settingsSet(settingsKeyInteger, nodeIndex, newValue);
 		}
 	}
 	

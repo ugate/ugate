@@ -12,12 +12,13 @@ public class RxRawData<T> extends RxData {
 	/**
 	 * Constructor
 	 * 
+	 * @param nodeIndex the remote node index
 	 * @param status the {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 * @param data the image chunk data
 	 */
-	public RxRawData(final Status status, final int signalStrength, final T data) {
-		super(status, signalStrength);
+	public RxRawData(final Integer nodeIndex, final Status status, final int signalStrength, final T data) {
+		super(nodeIndex, status, signalStrength);
 		this.data = data;
 	}
 	

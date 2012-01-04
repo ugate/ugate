@@ -10,9 +10,18 @@ public class ImageCapture extends RxData {
 	private final String filePath;
 	private final int fileSize;
 	
-	ImageCapture(final Status status, final int signalStrength, 
+	/**
+	 * Constructor
+	 * 
+	 * @param nodeIndex the remote node index
+	 * @param status the {@linkplain Status}
+	 * @param signalStrength the signal strength
+	 * @param filePath the file path
+	 * @param fileSize the file size
+	 */
+	ImageCapture(final Integer nodeIndex, final Status status, final int signalStrength, 
 			final String filePath, final int fileSize) {
-		super(status, signalStrength);
+		super(nodeIndex, status, signalStrength);
 		this.filePath = filePath;
 		this.fileSize = fileSize;
 	}

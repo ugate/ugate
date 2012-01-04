@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.ugate.Settings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 
@@ -25,12 +24,13 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	/**
 	 * Constructor
 	 * 
+	 * @param nodeIndex the remote node index
 	 * @param status the {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 * @param data the image chunk data
 	 */
-	public RxTxImage(final Status status, final int signalStrength, final List<RxTxImage.ImageChunk> data) {
-		super(status, signalStrength, (data == null ? new ArrayList<RxTxImage.ImageChunk>() : data));
+	public RxTxImage(final Integer nodeIndex, final Status status, final int signalStrength, final List<RxTxImage.ImageChunk> data) {
+		super(nodeIndex, status, signalStrength, (data == null ? new ArrayList<RxTxImage.ImageChunk>() : data));
 		log.debug("NEW " + this);
 	}
 	
@@ -79,7 +79,7 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	public String getImagePath() {
 		//return "C:\\ugate\\" + UGateUtil.calFormat(getCreated()).replaceAll(":", "-") + '.' + getImageExtension();
 		final String imgFileName = getCreatedTimeString().replaceAll(":", "-") + '.' + getImageExtension();
-		final String imgRootPath = UGateKeeper.DEFAULT.preferencesGet(Settings.WORKING_DIR_PATH);
+		final String imgRootPath = UGateKeeper.DEFAULT.wirelessWorkingDirectory(getNodeIndex()).getAbsolutePath();
 		return imgRootPath + imgFileName;
 	}
 
@@ -121,7 +121,7 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 				log.info(String.format("Wrote (%1$s) bytes from (%2$s) image chunks to \"%3$s\" (took: %4$s)", 
 						byteBuffer.array().length, getData().size(), filePath, getCreatedTimeDiffernce(endTime)));
 			}
-			return new ImageCapture(getStatus(), getSignalStrength(), filePath, byteBuffer.array().length);
+			return new ImageCapture(getNodeIndex(), getStatus(), getSignalStrength(), filePath, byteBuffer.array().length);
 		} finally {
 			setData(new ArrayList<RxTxJPEG.ImageChunk>());
 		}
@@ -133,7 +133,7 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	 */
 	public ImageCapture createImageSegmentsSnapshot() {
 		final ByteBuffer byteBuffer = getBytes();
-		return new ImageCapture(getStatus(), getSignalStrength(), null, byteBuffer != null ? byteBuffer.array().length : 0);
+		return new ImageCapture(getNodeIndex(), getStatus(), getSignalStrength(), null, byteBuffer != null ? byteBuffer.array().length : 0);
 	}
 	
 	/**

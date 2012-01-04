@@ -13,10 +13,12 @@ public class SensorReadings extends RxData  {
 	private final int microwaveCycleCnt;
 	private final int irFeet;
 	private final int irInches;
+	private final int gateState;
 	
 	/**
 	 * Constructor
 	 * 
+	 * @param nodeIndex the remote node index
 	 * @param status the {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 * @param sonarFeet sonar feet portion
@@ -24,15 +26,17 @@ public class SensorReadings extends RxData  {
 	 * @param microwaveCycleCnt the microwave cycle count
 	 * @param irFeet the IR feet portion
 	 * @param irInches the IR inches portion
+	 * @param gateState the gate state
 	 */
-	public SensorReadings(final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
-			final int microwaveCycleCnt, final int irFeet, final int irInches) {
-		super(status, signalStrength);
+	public SensorReadings(final Integer nodeIndex, final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
+			final int microwaveCycleCnt, final int irFeet, final int irInches, final int gateState) {
+		super(nodeIndex, status, signalStrength);
 		this.sonarFeet = sonarFeet;
 		this.sonarInches = sonarInches;
 		this.microwaveCycleCnt = microwaveCycleCnt;
 		this.irFeet = irFeet;
 		this.irInches = irInches;
+		this.gateState = gateState;
 		log.debug("NEW " + this);
 	}
 	
@@ -42,9 +46,10 @@ public class SensorReadings extends RxData  {
 	@Override
 	public String toString() {
 		return String.format(
-				"%1$s [Sonar Distance: %2$s' %3$s\"] [Speed: %4$s (changes/sec) %5$s (mm/sec) %6$s (inches/sec) %7$s (MPH)] [IR Distance: %8$s' %9$s\"]", 
+				"%1$s [Sonar Distance: %2$s' %3$s\"] [Speed: %4$s (changes/sec) %5$s (mm/sec) %6$s (inches/sec) %7$s (MPH)] " + 
+				"[IR Distance: %8$s' %9$s\"] [Gate State: %10$s]", 
 				super.toString(), getSonarFeet(), getSonarInches(), getMicrowaveCycleCnt(), getSpeedMillimetersPerSec(), 
-				getSpeedInchesPerSec(), getSpeedMPH(), getIrFeet(), getIrInches());
+				getSpeedInchesPerSec(), getSpeedMPH(), getIrFeet(), getIrInches(), getGateState());
 	}
 
 	/**
@@ -115,5 +120,12 @@ public class SensorReadings extends RxData  {
 	 */
 	public double getSpeedMPH() {
 		return getSpeedInchesPerSec() * 30000 / 53467;
+	}
+	
+	/**
+	 * @return the state of the gate
+	 */
+	public int getGateState() {
+		return gateState;
 	}
 }

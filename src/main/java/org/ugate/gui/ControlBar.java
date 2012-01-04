@@ -1,6 +1,8 @@
 package org.ugate.gui;
 
 import javafx.animation.Timeline;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -24,7 +26,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
-import org.ugate.Settings;
+import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
@@ -40,6 +42,7 @@ public class ControlBar extends ToolBar {
 	
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
+	private final ReadOnlyObjectWrapper<SensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<SensorReadings>();
 	
 	private static final Logger log = Logger.getLogger(ControlBar.class);
 	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
@@ -48,8 +51,6 @@ public class ControlBar extends ToolBar {
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 
 	private final Stage stage;
-	private int remoteNodeIndex = 1;
-	private boolean propagateSettingsToAllRemoteNodes = false;
 
 	public ControlBar(final Stage stage) {
 		this.stage = stage;
@@ -114,14 +115,14 @@ public class ControlBar extends ToolBar {
 		
 		// add the readings view
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
-		final Digits sonarReading = new Digits(String.format(SensorControl.FORMAT_SONAR, 0.0f),
-				0.15f, SensorControl.COLOR_SONAR, null);
+		final Digits sonarReading = new Digits(String.format(AlarmSettings.FORMAT_SONAR, 0.0f),
+				0.15f, AlarmSettings.COLOR_SONAR, null);
 		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
-		final Digits pirReading = new Digits(String.format(SensorControl.FORMAT_PIR, 0.0f), 
-				0.15f, SensorControl.COLOR_PIR, null);
+		final Digits pirReading = new Digits(String.format(AlarmSettings.FORMAT_PIR, 0.0f), 
+				0.15f, AlarmSettings.COLOR_PIR, null);
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
-		final Digits mwReading = new Digits(String.format(SensorControl.FORMAT_MW, 0), 0.15f, 
-				SensorControl.COLOR_MW, null);
+		final Digits mwReading = new Digits(String.format(AlarmSettings.FORMAT_MW, 0), 0.15f, 
+				AlarmSettings.COLOR_MW, null);
 		final Group readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
 		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
@@ -129,7 +130,7 @@ public class ControlBar extends ToolBar {
 		
 		// add the multi-alarm trip state
 		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
-				Settings.MULTI_ALARM_TRIP_STATE,
+				RemoteSettings.MULTI_ALARM_TRIP_STATE, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
@@ -151,7 +152,7 @@ public class ControlBar extends ToolBar {
 			public void handle(final UGateKeeperEvent<?> event) {
 				setHelpText(event.getMessageString());
 				if (event.getType() == UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL) {
-					if (event.getKey() != null && event.getKey().canRemote) {
+					if (event.getKey() != null && event.getKey().canRemote()) {
 						settingsSetTimeline.play();
 					}
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
@@ -159,19 +160,20 @@ public class ControlBar extends ToolBar {
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
 					if (event.getNewValue() instanceof SensorReadings) {
 						final SensorReadings sr = (SensorReadings) event.getNewValue();
-						sonarReading.setValue(String.format(SensorControl.FORMAT_SONAR, 
+						sensorReadingsPropertyWrapper.set(sr);
+						sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 
 								Double.parseDouble(sr.getSonarFeet() + "." + sr.getSonarInches())));
-						pirReading.setValue(String.format(SensorControl.FORMAT_PIR, 
+						pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 
 								Double.parseDouble(sr.getIrFeet() + "." + sr.getIrInches())));
-						mwReading.setValue(String.format(SensorControl.FORMAT_MW, 
+						mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 
 								Math.round(sr.getSpeedMPH())));
 					}
 				}
 			}
 		});
-		sonarReading.setValue(String.format(SensorControl.FORMAT_SONAR, 5.3f));
-		pirReading.setValue(String.format(SensorControl.FORMAT_PIR, 3.7f));
-		mwReading.setValue(String.format(SensorControl.FORMAT_MW, 24L));
+		sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 5.3f));
+		pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 3.7f));
+		mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 24L));
 	}
 	
 	/**
@@ -193,27 +195,26 @@ public class ControlBar extends ToolBar {
 			protected Boolean call() throws Exception {
 				try {
 					if (command == Command.SENSOR_GET_READINGS) {
-						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeIndex(), 
+						if (!UGateKeeper.DEFAULT.wirelessSendData(
+								UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 								Command.SENSOR_GET_READINGS)) {
 							setHelpText(RS.rbLabel("sensors.readings.failed",
-									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
-										getRemoteNodeAddress())));
+									UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress()));
 							return false;
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!UGateKeeper.DEFAULT.wirelessSendSettings(
-								(isPropagateSettingsToAllRemoteNodes() ? null : getRemoteNodeIndex()))) {
+								UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex())) {
 							setHelpText(RS.rbLabel("settings.send.failed",
-									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
-										getRemoteNodeAddress())));
+									UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress()));
 							return false;
 						}
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
-						if (!UGateKeeper.DEFAULT.wirelessSendData(getRemoteNodeIndex(), 
+						if (!UGateKeeper.DEFAULT.wirelessSendData(
+								UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 								Command.GATE_TOGGLE_OPEN_CLOSE)) {
 							setHelpText(RS.rbLabel("gate.toggle.failed",
-									(isPropagateSettingsToAllRemoteNodes() ? RS.rbLabel("all") : 
-										getRemoteNodeAddress())));
+									UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress()));
 							return false;
 						}
 					} else {
@@ -321,43 +322,11 @@ public class ControlBar extends ToolBar {
 	public void setHelpText(final String text) {
 		helpText.setText(text == null || text.length() == 0 ? RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY) : text);
 	}
-	
-	/**
-	 * @return the remote node address for the current {@linkplain #getRemoteNodeIndex()}
-	 */
-	public String getRemoteNodeAddress() {
-		return UGateKeeper.DEFAULT.wirelessGetAddress(getRemoteNodeIndex());
-	}
 
 	/**
-	 * @return the remote index of the device node for which the controls represent
+	 * @return the sensor readings property
 	 */
-	public int getRemoteNodeIndex() {
-		return this.remoteNodeIndex;
-	}
-
-	/**
-	 * Sets the remote index of the device node for which the controls represent
-	 * 
-	 * @param remoteNodeIndex the remote node index
-	 */
-	public void setRemoteNodeIndex(final int remoteNodeIndex) {
-		this.remoteNodeIndex = remoteNodeIndex;
-	}
-
-	/**
-	 * @return true when settings updates should be propagated to all the remote nodes when
-	 * 		the user chooses to save the settings
-	 */
-	public boolean isPropagateSettingsToAllRemoteNodes() {
-		return propagateSettingsToAllRemoteNodes;
-	}
-
-	/**
-	 * @param propagateSettingsToAllRemoteNodes true when settings updates should be propagated 
-	 * 		to all the remote nodes when the user chooses to save the settings
-	 */
-	public void setPropagateSettingsToAllRemoteNodes(final boolean propagateSettingsToAllRemoteNodes) {
-		this.propagateSettingsToAllRemoteNodes = propagateSettingsToAllRemoteNodes;
+	public ReadOnlyObjectProperty<SensorReadings> sensorReadingsProperty() {
+		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
 	}
 }

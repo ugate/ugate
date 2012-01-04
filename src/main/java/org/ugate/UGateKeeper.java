@@ -4,13 +4,10 @@ import gnu.io.CommPortIdentifier;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.ugate.mail.EmailAgent;
@@ -38,20 +35,21 @@ public enum UGateKeeper {
 	
 	DEFAULT;
 
+	private static final String WIRELESS_HOST_SETTINGS_FILE = "host";
+	private static final String WIRELESS_PREFERENCE_FILE_PREFIX = "remote-node-";
 	private static final Logger log = Logger.getLogger(UGateKeeper.class);
 	private final List<IGateKeeperListener> listeners = new ArrayList<IGateKeeperListener>();
-	private final Preferences preferences;
 	private final XBee xbee;
 	private EmailAgent emailAgent;
 	private boolean isEmailConnected;
+	private final SettingsFile hostSettings;
+	private Map<Integer, SettingsFile> remoteNodeSettings = new HashMap<Integer, SettingsFile>(1);
+	private int wirelessCurrentRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 	
 	private UGateKeeper() {
-		preferences = new Preferences("ugate");
+		hostSettings = new SettingsFile(WIRELESS_HOST_SETTINGS_FILE, true);
+		wirelessInitRemoteSettings();
 		xbee = new XBee();
-	}
-	
-	public void init() {
-		
 	}
 	
 	/**
@@ -65,71 +63,75 @@ public enum UGateKeeper {
 	/* ======= Preferences ======= */
 	
 	/**
-	 * Determines if the key exists within the saved preferences
+	 * Determines if the key exists within the saved settings
 	 * 
 	 * @param key the key to get the value for
+	 * @param index the index of the settings (if applicable)
 	 * @return true when the key exists
 	 */
-	public boolean preferencesHasKey(final Settings key) {
-		return preferences.hasKey(key.key);
+	public boolean settingsHasKey(final ISettings key, final Integer index) {
+		if (key instanceof RemoteSettings) {
+			if (!remoteNodeSettings.containsKey(index)) {
+				return false;
+			}
+			return remoteNodeSettings.get(index).hasKey(key.getKey());
+		} else if (key instanceof HostSettings) {
+			return hostSettings.hasKey(key.getKey());
+		}
+		return false;
 	}
 	
 	/**
-	 * Sets a key/value preference
+	 * Sets a key/value settings
 	 * 
-	 * @param key the {@linkplain Settings}
-	 * @param index the index of the preference that will be appended to the {@linkplain Settings#key}
+	 * @param key the {@linkplain ISettings}
+	 * @param index the index of the {@linkplain ISettings} (if applicable)
 	 * @param value the value
 	 */
-	public void preferencesSet(final Settings key, final Integer index, final String value) {
-		final String oldValue = preferencesGet(key);
-		if (!oldValue.equals(value)) {
-			preferences.set(key.key + (index == null ? "" : index.toString()), value);
+	public void settingsSet(final ISettings key, final Integer index, final String value) {
+		final String oldValue = settingsGet(key, index);
+		if (!value.equals(oldValue)) {
+			if (key instanceof RemoteSettings) {
+				remoteNodeSettings.get(index).set(key.getKey(), value);
+			} else if (key instanceof HostSettings) {
+				hostSettings.set(key.getKey(), value);
+			} else {
+				throw new UnsupportedOperationException(String.format("Unhandled %1$s implementation for %2$s", 
+						ISettings.class.getSimpleName(), key));
+			}
 			notifyListeners(new UGateKeeperEvent<String>(this, UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL, null, 0,
 					key, null, oldValue, value));
 		}
 	}
 	
 	/**
-	 * Sets a key/value preference
+	 * Gets a settings value
 	 * 
-	 * @param key the {@linkplain Settings}
-	 * @param value the value
+	 * @param key the key to get the value for
+	 * @param index the index of the settings (if applicable)
+	 * @return the settings value
 	 */
-	public void preferencesSet(final Settings key, final String value) {
-		preferencesSet(key, null, value);
+	public String settingsGet(final ISettings key, final Integer index) {
+		if (!settingsHasKey(key, index)) {
+			return null;
+		}
+		return key instanceof RemoteSettings ? remoteNodeSettings.get(index).get(key.getKey()) : hostSettings.get(key.getKey());
 	}
 	
 	/**
-	 * Gets a preference value
+	 * Gets a settings value
 	 * 
 	 * @param key the key to get the value for
-	 * @return the preference value
-	 */
-	public String preferencesGet(final Settings key) {
-		return preferences.get(key.key);
-	}
-	
-	/**
-	 * Gets a preference value
-	 * 
-	 * @param key the key to get the value for
-	 * @param index the index of the preference that will be appended to the {@linkplain Settings#key}
-	 * @return the preference value
-	 */
-	public String preferencesGet(final Settings key, final int index) {
-		return preferences.get(key.key + index);
-	}
-	
-	/**
-	 * Gets a preference value
-	 * 
-	 * @param key the key to get the value for
+	 * @param index the index of the settings (if applicable)
 	 * @param delimiter the delimiter used to split the value
-	 * @return the preference values
+	 * @return the settings values
 	 */
-	public List<String> preferencesGet(final Settings key, final String delimiter) {
-		return preferences.get(key.key, delimiter);
+	public List<String> settingsGet(final ISettings key, final Integer index, final String delimiter) {
+		if (settingsHasKey(key, index)) {
+			return null;
+		}
+		return key instanceof RemoteSettings ? remoteNodeSettings.get(index).get(key.getKey(), delimiter) : 
+			hostSettings.get(key.getKey(), delimiter);
 	}
 	
 	/* ======= Listeners ======= */
@@ -236,17 +238,17 @@ public enum UGateKeeper {
 							}
 							if (!addys.isEmpty()) {
 								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, addys, 0, 
-										Settings.WIRELESS_ADDRESS_NODE_PREFIX, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+										RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, commandMsgs.toArray(new String[]{})));
 							} else {
 								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, addys, 0, 
-										Settings.WIRELESS_ADDRESS_NODE_PREFIX, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+										RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, commandMsgs.toArray(new String[]{})));
 							}
 						} else {
 							msg = RS.rbLabel("service.email.commandexec.failed", UGateUtil.toString(event.commands), UGateUtil.toString(event.from), 
 									UGateUtil.toString(event.toAddresses), RS.rbLabel("service.wireless.connection.required"));
 							log.warn(msg);
 							notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, null, 0, 
-									Settings.WIRELESS_ADDRESS_NODE_PREFIX, null, null, event.commands, msg));
+									RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
 						isEmailConnected = true;
@@ -378,15 +380,12 @@ public enum UGateKeeper {
 			final String errorMsg = String.format("Unable to establish a connection to the local XBee using port %1$s and baud rate %2$s", 
 					comPort, baudRate);
 			log.error(errorMsg, t);
-			final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED);
-			event.addMessage(errorMsg);
-			event.addMessage(t.getMessage());
-			notifyListeners(event);
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED, errorMsg, t.getMessage()));
 			if (t instanceof XBeeException) {
 				// bug in XBee connection that will show xbee.isConnected() as true after an XBeeException unless we close it here
 				try {
 					log.debug(String.format("Closing connection due to %1$s", XBeeException.class.getName()));
-					wirelessDisconnect();
+					wirelessDisconnectInternal(false);
 				} catch (final Throwable t2) {
 					log.warn(String.format("Unable to close %1$s connection (diconnecting because connection threw error", 
 							XBee.class.getName()), t2);
@@ -400,20 +399,36 @@ public enum UGateKeeper {
 	 * Disconnects from the wireless network
 	 */
 	public void wirelessDisconnect() {
+		wirelessDisconnectInternal(true);
+	}
+	
+	/**
+	 * Disconnects from the wireless network
+	 * 
+	 * @param notify true to notify listeners
+	 */
+	private void wirelessDisconnectInternal(final boolean notify) {
 		if (wirelessIsConnected()) {
-			log.info("Disconnecting from XBee");
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING));
+			String msg = "Disconnecting from XBee";
+			log.info(msg);
+			if (notify) {
+				notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING, msg));	
+			}
 			try {
 				xbee.close();
-				// XBee close is blocking so notification can be sent here
-				notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED));
+				msg = "Disconnected from XBee";
+				log.info(msg);
+				if (notify) {
+					// XBee close is blocking so notification can be sent here
+					notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED, msg));
+				}
 			} catch (final Throwable t) {
-				final String errorMsg = "Unable to close wireless connection";
-				log.error(errorMsg, t);
-				final UGateKeeperEvent<Void> event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED);
-				event.addMessage(errorMsg);
-				event.addMessage(t.getMessage());
-				notifyListeners(event);
+				msg = "Unable to close wireless connection";
+				log.error(msg, t);
+				if (notify) {
+					notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED, 
+							msg, t.getMessage()));
+				}
 			}
 			log.info("Disconnected from XBee");
 		}
@@ -427,20 +442,24 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * @return the path that will be used to store captured images
+	 * Gets the wireless working directory
+	 * 
+	 * @param nodeIndex the node index
+	 * @return the path
 	 */
-	public File wirelessImgCapturePath() {
-		final String imgFilePath = preferencesGet(Settings.WORKING_DIR_PATH);
+	public File wirelessWorkingDirectory(final int nodeIndex) {
+		String imgFilePath = settingsGet(RemoteSettings.WIRELESS_WORKING_DIR_PATH, nodeIndex);
+		imgFilePath += imgFilePath.charAt(imgFilePath.length() - 1) != '/' ? "/" : "";
 		final File filePath = new File(imgFilePath);
 		if (!filePath.exists()) {
 			try {
 				filePath.mkdirs();
 			} catch (final Exception e) {
-				log.warn("Unable to initialize the image capture path at: " + imgFilePath, e);
+				log.warn("Unable to initialize the working directory path at: " + imgFilePath, e);
 			}
 		} else if(!filePath.isDirectory() || !filePath.canWrite()) {
 			log.error(String.format("The %1$s path %2$s must be an accessible/writable directory", 
-					Settings.WORKING_DIR_PATH, filePath));
+					RemoteSettings.WIRELESS_WORKING_DIR_PATH, filePath));
 		}
 		return filePath;
 	}
@@ -476,14 +495,16 @@ public enum UGateKeeper {
 	/**
 	 * Sends the data array to the remote address
 	 * 
-	 * @param nodeIndex the index of the node to send the data to
+	 * @param nodeIndex the index of the node to send the data to (
 	 * @param command the executing {@linkplain Command}
 	 * @param data the data to send
 	 * @return true when successful
 	 */
 	public boolean wirelessSendData(final int nodeIndex, final Command command, final int... data) {
-		final Map<Integer, String> addys = new HashMap<Integer, String>();
-		addys.put(nodeIndex, wirelessGetAddress(nodeIndex));
+		final Map<Integer, String> addys = wirelessGetRemoteAddressMap(nodeIndex);
+		if (addys.isEmpty()) {
+			throw new ArrayIndexOutOfBoundsException(nodeIndex);
+		}
 		return wirelessSendData(new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, 
 				addys, 0, null, command, null, data));
 	}
@@ -500,7 +521,7 @@ public enum UGateKeeper {
 		if (event.getTotalNodeAddresses() <= 0) {
 			throw new NullPointerException("Wireless node addresses cannot be null");
 		}
-		int i = UGateUtil.WIRELESS_ADDRESS_START_INDEX;
+		int i = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 		int it = event.getTotalNodeAddresses();
 		int successCount = 0;
 		int failureCount = 0;
@@ -515,7 +536,7 @@ public enum UGateKeeper {
 				final XBeeAddress16 xbeeAddress = wirelessGetXbeeAddress(i);
 				// create a unicast packet to be delivered to the supplied address, with the pay load
 				final TxRequest16 request = new TxRequest16(xbeeAddress, bytes);
-				message = RS.rbLabel("service.wireless.sending", it);
+				message = RS.rbLabel("service.wireless.sending", bytes, event.getNodeAddress(i));
 				log.info(message);
 				notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX, i, message));
 				// send the packet and wait up to 10 seconds for the transmit status reply
@@ -523,13 +544,13 @@ public enum UGateKeeper {
 				if (response.isSuccess()) {
 					// packet was delivered successfully
 					successCount++;
-					message = RS.rbLabel("service.wireless.ack.success", event.getNodeAddress(i), response.getStatus());
+					message = RS.rbLabel("service.wireless.ack.success", bytes, event.getNodeAddress(i), response.getStatus());
 					log.info(message);
 					notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_ACK, i, message));
 				} else {
 					// packet was not delivered
 					failureCount++;
-					message = RS.rbLabel("service.wireless.ack.failed", event.getNodeAddress(i), response.getStatus());
+					message = RS.rbLabel("service.wireless.ack.failed", bytes, event.getNodeAddress(i), response.getStatus());
 					log.error(message);
 					notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_ACK_FAILED, i, message));
 				}
@@ -558,20 +579,20 @@ public enum UGateKeeper {
 	}
 
 	/**
-	 * Tests the address of a local or remote device within the wireless network
+	 * Tests the address of a remote device within the wireless network
 	 * 
 	 * @param nodeIndex the index of the remote node to test a connection for 
-	 * 		({@linkplain UGateUtil#WIRELESS_ADDRESS_START_INDEX} - 1 when testing the local address)
+	 * 		({@linkplain RemoteSettings#WIRELESS_ADDRESS_START_INDEX} - 1 when testing the local address)
 	 * @return the address of the device (if found and returns its address)
 	 */
-	private String wirelessTestAddressConnection(final int nodeIndex) {
+	public String wirelessTestRemoteConnection(final int nodeIndex) {
 		String address = null;
 		try {
 			AtCommandResponse response;
 			int[] responseValue;
-			final XBeeAddress16 remoteAddress = nodeIndex >= UGateUtil.WIRELESS_ADDRESS_START_INDEX ? wirelessGetXbeeAddress(nodeIndex) : null;
+			final XBeeAddress16 remoteAddress = wirelessGetXbeeAddress(nodeIndex);
 			if (remoteAddress != null) {
-				final RemoteAtRequest request = new RemoteAtRequest(wirelessGetXbeeAddress(nodeIndex), "MY");
+				final RemoteAtRequest request = new RemoteAtRequest(remoteAddress, "MY");
 				final RemoteAtResponse remoteResponse = (RemoteAtResponse) xbee.sendSynchronous(request, 10000);
 				response = remoteResponse;
 			} else {
@@ -601,9 +622,9 @@ public enum UGateKeeper {
 	private XBeeAddress16 wirelessGetXbeeAddress(final int nodeIndex) {
 		//final int xbeeRawAddress = Integer.parseInt(preferences.get(wirelessAddressHexKey), 16);
 		final String rawAddress = wirelessGetAddress(nodeIndex);
-		if (rawAddress.length() > UGateUtil.WIRELESS_ADDRESS_MAX_DIGITS) {
+		if (rawAddress.length() > RemoteSettings.WIRELESS_ADDRESS_MAX_DIGITS) {
 			throw new IllegalArgumentException("Wireless address cannot be more than " + 
-					UGateUtil.WIRELESS_ADDRESS_MAX_DIGITS + " hex digits long");
+					RemoteSettings.WIRELESS_ADDRESS_MAX_DIGITS + " hex digits long");
 		}
 		final int msb = Integer.parseInt(rawAddress.substring(0, 2), 16);
 		final int lsb = Integer.parseInt(rawAddress.substring(2, 4), 16);
@@ -618,12 +639,10 @@ public enum UGateKeeper {
 	 * @return the index of the wireless node address (negative one when the address value is not found)
 	 */
 	public int wirelessGetAddressIndex(final String nodeAddress) {
-		final Map<Integer, String> was = wirelessGetNodeAddresses(false);
-		if (was.containsValue(nodeAddress)) {
-			for (final Map.Entry<Integer, String> wak : was.entrySet()) {
-				if (wak.getValue().equals(nodeAddress)) {
-					return wak.getKey();
-				}
+		for (final Map.Entry<Integer, SettingsFile> wak : remoteNodeSettings.entrySet()) {
+			if (wak.getValue().hasKey(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()) && 
+					wak.getValue().get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()).equals(nodeAddress)) {
+				return wak.getKey();
 			}
 		}
 		return -1; 
@@ -634,108 +653,47 @@ public enum UGateKeeper {
 	 * 
 	 * @param nodeIndex the index of the node to get the address for
 	 * @return the wireless node address
-	 * @throws ArrayIndexOutOfBoundsException thrown when the index does not exist
 	 */
-	public String wirelessGetAddress(final int nodeIndex) throws ArrayIndexOutOfBoundsException {
-		final String key = Settings.WIRELESS_ADDRESS_NODE_PREFIX.key + nodeIndex;
-		if (preferences.hasKey(key)) {
-			return preferences.get(key);
-		} else {
-			throw new ArrayIndexOutOfBoundsException(nodeIndex);
+	public String wirelessGetAddress(final int nodeIndex) {
+		if (!remoteNodeSettings.containsKey(nodeIndex)) {
+			return null;
 		}
+		return remoteNodeSettings.get(nodeIndex).get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey());
 	}
 	
 	/**
-	 * Gets all of the wireless node addresses from the preferences
+	 * Gets a remote node index/address map for all of the valid node indexes passed
 	 * 
-	 * @param testConnections true to test each address before adding them to the list
-	 * @return the list of addresses
+	 * @param nodeIndexes the node indexes
+	 * @return the map of node indexes/addresses
 	 */
-	public Map<Integer, String> wirelessGetNodeAddresses(final boolean testConnections) {
-		final Map<Integer, String> was = new HashMap<Integer, String>();
-		final Map<Integer, String> waks = wirelessGetNodeAddressKeys(false);
-		for (final Map.Entry<Integer, String> wak : waks.entrySet()) {
-			if (testConnections) {
-				if (wirelessTestAddressConnection(wak.getKey()) != null) {
-					was.put(wak.getKey(), preferences.get(wak.getValue()));
-				} else {
-					log.info("Invalid wireless address preference key: " + wak);
-				}
-			} else {
-				was.put(wak.getKey(), preferences.get(wak.getValue()));
+	private Map<Integer, String> wirelessGetRemoteAddressMap(final int... nodeIndexes) {
+		final Map<Integer, String> was = new HashMap<Integer, String>(nodeIndexes.length);
+		for (final int nodeIndex : nodeIndexes) {
+			if (!remoteNodeSettings.containsKey(nodeIndex)) {
+				log.warn(String.format("%1$s remote node has not been created or does not exist", nodeIndex));
+				continue;
 			}
+			was.put(nodeIndex, wirelessGetAddress(nodeIndex));
 		}
 		return was;
 	}
 	
 	/**
-	 * Gets all of the wireless node addresses from the preferences
+	 * Synchronizes the locally hosted settings with the remote wireless node(s)
 	 * 
-	 * @param nodeIndexes the remote node address 
-	 * @param testConnections true to test each address before adding them to the list
-	 * @return the list of addresses
-	 */
-	private Map<Integer, String> wirelessGetNodeAddresses(final Set<Integer> nodeIndexes, 
-			final boolean testConnections) {
-		final Map<Integer, String> was = new HashMap<Integer, String>();
-		for (final int wak : nodeIndexes) {
-			if (testConnections) {
-				if (wirelessTestAddressConnection(wak) != null) {
-					was.put(wak, wirelessGetAddress(wak));
-				} else {
-					log.info("Invalid wireless address preference key: " + wak);
-				}
-			} else {
-				was.put(wak, wirelessGetAddress(wak));
-			}
-		}
-		return was;
-	}
-	
-	/**
-	 * Gets the wireless connection node address keys from the preferences
-	 * 
-	 * @param testConnections true to test/validate the addresses by testing the connection 
-	 * 		before adding to the list
-	 * @return the wireless address preference keys
-	 */
-	public Map<Integer, String> wirelessGetNodeAddressKeys(final boolean testConnections) {
-		final Map<Integer, String> waks = new HashMap<Integer, String>();
-		int i = UGateUtil.WIRELESS_ADDRESS_START_INDEX;
-		String addressKey;
-		while (preferences.hasKey((addressKey = Settings.WIRELESS_ADDRESS_NODE_PREFIX.key + i))) {
-			if (testConnections) {
-				if (wirelessTestAddressConnection(i) != null) {
-					waks.put(i, addressKey);
-				} else {
-					log.info("Invalid wireless address preference key: " + addressKey);
-				}
-			} else {
-				waks.put(i, addressKey);
-			}
-			i++;
-		}
-		return waks;
-	}
-	
-	/**
-	 * Synchronizes the locally stored settings with the remote wireless node(s)
-	 * 
-	 * @param nodeIndexes the wireless node index(es) to send the settings to (null to send to all)
 	 * @return true when all node(s) have been updated successfully
 	 */
-	public boolean wirelessSendSettings(final Integer... nodeIndexes) {
+	public boolean wirelessSendSettings(final int nodeIndex) {
 		boolean allSuccess = false;
 		if (!wirelessIsConnected()) {
 			return allSuccess;
 		}
 		try {
-			final SettingsData sd = new SettingsData();
+			final SettingsData sd = new SettingsData(nodeIndex);
 			final int[] sendData = sd.toArray();
 			log.info(String.format("Attempting to send: %s", sd));
-			final Map<Integer, String> was = nodeIndexes == null || nodeIndexes.length == 0 ? 
-					wirelessGetNodeAddresses(false) : 
-						wirelessGetNodeAddresses(new HashSet<Integer>(Arrays.asList(nodeIndexes)), false);
+			final Map<Integer, String> was = wirelessGetRemoteAddressMap(nodeIndex);
 			final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, 
 					was, 0, null, Command.SENSOR_SET_SETTINGS, null, sendData);
 			if (wirelessSendData(event)) {
@@ -746,6 +704,59 @@ public enum UGateKeeper {
 			log.error("Error while sending settings", t);
 		}
 		return allSuccess;
+	}
+	
+	/**
+	 * @return the remote address of the device node for which the controls represent
+	 */
+	public String wirelessGetCurrentRemoteNodeAddress() {
+		return settingsGet(RemoteSettings.WIRELESS_ADDRESS_NODE, wirelessGetCurrentRemoteNodeIndex());
+	}
+	
+	/**
+	 * @return the remote index of the device node for which the controls represent
+	 */
+	public int wirelessGetCurrentRemoteNodeIndex() {
+		return this.wirelessCurrentRemoteNodeIndex;
+	}
+	
+	/**
+	 * @param wirelessCurrentRemoteNodeIndex the remote index of the device node for which the controls represent
+	 */
+	public void wirelessSetCurrentRemoteNodeIndex(final int wirelessCurrentRemoteNodeIndex) {
+		this.wirelessCurrentRemoteNodeIndex = wirelessCurrentRemoteNodeIndex;
+	}
+	
+//	/**
+//	 * Sets the wireless remote node index
+//	 * 
+//	 * @param wirelessRemoteNodeIndex the index
+//	 */
+//	public void wirelessSetRemoteNodeIndex(final int wirelessRemoteNodeIndex) {
+//		if (wirelessRemoteNodeIndex <= 0) {
+//			throw new ArrayIndexOutOfBoundsException(wirelessRemoteNodeIndex);
+//		}
+//		final int oldIndex = this.wirelessRemoteNodeIndex;
+//		if (oldIndex != wirelessRemoteNodeIndex) {
+//			this.wirelessRemoteNodeIndex = wirelessRemoteNodeIndex;
+//			wirelessInitRemoteSettings();
+//			notifyListeners(new UGateKeeperEvent<Integer>(this, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED, 
+//					null, 0, null, null, oldIndex, this.wirelessRemoteNodeIndex));
+//		}
+//	}
+	
+	/**
+	 * Initializes the preferences/settings
+	 */
+	private void wirelessInitRemoteSettings() {
+		int i = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
+		// should always have at least one remote settings
+		SettingsFile sf = new SettingsFile(WIRELESS_PREFERENCE_FILE_PREFIX + i, true);
+		while (sf.isLoaded()) {
+			remoteNodeSettings.put(i, sf);
+			i++;
+			sf = new SettingsFile(WIRELESS_PREFERENCE_FILE_PREFIX + i, false);
+		}
 	}
 	
 	/**
