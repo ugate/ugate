@@ -15,28 +15,6 @@ public class UGateUtil {
 	
 	public static final String HELP_TEXT_DEFAULT_KEY = "help.text.default";
 	
-//	/**
-//	 * Commands that can be sent to the remote micro controller
-//	 */
-//	public static final HashMap<Command, String> CMDS = new HashMap<Command, String>();
-//	static {
-//		CMDS.put(Command.SERVO_TILT_UP, "Tilts the selected servo up");
-//		CMDS.put(Command.SERVO_TILT_DOWN, "Tilts the selected servo down");
-//		CMDS.put(Command.SERVO_PAN_RIGHT, "Pans the selected servo to the right");
-//		CMDS.put(Command.SERVO_PAN_LEFT, "Pans the selected servo to the left");
-//		CMDS.put(Command.IR_REMOTE_SESSION_RESET, "Resets the universal remote control session");
-//		CMDS.put(Command.SENSOR_ALARM_TOGGLE, "Turns the sensor alarms on and off");
-//		CMDS.put(Command.CAM_TAKE_PIC, "Takes a picture at a predefined resolution");
-//		CMDS.put(Command.ACCESS_CODE_CHANGE, "Changes the access code");
-//		CMDS.put(Command.SERVO_TOGGLE_CAM_SONARIR, "Toggle between the camera and sonar/IR servo");
-//		CMDS.put(Command.GATE_TOGGLE_OPEN_CLOSE, "Toggle opening and closing the gate (if applicable)");
-//		CMDS.put(Command.SERVO_CAM_MOVE, "Moves the camera (followed by a servo movement command)");
-//		CMDS.put(Command.SERVO_SONAR_MOVE, "Moves the sonar/IR armature (followed by a servo movement command)");
-//		CMDS.put(Command.SERVO_MICROWAVE_MOVE, "Moves the microwave armature (followed by a servo movement command)");
-//		CMDS.put(Command.SENSOR_GET_READINGS, "Retrieves the current sensor readings");
-//		CMDS.put(Command.SENSOR_GET_SETTINGS, "Gets all of the settings variables from the remote device");
-//		CMDS.put(Command.SENSOR_SET_SETTINGS, "Sets all of the settings variables on the remote device");
-//	}
 	/**
 	 * Available XBee baud rates
 	 */
@@ -45,17 +23,7 @@ public class UGateUtil {
 	/**
 	 * Supported locals
 	 */
-	public static final Locale[] SUPPORTED_LOCALS = { Locale.ENGLISH }; 
-	
-	// preference values (host use only) settings values (host and node use)
-	
-	public static final String MAIL_COMMAND_DELIMITER = ";";
-	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
-	
-	// wireless network addresses
-	
-	public static final int WIRELESS_ADDRESS_START_INDEX = 1;
-	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
+	public static final Locale[] SUPPORTED_LOCALS = { Locale.ENGLISH };
 
 	//public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd hh:mm:ss";

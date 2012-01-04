@@ -33,7 +33,7 @@ import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
-import org.ugate.Settings;
+import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.AppFrame;
@@ -67,8 +67,8 @@ public class UGateGUI extends Application {
 	protected final HBox connectionView = new HBox(10);
 	protected final TextArea loggingView = new TextArea();
 	protected ControlBar controlBar;
-	protected MailConnectionView mailConnectionView;
-	protected WirelessConnectionView wirelessConnectionView;
+	protected EmailHostConnectionView mailConnectionView;
+	protected WirelessHostConnectionView wirelessConnectionView;
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 
@@ -110,6 +110,7 @@ public class UGateGUI extends Application {
 	public void start(final Stage stage) throws Exception {
 		log.debug("Starting GUI...");
 		try {
+			// TODO : add GUI support for multiple remote wireless nodes
 			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 	
 			final BorderPane content = new BorderPane();
@@ -142,8 +143,8 @@ public class UGateGUI extends Application {
 			VBox.setVgrow(main, Priority.ALWAYS);
 			main.getChildren().addAll(controlBar, centerView);
 			
-			wirelessConnectionView = new WirelessConnectionView(controlBar);
-			mailConnectionView = new MailConnectionView(controlBar);
+			wirelessConnectionView = new WirelessHostConnectionView(controlBar);
+			mailConnectionView = new EmailHostConnectionView(controlBar);
 	
 			// change the center view back to the connection view when connections are lost
 			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
@@ -183,7 +184,8 @@ public class UGateGUI extends Application {
 						@Override
 						public void run() {
 							changeCenterView(
-									new DisplayShelf(UGateKeeper.DEFAULT.wirelessImgCapturePath(),
+									new DisplayShelf(UGateKeeper.DEFAULT.wirelessWorkingDirectory(
+											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP, 
 											RS.rbLabel("displayshelf.fullsize.tooltip")));
@@ -366,7 +368,8 @@ public class UGateGUI extends Application {
 	 * @param event the event
 	 */
 	private void playSound(final UGateKeeperEvent<?> event) {
-		final String soundsOn = UGateKeeper.DEFAULT.preferencesGet(Settings.SOUNDS_ON);
+		final String soundsOn = UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SOUNDS_ON, 
+				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex());
 		if (soundsOn == null || soundsOn.isEmpty() || Integer.parseInt(soundsOn) != 1) {
 			return;
 		}

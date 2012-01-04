@@ -3,7 +3,7 @@ package org.ugate.wireless.data;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
-import org.ugate.Settings;
+import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 
 
@@ -15,9 +15,6 @@ public class SettingsData extends RxData {
 	private int universalRemoteOn;
 	private KeyCodes keyCodes;
 	private int camResolution;
-	private int sonarAlarmOn;
-	private int pirAlarmOn;
-	private int mwAlarmOn;
 	private int gateAlarmOn;
 	private int sonarDistanceThresholdFeet;
 	private int sonarDistanceThresholdInches;
@@ -37,22 +34,23 @@ public class SettingsData extends RxData {
 	
 	/**
 	 * Constructs settings data with the current preference data
+	 * 
+	 * @param nodeIndex the remote node index
+	 * @param nodeIndex the index of the remote node
 	 */
-	public SettingsData() {
-		super(Status.NORMAL, 0);
+	public SettingsData(final int nodeIndex) {
+		super(nodeIndex,Status.NORMAL, 0);
 		setPreferenceValues();
 	}
 	
 	/**
 	 * Full constructor
 	 * 
+	 * @param nodeIndex
 	 * @param status
 	 * @param universalRemoteOn
 	 * @param keyCodes
 	 * @param camResolution
-	 * @param sonarAlarmOn
-	 * @param pirAlarmOn
-	 * @param mwAlarmOn
 	 * @param gateAlarmOn
 	 * @param sonarDistanceThresholdFeet
 	 * @param sonarDistanceThresholdInches
@@ -70,8 +68,8 @@ public class SettingsData extends RxData {
 	 * @param camMicrowaveTripPanAngle
 	 * @param camMicrowaveTripTiltAngle
 	 */
-	public SettingsData(final Status status, final int signalStrength, int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3,
-			int camResolution, int sonarAlarmOn, int pirAlarmOn, int mwAlarmOn,
+	public SettingsData(final Integer nodeIndex, final Status status, final int signalStrength, int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3,
+			int camResolution,
 			int gateAlarmOn, int sonarDistanceThresholdFeet,
 			int sonarDistanceThresholdInches, int sonarDelayBetweenTrips,
 			int irDistanceThresholdFeet, int irDistanceThresholdInches,
@@ -80,13 +78,10 @@ public class SettingsData extends RxData {
 			int camSonarTripPanAngle, int camSonarTripTiltAngle,
 			int camIrTripPanAngle, int camIrTripTiltAngle,
 			int camMicrowaveTripPanAngle, int camMicrowaveTripTiltAngle) {
-		super(status, signalStrength);
+		super(nodeIndex, status, signalStrength);
 		this.universalRemoteOn = universalRemoteOn;
-		this.keyCodes = new KeyCodes(status, signalStrength, keyCode1, keyCode2, keyCode3);
+		this.keyCodes = new KeyCodes(nodeIndex, status, signalStrength, keyCode1, keyCode2, keyCode3);
 		this.camResolution = camResolution;
-		this.sonarAlarmOn = sonarAlarmOn;
-		this.pirAlarmOn = pirAlarmOn;
-		this.mwAlarmOn = mwAlarmOn;
 		this.gateAlarmOn = gateAlarmOn;
 		this.sonarDistanceThresholdFeet = sonarDistanceThresholdFeet;
 		this.sonarDistanceThresholdInches = sonarDistanceThresholdInches;
@@ -107,32 +102,31 @@ public class SettingsData extends RxData {
 
 	/**
 	 * Sets the parameter values from data stored in the preferences
+	 * 
+	 * @param remoteNodeIndex the index of the remote node
 	 */
 	public void setPreferenceValues() {
-		universalRemoteOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.UNIVERSAL_REMOTE_ACCESS_ON));
-		keyCodes.setKeyCode1(Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_1)));
-		keyCodes.setKeyCode2(Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_2)));
-		keyCodes.setKeyCode3(Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.ACCESS_CODE_3)));
-		camResolution = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_RES));
-		sonarAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_ALARM_ON));
-		pirAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_ALARM_ON));
-		mwAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_ALARM_ON));
-		gateAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.GATE_ACCESS_ON));
-		sonarDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_FEET));
-		sonarDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DISTANCE_THRES_INCHES));
-		sonarDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.SONAR_DELAY_BTWN_TRIPS));
-		irDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_FEET));
-		irDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DISTANCE_THRES_INCHES));
-		irDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.IR_DELAY_BTWN_TRIPS));
-		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_SPEED_THRES_CYCLES_PER_SEC));
-		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MW_DELAY_BTWN_TRIPS));
-		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.MULTI_ALARM_TRIP_STATE));
-		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_PAN));
-		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_SONAR_TRIP_ANGLE_TILT));
-		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_PAN));
-		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_IR_TRIP_ANGLE_TILT));
-		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_PAN));
-		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.preferencesGet(Settings.CAM_MW_TRIP_ANGLE_TILT));
+		universalRemoteOn = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.UNIVERSAL_REMOTE_ACCESS_ON, getNodeIndex()));
+		keyCodes.setKeyCode1(Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.ACCESS_CODE_1, getNodeIndex())));
+		keyCodes.setKeyCode2(Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.ACCESS_CODE_2, getNodeIndex())));
+		keyCodes.setKeyCode3(Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.ACCESS_CODE_3, getNodeIndex())));
+		camResolution = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_RES, getNodeIndex()));
+		gateAlarmOn = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.GATE_ACCESS_ON, getNodeIndex()));
+		sonarDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SONAR_DISTANCE_THRES_FEET, getNodeIndex()));
+		sonarDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SONAR_DISTANCE_THRES_INCHES, getNodeIndex()));
+		sonarDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SONAR_DELAY_BTWN_TRIPS, getNodeIndex()));
+		irDistanceThresholdFeet = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.IR_DISTANCE_THRES_FEET, getNodeIndex()));
+		irDistanceThresholdInches = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.IR_DISTANCE_THRES_INCHES, getNodeIndex()));
+		irDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.IR_DELAY_BTWN_TRIPS, getNodeIndex()));
+		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MW_SPEED_THRES_CYCLES_PER_SEC, getNodeIndex()));
+		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MW_DELAY_BTWN_TRIPS, getNodeIndex()));
+		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MULTI_ALARM_TRIP_STATE, getNodeIndex()));
+		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_PAN, getNodeIndex()));
+		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_TILT, getNodeIndex()));
+		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_IR_TRIP_ANGLE_PAN, getNodeIndex()));
+		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_IR_TRIP_ANGLE_TILT, getNodeIndex()));
+		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_PAN, getNodeIndex()));
+		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_TILT, getNodeIndex()));
 	}
 	
 	/**
@@ -179,7 +173,7 @@ public class SettingsData extends RxData {
 	/**
 	 * @return the universalRemoteOn
 	 */
-	public int getGniversalRemoteOn() {
+	public int getUniversalRemoteOn() {
 		return universalRemoteOn;
 	}
 
@@ -202,48 +196,6 @@ public class SettingsData extends RxData {
 	 */
 	public void setCamResolution(int camResolution) {
 		this.camResolution = camResolution;
-	}
-
-	/**
-	 * @return the sonarAlarmOn
-	 */
-	public int getSonarAlarmOn() {
-		return sonarAlarmOn;
-	}
-
-	/**
-	 * @param sonarAlarmOn the sonarAlarmOn to set
-	 */
-	public void setSonarAlarmOn(int sonarAlarmOn) {
-		this.sonarAlarmOn = sonarAlarmOn;
-	}
-
-	/**
-	 * @return the pirAlarmOn
-	 */
-	public int getPirAlarmOn() {
-		return pirAlarmOn;
-	}
-
-	/**
-	 * @param pirAlarmOn the pirAlarmOn to set
-	 */
-	public void setPirAlarmOn(int pirAlarmOn) {
-		this.pirAlarmOn = pirAlarmOn;
-	}
-
-	/**
-	 * @return the mwAlarmOn
-	 */
-	public int getMwAlarmOn() {
-		return mwAlarmOn;
-	}
-
-	/**
-	 * @param mwAlarmOn the mwAlarmOn to set
-	 */
-	public void setMwAlarmOn(int mwAlarmOn) {
-		this.mwAlarmOn = mwAlarmOn;
 	}
 
 	/**

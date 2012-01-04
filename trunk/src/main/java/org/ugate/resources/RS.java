@@ -8,14 +8,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
 import javafx.scene.CacheHint;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.AudioClip;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 public class RS {
 
@@ -37,7 +37,8 @@ public class RS {
 	public static final String IMG_LOGS = "logs.png";
 	public static final String IMG_CAM_VGA = "cam-vga.png";
 	public static final String IMG_CAM_QVGA = "cam-qvga.png";
-	public static final String IMG_CAM_RESOLUTION = "resolution32x32.png";
+	public static final String IMG_CAM_TOGGLE_VGA = "cam-toggle-vga.png";
+	public static final String IMG_CAM_TOGGLE_QVGA = "cam-toggle-qvga.png";
 	public static final String IMG_SENSOR_ARM = "camera.png";
 	public static final String IMG_EMAIL_NOTIFY_ON = "email-notify-on.png";
 	public static final String IMG_EMAIL_NOTIFY_OFF = "email-notify-off.png";
@@ -65,7 +66,6 @@ public class RS {
 	public static final String IMG_SOUND_OFF = "sound-off.png";
 	public static final String IMG_UNIVERSAL_REMOTE_ON = "universal-remote-on.png";
 	public static final String IMG_UNIVERSAL_REMOTE_OFF = "universal-remote-off.png";
-	private static final String RB_LOGS = "LogsBundle";
 	private static final String RB_GUI = "LabelsBundle";
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
@@ -243,30 +243,6 @@ public class RS {
 	 */
 	public static String rbLabel(final Locale locale, final String key, final Object... formatArguments) {
 		return rbValue(RB_GUI, locale, key, formatArguments);
-	}
-	
-	/**
-	 * Gets the first available locale and the log resource bundles 
-	 * value for the specified key
-	 * 
-	 * @param key the key of the resource bundle value
-	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
-	 * @return the resource bundle value
-	 */
-	public static String rbLog(final String key, final Object... formatArguments) {
-		return rbLog(Locale.getAvailableLocales()[0], key, formatArguments);
-	}
-	
-	/**
-	 * Gets the a log resource bundles value for the specified key
-	 *  
-	 * @param locale the locale of the resource bundle
-	 * @param key the key of the resource bundle value
-	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
-	 * @return the resource bundle value
-	 */
-	public static String rbLog(final Locale locale, final String key, final Object... formatArguments) {
-		return rbValue(RB_LOGS, locale, key, formatArguments);
 	}
 	
 	/**

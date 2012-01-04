@@ -1,0 +1,129 @@
+package org.ugate.gui;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+
+import org.ugate.Command;
+import org.ugate.RemoteSettings;
+import org.ugate.UGateKeeper;
+import org.ugate.gui.components.UGateTextFieldPreferenceView;
+import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
+import org.ugate.resources.RS;
+import org.ugate.wireless.data.SensorReadings;
+
+/**
+ * Node configuration
+ */
+public class AccessSettings extends ControlPane {
+
+	private UGateToggleSwitchPreferenceView universalRemoteAccessToggleSwitch;
+	private UGateTextFieldPreferenceView remoteAddress;
+	private UGateTextFieldPreferenceView workingDir;
+	private UGateTextFieldPreferenceView accessKey1;
+	private UGateTextFieldPreferenceView accessKey2;
+	private UGateTextFieldPreferenceView accessKey3;
+	private UGateToggleSwitchPreferenceView gateToggleSwitchView;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param controlBar the control bar
+	 */
+	public AccessSettings(final ControlBar controlBar) {
+		super(controlBar);
+		addConnectionChildren();
+		addUniveralRemoteChildren();
+		addGateChildren();
+	}
+	
+	protected void addConnectionChildren() {
+		final Label nodeLabel = createLabel("wireless.node.remote");
+
+	    remoteAddress = new UGateTextFieldPreferenceView(RemoteSettings.WIRELESS_ADDRESS_NODE, 
+	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, 
+				RS.rbLabel("wireless.remote"), null);
+	    controlBar.addHelpTextTrigger(remoteAddress, 
+	    		RS.rbLabel("wireless.remote.desc", UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
+	    workingDir = new UGateTextFieldPreferenceView(RemoteSettings.WIRELESS_WORKING_DIR_PATH, 
+	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
+				UGateTextFieldPreferenceView.Type.TYPE_TEXT, 
+				RS.rbLabel("wireless.workingdir"), null);
+	    controlBar.addHelpTextTrigger(workingDir, RS.rbLabel("wireless.workingdir.desc"));
+		
+	    final Group nodeConnectionCell = createCell(false, true, nodeLabel, remoteAddress, workingDir);
+		add(nodeConnectionCell, 0, 0);
+	}
+	
+	protected void addUniveralRemoteChildren() {
+		final Label univRemoteLabel = createLabel("wireless.remote.universal");
+		universalRemoteAccessToggleSwitch = new UGateToggleSwitchPreferenceView(
+				RemoteSettings.UNIVERSAL_REMOTE_ACCESS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
+		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, RS.rbLabel("wireless.remote.universal.desc", 
+				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
+	    accessKey1 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_1, 
+	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), null);
+	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel("wireless.access.key.desc", 1));
+	    accessKey2 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_2, 
+	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 2), null);
+	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel("wireless.access.key.desc", 2));
+	    accessKey3 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_3, 
+	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), null);
+	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel("wireless.access.key.desc", 3));
+	    
+	    final HBox accessKeysContainer = new HBox(5);
+	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
+	    
+		final Group univRemoteCell = createCell(false, true, univRemoteLabel, universalRemoteAccessToggleSwitch, accessKeysContainer);
+		add(univRemoteCell, 1, 0);
+	}
+	
+	protected void addGateChildren() {
+		final Label gateHeader = createLabel("gate.conf");
+		gateToggleSwitchView = new UGateToggleSwitchPreferenceView(
+				RemoteSettings.GATE_ACCESS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				RS.IMG_GATE_ON, RS.IMG_GATE_OFF);
+		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
+		final Label gateCtrlHeader = createLabel("gate.state");
+		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
+		final Group gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
+				1, gateToggleButton);
+		gateGroup.setCursor(Cursor.HAND);
+		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
+		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					gateToggleButton.setDisable(true);
+					controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE, true);
+				}
+			}
+		});
+		controlBar.sensorReadingsProperty().addListener(new ChangeListener<SensorReadings>() {
+			@Override
+			public void changed(final ObservableValue<? extends SensorReadings> observable, 
+					final SensorReadings oldValue, final SensorReadings newValue) {
+				// when a command is sent to a remote node to open/close a gate a response for
+				// sensor readings will be sent to the host where the gate state update is captured
+				gateToggleButton.setImage(newValue.getGateState() == 1 ? RS.img(RS.IMG_GATE_OPENED) : 
+					RS.img(RS.IMG_GATE_CLOSED));
+				gateToggleButton.setDisable(false);
+			}
+		});
+		
+		final Group cell = createCell(false, true, gateHeader, gateToggleSwitchView, 
+				gateCtrlHeader, gateGroup);
+		add(cell, 2, 0);
+	}
+}

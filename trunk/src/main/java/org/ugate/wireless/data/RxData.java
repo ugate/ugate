@@ -11,6 +11,7 @@ import org.ugate.UGateUtil;
 public abstract class RxData {
 
 	private static final Logger log = Logger.getLogger(RxData.class);
+	private final Integer nodeIndex;
 	private final Calendar createdTime;
 	private final int signalStrength;
 	private Status status = Status.NORMAL;
@@ -18,10 +19,12 @@ public abstract class RxData {
 	/**
 	 * Constructor
 	 * 
+	 * @param nodeIndex the remote node index
 	 * @param status the initial {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 */
-	public RxData(final Status status, final int signalStrength) {
+	public RxData(final Integer nodeIndex, final Status status, final int signalStrength) {
+		this.nodeIndex = nodeIndex;
 		setStatus(status);
 		this.signalStrength = signalStrength;
 		this.createdTime = Calendar.getInstance();
@@ -33,8 +36,15 @@ public abstract class RxData {
 	 */
 	@Override
 	public String toString() {
-		return String.format("STATUS: %1$s, SIGNAL STRENGTH: %2$s, CREATED: %3$s", 
-				getStatus(), getSignalStrength(), UGateUtil.calFormat(getCreatedTime()));
+		return String.format("NODE INDEX %4$s, STATUS: %1$s, SIGNAL STRENGTH: %2$s, CREATED: %3$s", 
+				getStatus(), getSignalStrength(), UGateUtil.calFormat(getCreatedTime()), getNodeIndex());
+	}
+
+	/**
+	 * @return the remote node index
+	 */
+	public Integer getNodeIndex() {
+		return this.nodeIndex;
 	}
 
 	/**

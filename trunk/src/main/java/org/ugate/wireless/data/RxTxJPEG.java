@@ -18,12 +18,13 @@ public class RxTxJPEG extends RxTxImage {
 	/**
 	 * Constructor
 	 * 
+	 * @param nodeIndex the remote node index
 	 * @param status the {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 * @param data the image chunk data
 	 */
-	public RxTxJPEG(final Status status, final int signalStrength, final List<ImageChunk> data) {
-		super(status, signalStrength, (data == null ? new ArrayList<ImageChunk>() : data));
+	public RxTxJPEG(final Integer nodeIndex, final Status status, final int signalStrength, final List<ImageChunk> data) {
+		super(nodeIndex, status, signalStrength, (data == null ? new ArrayList<ImageChunk>() : data));
 	}
 	
 	/**

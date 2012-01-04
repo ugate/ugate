@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
-import org.ugate.Settings;
+import org.ugate.ISettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.GuiUtil;
 
@@ -43,56 +43,43 @@ public class UGateTextFieldPreferenceView extends VBox {
 	private final int numericStepperDigitCount;
 	private final Number minValue;
 	private final Number maxValue;
-	private final Settings settings;
+	private final ISettings settings;
+	private final Integer nodeIndex;
 	
 	/**
 	 * Creates a text field preference view
 	 * 
-	 * @param preferenceKey the preference key
-	 * @param preferenceIndex the preference index to append to the {@linkplain Settings#key}
+	 * @param settingsKey the settings key
 	 * @param type the type
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
-	public UGateTextFieldPreferenceView(final Settings preferenceKey, final int preferenceIndex, 
+	public UGateTextFieldPreferenceView(final ISettings settingsKey, final Integer nodeIndex,
 			final Type type, final String labelText, final String toolTip) {
-		this(preferenceKey, preferenceIndex, type, null, null, null, labelText, toolTip);
-	}
-	
-	/**
-	 * Creates a text field preference view
-	 * 
-	 * @param preferenceKey the preference key
-	 * @param type the type
-	 * @param labelText the label text
-	 * @param toolTip the tool tip
-	 */
-	public UGateTextFieldPreferenceView(final Settings preferenceKey, 
-			final Type type, final String labelText, final String toolTip) {
-		this(preferenceKey, null, type, null, null, null, labelText, toolTip);
+		this(settingsKey, nodeIndex, type, null, null, null, labelText, toolTip);
 	}
 	
 	/**
 	 * Creates a numeric stepper that can be incremented/decremented by clicking on up/down arrows
 	 *  
-	 * @param preferenceKey the preference key
+	 * @param settingsKey the settings key
+	 * @param nodeIndex the settings node index
 	 * @param numericStepperFormat the {@linkplain String#format(String, Object...)} (integer of float)
 	 * @param minValue the minimum allowed value
 	 * @param maxValue the maximum allowed value
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
-	public UGateTextFieldPreferenceView(final Settings preferenceKey, 
+	public UGateTextFieldPreferenceView(final ISettings settingsKey, final Integer nodeIndex,
 			final String numericStepperFormat, final Number minValue, final Number maxValue, 
 			final String labelText, final String toolTip) {
-		this(preferenceKey, null, Type.TYPE_NUMERIC_STEPPER, numericStepperFormat, minValue, maxValue, labelText, toolTip);
+		this(settingsKey, nodeIndex, Type.TYPE_NUMERIC_STEPPER, numericStepperFormat, minValue, maxValue, labelText, toolTip);
 	}
 
 	/**
 	 * Creates a text field preference view
 	 * 
 	 * @param settings the settings
-	 * @param preferenceIndex the preference index to append to the {@linkplain Settings#key}
 	 * @param type the type
 	 * @param numericStepperFormat the {@linkplain String#format(String, Object...)} (integer of float)
 	 * @param minValue the minimum allowed value
@@ -100,11 +87,12 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
-	protected UGateTextFieldPreferenceView(final Settings settings, final Integer preferenceIndex, final Type type, 
+	protected UGateTextFieldPreferenceView(final ISettings settings, final Integer nodeIndex, final Type type, 
 			final String numericStepperFormat, final Number minValue, final Number maxValue, 
 			final String labelText, final String toolTip) {
 	    super();
 	    this.settings = settings;
+	    this.nodeIndex = nodeIndex;
 	    this.type = type;
 		label = new Label();
 	    label.setText(labelText);
@@ -112,8 +100,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	label.setTooltip(new Tooltip(toolTip));
 	    }
 	    final String textValue = settings != null ? 
-	    		preferenceIndex != null ? UGateKeeper.DEFAULT.preferencesGet(settings, preferenceIndex) : 
-	    			UGateKeeper.DEFAULT.preferencesGet(settings) : "";
+	    		UGateKeeper.DEFAULT.settingsGet(settings, this.nodeIndex) : "";
 		this.numericStepperFormat = type != Type.TYPE_NUMERIC_STEPPER ? null :
 			numericStepperFormat == null || numericStepperFormat.length() == 0 ? 
 				"%03d" : numericStepperFormat;
@@ -171,13 +158,11 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param control the control to add the listener to
 	 */
 	protected void addPreferenceUpdateListener(final TextInputControl control) {
-		control.focusedProperty().addListener(new ChangeListener<Boolean>() {
+		control.textProperty().addListener(new ChangeListener<String>() {
 			@Override
-			public void changed(ObservableValue<? extends Boolean> observable,
-					Boolean oldValue, Boolean newValue) {
-				if (!newValue) {
-					UGateKeeper.DEFAULT.preferencesSet(settings, control.getText());
-				}
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				UGateKeeper.DEFAULT.settingsSet(settings, nodeIndex, newValue);
 			}
 		});
 	}
@@ -208,7 +193,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 					if (newValue.floatValue() >= minValue.floatValue() && 
 							newValue.floatValue() <= maxValue.floatValue()) {
 						numericStepperDigits.setValue(String.format(numericStepperFormat, newValue));
-						UGateKeeper.DEFAULT.preferencesSet(settings, newValue.toString());
+						UGateKeeper.DEFAULT.settingsSet(settings, nodeIndex, newValue.toString());
 					}
 				}
 			}

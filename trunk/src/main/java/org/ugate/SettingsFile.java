@@ -22,28 +22,29 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.log4j.Logger;
-import org.ugate.resources.RS;
 
 /**
- * Preferences are used to store simple key/value pair data to disk. The file approach is taken
+ * Settings are used to store simple key/value pair data to disk. The file approach is taken
  * versus the typical {@link java.util.prefs.Preferences} so they can be readily accessible for
  * manual editing when needed.
  */
-public class Preferences {
+public class SettingsFile {
 
-	private static final Logger log = Logger.getLogger(Preferences.class);
+	private static final Logger log = Logger.getLogger(SettingsFile.class);
 	public static final String ENCRYPTION_TYPE = "AES";
 	public static final String ENCRYPTION_POSTFIX = ".encrypted";
 	private final Properties properties;
 	private final String fileName;
 	private SecretKeySpec skeySpec;
+	private boolean isLoaded = false;
 
 	/**
-	 * Preference file that can be used to store simple key/value pairs (generated when non-existent)
+	 * Settings file that can be used to store simple key/value pairs (generated when non-existent)
 	 * 
 	 * @param fileName the file name
+	 * @param createIfNotExists true to create the settings file when it doesn't exist
 	 */
-	public Preferences(final String fileName) {
+	public SettingsFile(final String fileName, final boolean createIfNotExists) {
 		this.fileName = fileName;
 		this.properties = new Properties();
 		try {
@@ -55,28 +56,42 @@ public class Preferences {
 		} catch (NoSuchAlgorithmException e) {
 			log.warn(e);
 		}
+		final String filePath = fileName + ".properties";
 		try {
-			this.properties.load(new FileInputStream(fileName + ".properties"));
+			this.properties.load(new FileInputStream(filePath));
+			this.isLoaded = true;
 		} catch (FileNotFoundException e) {
+			if (!createIfNotExists) {
+				log.debug(String.format("Unable to find settings file: %1$s", filePath));
+				return;
+			}
 	        BufferedWriter out = null;
 			try {
-				out = new BufferedWriter(new FileWriter(fileName + ".properties"));
+				out = new BufferedWriter(new FileWriter(filePath));
 		        out.write("");
-			} catch (IOException e2) {
-				throw new RuntimeException(RS.rbLog("pref.create.failed", fileName), e2);
+			} catch (final IOException e2) {
+				throw new RuntimeException(String.format("Unable to create settings file %1$s", filePath), e2);
 			} finally {
 				if (out != null) {
 					try {
 						out.close();
-						this.properties.load(new FileInputStream(fileName + ".properties"));
-					} catch (IOException e3) {
-						log.error(e3);
+						this.properties.load(new FileInputStream(filePath));
+						this.isLoaded = true;
+					} catch (final IOException e3) {
+						log.error(String.format("Unable to load settings file %1$s", filePath), e3);
 					}
 				}
 			}
 		} catch (IOException e) {
-			log.error(RS.rbLog("pref.create.io.failed"), e);
+			log.error("Unable to retrieve/create settings file", e);
 		}
+	}
+	
+	/**
+	 * @return true when the settings is loaded
+	 */
+	public boolean isLoaded() {
+		return this.isLoaded;
 	}
 	
 	/**
@@ -88,9 +103,9 @@ public class Preferences {
 	}
 	
 	/**
-	 * Gets a list of preference values by key using a delimiter
+	 * Gets a list of settings values by key using a delimiter
 	 * 
-	 * @param key the preference key
+	 * @param key the settings key
 	 * @param delimiter the delimiter for the multi-value preference
 	 * @return the list of values
 	 */
@@ -100,7 +115,7 @@ public class Preferences {
 	}
 
 	/**
-	 * Gets a preference value by key. If the key does not exist it will be created
+	 * Gets a settings value by key. If the key does not exist it will be created
 	 * 
 	 * @param key the key
 	 * @return the value
@@ -115,14 +130,14 @@ public class Preferences {
 			try {
 				value = new String(encryptDecrypt(eValue, Cipher.DECRYPT_MODE));
 			} catch (Exception e) {
-				throw new RuntimeException(RS.rbLog("pref.encrypt.failed"), e);
+				throw new RuntimeException("Unable to encrypt", e);
 			}
 		}
 		return value;
 	}
 
 	/**
-	 * Sets a key/value preference
+	 * Sets a key/value settings
 	 * 
 	 * @param key the key
 	 * @param value the value
@@ -132,7 +147,7 @@ public class Preferences {
 	}
 	
 	/**
-	 * Sets a a key/value preference
+	 * Sets a a key/value settings
 	 * 
 	 * @param key the key
 	 * @param value the value
@@ -145,14 +160,14 @@ public class Preferences {
 					value = asHex(encryptDecrypt(value, Cipher.ENCRYPT_MODE));
 					key += ENCRYPTION_POSTFIX;
 				} catch (Exception e) {
-					throw new RuntimeException(RS.rbLog("pref.encrypt.failed"), e);
+					throw new RuntimeException("Unable to encrypt", e);
 				}
 			}
 			properties.setProperty(key, value);
 			properties.store(new FileOutputStream(fileName + ".properties"),
 					null);
 		} catch (IOException e) {
-			log.error(RS.rbLog("pref.save.failed"), e);
+			log.error("Unable to save settings file", e);
 		}
 	}
 

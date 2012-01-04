@@ -15,7 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
-import org.ugate.Settings;
+import org.ugate.ISettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
@@ -29,47 +29,52 @@ import org.ugate.resources.RS;
 public class UGateToggleSwitchPreferenceView extends HBox {
 	
 	public static final int TOGGLE_ITEM_START_INDEX = 0;
-	public final Settings preferenceKey;
+	public final ISettings key;
+	public final Integer nodeIndex;
 	private final List<ToggleItem> toggleItems;
 	private final IntegerProperty preferenceValueProperty;
 	private boolean toggleItemsNeedSelectionUpdates = true;
-	private boolean prefereneNeedsUpdate = true;
+	private boolean settingsNeedsUpdate = true;
 	
 	/**
 	 * Creates a toggle switch preference view
 	 * 
-	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
+	 * @param key the settings key for getting/saving the settings option as it's selected
+	 * @param nodeIndex the settings index
 	 * @param onImageFileName the file name of the image shown when the toggled on
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 */
-	public UGateToggleSwitchPreferenceView(final Settings preferenceKey, final String onImageFileName, 
+	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final String onImageFileName, 
 			final String offImageFileName) {
-		this(preferenceKey, onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
+		this(key, nodeIndex, onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
 				RS.rbLabel("toggleswitch.off"));
 	}
 	
 	/**
 	 * Creates a single toggle switch preference view
 	 * 
-	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
+	 * @param key the settings key for getting/saving the settings option as it's selected
+	 * @param nodeIndex the settings index
 	 * @param onImageFileName the file name of the image shown when the toggled on
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 * @param onText the text to show when on
 	 * @param offText the text to show when off
 	 */
-	public UGateToggleSwitchPreferenceView(final Settings preferenceKey, final String onImageFileName, 
+	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final String onImageFileName, 
 			final String offImageFileName, final String onText, final String offText) {
-		this(preferenceKey, new ToggleItem(onImageFileName, offImageFileName, onText, offText, false, true));
+		this(key, nodeIndex, new ToggleItem(onImageFileName, offImageFileName, onText, offText, false, true));
 	}
 	
 	/**
 	 * Creates a toggle switch preference view using the supplied toggle items
 	 * 
-	 * @param preferenceKey the preference key for getting/saving the preference option as it's selected
+	 * @param key the settings key for getting/saving the settings option as it's selected
+	 * @param nodeIndex the settings index
 	 * @param toggleItems the toggle items
 	 */
-	public UGateToggleSwitchPreferenceView(final Settings preferenceKey, final ToggleItem... toggleItems) {
-		this.preferenceKey = preferenceKey;
+	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final ToggleItem... toggleItems) {
+		this.key = key;
+		this.nodeIndex = nodeIndex;
 		setSpacing(5d);
 		setAlignment(Pos.BOTTOM_LEFT);
 		this.preferenceValueProperty = new SimpleIntegerProperty(0) {
@@ -77,8 +82,9 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 			public final void set(final int v) {
 				if (v >= 0 && v <= getMaxPreferenceValue() && v != get()) {
 					super.set(v);
-					if (prefereneNeedsUpdate) {
-						UGateKeeper.DEFAULT.preferencesSet(UGateToggleSwitchPreferenceView.this.preferenceKey, String.valueOf(v));
+					if (settingsNeedsUpdate) {
+						UGateKeeper.DEFAULT.settingsSet(UGateToggleSwitchPreferenceView.this.key, 
+								UGateToggleSwitchPreferenceView.this.nodeIndex, String.valueOf(v));
 					}
 					if (toggleItemsNeedSelectionUpdates) {
 						updateToggleItems();
@@ -106,7 +112,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 		}
 		
 		// set the initial preference value
-		final String prefStrValue = UGateKeeper.DEFAULT.preferencesGet(this.preferenceKey);
+		final String prefStrValue = UGateKeeper.DEFAULT.settingsGet(this.key, this.nodeIndex);
 		int initialPrefValue = prefStrValue != null && prefStrValue.length() > 0 ? Integer.valueOf(prefStrValue) : 0;
 		setPreferenceValueNoPreferenceUpdate(Math.min(initialPrefValue, getMaxPreferenceValue()));
 	}
@@ -206,9 +212,9 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param preferenceValue the preference value to set
 	 */
 	protected void setPreferenceValueNoPreferenceUpdate(final int preferenceValue) {
-		prefereneNeedsUpdate = false;
+		settingsNeedsUpdate = false;
 		getPreferenceValueProperty().set(preferenceValue);
-		prefereneNeedsUpdate = true;
+		settingsNeedsUpdate = true;
 	}
 	
 	/**
