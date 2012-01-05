@@ -37,18 +37,20 @@ public enum UGateKeeper {
 
 	private static final String WIRELESS_HOST_SETTINGS_FILE = "host";
 	private static final String WIRELESS_PREFERENCE_FILE_PREFIX = "remote-node-";
-	private static final Logger log = Logger.getLogger(UGateKeeper.class);
+	private static final String WIRELESS_PREFERENCE_HISTORY_FILE = "history";
+	private final Logger log;
 	private final List<IGateKeeperListener> listeners = new ArrayList<IGateKeeperListener>();
 	private final XBee xbee;
 	private EmailAgent emailAgent;
 	private boolean isEmailConnected;
-	private final SettingsFile hostSettings;
-	private Map<Integer, SettingsFile> remoteNodeSettings = new HashMap<Integer, SettingsFile>(1);
+	private final StorageFile hostSettings;
+	private Map<Integer, RemoteNode> remoteNodes = new HashMap<Integer, RemoteNode>(1);
 	private int wirelessCurrentRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 	
 	private UGateKeeper() {
-		hostSettings = new SettingsFile(WIRELESS_HOST_SETTINGS_FILE, true);
-		wirelessInitRemoteSettings();
+		log = Logger.getLogger(UGateKeeper.class);
+		hostSettings = new StorageFile(WIRELESS_HOST_SETTINGS_FILE, true);
+		wirelessInitRemoteNodeStorage();
 		xbee = new XBee();
 	}
 	
@@ -71,10 +73,10 @@ public enum UGateKeeper {
 	 */
 	public boolean settingsHasKey(final ISettings key, final Integer index) {
 		if (key instanceof RemoteSettings) {
-			if (!remoteNodeSettings.containsKey(index)) {
+			if (!remoteNodes.containsKey(index)) {
 				return false;
 			}
-			return remoteNodeSettings.get(index).hasKey(key.getKey());
+			return remoteNodes.get(index).settings.hasKey(key.getKey());
 		} else if (key instanceof HostSettings) {
 			return hostSettings.hasKey(key.getKey());
 		}
@@ -92,7 +94,7 @@ public enum UGateKeeper {
 		final String oldValue = settingsGet(key, index);
 		if (!value.equals(oldValue)) {
 			if (key instanceof RemoteSettings) {
-				remoteNodeSettings.get(index).set(key.getKey(), value);
+				remoteNodes.get(index).settings.set(key.getKey(), value);
 			} else if (key instanceof HostSettings) {
 				hostSettings.set(key.getKey(), value);
 			} else {
@@ -115,7 +117,7 @@ public enum UGateKeeper {
 		if (!settingsHasKey(key, index)) {
 			return null;
 		}
-		return key instanceof RemoteSettings ? remoteNodeSettings.get(index).get(key.getKey()) : hostSettings.get(key.getKey());
+		return key instanceof RemoteSettings ? remoteNodes.get(index).settings.get(key.getKey()) : hostSettings.get(key.getKey());
 	}
 	
 	/**
@@ -130,7 +132,7 @@ public enum UGateKeeper {
 		if (settingsHasKey(key, index)) {
 			return null;
 		}
-		return key instanceof RemoteSettings ? remoteNodeSettings.get(index).get(key.getKey(), delimiter) : 
+		return key instanceof RemoteSettings ? remoteNodes.get(index).settings.get(key.getKey(), delimiter) : 
 			hostSettings.get(key.getKey(), delimiter);
 	}
 	
@@ -289,7 +291,9 @@ public enum UGateKeeper {
 	 */
 	public void emailDisconnect() {
 		if (emailAgent != null) {
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTING));
+			final String msg = RS.rbLabel("mail.disconnecting");
+			log.info(msg);
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTING, msg));
 			emailAgent.disconnect();
 			emailAgent = null;
 		}
@@ -442,26 +446,44 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * Gets the wireless working directory
+	 * Gets the wireless working directory for a specified node index. 
+	 * All required directories will be created and accounted for.
 	 * 
 	 * @param nodeIndex the node index
 	 * @return the path
 	 */
-	public File wirelessWorkingDirectory(final int nodeIndex) {
-		String imgFilePath = settingsGet(RemoteSettings.WIRELESS_WORKING_DIR_PATH, nodeIndex);
-		imgFilePath += imgFilePath.charAt(imgFilePath.length() - 1) != '/' ? "/" : "";
-		final File filePath = new File(imgFilePath);
+	public String wirelessWorkingDirectory(final int nodeIndex) {
+		if (!remoteNodes.containsKey(nodeIndex)) {
+			return null;
+		}
+		return wirelessWorkingDirectory(remoteNodes.get(nodeIndex).settings, nodeIndex);
+	}
+	
+	/**
+	 * Gets the wireless working directory for a specified node index. 
+	 * All required directories will be created and accounted for.
+	 * 
+	 * @param storageFile the storage file to get the working directory for
+	 * @param nodeIndex the node index
+	 * @return the path
+	 */
+	private String wirelessWorkingDirectory(final StorageFile storageFile, final int nodeIndex) {
+		String workingDir = storageFile.get(RemoteSettings.WIRELESS_WORKING_DIR_PATH.getKey());
+		workingDir += workingDir.charAt(workingDir.length() - 1) != '/' ? "/" + nodeIndex + '/' : nodeIndex + "/";
+		final File filePath = new File(workingDir);
 		if (!filePath.exists()) {
 			try {
 				filePath.mkdirs();
 			} catch (final Exception e) {
-				log.warn("Unable to initialize the working directory path at: " + imgFilePath, e);
+				log.warn("Unable to initialize the working directory path at: " + workingDir, e);
+				return null;
 			}
 		} else if(!filePath.isDirectory() || !filePath.canWrite()) {
 			log.error(String.format("The %1$s path %2$s must be an accessible/writable directory", 
 					RemoteSettings.WIRELESS_WORKING_DIR_PATH, filePath));
+			return null;
 		}
-		return filePath;
+		return workingDir;
 	}
 
 	/**
@@ -639,9 +661,9 @@ public enum UGateKeeper {
 	 * @return the index of the wireless node address (negative one when the address value is not found)
 	 */
 	public int wirelessGetAddressIndex(final String nodeAddress) {
-		for (final Map.Entry<Integer, SettingsFile> wak : remoteNodeSettings.entrySet()) {
-			if (wak.getValue().hasKey(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()) && 
-					wak.getValue().get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()).equals(nodeAddress)) {
+		for (final Map.Entry<Integer, RemoteNode> wak : remoteNodes.entrySet()) {
+			if (wak.getValue().settings.hasKey(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()) && 
+					wak.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()).equals(nodeAddress)) {
 				return wak.getKey();
 			}
 		}
@@ -655,22 +677,23 @@ public enum UGateKeeper {
 	 * @return the wireless node address
 	 */
 	public String wirelessGetAddress(final int nodeIndex) {
-		if (!remoteNodeSettings.containsKey(nodeIndex)) {
+		if (!remoteNodes.containsKey(nodeIndex)) {
 			return null;
 		}
-		return remoteNodeSettings.get(nodeIndex).get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey());
+		return remoteNodes.get(nodeIndex).settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey());
 	}
 	
 	/**
 	 * Gets a remote node index/address map for all of the valid node indexes passed
 	 * 
-	 * @param nodeIndexes the node indexes
+	 * @param nodeIndexes the node indexes (null to get all available addresses)
 	 * @return the map of node indexes/addresses
 	 */
-	private Map<Integer, String> wirelessGetRemoteAddressMap(final int... nodeIndexes) {
-		final Map<Integer, String> was = new HashMap<Integer, String>(nodeIndexes.length);
-		for (final int nodeIndex : nodeIndexes) {
-			if (!remoteNodeSettings.containsKey(nodeIndex)) {
+	public Map<Integer, String> wirelessGetRemoteAddressMap(final Integer... nodeIndexes) {
+		final Integer[] nis = nodeIndexes.length > 0 ? nodeIndexes : remoteNodes.keySet().toArray(new Integer[]{});
+		final Map<Integer, String> was = new HashMap<Integer, String>(nis.length);
+		for (final int nodeIndex : nis) {
+			if (!remoteNodes.containsKey(nodeIndex)) {
 				log.warn(String.format("%1$s remote node has not been created or does not exist", nodeIndex));
 				continue;
 			}
@@ -721,48 +744,99 @@ public enum UGateKeeper {
 	}
 	
 	/**
+	 * Sets the current wireless remote node index
+	 * 
 	 * @param wirelessCurrentRemoteNodeIndex the remote index of the device node for which the controls represent
 	 */
 	public void wirelessSetCurrentRemoteNodeIndex(final int wirelessCurrentRemoteNodeIndex) {
-		this.wirelessCurrentRemoteNodeIndex = wirelessCurrentRemoteNodeIndex;
-	}
-	
-//	/**
-//	 * Sets the wireless remote node index
-//	 * 
-//	 * @param wirelessRemoteNodeIndex the index
-//	 */
-//	public void wirelessSetRemoteNodeIndex(final int wirelessRemoteNodeIndex) {
-//		if (wirelessRemoteNodeIndex <= 0) {
-//			throw new ArrayIndexOutOfBoundsException(wirelessRemoteNodeIndex);
-//		}
-//		final int oldIndex = this.wirelessRemoteNodeIndex;
-//		if (oldIndex != wirelessRemoteNodeIndex) {
-//			this.wirelessRemoteNodeIndex = wirelessRemoteNodeIndex;
-//			wirelessInitRemoteSettings();
-//			notifyListeners(new UGateKeeperEvent<Integer>(this, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED, 
-//					null, 0, null, null, oldIndex, this.wirelessRemoteNodeIndex));
-//		}
-//	}
-	
-	/**
-	 * Initializes the preferences/settings
-	 */
-	private void wirelessInitRemoteSettings() {
-		int i = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
-		// should always have at least one remote settings
-		SettingsFile sf = new SettingsFile(WIRELESS_PREFERENCE_FILE_PREFIX + i, true);
-		while (sf.isLoaded()) {
-			remoteNodeSettings.put(i, sf);
-			i++;
-			sf = new SettingsFile(WIRELESS_PREFERENCE_FILE_PREFIX + i, false);
+		if (wirelessCurrentRemoteNodeIndex <= 0) {
+			throw new ArrayIndexOutOfBoundsException(wirelessCurrentRemoteNodeIndex);
+		}
+		final int oldIndex = wirelessGetCurrentRemoteNodeIndex();
+		if (oldIndex != wirelessCurrentRemoteNodeIndex) {
+			this.wirelessCurrentRemoteNodeIndex = wirelessCurrentRemoteNodeIndex;
+			// add the remote node- if it doesn't already exist
+			addRemoteNode(this.wirelessCurrentRemoteNodeIndex, oldIndex, true);
+			final String msg = RS.rbLabel("wireless.node.remote.changing", oldIndex, this.wirelessCurrentRemoteNodeIndex);
+			log.info(msg);
+			notifyListeners(new UGateKeeperEvent<Integer>(this, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED, 
+					null, 0, null, null, oldIndex, this.wirelessCurrentRemoteNodeIndex, msg));
 		}
 	}
 	
 	/**
-	 * Available connection types
+	 * Initializes all of the existing remote wireless node settings/preferences
 	 */
-	public enum ConnectionType {
-		WIRELESS, EMAIL;
+	private void wirelessInitRemoteNodeStorage() {
+		int i = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
+		RemoteNode sfs = null;
+		do {
+			// should always have at least one remote node- thus the create clause
+			sfs = addRemoteNode(i, null, i == RemoteSettings.WIRELESS_ADDRESS_START_INDEX);
+			i++;
+		} while (sfs != null);
+	}
+	
+	/**
+	 * Create a remote node with all of the required {@linkplain StorageFile}s
+	 * 
+	 * @param nodeIndex the node index of the remote node to add
+	 * @param copyFromIndex the index of the {@linkplain RemoteNode} to copy the {@linkplain RemoteNode#settings} 
+	 * 		from (null when a copy should not be made)
+	 * @param createIfNotExists true to create the {@linkplain RemoteNode#settings} when it doesn't already exist 
+	 * 		(not applicable when copying)
+	 * @return the added node (when successful)
+	 */
+	private RemoteNode addRemoteNode(final int nodeIndex, final Integer copyFromIndex, final boolean createIfNotExists) {
+		StorageFile sf;
+		if (copyFromIndex == null) {
+			if (remoteNodes.containsKey(nodeIndex)) {
+				log.warn(String.format("%1$s already exists for remote node index %2$s", 
+						RemoteNode.class.getSimpleName(), nodeIndex));
+				return null;
+			}
+			sf = new StorageFile(WIRELESS_PREFERENCE_FILE_PREFIX + nodeIndex, createIfNotExists);
+		} else {
+			if (!remoteNodes.containsKey(copyFromIndex)) {
+				log.warn(String.format("No %1$s exists to copy from at remote node index %2$s", 
+						RemoteNode.class.getSimpleName(), copyFromIndex));
+				return null;
+			}
+			sf = remoteNodes.get(copyFromIndex).settings.createCopy(WIRELESS_PREFERENCE_FILE_PREFIX + nodeIndex);
+		}
+		if (!sf.isLoaded()) {
+			return null;
+		}
+		final String workingDir = wirelessWorkingDirectory(sf, nodeIndex);
+		if (workingDir != null) {
+			final StorageFile hs = new StorageFile(workingDir + WIRELESS_PREFERENCE_HISTORY_FILE, true);
+			if (hs.isLoaded()) {
+				if (copyFromIndex != null) {
+					// the new node shouldn't have the same address as the one that it was copied from
+					sf.set(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey(), "");
+				}
+				final RemoteNode remoteNode = new RemoteNode(sf, hs);
+				remoteNodes.put(nodeIndex, remoteNode);
+				log.info(String.format("Loaded remote node settings storage at %1$s and history storage at %2$s", 
+						remoteNode.settings.getAbsoluteFilePath(), 
+						remoteNode.history.getAbsoluteFilePath()));
+				return remoteNode;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Composite of required {@linkplain StorageFile}s for each remote node 
+	 */
+	private static class RemoteNode {
+		
+		public final StorageFile settings;
+		public final StorageFile history;
+		
+		public RemoteNode(final StorageFile settings, final StorageFile history) {
+			this.settings = settings;
+			this.history = history;
+		}
 	}
 }

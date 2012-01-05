@@ -1,5 +1,6 @@
 package org.ugate.gui;
 
+import java.io.File;
 import java.util.Random;
 
 import javafx.animation.ScaleTransition;
@@ -18,6 +19,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -115,6 +117,7 @@ public class UGateGUI extends Application {
 	
 			final BorderPane content = new BorderPane();
 			content.setId("content");
+			content.setEffect(new InnerShadow());
 			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
 					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false);
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
@@ -184,8 +187,8 @@ public class UGateGUI extends Application {
 						@Override
 						public void run() {
 							changeCenterView(
-									new DisplayShelf(UGateKeeper.DEFAULT.wirelessWorkingDirectory(
-											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()),
+									new DisplayShelf(new File(UGateKeeper.DEFAULT.wirelessWorkingDirectory(
+											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex())),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP, 
 											RS.rbLabel("displayshelf.fullsize.tooltip")));
