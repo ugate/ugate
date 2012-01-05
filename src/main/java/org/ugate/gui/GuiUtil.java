@@ -15,9 +15,9 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.effect.ColorAdjustBuilder;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
@@ -85,7 +85,7 @@ public class GuiUtil {
 				if (newValue == State.RUNNING && !alert.isShowing()) {
 					Platform.runLater(new Runnable() {
 						public void run() {
-							parent.getScene().getRoot().setEffect(new GaussianBlur());
+							parent.getScene().getRoot().setEffect(ColorAdjustBuilder.create().brightness(-0.5d).build());
 							alert.show();
 						}
 					});

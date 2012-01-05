@@ -79,7 +79,7 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	public String getImagePath() {
 		//return "C:\\ugate\\" + UGateUtil.calFormat(getCreated()).replaceAll(":", "-") + '.' + getImageExtension();
 		final String imgFileName = getCreatedTimeString().replaceAll(":", "-") + '.' + getImageExtension();
-		final String imgRootPath = UGateKeeper.DEFAULT.wirelessWorkingDirectory(getNodeIndex()).getAbsolutePath();
+		final String imgRootPath = UGateKeeper.DEFAULT.wirelessWorkingDirectory(getNodeIndex());
 		return imgRootPath + imgFileName;
 	}
 
