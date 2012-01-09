@@ -239,7 +239,7 @@
     -fx-text-fill: linear-gradient(black, #38424b);
     -fx-font-size: 12px;
     -fx-cursor: text;
-    -fx-padding: 10 5 10 5;
+    -fx-padding: 3 5 3 5;
 }
 /* .text-field Text { */
 /*     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 ); */
@@ -248,6 +248,23 @@
 /*     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3); */
 /* } */
 .text-field:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+.text-field-fx {
+    -fx-skin: "com.sun.javafx.scene.control.skin.TextFieldSkin";
+    -fx-background-color: -fx-shadow-highlight-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 3, 2, 2;
+    -fx-padding: 3 5 3 5;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
+    -fx-cursor: text;
+}
+.text-field-fx:focused {
+    -fx-background-color: -fx-focus-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: -0.4, 1, 2;
+    -fx-background-radius: 3.4, 2, 2;
+}
+.text-field-fx:disabled {
     -fx-opacity: -fx-disabled-opacity;
 }
 .password-box {
@@ -326,6 +343,7 @@
  *                                                                             *
  ******************************************************************************/
 .choice-box {
+/*     -fx-skin: "org.ugate.gui.components.EditableChoiceBoxSkin"; */
     -fx-background-color:
         #000000,
         linear-gradient(#7ebcea, #2f4b8f),

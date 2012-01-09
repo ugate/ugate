@@ -19,7 +19,7 @@ public class UGateChoiceBox<T> extends VBox {
 	 * @param labelText the label text
 	 * @param choices the choices
 	 */
-	public UGateChoiceBox(final String labelText, final T[] choices) {
+	public UGateChoiceBox(final String labelText, final T... choices) {
 	    super();
 		label = new Label();
 	    label.setText(labelText);
