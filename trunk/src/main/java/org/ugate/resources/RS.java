@@ -66,6 +66,7 @@ public class RS {
 	public static final String IMG_SOUND_OFF = "sound-off.png";
 	public static final String IMG_UNIVERSAL_REMOTE_ON = "universal-remote-on.png";
 	public static final String IMG_UNIVERSAL_REMOTE_OFF = "universal-remote-off.png";
+	public static final String IMG_CORNER_RESIZE = "ugskin-resize11x11.png";
 	private static final String RB_GUI = "LabelsBundle";
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
