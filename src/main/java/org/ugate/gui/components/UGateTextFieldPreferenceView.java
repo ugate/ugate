@@ -5,7 +5,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
@@ -13,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -137,9 +137,9 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	final VBox stepperBar = new VBox(NUMERIC_STEPPER_QUARTER_HEIGHT);
 	    	stepperBar.getChildren().addAll(createArrowButton(true), createArrowButton(false));
 	    	
-	    	final Group digitsDisplay = GuiUtil.createBackgroundDisplay(new Insets(NUMERIC_STEPPER_EIGHTH_HEIGHT, 
+	    	final Region digitsDisplay = GuiUtil.createBackgroundDisplay(new Insets(NUMERIC_STEPPER_EIGHTH_HEIGHT, 
 	    			NUMERIC_STEPPER_QUARTER_HEIGHT, NUMERIC_STEPPER_EIGHTH_HEIGHT, NUMERIC_STEPPER_QUARTER_HEIGHT), 
-	    			NUMERIC_STEPPER_QUARTER_HEIGHT, 2, numericStepperDigits, stepperBar);
+	    			NUMERIC_STEPPER_QUARTER_HEIGHT, 2, true, numericStepperDigits, stepperBar);
 	    	getChildren().addAll(label, digitsDisplay);
 	    } else {
 	    	textArea = null;

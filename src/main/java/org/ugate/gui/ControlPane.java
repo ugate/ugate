@@ -1,7 +1,5 @@
 package org.ugate.gui;
 
-import org.ugate.resources.RS;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.geometry.Insets;
@@ -12,6 +10,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
+import org.ugate.resources.RS;
 
 /**
  * Base view for control settings
@@ -70,6 +70,11 @@ public abstract class ControlPane extends GridPane {
 		final VBox view = new VBox(CHILD_SPACING);
 		view.setPadding(PADDING_INSETS);
 		view.getChildren().addAll(nodes);
+		
+//		VBox.setVgrow(view, Priority.ALWAYS);
+//		view.setAlignment(Pos.TOP_CENTER);
+//		view.getStyleClass().add("content-background");
+//		group.getChildren().addAll(view);
 		group.getChildren().addAll(createBackground(view, resizeWidth, resizeHeight), view);
 		return group;
 	}

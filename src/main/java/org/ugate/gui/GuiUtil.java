@@ -11,7 +11,6 @@ import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressIndicator;
@@ -22,6 +21,7 @@ import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -29,8 +29,6 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-
-import org.ugate.gui.components.PlateGroup;
 
 /**
  * General GUI utility
@@ -199,27 +197,28 @@ public class GuiUtil {
 	 * @param padding the padding in the grid group
 	 * @param gapBetweenChildren the vertical and/or horizontal gap between cells
 	 * @param numItemsPerRow the number of items per row
+	 * @param gaugeStyle true to style the children as gauges
 	 * @param nodes the nodes to add to the display
 	 * @return the background display
 	 */
-	public static final Group createBackgroundDisplay(final Insets padding, final double gapBetweenChildren, 
-			final int numItemsPerRow, final Node... nodes) {
+	public static final Region createBackgroundDisplay(final Insets padding, final double gapBetweenChildren, 
+			final int numItemsPerRow, final boolean gaugeStyle, final Node... nodes) {
 		final GridPane grid = new GridPane();
 		grid.setPadding(padding);
 		grid.setHgap(gapBetweenChildren);
 		grid.setVgap(gapBetweenChildren);
 		int col = -1, row = 0;
 		for (final Node node : nodes) {
-			node.getStyleClass().add("gauge");
+			if (gaugeStyle) {
+				node.getStyleClass().add("gauge");
+			}
 			grid.add(node, ++col, row);
 			row = col == (numItemsPerRow - 1) ? row + 1 : row;
 			col = col == (numItemsPerRow - 1) ? -1 : col;
 		}
-		final PlateGroup readingsGroup = new PlateGroup(grid.widthProperty(), 
-				grid.heightProperty(), 
-				grid.paddingProperty());
-		readingsGroup.getChildren().add(grid);
-		return readingsGroup;
+//		grid.setAlignment(Pos.CENTER_RIGHT);
+		grid.getStyleClass().add("background-display");
+		return grid;
 	}
 	
 	/**
