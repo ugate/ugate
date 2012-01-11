@@ -49,7 +49,7 @@ public class StorageFile {
 	 * @param createIfNotExists true to create the storage file when it doesn't exist
 	 */
 	public StorageFile(final String filePath, final boolean createIfNotExists) {
-		this.filePath = filePath + FILE_EXTENSION;
+		this.filePath = filePath + (filePath.indexOf(FILE_EXTENSION) > -1 ? "" : FILE_EXTENSION);
 		this.properties = new Properties();
 		try {
 			final File file = new File(this.filePath);
