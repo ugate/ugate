@@ -13,6 +13,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
@@ -31,6 +32,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
+import org.ugate.gui.components.TextFieldMenu;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
 import org.ugate.wireless.data.SensorReadings;
@@ -174,6 +176,18 @@ public class ControlBar extends ToolBar {
 		sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 5.3f));
 		pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 3.7f));
 		mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 24L));
+	}
+	
+	/**
+	 * @return the menu bar items related to the control bar
+	 */
+	public Parent createMenuBarItems() {
+	    final TextFieldMenu raddy = new TextFieldMenu(RS.rbLabel("wireless.node.remote"), 
+	    		RS.rbLabel("wireless.node.remote.prompt"));
+	    final Object[] raddys = UGateKeeper.DEFAULT.wirelessGetRemoteAddressMap().values().toArray();
+	    raddy.addMenuItems(raddys);
+	    raddy.select(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress());
+	    return raddy;
 	}
 	
 	/**

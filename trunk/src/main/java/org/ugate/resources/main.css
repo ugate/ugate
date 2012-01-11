@@ -222,11 +222,6 @@
  * TextField                                                                   *
  *                                                                             *
  ******************************************************************************/
-/* .text-input { */
-/*     -fx-text-fill: -fx-text-inner-color; */
-/*     -fx-highlight-fill: -fx-accent; */
-/*     -fx-highlight-text-fill: white; */
-/* } */
 .text-field {
     -fx-background-color:
         linear-gradient(#f2f2f2, #d6d6d6),
@@ -303,6 +298,25 @@
 }
 .password-box:disabled {
     -fx-opacity: -fx-disabled-opacity;
+}
+.text-field-menu-add-choice {
+    -fx-padding: 0.666667em 0.416667em 0.0em 0.416667em;  /* 8 5 0 5 */
+    -fx-background-color: #4CC417;
+    -fx-shape: "M.35 0 L.35 .35 L0 .35 L0 .65 L.35 .65 L.35 1 L.65 1 L.65 1 L.65 .65 L1 .65 L1 .35 L.65 .35 L.65 0 Z";
+/*     -fx-shape: "M.25 0 L.25 .25 L0 .25 L0 .75 L.25 .75 L.25 1 L.75 1 L.75 1 L.75 .75 L1 .75 L1 .25 L.75 .25 L.75 0 Z"; */
+    -fx-effect: innershadow( two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 1 );
+}
+.text-field-menu-remove-choice {
+    -fx-background-color: #FF0000;
+    -fx-shape: "M 0,0 H1 L 4,3 7,0 H8 V1 L 5,4 8,7 V8 H7 L 4,5 1,8 H0 V7 L 3,4 0,1 Z";
+    -fx-scale-shape: false;
+    -fx-effect: dropshadow(two-pass-box , rgba(255, 255, 255, 0.4), 1, 0.0 , 0, 1);
+}
+.text-field-menu-star-choice {
+    -fx-padding: 0.666667em 0.416667em 0.0em 0.416667em;  /* 8 5 0 5 */
+    -fx-background-color: #D4A017;
+    -fx-shape: "M.55 0 L.67 .36 L1.09 .36 L.73 .54 L.83 .96 L.55 .72 L.27 .96 L.37 .54 L.01 .36 L.43 .36 Z";
+    -fx-effect: innershadow( two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 1 );
 }
 /*******************************************************************************
  *                                                                             *
