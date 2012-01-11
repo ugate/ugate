@@ -115,11 +115,12 @@ public class UGateGUI extends Application {
 			// TODO : add GUI support for multiple remote wireless nodes
 			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 	
+			controlBar = new ControlBar(stage);
 			final BorderPane content = new BorderPane();
 			content.setId("content");
 			content.setEffect(new InnerShadow());
 			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
-					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false);
+					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false, controlBar.createMenuBarItems());
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
 			stage.getScene().getStylesheets().add(RS.path(RS.CSS_DISPLAY_SHELF));
 			stage.setTitle(RS.rbLabel("app.title"));
@@ -138,7 +139,6 @@ public class UGateGUI extends Application {
 			HBox.setHgrow(centerView, Priority.ALWAYS);
 			VBox.setVgrow(centerView, Priority.ALWAYS);
 			
-			controlBar = new ControlBar(stage);
 			final Controls controls = new Controls(controlBar);
 			final VBox main = new VBox(0);
 			main.setStyle("-fx-background-color: #000000;");

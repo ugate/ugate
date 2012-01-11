@@ -11,7 +11,6 @@ import javafx.concurrent.Worker.State;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -25,15 +24,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Shape;
 import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import org.ugate.UGateKeeper;
 import org.ugate.gui.components.PlateGroup;
 
 /**
@@ -224,23 +220,6 @@ public class GuiUtil {
 				grid.paddingProperty());
 		readingsGroup.getChildren().add(grid);
 		return readingsGroup;
-	}
-	
-	/**
-	 * Creates an arrow shape
-	 *  
-	 * @param width the width
-	 * @param height the height
-	 * @param isUp true for an up arrow, false for a down arrow
-	 * @return the arrow
-	 */
-	protected Shape createArrowButton(final double width, final double height, final boolean isUp) {
-    	final Polygon arrow = isUp ? new Polygon(width / 8d, 0, 0, width / 4d, 
-    			width / 4d, width / 4d, width / 8d, 0) :
-    				new Polygon(0, 0, width / 8d, width / 4d, width / 4d, 0, 0, 0);
-    	arrow.setFill(Color.WHITESMOKE);
-    	arrow.setCursor(Cursor.HAND);
-    	return arrow;
 	}
 	
 	/**

@@ -4,15 +4,12 @@ import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -56,7 +53,8 @@ public class AppFrame extends StackPane {
     private double mouseDragOffsetY = 0;
 
 	public AppFrame(final Stage stage, final Region content, final double sceneWidth, final double sceneHeight,
-			final double minResizableWidth, final double minResizableHeight, final boolean isResizable) {
+			final double minResizableWidth, final double minResizableHeight, final boolean isResizable, 
+			final Node... menuBarItems) {
 		// when showing/hiding the width/height end up skewed
 		stage.setOnShown(new EventHandler<WindowEvent>() {
 			@Override
@@ -132,14 +130,11 @@ public class AppFrame extends StackPane {
         titleBarLeft.setPrefWidth(TOP_LEFT_WIDTH);
         titleBarLeft.setMaxWidth(TOP_LEFT_WIDTH);
 	    final HBox titleBarCenter = new HBox(0);
-	    //titleBarCenter.setPadding(new Insets(TOP_BORDER_HEIGHT / 4d, 0, 0, 0));
 	    titleBarCenter.setId("title-bar");
 	    titleBarCenter.setAlignment(Pos.TOP_LEFT);
-	    final TextFieldMenu raddy = new TextFieldMenu(RS.rbLabel("wireless.node.remote"));
-	    raddy.addMenuItems("Address 1:", "Address 2:", "Address 3:");
-//	    raddy.setPrefHeight(TOP_BORDER_HEIGHT / 4.5d);
-	    //raddy.setMaxHeight(TOP_BORDER_HEIGHT / 4d);
-	    titleBarCenter.getChildren().add(raddy);
+	    if (menuBarItems != null) {
+	    	titleBarCenter.getChildren().addAll(menuBarItems);
+	    }
         HBox.setHgrow(titleBarCenter, Priority.ALWAYS);
 	    final HBox titleBarRight = newMinMaxClose(stage);
 	    titleBarRight.setId("title-bar-right");
