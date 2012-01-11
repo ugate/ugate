@@ -11,9 +11,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
-import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
@@ -21,6 +19,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -125,7 +124,7 @@ public class ControlBar extends ToolBar {
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
 		final Digits mwReading = new Digits(String.format(AlarmSettings.FORMAT_MW, 0), 0.15f, 
 				AlarmSettings.COLOR_MW, null);
-		final Group readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10,
+		final Region readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10, true,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
 		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
 		
@@ -136,8 +135,8 @@ public class ControlBar extends ToolBar {
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
 				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
-		final Group multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
-				multiAlarmToggleSwitch);
+		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
+				false, multiAlarmToggleSwitch);
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));
 		
 		// add the menu items
@@ -181,9 +180,10 @@ public class ControlBar extends ToolBar {
 	/**
 	 * @return the menu bar items related to the control bar
 	 */
-	public Parent createMenuBarItems() {
+	public Region createTitleBarItems() {
 	    final TextFieldMenu raddy = new TextFieldMenu(RS.rbLabel("wireless.node.remote"), 
 	    		RS.rbLabel("wireless.node.remote.prompt"));
+	    raddy.getStyleClass().add("text-field-menu-background");
 	    final Object[] raddys = UGateKeeper.DEFAULT.wirelessGetRemoteAddressMap().values().toArray();
 	    raddy.addMenuItems(raddys);
 	    raddy.select(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress());

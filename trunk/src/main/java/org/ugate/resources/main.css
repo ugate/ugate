@@ -11,6 +11,10 @@
  * derive(-fx-base,65%); #efefef                                               *
  *                                                                             *
  ******************************************************************************/
+.root {
+	-fx-accent: #95B9C7;
+	-fx-focus-color: #95B9C7;
+}
 .scene {
     -fx-dark-text-color: black;
     -fx-mid-text-color: #292929;
@@ -182,7 +186,7 @@
 .button:focused {
     -fx-color: -fx-focused-base;
     /*-fx-background-color: -fx-focus-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
-    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 2, 2);
+    -fx-effect: dropshadow( one-pass-box , -fx-focus-color , 0, 0.0 , 2, 2);
     -fx-background-insets: -1.4, 0, 1, 2;
     -fx-background-radius:  6.4, 5, 4, 3;
 }
@@ -235,13 +239,15 @@
     -fx-font-size: 12px;
     -fx-cursor: text;
     -fx-padding: 3 5 3 5;
+/* 	-fx-highlight-fill: gray; */
+/* 	-fx-highlight-text-fill: black; */
 }
 /* .text-field Text { */
 /*     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 ); */
 /* } */
-/* .text-field:focused { */
-/*     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3); */
-/* } */
+.text-field:focused {
+    -fx-effect: dropshadow( three-pass-box , -fx-focus-color , 5, 0.0 , 3 , 3);
+}
 .text-field:disabled {
     -fx-opacity: -fx-disabled-opacity;
 }
@@ -304,7 +310,7 @@
     -fx-background-color: #4CC417;
     -fx-shape: "M.35 0 L.35 .35 L0 .35 L0 .65 L.35 .65 L.35 1 L.65 1 L.65 1 L.65 .65 L1 .65 L1 .35 L.65 .35 L.65 0 Z";
 /*     -fx-shape: "M.25 0 L.25 .25 L0 .25 L0 .75 L.25 .75 L.25 1 L.75 1 L.75 1 L.75 .75 L1 .75 L1 .25 L.75 .25 L.75 0 Z"; */
-    -fx-effect: innershadow( two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 1 );
+    -fx-effect: innershadow( two-pass-box , rgba(0,0,0,0.6) , 2, 0.0 , 0 , 1 );
 }
 .text-field-menu-remove-choice {
     -fx-background-color: #FF0000;
@@ -317,6 +323,27 @@
     -fx-background-color: #D4A017;
     -fx-shape: "M.55 0 L.67 .36 L1.09 .36 L.73 .54 L.83 .96 L.55 .72 L.27 .96 L.37 .54 L.01 .36 L.43 .36 Z";
     -fx-effect: innershadow( two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 1 );
+}
+.text-field-menu-background {
+    -fx-background-color:
+        #090a0c,
+        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
+    -fx-background-radius: 5,4,3,5;
+    -fx-background-insets: 0,1,2,0;
+/*     -fx-font-family: "Helvetica"; */
+/*     -fx-font-weight: bold; */
+    -fx-text-fill: white;
+	-fx-shape: "M0 0 L0 40 L125 40 L125 35 L100 0 Z";
+/* 	-fx-scale-shape: false; */
+    -fx-padding: 2 70 0 5;
+/*     -fx-background-insets: 0, 1, 2; */
+/*     -fx-background-radius: 0 5 5 0, 0 4 4 0, 0 3 3 0; */
+/*     -fx-background-radius: 10, 20, 20; */
+}
+.text-field-menu-background Text {
+    -fx-effect: dropshadow( one-pass-box , black , 0, 0.0 , 0 , 1 );
 }
 /*******************************************************************************
  *                                                                             *
@@ -345,7 +372,7 @@
     -fx-cursor: text;
 }
 .text-area:focused {
-    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3);
+    -fx-effect: dropshadow( three-pass-box , -fx-focus-color , 5, 0.0 , 3 , 3);
 }
 
 .text-area:disabled {
@@ -373,7 +400,7 @@
 /* 	-fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 0 , 1); */
 /* } */
 .choice-box:focused {
-    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 3 , 3);
+    -fx-effect: dropshadow( three-pass-box , -fx-focus-color , 5, 0.0 , 3 , 3);
 }
 .choice-box:disabled {
     -fx-opacity: -fx-disabled-opacity;
@@ -383,6 +410,25 @@
  * Other                                                                       *
  *                                                                             *
  ******************************************************************************/
+.background-display {
+    -fx-background-color:
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+/*     -fx-background-insets: 0,1,4,5,6; */
+    -fx-background-radius: 9,8,5,4,3;
+/*     -fx-padding: 15 30 15 30; */
+/*     -fx-font-family: "Helvetica"; */
+/*     -fx-font-size: 18px; */
+/*     -fx-font-weight: bold; */
+    -fx-text-fill: white;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1)
+}
+.background-display Text {
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 );
+}
 .tab-content-area {
     -fx-background-color: transparent;
     -fx-padding: 0.0em; /* 0 */

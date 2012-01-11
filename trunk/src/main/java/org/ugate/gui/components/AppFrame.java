@@ -8,7 +8,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -54,7 +53,7 @@ public class AppFrame extends StackPane {
 
 	public AppFrame(final Stage stage, final Region content, final double sceneWidth, final double sceneHeight,
 			final double minResizableWidth, final double minResizableHeight, final boolean isResizable, 
-			final Node... menuBarItems) {
+			final String[] cssPaths, final Region... titleBarItems) {
 		// when showing/hiding the width/height end up skewed
 		stage.setOnShown(new EventHandler<WindowEvent>() {
 			@Override
@@ -76,6 +75,11 @@ public class AppFrame extends StackPane {
 		stage.initStyle(StageStyle.TRANSPARENT);
 		stage.setScene(new Scene(this, sceneWidth, sceneHeight, Color.TRANSPARENT));
 		setAlignment(Pos.TOP_LEFT);
+		if (cssPaths != null) {
+			for (final String cssPath : cssPaths) {
+				stage.getScene().getStylesheets().add(cssPath);
+			}
+		}
 	    
 	    // logo
 	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_64);
@@ -132,8 +136,12 @@ public class AppFrame extends StackPane {
 	    final HBox titleBarCenter = new HBox(0);
 	    titleBarCenter.setId("title-bar");
 	    titleBarCenter.setAlignment(Pos.TOP_LEFT);
-	    if (menuBarItems != null) {
-	    	titleBarCenter.getChildren().addAll(menuBarItems);
+	    if (titleBarItems != null) {
+	    	for (final Region tbi : titleBarItems) {
+	    		tbi.setMaxHeight(USE_PREF_SIZE);
+	    		tbi.setPrefHeight(TOP_BORDER_HEIGHT / 1.8d);
+	    	}
+	    	titleBarCenter.getChildren().addAll(titleBarItems);
 	    }
         HBox.setHgrow(titleBarCenter, Priority.ALWAYS);
 	    final HBox titleBarRight = newMinMaxClose(stage);

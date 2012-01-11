@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
 import org.ugate.Command;
 import org.ugate.RemoteSettings;
@@ -70,7 +71,7 @@ public class AccessSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, RS.rbLabel("wireless.remote.universal.desc", 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
 	    accessKey1 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_1, 
-	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
+	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), null);
 	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel("wireless.access.key.desc", 1));
 	    accessKey2 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_2, 
@@ -97,8 +98,8 @@ public class AccessSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
 		final Label gateCtrlHeader = createLabel("gate.state");
 		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
-		final Group gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
-				1, gateToggleButton);
+		final Region gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
+				1, false, gateToggleButton);
 		gateGroup.setCursor(Cursor.HAND);
 		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
 		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
