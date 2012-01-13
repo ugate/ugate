@@ -14,6 +14,7 @@
 .root {
 	-fx-accent: #95B9C7;
 	-fx-focus-color: #95B9C7;
+	-fx-font-family: "Helvetica";
 }
 .scene {
     -fx-dark-text-color: black;
@@ -79,23 +80,32 @@
     -fx-background-position: right 1px bottom 1px;
     -fx-background-repeat: no-repeat;
 }
-
-#content {
-	-fx-background-color: #D3D3D3;
+#main-content {
+	-fx-background-color: 
+		linear-gradient(from 0% 0% to 0% 100%, derive(-fx-base,-30%) 75%, rgba(114,131,148,0.9) 85%, derive(-fx-base,-95%) 95%, derive(-fx-base,-100%)),
+		radial-gradient(center 50% 75%, radius 50%, derive(-fx-base,-30%), derive(-fx-base,-90%));
 }
 #center-view {
 	-fx-background-color: #ffffff;
 	-fx-text-fill: #000000;
-	-fx-spacing: 10 10 70 10;
 }
 #taskbar {
-	-fx-spacing: 10 10 50 10;
+    -fx-background-color:
+		linear-gradient(from 0% 0% to 0% 100%, transparent 49%, derive(-fx-base,-30%) 50%, derive(-fx-base,65%) 52%, derive(-fx-base,-20%) 95%, derive(-fx-base,-60%));
+	-fx-shape: "M100 0 L0 400 L400 400 L300 0 Z";
+/* 	-fx-scale-shape: false; */
+/*     -fx-padding: 2 70 0 5; */
+	-fx-alignment: CENTER;
+	-fx-spacing: 10 10 10 10;
 }
-
+#connection-view {
+    -fx-background-color:
+		linear-gradient(from 0% 0% to 0% 100%, black, white 3%, white 97%, black);
+	-fx-alignment: CENTER;
+}
 .tool-bar {
     -fx-skin: "com.sun.javafx.scene.control.skin.ToolBarSkin";
 }
-
 .tool-bar:vertical {
     -fx-background: derive(-fx-base,-20%);
     -fx-background-color:
@@ -176,7 +186,6 @@
     -fx-background-radius: 5,5,4;
     -fx-padding: 7 30 7 30;
     -fx-text-fill: #242d35;
-    -fx-font-family: "Helvetica";
     -fx-font-size: 12px;
     -fx-text-fill: white;
 }
@@ -234,11 +243,11 @@
     -fx-background-radius: 8,7,6;
     -fx-background-insets: 0,1,2;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
-	-fx-font-family: "Helvetica";
     -fx-text-fill: linear-gradient(black, #38424b);
     -fx-font-size: 12px;
     -fx-cursor: text;
     -fx-padding: 3 5 3 5;
+    -fx-font-weight: normal;
 /* 	-fx-highlight-fill: gray; */
 /* 	-fx-highlight-text-fill: black; */
 }
@@ -259,6 +268,7 @@
     -fx-padding: 3 5 3 5;
     -fx-prompt-text-fill: derive(-fx-control-inner-background,-30%);
     -fx-cursor: text;
+    -fx-font-weight: normal;
 }
 .text-field-fx:focused {
     -fx-background-color: -fx-focus-color, -fx-text-box-border, -fx-control-inner-background;
@@ -276,9 +286,9 @@
     -fx-background-radius: 8,7,6;
     -fx-background-insets: 0,1,2;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
-	-fx-font-family: "Helvetica";
     -fx-text-fill: linear-gradient(black, #38424b);
     -fx-font-size: 12px;
+    -fx-font-weight: normal;
     -fx-cursor: text;
     -fx-padding: 10 5 10 5;
     -fx-echo-char: "\u25cf";
@@ -295,9 +305,9 @@
     -fx-background-radius: 8,7,6;
     -fx-background-insets: 0,1,2;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
-	-fx-font-family: "Helvetica";
     -fx-text-fill: linear-gradient(black, #38424b);
     -fx-font-size: 12px;
+    -fx-font-weight: normal;
     -fx-cursor: text;
     -fx-padding: 10 5 10 5;
     -fx-echo-char: "\u25cf";
@@ -332,8 +342,7 @@
         radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
     -fx-background-radius: 5,4,3,5;
     -fx-background-insets: 0,1,2,0;
-/*     -fx-font-family: "Helvetica"; */
-/*     -fx-font-weight: bold; */
+    -fx-font-weight: bold;
     -fx-text-fill: white;
 	-fx-shape: "M0 0 L0 40 L125 40 L125 35 L100 0 Z";
 /* 	-fx-scale-shape: false; */
@@ -358,8 +367,8 @@
     -fx-background-radius: 8,7,6;
     -fx-background-insets: 0,1,2;
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
-	-fx-font-family: "Helvetica";
     -fx-text-fill: linear-gradient(black, #38424b);
+    -fx-font-weight: normal;
     -fx-font-size: 12px;
     -fx-cursor: text;
     -fx-padding: 10 5 10 5;
@@ -420,10 +429,10 @@
 /*     -fx-background-insets: 0,1,4,5,6; */
     -fx-background-radius: 9,8,5,4,3;
 /*     -fx-padding: 15 30 15 30; */
-/*     -fx-font-family: "Helvetica"; */
 /*     -fx-font-size: 18px; */
 /*     -fx-font-weight: bold; */
-    -fx-text-fill: white;
+/*     -fx-font-family: "Verdana"; */
+/*     -fx-text-fill: white; */
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1)
 }
 .background-display Text {
@@ -465,8 +474,11 @@
     -fx-text-fill: white;
     -fx-text-alignment: center;
     -fx-text-origin: top;
-    -fx-underline: true;
+/*     -fx-underline: true; */
     -fx-font-weight: bold;
+}
+.gauge-header Text {
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 );
 }
 .gauge {
 	-fx-background: #000000;

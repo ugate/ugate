@@ -107,7 +107,9 @@ public class AccessSettings extends ControlPane {
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
 					gateToggleButton.setDisable(true);
-					controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE, true);
+					if (controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE, true) == null) {
+						gateToggleButton.setDisable(false);
+					}
 				}
 			}
 		});
