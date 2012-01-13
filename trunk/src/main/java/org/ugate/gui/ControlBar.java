@@ -172,9 +172,9 @@ public class ControlBar extends ToolBar {
 				}
 			}
 		});
-		sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 5.3f));
-		pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 3.7f));
-		mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 24L));
+//		sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 5.3f));
+//		pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 3.7f));
+//		mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 24L));
 	}
 	
 	/**

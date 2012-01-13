@@ -8,7 +8,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -17,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Control;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.effect.InnerShadow;
@@ -25,7 +25,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
@@ -54,10 +53,11 @@ public class UGateGUI extends Application {
 	public static final double APPLICATION_WIDTH = 900d;
 	public static final double APPLICATION_HEIGHT = 800d;
 	
-	private static final double TASKBAR_BUTTON_SCALE = 1.3;
+	private static final double TASKBAR_HEIGHT = 180d;
+	private static final double TASKBAR_BUTTON_SCALE = 1.3d;
 	private static final String TASKBAR_BUTTON_DURATION = "300ms";
-	private static final double TASKBAR_BUTTON_WIDTH = 100;
-	private static final double TASKBAR_BUTTON_HEIGHT = 100;
+	private static final double TASKBAR_BUTTON_WIDTH = 100d;
+	private static final double TASKBAR_BUTTON_HEIGHT = 100d;
 
 	private static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
 	private static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
@@ -65,8 +65,8 @@ public class UGateGUI extends Application {
 	private static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
 	private static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	private static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
-	protected final HBox taskbar = new HBox(10);
-	protected final HBox connectionView = new HBox(10);
+	protected final HBox taskbar = new HBox(10d);
+	protected final HBox connectionView = new HBox(10d);
 	protected final TextArea loggingView = new TextArea();
 	protected ControlBar controlBar;
 	protected EmailHostConnectionView mailConnectionView;
@@ -118,7 +118,7 @@ public class UGateGUI extends Application {
 	
 			controlBar = new ControlBar(stage);
 			final BorderPane content = new BorderPane();
-			content.setId("content");
+			content.setId("main-content");
 			content.setEffect(new InnerShadow());
 			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
 					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false, 
@@ -126,25 +126,12 @@ public class UGateGUI extends Application {
 					controlBar.createTitleBarItems());
 	
 			taskbar.setId("taskbar");
-			taskbar.setCache(true);
-			taskbar.setAlignment(Pos.CENTER);
-			taskbar.setPadding(new Insets(10, 10, 50, 10));
-			taskbar.setPrefHeight(100);
+			taskbar.setPrefHeight(TASKBAR_HEIGHT);
 			
 			centerView = new StackPane();
-			//centerView.setPrefHeight(300);
-			//VBox.getVgrow(centerView);
 			centerView.setId("center-view");
-			centerView.setPadding(new Insets(0, 0, 70d, 0));
-			HBox.setHgrow(centerView, Priority.ALWAYS);
-			VBox.setVgrow(centerView, Priority.ALWAYS);
-			
+
 			final Controls controls = new Controls(controlBar);
-			final VBox main = new VBox(0);
-			main.setStyle("-fx-background-color: #000000;");
-			HBox.setHgrow(main, Priority.ALWAYS);
-			VBox.setVgrow(main, Priority.ALWAYS);
-			main.getChildren().addAll(controlBar, centerView);
 			
 			wirelessConnectionView = new WirelessHostConnectionView(controlBar);
 			mailConnectionView = new EmailHostConnectionView(controlBar);
@@ -160,11 +147,12 @@ public class UGateGUI extends Application {
 					}
 				}
 			});
-			connectionView.setAlignment(Pos.CENTER);
+			connectionView.setId("connection-view");
 			connectionView.getChildren().addAll(wirelessConnectionView,
 					createSeparator(Orientation.VERTICAL), mailConnectionView);
-	
-			content.setCenter(main);
+			
+			content.setTop(controlBar);
+			content.setCenter(centerView);
 			content.setBottom(taskbar);
 	
 			taskbar.getChildren().add(
@@ -285,6 +273,8 @@ public class UGateGUI extends Application {
 
 	private Node createConnectionStatusView(final Node connectionButton) {
 		final VBox node = new VBox();
+		node.setPrefHeight(TASKBAR_BUTTON_HEIGHT);
+		node.setMaxHeight(Control.USE_PREF_SIZE);
 		node.setCache(true);
 		final HBox statusNode = new HBox(10);
 		statusNode.setCache(true);
@@ -360,7 +350,7 @@ public class UGateGUI extends Application {
 	 * @param node
 	 *            the node to change the center view to
 	 */
-	private void changeCenterView(final Node node) {
+	protected void changeCenterView(final Node node) {
 		centerView.getChildren().clear();
 		centerView.getChildren().add(node);
 	}
@@ -370,7 +360,7 @@ public class UGateGUI extends Application {
 	 * 
 	 * @param event the event
 	 */
-	private void playSound(final UGateKeeperEvent<?> event) {
+	protected void playSound(final UGateKeeperEvent<?> event) {
 		final String soundsOn = UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SOUNDS_ON, 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex());
 		if (soundsOn == null || soundsOn.isEmpty() || Integer.parseInt(soundsOn) != 1) {

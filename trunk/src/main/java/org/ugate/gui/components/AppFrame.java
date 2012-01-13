@@ -47,6 +47,7 @@ public class AppFrame extends StackPane {
 	public static final double TOP_MIN_MAX_CLOSE_ADJUSTMENT = 5;
 	public static final double LOGO_X = 20;
 	public static final double LOGO_Y = 0;
+	private final HBox titleBarCenter;
 	private Rectangle2D backupWindowBounds;
     private double mouseDragOffsetX = 0;
     private double mouseDragOffsetY = 0;
@@ -133,16 +134,10 @@ public class AppFrame extends StackPane {
         titleBarLeft.setId("title-bar-left");
         titleBarLeft.setPrefWidth(TOP_LEFT_WIDTH);
         titleBarLeft.setMaxWidth(TOP_LEFT_WIDTH);
-	    final HBox titleBarCenter = new HBox(0);
+	    titleBarCenter = new HBox(0);
 	    titleBarCenter.setId("title-bar");
 	    titleBarCenter.setAlignment(Pos.TOP_LEFT);
-	    if (titleBarItems != null) {
-	    	for (final Region tbi : titleBarItems) {
-	    		tbi.setMaxHeight(USE_PREF_SIZE);
-	    		tbi.setPrefHeight(TOP_BORDER_HEIGHT / 1.8d);
-	    	}
-	    	titleBarCenter.getChildren().addAll(titleBarItems);
-	    }
+	    updateTitleBarItems(titleBarItems);
         HBox.setHgrow(titleBarCenter, Priority.ALWAYS);
 	    final HBox titleBarRight = newMinMaxClose(stage);
 	    titleBarRight.setId("title-bar-right");
@@ -207,6 +202,16 @@ public class AppFrame extends StackPane {
 	    content.setTranslateX(LEFT_BORDER_WIDTH);
 	    content.setTranslateY(TOP_BORDER_HEIGHT - TOP_BORDER_CONTENT_ADJUSTMENT);
 	    getChildren().addAll(content, leftBar, rightBar, titleBar, statusBar, logoView);
+	}
+	
+	public void updateTitleBarItems(final Region... titleBarItems) {
+	    if (titleBarItems != null) {
+	    	for (final Region tbi : titleBarItems) {
+	    		tbi.setMaxHeight(USE_PREF_SIZE);
+	    		tbi.setPrefHeight(TOP_BORDER_HEIGHT / 1.8d);
+	    	}
+	    	titleBarCenter.getChildren().setAll(titleBarItems);
+	    }
 	}
 
 	private HBox newMinMaxClose(final Stage stage) {
