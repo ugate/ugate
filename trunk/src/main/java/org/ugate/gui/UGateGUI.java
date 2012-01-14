@@ -5,7 +5,6 @@ import java.util.Random;
 
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -29,7 +28,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
@@ -141,10 +139,6 @@ public class UGateGUI extends Application {
 				@Override
 				public void handle(final UGateKeeperEvent<?> event) {
 					playSound(event);
-					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED ||
-							event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTED) {
-						changeCenterView(connectionView);
-					}
 				}
 			});
 			connectionView.setId("connection-view");
@@ -223,24 +217,7 @@ public class UGateGUI extends Application {
 					changeCenterView(loggingView);
 				}
 			}));
-	
-			stage.addEventHandler(WindowEvent.WINDOW_SHOWN,
-					new EventHandler<WindowEvent>() {
-						@Override
-						public void handle(final WindowEvent event) {
-							if (UGateKeeper.DEFAULT.emailIsConnected() && 
-									UGateKeeper.DEFAULT.wirelessIsConnected()) {
-								return;
-							}
-							Platform.runLater(new Runnable() {
-								public void run() {
-									// attempt connections
-									wirelessConnectionView.connect();
-									mailConnectionView.connect();
-								}
-							});
-						}
-					});
+
 			changeCenterView(connectionView);
 			stage.show();
 			SystemTray.initSystemTray(stage);
