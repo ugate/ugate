@@ -5,6 +5,7 @@ import java.util.Random;
 
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -124,6 +125,7 @@ public class UGateGUI extends Application {
 					controlBar.createTitleBarItems());
 	
 			taskbar.setId("taskbar");
+			taskbar.setCache(true);
 			taskbar.setPrefHeight(TASKBAR_HEIGHT);
 			
 			centerView = new StackPane();
@@ -236,8 +238,8 @@ public class UGateGUI extends Application {
 		log.info("Exiting application");
 		UGateKeeper.DEFAULT.exit();
 		SystemTray.exit();
-		// TODO : remove dependency on System#exit
-		System.exit(0);
+		Platform.exit();
+		//System.exit(0);
 	}
 
 	private Separator createSeparator(final Orientation orientation) {

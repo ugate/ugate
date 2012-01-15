@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="libs/rxtx/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="libs/xbee-api-0.9.jar" sourcepath="C:/dev/xbee/xbee-api-0.9/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/dev/javafx/rt/lib/jfxrt.jar">
+	<classpathentry kind="lib" path="C:/java/fx/rt/lib/jfxrt.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/C:/dev/javafx/docs/api/"/>
 		</attributes>

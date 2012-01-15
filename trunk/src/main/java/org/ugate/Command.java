@@ -52,7 +52,7 @@ public enum Command {
 	 */
 	@Override
 	public String toString() {
-		return String.format("%1$s (id = %2$s, canRx = %3$s, canTx = %4$s)", super.toString(), canRx, canTx);
+		return String.format("%1$s (id = %2$s, canRx = %3$s, canTx = %4$s)", super.toString(), id, canRx, canTx);
 	}
 	
 	/**

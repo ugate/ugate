@@ -129,7 +129,7 @@ public enum UGateKeeper {
 	 * @return the settings values
 	 */
 	public List<String> settingsGet(final ISettings key, final Integer index, final String delimiter) {
-		if (settingsHasKey(key, index)) {
+		if (!settingsHasKey(key, index)) {
 			return null;
 		}
 		return key instanceof RemoteSettings ? remoteNodes.get(index).settings.get(key.getKey(), delimiter) : 
