@@ -106,7 +106,7 @@ public class EmailAgent implements Runnable {
 	}
 	
 	/**
-	 * Creates/Starts an email agent service
+	 * Creates an email agent service
 	 * 
 	 * @param smtpHost the SMTP host
 	 * @param smtpPort the SMTP port
@@ -117,7 +117,7 @@ public class EmailAgent implements Runnable {
 	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
 	 * @param listeners any email listeners
 	 */
-	private EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
+	public EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
 			final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
 		// connect using TLS
 		this.props = new Properties();
@@ -432,7 +432,7 @@ public class EmailAgent implements Runnable {
 	protected boolean hasCommandPermission(final Address... addresses) {
 		List<String> authRecipients = UGateKeeper.DEFAULT.settingsGet(HostSettings.MAIL_RECIPIENTS, 
 				null, HostSettings.MAIL_RECIPIENTS_DELIMITER);
-		boolean hasPermission = false; 
+		boolean hasPermission = false;
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {
 			inernetAddress = (InternetAddress) from;

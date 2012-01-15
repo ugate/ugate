@@ -6,6 +6,8 @@ import javafx.animation.FadeTransitionBuilder;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -27,14 +29,13 @@ import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
-import org.ugate.mail.EmailAgent;
 import org.ugate.resources.RS;
 
 /**
  * System tray that uses AWT until JavaFX 3.0 is released 
  * {@linkplain http://javafx-jira.kenai.com/browse/RT-17503}.
  */
-public class SystemTray implements Runnable {
+public class SystemTray extends Service<Void> {
 
 	private static final Logger log = Logger.getLogger(SystemTray.class);
 	private static SystemTray systemTray;
@@ -46,27 +47,39 @@ public class SystemTray implements Runnable {
 	private Stage notifyPopup;
 	private FadeTransition notifyFadeTrans;
 	//private static final Semaphore waitForFX = new Semaphore(-1, true);
+	private final java.awt.event.MouseListener ml = new java.awt.event.MouseListener() {
+		@Override
+		public void mouseReleased(java.awt.event.MouseEvent e) {
+		}
+		@Override
+		public void mousePressed(java.awt.event.MouseEvent e) {
+		}
+		@Override
+		public void mouseExited(java.awt.event.MouseEvent e) {
+		}
+		@Override
+		public void mouseEntered(java.awt.event.MouseEvent e) {
+		}
+		@Override
+		public void mouseClicked(java.awt.event.MouseEvent e) {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					restoreFromSystemTray();
+				}
+			});
+		}
+	};
 	
 	/**
-	 * Private utility constructor
+	 * Constructor
 	 * 
 	 * @param stage the primary stage
 	 */
 	private SystemTray(final Stage stage) {
 		this.stage = stage;
-	}
-	
-	/**
-	 * Initializes a system tray icon that when clicked will restore the specified stage.
-	 * When the stage is {@linkplain Stage#setIconified(boolean)} is set to <code>true</code>
-	 * the stage is hidden/closed. When it is set to <code>false</code> the stage will be restored.
-	 * 
-	 * @param stage the stage that will be controlled by the system tray
-	 * @return the system tray thread (null if not supported)
-	 */
-	public static Thread initSystemTray(final Stage stage) {
 		if (!isSystemTraySupported()) {
-			return null;
+			return;
 		}
 		if (stage == null) {
 			throw new NullPointerException("Stage cannot be null and must not be showing");
@@ -78,96 +91,85 @@ public class SystemTray implements Runnable {
 			throw new IllegalStateException(SystemTray.class.getName() + 
 					" can only be create within the JavaFX application thread");
 		}
-		systemTray = new SystemTray(stage);
-		final Thread systemTrayThread = new Thread(systemTray, SystemTray.class.getSimpleName() + "-main");
-		systemTrayThread.setDaemon(true);
-		systemTrayThread.start();
-		return systemTrayThread;
 	}
 	
 	/**
-	 * The email thread that is automatically started when a new {@linkplain EmailAgent} is created
+	 * Initializes a system tray icon that when clicked will restore the specified stage.
+	 * When the stage is {@linkplain Stage#setIconified(boolean)} is set to <code>true</code>
+	 * the stage is hidden/closed. When it is set to <code>false</code> the stage will be restored.
+	 * 
+	 * @param stage the stage that will be controlled by the system tray
 	 */
+	public static void initSystemTray(final Stage stage) {
+		systemTray = new SystemTray(stage);
+		systemTray.start();
+	}
+	
 	@Override
-	public void run() {
-		final java.awt.SystemTray st = isSystemTraySupported() ? java.awt.SystemTray.getSystemTray() : null;
-		if (st != null && st.getTrayIcons().length == 0) {
-			// listen for minimize changes and handle minimize/restore functions from the system tray
-			// translate primary stage min/max to system tray
-			this.stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> paramObservableValue, Boolean oldValue, Boolean newValue) {
-					if (newValue) {
-						minimizeToSystemTray();
-					} else {
-						restoreFromSystemTray();
-					}
-				}
-			});
-			// when the primary stage is minimized to the system tray show a notification for the event message
-			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
-				@Override
-				public void handle(final UGateKeeperEvent<?> event) {
-					if (!SystemTray.this.stage.isShowing()) {
-						final String msg = event.getMessageString();
-						if (msg != null && !msg.isEmpty()) {
-							if (Platform.isFxApplicationThread()) {
-								showNotification(msg);
+	protected Task<Void> createTask() {
+		final Task<Void> task = new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				if (isSystemTraySupported()) {
+					// listen for minimize changes and handle minimize/restore functions from the system tray
+					// translate primary stage min/max to system tray
+					SystemTray.this.stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
+						@Override
+						public void changed(ObservableValue<? extends Boolean> paramObservableValue, Boolean oldValue, Boolean newValue) {
+							if (newValue) {
+								minimizeToSystemTray();
 							} else {
-								Platform.runLater(new Runnable() {
-									@Override
-									public void run() {
-										showNotification(msg);
-									}
-								});
-							}
-						}
-					}
-				}
-			});
-			final String imageName = st.getTrayIconSize().width > 16 ? 
-					st.getTrayIconSize().width > 64 ? RS.IMG_LOGO_128 : RS.IMG_LOGO_64 : RS.IMG_LOGO_16;
-			try {
-				final java.awt.Image image = javax.imageio.ImageIO.read(RS.stream(imageName));
-				final java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(image);
-				//UGateKeeper.DEFAULT.
-				trayIcon.setToolTip(RS.rbLabel("win.systray.tooltip"));
-				st.add(trayIcon);
-				trayIcon.addMouseListener(new java.awt.event.MouseListener() {
-					@Override
-					public void mouseReleased(java.awt.event.MouseEvent e) {
-					}
-					@Override
-					public void mousePressed(java.awt.event.MouseEvent e) {
-					}
-					@Override
-					public void mouseExited(java.awt.event.MouseEvent e) {
-					}
-					@Override
-					public void mouseEntered(java.awt.event.MouseEvent e) {
-					}
-					@Override
-					public void mouseClicked(java.awt.event.MouseEvent e) {
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
 								restoreFromSystemTray();
 							}
+						}
+					});
+					// when the primary stage is minimized to the system tray show a notification for the event message
+					UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+						@Override
+						public void handle(final UGateKeeperEvent<?> event) {
+							if (!SystemTray.this.stage.isShowing()) {
+								final String msg = event.getMessageString();
+								if (msg != null && !msg.isEmpty()) {
+									if (Platform.isFxApplicationThread()) {
+										showNotification(msg);
+									} else {
+										Platform.runLater(new Runnable() {
+											@Override
+											public void run() {
+												showNotification(msg);
+											}
+										});
+									}
+								}
+							}
+						}
+					});
+					final String imageName = java.awt.SystemTray.getSystemTray().getTrayIconSize().width > 16 ? 
+							java.awt.SystemTray.getSystemTray().getTrayIconSize().width > 64 ? 
+									RS.IMG_LOGO_128 : RS.IMG_LOGO_64 : RS.IMG_LOGO_16;
+					try {
+						java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(
+								javax.imageio.ImageIO.read(RS.stream(imageName)));
+						//UGateKeeper.DEFAULT.
+						trayIcon.setToolTip(RS.rbLabel("win.systray.tooltip"));
+						java.awt.SystemTray.getSystemTray().add(trayIcon);
+						trayIcon.addMouseListener(ml);
+						Runtime.getRuntime().addShutdownHook(new Thread() {
+							@Override
+							public void run() {
+								exit();
+							}
 						});
+					} catch (final java.io.IOException e) {
+						log.error("Unable to add system tray icons", e);
+					} catch (java.awt.AWTException e) {
+						log.error("Unable to add system tray icons", e);
 					}
-				});
-				Runtime.getRuntime().addShutdownHook(new Thread() {
-					@Override
-					public void run() {
-						exit();
-					}
-				});
-			} catch (final java.io.IOException e) {
-				log.error("Unable to add system tray icons", e);
-			} catch (java.awt.AWTException e) {
-				log.error("Unable to add system tray icons", e);
+				}
+				return null;
 			}
-		}
+		};
+		return task;
 	}
 	
 	/**
@@ -390,12 +392,16 @@ public class SystemTray implements Runnable {
 	 * Exits the system tray and performs any cleanup operations
 	 */
 	private void exitInternal() {
-		final java.awt.SystemTray st = isSystemTraySupported() ? java.awt.SystemTray.getSystemTray() : null;
-		if (st != null && st.getTrayIcons().length > 0) {
+		if (isSystemTraySupported()) {
 			log.debug("Removing system tray icon(s)...");
-			for (java.awt.TrayIcon trayIcon : st.getTrayIcons()) {
+			for (java.awt.TrayIcon trayIcon : java.awt.SystemTray.getSystemTray().getTrayIcons()) {
 				try {
-					st.remove(trayIcon);
+					trayIcon.removeMouseListener(ml);
+				} catch (final Throwable t) {
+					log.warn("Unable to remove mouse listener", t);
+				}
+				try {
+					java.awt.SystemTray.getSystemTray().remove(trayIcon);
 				} catch (final Throwable t) {
 					log.warn("Unable to remove system tray icon", t);
 				}
@@ -403,12 +409,6 @@ public class SystemTray implements Runnable {
 		}
 		closeNotification();
 		closeHidden();
-		// close any AWT windows
-		for (final java.awt.Frame win : java.awt.Frame.getFrames()) {
-			win.dispose();
-			win.setVisible(false);
-		}
-		//java.awt.Frame.getFrames()[0].getParent();
 	}
 	
 	/**

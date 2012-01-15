@@ -1,6 +1,7 @@
 package org.ugate.gui;
 
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -334,7 +335,12 @@ public class ControlBar extends ToolBar {
 	 * @param text the help text to set
 	 */
 	public void setHelpText(final String text) {
-		helpText.setText(text == null || text.length() == 0 ? RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY) : text);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				helpText.setText(text == null || text.length() == 0 ? RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY) : text);
+			}
+		});
 	}
 
 	/**
