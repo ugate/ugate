@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -58,8 +59,22 @@ public class AccessSettings extends ControlPane {
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT, 
 				RS.rbLabel("wireless.workingdir"), null);
 	    controlBar.addHelpTextTrigger(workingDir, RS.rbLabel("wireless.workingdir.desc"));
+	    final Button update = new Button(RS.rbLabel("update"));
+	    update.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					UGateKeeper.DEFAULT.settingsSet(RemoteSettings.WIRELESS_ADDRESS_NODE, 
+							UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+							remoteAddress.textField.getText());
+					UGateKeeper.DEFAULT.settingsSet(RemoteSettings.WIRELESS_WORKING_DIR_PATH, 
+							UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+							workingDir.textField.getText());
+				}
+			}
+		});
 		
-	    final Group nodeConnectionCell = createCell(false, true, nodeLabel, remoteAddress, workingDir);
+	    final Group nodeConnectionCell = createCell(false, true, nodeLabel, remoteAddress, workingDir, update);
 		add(nodeConnectionCell, 0, 0);
 	}
 	
