@@ -181,18 +181,8 @@ public enum UGateKeeper {
 	
 	/**
 	 * Connects to email
-	 * 
-	 * @param smtpHost the SMTP host for sending messages
-	 * @param smtpPort the SMTP port for sending messages
-	 * @param imapHost the IMAP host for receiving messages
-	 * @param imapPort the IMAP port for receiving messages
-	 * @param username the user name to connect as
-	 * @param password the password to connect as
-	 * @param mainFolderName the email folder to listen for incoming messages (usually "Inbox"- case insensitive)
 	 */
-	public void emailConnect(final String smtpHost, final String smtpPort, final String imapHost, 
-			final String imapPort, final String username, final String password, 
-			final String mainFolderName) {
+	public void emailConnect() {
 		// test email connection
 //		isEmailConnected = true;
 //		if (true) {
@@ -205,6 +195,13 @@ public enum UGateKeeper {
 		}
 		String msg;
 		UGateKeeperEvent<Void> event;
+		final String smtpHost = settingsGet(HostSettings.MAIL_SMTP_HOST, null);
+		final String smtpPort = settingsGet(HostSettings.MAIL_SMTP_PORT, null);
+		final String imapHost = settingsGet(HostSettings.MAIL_IMAP_HOST, null);
+		final String imapPort = settingsGet(HostSettings.MAIL_IMAP_PORT, null);
+		final String username = settingsGet(HostSettings.MAIL_USERNAME, null);
+		final String password = settingsGet(HostSettings.MAIL_PASSWORD, null);
+		final String mainFolderName = settingsGet(HostSettings.MAIL_INBOX_NAME, null);
 		try {
 			msg = RS.rbLabel("mail.connecting");
 			log.info(msg);
@@ -275,6 +272,20 @@ public enum UGateKeeper {
 			});
 			this.emailAgent = EmailAgent.start(smtpHost, smtpPort, imapHost, imapPort, 
 					username, password, mainFolderName, listeners.toArray(new IEmailListener[0]));
+			// TODO : remove reference to GUI impl
+//			final Service<Void> emailService = new Service<Void>() {
+//				@Override
+//				protected Task<Void> createTask() {
+//					return new Task<Void>() {
+//						@Override
+//						protected Void call() throws Exception {
+//							UGateKeeper.this.emailAgent.run();
+//							return null;
+//						}
+//					};
+//				}
+//			};
+//			emailService.start();
 		} catch (final Throwable t) {
 			msg = RS.rbLabel("mail.connect.failed", 
 					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);

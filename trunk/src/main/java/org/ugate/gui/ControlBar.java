@@ -280,20 +280,16 @@ public class ControlBar extends ToolBar {
 	 * Creates an email connection service that will show a progress indicator preventing
 	 * further action until the email connection has been established.
 	 * 
-	 * @param comPort the COM port to connect to
-	 * @param baudRate the baud rate to connect at
 	 * @return the service
 	 */
-	public Service<Boolean> createEmailConnectionService(final String smtpHost, final String smtpPort, final String imapHost, 
-			final String imapPort, final String username, final String password, 
-			final String mainFolderName) {
+	public Service<Boolean> createEmailConnectionService() {
 		setHelpText(null);
 		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
 					// establish wireless connection (blocking)
-					UGateKeeper.DEFAULT.emailConnect(smtpHost, smtpPort, imapHost, imapPort, username, password, mainFolderName);
+					UGateKeeper.DEFAULT.emailConnect();
 				} catch (final Throwable t) {
 					setHelpText(RS.rbLabel("service.email.failed"));
 					log.error("Unable to establish a wireless connection", t);

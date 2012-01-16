@@ -3,9 +3,12 @@ package org.ugate.gui;
 import java.io.File;
 import java.util.Random;
 
-import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -19,6 +22,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Control;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Reflection;
 import javafx.scene.image.ImageView;
@@ -28,8 +33,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import org.apache.log4j.Logger;
 import org.ugate.IGateKeeperListener;
@@ -53,8 +58,6 @@ public class UGateGUI extends Application {
 	public static final double APPLICATION_HEIGHT = 800d;
 	
 	private static final double TASKBAR_HEIGHT = 180d;
-	private static final double TASKBAR_BUTTON_SCALE = 1.3d;
-	private static final String TASKBAR_BUTTON_DURATION = "300ms";
 	private static final double TASKBAR_BUTTON_WIDTH = 100d;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100d;
 
@@ -72,6 +75,7 @@ public class UGateGUI extends Application {
 	protected WirelessHostConnectionView wirelessConnectionView;
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
+	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
 
 	/**
 	 * Constructor
@@ -152,22 +156,24 @@ public class UGateGUI extends Application {
 			content.setBottom(taskbar);
 	
 			taskbar.getChildren().add(
-					createConnectionStatusView(genFisheyeTaskbar(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"),
+					createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"), 0,
 							new Runnable() {
 								@Override
 								public void run() {
-									changeCenterView(connectionView);
+									changeCenterView(connectionView, 0);
 								}
 							})));
 			taskbar.getChildren().add(
-					genFisheyeTaskbar(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), new Runnable() {
+					genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), 1, 
+					new Runnable() {
 						@Override			
 						public void run() {
-							changeCenterView(controls);
+							changeCenterView(controls, 1);
 						}
 					}));
 			taskbar.getChildren().add(
-					genFisheyeTaskbar(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), new Runnable() {
+					genTaskbarItem(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), 2, 
+					new Runnable() {
 						@Override
 						public void run() {
 							changeCenterView(
@@ -175,11 +181,12 @@ public class UGateGUI extends Application {
 											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex())),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP, 
-											RS.rbLabel("displayshelf.fullsize.tooltip")));
+											RS.rbLabel("displayshelf.fullsize.tooltip")), 2);
 						}
 					}));
 			taskbar.getChildren().add(
-					genFisheyeTaskbar(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), new Runnable() {
+					genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), 3, 
+					new Runnable() {
 						@Override
 						public void run() {
 							NumberAxis xAxis = new NumberAxis();
@@ -209,18 +216,18 @@ public class UGateGUI extends Application {
 												random.nextDouble() * 150));
 							}
 							chart.getData().add(manualImageSeries);
-							changeCenterView(chart);
+							changeCenterView(chart, 3);
 						}
 					}));
-			taskbar.getChildren().add(genFisheyeTaskbar(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), new Runnable() {
-				@Override
-				public void run() {
-					loggingView.setEditable(false);
-					changeCenterView(loggingView);
-				}
-			}));
-
-			changeCenterView(connectionView);
+			taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), 4, 
+					new Runnable() {
+						@Override
+						public void run() {
+							loggingView.setEditable(false);
+							changeCenterView(loggingView, 4);
+						}
+					}));
+			changeCenterView(connectionView, 0);
 			stage.show();
 			SystemTray.initSystemTray(stage);
 		} catch (final Throwable t) {
@@ -265,36 +272,28 @@ public class UGateGUI extends Application {
 		return node;
 	}
 
-	public ImageView genFisheyeTaskbar(final String iconName,
-			final String helpText, final Runnable action) {
+	protected ImageView genTaskbarItem(final String iconName,
+			final String helpText, final int index, final Runnable action) {
 		return genFisheye(iconName, TASKBAR_BUTTON_WIDTH,
-				TASKBAR_BUTTON_HEIGHT, TASKBAR_BUTTON_SCALE,
-				TASKBAR_BUTTON_SCALE, true, helpText, action);
+				TASKBAR_BUTTON_HEIGHT, helpText, index, taskBarSelectProperty, action);
 	}
 
 	public ImageView genFisheye(final String iconName,
-			final double width, final double height, final double scaleX,
-			final double scaleY, final boolean showReflection,
-			final String helpText, final Runnable action) {
+			final double width, final double height, 
+			final String helpText, final int index, 
+			final IntegerProperty selectProperty, final Runnable action) {
 		final ImageView node = RS.imgView(iconName);
-		node.setCacheHint(CacheHint.SCALE);
+		node.setCache(true);
+		node.setCacheHint(CacheHint.SPEED);
 		node.setFitWidth(width);
 		node.setFitHeight(height);
 
-		final ScaleTransition animationGrow = new ScaleTransition(
-				Duration.valueOf(TASKBAR_BUTTON_DURATION), node);
-		animationGrow.setToX(scaleX);
-		animationGrow.setToY(scaleY);
-
-		final ScaleTransition animationShrink = new ScaleTransition(
-				Duration.valueOf(TASKBAR_BUTTON_DURATION), node);
-		animationShrink.setToX(1);
-		animationShrink.setToY(1);
-
-		final Reflection effect = showReflection ? new Reflection() : null;
-		if (showReflection) {
-			node.setEffect(effect);
-		}
+		final DropShadow effect = DropShadowBuilder.create().color(
+				selectProperty != null && selectProperty.get() == index ? Color.DEEPSKYBLUE :
+					Color.TRANSPARENT).build();
+		final Reflection effect2 = new Reflection();
+		effect.setInput(effect2);
+		node.setEffect(effect);
 		node.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
@@ -308,18 +307,34 @@ public class UGateGUI extends Application {
 		node.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				node.toFront();
-				animationShrink.stop();
-				animationGrow.playFromStart();
+				if (selectProperty == null || selectProperty.get() != index) {
+					effect.setColor(Color.YELLOW);
+				}
 			}
 		});
 		node.setOnMouseExited(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				animationGrow.stop();
-				animationShrink.playFromStart();
+				if (selectProperty == null || selectProperty.get() != index) {
+					effect.setColor(Color.TRANSPARENT);
+				} else if (selectProperty.get() == index) {
+					effect.setColor(Color.DEEPSKYBLUE);
+				}
 			}
 		});
+		if (selectProperty != null) {
+			selectProperty.addListener(new ChangeListener<Number>() {
+				@Override
+				public void changed(final ObservableValue<? extends Number> observable,
+						final Number oldValue, final Number newValue) {
+					if (newValue.intValue() == index) {
+						effect.setColor(Color.DEEPSKYBLUE);
+					} else {
+						effect.setColor(Color.TRANSPARENT);
+					}
+				}
+			});
+		}
 		return node;
 	}
 
@@ -328,10 +343,11 @@ public class UGateGUI extends Application {
 	 * 
 	 * @param node
 	 *            the node to change the center view to
+	 * @param index the index of the task bar item
 	 */
-	protected void changeCenterView(final Node node) {
-		centerView.getChildren().clear();
-		centerView.getChildren().add(node);
+	protected void changeCenterView(final Node node, final int index) {
+		centerView.getChildren().setAll(node);
+		taskBarSelectProperty.set(index);
 	}
 	
 	/**

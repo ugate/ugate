@@ -116,7 +116,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 	    	passwordField = new PasswordField();
 	    	passwordField.setText(textValue);
-	    	addPreferenceUpdateListener(passwordField);
+	    	//addPreferenceUpdateListener(passwordField);
 		    getChildren().addAll(label, passwordField);
 	    } else if (type == Type.TYPE_TEXT_AREA) {
 	    	textField = null;
@@ -124,7 +124,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 	    	textArea = new TextArea();
 	    	textArea.setText(textValue);
-	    	addPreferenceUpdateListener(textArea);
+	    	//addPreferenceUpdateListener(textArea);
 		    getChildren().addAll(label, textArea);
 	    } else if (type == Type.TYPE_NUMERIC_STEPPER) {
 	    	textField = null;
@@ -147,7 +147,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 		    textField = new TextField();
 		    textField.setText(textValue);
-		    addPreferenceUpdateListener(textField);
+		    //addPreferenceUpdateListener(textField);
 		    getChildren().addAll(label, textField);
 	    }
 	}
@@ -158,11 +158,14 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param control the control to add the listener to
 	 */
 	protected void addPreferenceUpdateListener(final TextInputControl control) {
-		control.textProperty().addListener(new ChangeListener<String>() {
+		control.focusedProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
-				UGateKeeper.DEFAULT.settingsSet(settings, nodeIndex, newValue);
+			public void changed(ObservableValue<? extends Boolean> observable,
+					Boolean oldValue, Boolean newValue) {
+				if (newValue) {
+					return;
+				}
+				UGateKeeper.DEFAULT.settingsSet(settings, nodeIndex, control.getText());
 			}
 		});
 	}

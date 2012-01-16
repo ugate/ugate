@@ -170,6 +170,9 @@ public class WirelessHostConnectionView extends StatusView {
 	public void connect() {
 		if (!port.choice.getSelectionModel().isEmpty() && port.choice.getSelectionModel().getSelectedItem() != null && 
 				!baud.choice.getSelectionModel().isEmpty() && baud.choice.getSelectionModel().getSelectedItem() != null) {
+			UGateKeeper.DEFAULT.settingsSet(HostSettings.WIRELESS_ADDRESS_HOST, 
+					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+					hostAddress.textField.getText());
 			controlBar.createWirelessConnectionService(port.choice.getSelectionModel().getSelectedItem(), 
 					baud.choice.getSelectionModel().getSelectedItem()).start();
 		}
