@@ -24,10 +24,12 @@ public abstract class ControlPane extends GridPane {
 	public static final String FORMAT_ANGLE = "%03d";
 	public static final String FORMAT_SONAR = "%04.2f";
 	public static final String FORMAT_PIR = "%04.2f";
-	public static final Color COLOR_SONAR = Color.TURQUOISE;
-	public static final Color COLOR_PIR = Color.RED;
 	public static final String FORMAT_MW = "%03d";
+	public static final String FORMAT_LASER = "%04.2f";
+	public static final Color COLOR_SONAR = Color.TURQUOISE;
+	public static final Color COLOR_PIR = Color.WHITESMOKE;
 	public static final Color COLOR_MW = Color.CHARTREUSE;
+	public static final Color COLOR_LASER = Color.FIREBRICK;
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 30d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);

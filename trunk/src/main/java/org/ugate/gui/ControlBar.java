@@ -63,7 +63,7 @@ public class ControlBar extends ToolBar {
 		helpTextPane = new ScrollPane();
 		helpTextPane.setStyle("-fx-background-color: #ffffff;");
 		helpTextPane.setPrefHeight(40d);
-		helpTextPane.setPrefWidth(200d);
+		helpTextPane.setPrefWidth(150d);
 		helpTextPane.setEffect(helpTextDropShadow);
 		helpText = new Label(RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY));
 		helpText.setWrapText(true);
@@ -125,17 +125,26 @@ public class ControlBar extends ToolBar {
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
 		final Digits mwReading = new Digits(String.format(AlarmSettings.FORMAT_MW, 0), 0.15f, 
 				AlarmSettings.COLOR_MW, null);
+		final ImageView laserReadingLabel = RS.imgView(RS.IMG_LASER);
+		final Digits laserReading = new Digits(String.format(AlarmSettings.FORMAT_LASER, 0.0f), 
+				0.15f, AlarmSettings.COLOR_LASER, null);
 		final Region readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10, true,
-				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading);
+				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading, 
+				laserReadingLabel, laserReading);
 		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
 		
 		
 		// add the multi-alarm trip state
 		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.MULTI_ALARM_TRIP_STATE, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_OFF, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_IR_ALARM_ON, RS.IMG_IR_ALARM_OFF, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_OFF, false));
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_MID, 
+						RS.IMG_SONAR_ALARM_OFF, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_PIR_ALARM_ON, RS.IMG_PIR_ALARM_MID, 
+						RS.IMG_PIR_ALARM_OFF, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_MID, 
+						RS.IMG_MICROWAVE_ALARM_OFF, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_LASER_ALARM_ON, RS.IMG_LASER_ALARM_MID, 
+						RS.IMG_LASER_ALARM_OFF, false));
 		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				false, multiAlarmToggleSwitch);
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));

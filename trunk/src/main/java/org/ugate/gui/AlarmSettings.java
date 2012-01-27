@@ -40,15 +40,15 @@ public class AlarmSettings extends ControlPane {
 
 		soundsToggleSwitch = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.SOUNDS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-				RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
+				RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF, RS.IMG_SOUND_OFF);
 		controlBar.addHelpTextTrigger(soundsToggleSwitch, RS.rbLabel("service.command.sounds.toggle"));
 		emailToggleSwitch = new UGateToggleSwitchPreferenceView(RemoteSettings.MAIL_ALARM_ON, 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
+				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF, RS.IMG_EMAIL_NOTIFY_OFF);
 		controlBar.addHelpTextTrigger(emailToggleSwitch, RS.rbLabel("mail.alarm.notify.desc"));
 		imgResToggleSwitch = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.CAM_RES, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA, 
+				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA, RS.IMG_CAM_TOGGLE_QVGA, 
 				RS.rbLabel("cam.resolution.vga"), RS.rbLabel("cam.resolution.qvga"));
 		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
 		controlBar.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel("cam.resolution.desc"));

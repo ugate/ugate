@@ -42,11 +42,12 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param key the settings key for getting/saving the settings option as it's selected
 	 * @param nodeIndex the settings index
 	 * @param onImageFileName the file name of the image shown when the toggled on
+	 * @param midImageFileName the file name of the image that will be shown when nothing is selected
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 */
 	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final String onImageFileName, 
-			final String offImageFileName) {
-		this(key, nodeIndex, onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
+			final String midImageFileName, final String offImageFileName) {
+		this(key, nodeIndex, onImageFileName, midImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
 				RS.rbLabel("toggleswitch.off"));
 	}
 	
@@ -56,13 +57,14 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param key the settings key for getting/saving the settings option as it's selected
 	 * @param nodeIndex the settings index
 	 * @param onImageFileName the file name of the image shown when the toggled on
+	 * @param midImageFileName the file name of the image that will be shown when nothing is selected
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 * @param onText the text to show when on
 	 * @param offText the text to show when off
 	 */
 	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final String onImageFileName, 
-			final String offImageFileName, final String onText, final String offText) {
-		this(key, nodeIndex, new ToggleItem(onImageFileName, offImageFileName, onText, offText, false, true));
+			final String midImageFileName, final String offImageFileName, final String onText, final String offText) {
+		this(key, nodeIndex, new ToggleItem(onImageFileName, midImageFileName, offImageFileName, onText, offText, false, true));
 	}
 	
 	/**
@@ -101,7 +103,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> observable,
 						Boolean oldValue, Boolean newValue) {
-					item.toggleSwitchImageView.setImage(newValue ? item.imgOn : item.imgOff);
+					item.toggleSwitchImageView.setImage(newValue == null ? item.imgMid : newValue ? item.imgOn : item.imgOff);
 					setPreferenceValueNoSelectionUpdate(compositePreferenceValue(item, newValue));
 				}
 			});
@@ -125,7 +127,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param newValue the new value of the changing item
 	 * @return the composite value
 	 */
-	protected int compositePreferenceValue(final ToggleItem changingItem, final boolean newValue) {
+	protected int compositePreferenceValue(final ToggleItem changingItem, final Boolean newValue) {
 		final StringBuffer prefValue = new StringBuffer("");
 		for (final ToggleItem itemX : toggleItems) {
 			if (itemX == changingItem) {
@@ -242,6 +244,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 		public final ImageView toggleSwitchImageView;
 		public final ToggleSwitch toggleSwitch;
 		public final Image imgOn;
+		public final Image imgMid;
 		public final Image imgOff;
 		public final boolean showToggleSwitch;
 		
@@ -249,25 +252,27 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 		 * Creates a toggle item
 		 * 
 		 * @param onImageFileName the file name of the image that will be shown when selected
+		 * @param midImageFileName the file name of the image that will be shown when nothing is selected
 		 * @param offImageFileName the file name of the image that will be shown when not selected
 		 * @param onText the text of the toggle switch to show when selected
 		 * @param offText the text of the toggle switch to show when not selected
 		 */
-		public ToggleItem(final String onImageFileName, final String offImageFileName, 
-				final String onText, final String offText) {
-			this(onImageFileName, offImageFileName, onText, offText, false, true);
+		public ToggleItem(final String onImageFileName, final String midImageFileName,
+				final String offImageFileName, final String onText, final String offText) {
+			this(onImageFileName, midImageFileName, offImageFileName, onText, offText, false, true);
 		}
 		
 		/**
 		 * Creates a toggle item
 		 * 
 		 * @param onImageFileName the file name of the image that will be shown when selected
+		 * @param midImageFileName the file name of the image that will be shown when nothing is selected
 		 * @param offImageFileName the file name of the image that will be shown when not selected
 		 * @param showToggleSwitch true to show the toggle switch
 		 */
-		public ToggleItem(final String onImageFileName, final String offImageFileName, 
-				final boolean showToggleSwitch) {
-			this(onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
+		public ToggleItem(final String onImageFileName, final String midImageFileName, 
+				final String offImageFileName, final boolean showToggleSwitch) {
+			this(onImageFileName, midImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
 					RS.rbLabel("toggleswitch.off"), false, showToggleSwitch);
 		}
 		
@@ -275,16 +280,18 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 		 * Full constructor
 		 * 
 		 * @param onImageFileName the file name of the image that will be shown when selected
+		 * @param midImageFileName the file name of the image that will be shown when nothing is selected
 		 * @param offImageFileName the file name of the image that will be shown when not selected
 		 * @param onText the text of the toggle switch to show when selected
 		 * @param offText the text of the toggle switch to show when not selected
 		 * @param isOn true to show the initial state of the toggle as selected
 		 * @param showToggleSwitch true to show the toggle switch
 		 */
-		public ToggleItem(final String onImageFileName, final String offImageFileName, 
-				final String onText, final String offText, final boolean isOn, 
-				final boolean showToggleSwitch) {
+		public ToggleItem(final String onImageFileName, final String midImageFileName, 
+				final String offImageFileName, final String onText, final String offText, 
+				final boolean isOn, final boolean showToggleSwitch) {
 			this.imgOn = RS.img(onImageFileName);
+			this.imgMid = RS.img(midImageFileName);
 			this.imgOff = RS.img(offImageFileName);
 			this.showToggleSwitch = showToggleSwitch;
 			toggleSwitch = new ToggleSwitch(onText, offText, true);
