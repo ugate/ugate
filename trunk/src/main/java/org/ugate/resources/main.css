@@ -14,7 +14,7 @@
 .root {
 	-fx-accent: #95B9C7;
 	-fx-focus-color: #95B9C7;
-	-fx-font-family: "Helvetica";
+	-fx-font-family: "Verdana";
 }
 .scene {
     -fx-dark-text-color: black;
@@ -329,22 +329,6 @@
     -fx-shape: "M.55 0 L.67 .36 L1.09 .36 L.73 .54 L.83 .96 L.55 .72 L.27 .96 L.37 .54 L.01 .36 L.43 .36 Z";
     -fx-effect: innershadow( two-pass-box , rgba(0,0,0,0.6) , 4, 0.0 , 0 , 1 );
 }
-.text-field-menu-background {
-    -fx-background-color:
-        #090a0c,
-        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
-        linear-gradient(#20262b, #191d22),
-        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
-    -fx-background-radius: 5,4,3,5;
-    -fx-background-insets: 0,1,2,0;
-    -fx-font-weight: bold;
-    -fx-text-fill: white;
-	-fx-shape: "M0 0 L0 40 L125 40 L125 35 L100 0 Z";
-    -fx-padding: 2 70 0 5;
-}
-.text-field-menu-background Text {
-    -fx-effect: dropshadow( one-pass-box , black , 0, 0.0 , 0 , 1 );
-}
 /*******************************************************************************
  *                                                                             *
  * TextArea                                                                    *
@@ -410,6 +394,27 @@
  * Other                                                                       *
  *                                                                             *
  ******************************************************************************/
+.title-bar-menu {
+    -fx-background-color:
+        #090a0c,
+        linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+        linear-gradient(#20262b, #191d22),
+        radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
+    -fx-background-radius: 5,4,3,5;
+    -fx-background-insets: 0,1,2,0;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+	-fx-shape: "M0 0 L0 40 L170 40 L170 35 L150 0 Z";
+    -fx-padding: 2 70 0 5;
+}
+.title-bar-menu TextFieldMenu {
+    -fx-effect: dropshadow( one-pass-box , black , 0, 0.0 , 0 , 1 );
+}
+.text-area-help {
+	-fx-text-fill: black;
+	-fx-font-weight: normal;
+	-fx-background-color: #ffffff;
+}
 .background-display {
     -fx-background-color:
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),

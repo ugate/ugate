@@ -82,7 +82,7 @@ public class AccessSettings extends ControlPane {
 		final Label univRemoteLabel = createLabel("wireless.remote.universal");
 		universalRemoteAccessToggleSwitch = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.UNIVERSAL_REMOTE_ACCESS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-				RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF, RS.IMG_UNIVERSAL_REMOTE_OFF);
+				RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
 		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, RS.rbLabel("wireless.remote.universal.desc", 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
 	    accessKey1 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_1, 
@@ -109,7 +109,7 @@ public class AccessSettings extends ControlPane {
 		final Label gateHeader = createLabel("gate.conf");
 		gateToggleSwitchView = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.GATE_ACCESS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-				RS.IMG_GATE_ON, RS.IMG_GATE_OFF, RS.IMG_GATE_OFF);
+				RS.IMG_GATE_ON, RS.IMG_GATE_OFF);
 		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
 		final Label gateCtrlHeader = createLabel("gate.state");
 		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);

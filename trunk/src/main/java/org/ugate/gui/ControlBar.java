@@ -20,6 +20,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -59,11 +60,11 @@ public class ControlBar extends ToolBar {
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				helpTextDropShadow, Color.RED, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
+				helpTextDropShadow, Color.YELLOW, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
 		helpTextPane = new ScrollPane();
-		helpTextPane.setStyle("-fx-background-color: #ffffff;");
-		helpTextPane.setPrefHeight(40d);
-		helpTextPane.setPrefWidth(150d);
+		helpTextPane.getStyleClass().add("text-area-help");
+		//helpTextPane.setPrefHeight(40d);
+		helpTextPane.setPrefWidth(200d);
 		helpTextPane.setEffect(helpTextDropShadow);
 		helpText = new Label(RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY));
 		helpText.setWrapText(true);
@@ -137,14 +138,14 @@ public class ControlBar extends ToolBar {
 		// add the multi-alarm trip state
 		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.MULTI_ALARM_TRIP_STATE, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, RS.IMG_SONAR_ALARM_MID, 
-						RS.IMG_SONAR_ALARM_OFF, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_PIR_ALARM_ON, RS.IMG_PIR_ALARM_MID, 
-						RS.IMG_PIR_ALARM_OFF, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON, RS.IMG_MICROWAVE_ALARM_MID, 
-						RS.IMG_MICROWAVE_ALARM_OFF, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_LASER_ALARM_ON, RS.IMG_LASER_ALARM_MID, 
-						RS.IMG_LASER_ALARM_OFF, false));
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, 
+						RS.IMG_SONAR_ALARM_OFF, RS.IMG_SONAR_ALARM_ANY, null, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_PIR_ALARM_ON, 
+						RS.IMG_PIR_ALARM_OFF, RS.IMG_PIR_ALARM_ANY, null, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON,
+						RS.IMG_MICROWAVE_ALARM_OFF, RS.IMG_MICROWAVE_ALARM_ANY, null, false),
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_LASER_ALARM_ON, 
+						RS.IMG_LASER_ALARM_OFF, RS.IMG_LASER_ALARM_ANY, null, false));
 		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				false, multiAlarmToggleSwitch);
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));
@@ -152,8 +153,7 @@ public class ControlBar extends ToolBar {
 		// add the menu items
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSet, readingsGet, 
 				new Separator(Orientation.VERTICAL), readingsGroup, 
-				new Separator(Orientation.VERTICAL), multiAlarmGroup,
-				new Separator(Orientation.VERTICAL), helpTextPane);
+				new Separator(Orientation.VERTICAL), multiAlarmGroup);
 		
 		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
 				settingsDS, Color.RED, Color.BLACK, Timeline.INDEFINITE);
@@ -191,13 +191,15 @@ public class ControlBar extends ToolBar {
 	 * @return the menu bar items related to the control bar
 	 */
 	public Region createTitleBarItems() {
+		final HBox menu = new HBox(10);
 	    final TextFieldMenu raddy = new TextFieldMenu(RS.rbLabel("wireless.node.remote"), 
 	    		RS.rbLabel("wireless.node.remote.prompt"));
-	    raddy.getStyleClass().add("text-field-menu-background");
+	    menu.getStyleClass().add("title-bar-menu");
 	    final Object[] raddys = UGateKeeper.DEFAULT.wirelessGetRemoteAddressMap().values().toArray();
 	    raddy.addMenuItems(raddys);
 	    raddy.select(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress());
-	    return raddy;
+	    menu.getChildren().addAll(raddy, helpTextPane);
+	    return menu;
 	}
 	
 	/**
