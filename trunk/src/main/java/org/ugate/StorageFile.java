@@ -226,8 +226,7 @@ public class StorageFile {
 				}
 			}
 			properties.setProperty(key, value);
-			properties.store(new FileOutputStream(filePath + ".properties"),
-					null);
+			properties.store(new FileOutputStream(filePath), null);
 		} catch (IOException e) {
 			log.error("Unable to save storage file", e);
 		}
