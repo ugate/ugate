@@ -123,8 +123,8 @@ public class SettingsData extends RxData {
 		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MULTI_ALARM_TRIP_STATE, getNodeIndex()));
 		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_PAN, getNodeIndex()));
 		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_TILT, getNodeIndex()));
-		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_IR_TRIP_ANGLE_PAN, getNodeIndex()));
-		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_IR_TRIP_ANGLE_TILT, getNodeIndex()));
+		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_PAN, getNodeIndex()));
+		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_TILT, getNodeIndex()));
 		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_PAN, getNodeIndex()));
 		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_TILT, getNodeIndex()));
 	}

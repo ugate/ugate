@@ -1,5 +1,7 @@
 package org.ugate.gui.components;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -28,11 +30,12 @@ import org.ugate.gui.GuiUtil;
 public class UGateTextFieldPreferenceView extends VBox {
 	
 	public final Label label;
-	public final TextField textField;
-	public final TextArea textArea;
-	public final PasswordField passwordField;
+	private final TextField textField;
+	private final TextArea textArea;
+	private final PasswordField passwordField;
 	private final Digits numericStepperDigits;
 	public final Type type;
+	private final ReadOnlyObjectWrapper<Object> valuePropertyWrapper = new ReadOnlyObjectWrapper<Object>();
 	protected static final double NUMERIC_STEPPER_WIDTH = 30d;
 	protected static final double NUMERIC_STEPPER_HEIGHT = 30d;
 	protected static final double NUMERIC_STEPPER_HALF_HEIGHT = NUMERIC_STEPPER_HEIGHT / 2d;
@@ -50,13 +53,31 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * Creates a text field preference view
 	 * 
 	 * @param settingsKey the settings key
+	 * @param nodeIndex the settings node index
 	 * @param type the type
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
 	public UGateTextFieldPreferenceView(final ISettings settingsKey, final Integer nodeIndex,
 			final Type type, final String labelText, final String toolTip) {
-		this(settingsKey, nodeIndex, type, null, null, null, labelText, toolTip);
+		this(settingsKey, nodeIndex, type, null, null, null, null, labelText, null, null, toolTip);
+	}
+	
+	/**
+	 * Creates a text field preference view
+	 * 
+	 * @param settingsKey the settings key
+	 * @param nodeIndex the settings node index
+	 * @param type the type
+	 * @param labelText the label text
+	 * @param width the width of the control (for {@linkplain TextArea} column count)
+	 * @param height the height of the control (for {@linkplain TextArea} row count)
+	 * @param toolTip the tool tip
+	 */
+	public UGateTextFieldPreferenceView(final ISettings settingsKey, final Integer nodeIndex,
+			final Type type, final String labelText, final Number width, final Number height, 
+			final String toolTip) {
+		this(settingsKey, nodeIndex, type, null, null, null, null, labelText, width, height, toolTip);
 	}
 	
 	/**
@@ -65,15 +86,17 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param settingsKey the settings key
 	 * @param nodeIndex the settings node index
 	 * @param numericStepperFormat the {@linkplain String#format(String, Object...)} (integer of float)
+	 * @param numericStepperColor the color of the numeric stepper
 	 * @param minValue the minimum allowed value
 	 * @param maxValue the maximum allowed value
 	 * @param labelText the label text
 	 * @param toolTip the tool tip
 	 */
 	public UGateTextFieldPreferenceView(final ISettings settingsKey, final Integer nodeIndex,
-			final String numericStepperFormat, final Number minValue, final Number maxValue, 
+			final String numericStepperFormat, final Color numericStepperColor, final Number minValue, final Number maxValue, 
 			final String labelText, final String toolTip) {
-		this(settingsKey, nodeIndex, Type.TYPE_NUMERIC_STEPPER, numericStepperFormat, minValue, maxValue, labelText, toolTip);
+		this(settingsKey, nodeIndex, Type.TYPE_NUMERIC_STEPPER, numericStepperFormat, numericStepperColor,
+				minValue, maxValue, labelText, null, null, toolTip);
 	}
 
 	/**
@@ -82,14 +105,17 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 * @param settings the settings
 	 * @param type the type
 	 * @param numericStepperFormat the {@linkplain String#format(String, Object...)} (integer of float)
+	 * @param numericStepperColor the color of the numeric stepper
 	 * @param minValue the minimum allowed value
 	 * @param maxValue the maximum allowed value
 	 * @param labelText the label text
+	 * @param width the width of the control (for {@linkplain TextArea} column count)
+	 * @param height the height of the control (for {@linkplain TextArea} row count)
 	 * @param toolTip the tool tip
 	 */
 	protected UGateTextFieldPreferenceView(final ISettings settings, final Integer nodeIndex, final Type type, 
-			final String numericStepperFormat, final Number minValue, final Number maxValue, 
-			final String labelText, final String toolTip) {
+			final String numericStepperFormat, final Color numericStepperColor, final Number minValue, final Number maxValue, 
+			final String labelText, final Number width, final Number height, final String toolTip) {
 	    super();
 	    this.settings = settings;
 	    this.nodeIndex = nodeIndex;
@@ -116,6 +142,12 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 	    	passwordField = new PasswordField();
 	    	passwordField.setText(textValue);
+	    	if (width != null) {
+	    		passwordField.setPrefWidth(width.doubleValue());
+	    	}
+	    	if (height != null) {
+	    		passwordField.setPrefHeight(height.doubleValue());
+	    	}
 	    	//addPreferenceUpdateListener(passwordField);
 		    getChildren().addAll(label, passwordField);
 	    } else if (type == Type.TYPE_TEXT_AREA) {
@@ -124,6 +156,13 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 	    	textArea = new TextArea();
 	    	textArea.setText(textValue);
+	    	textArea.setWrapText(true);
+	    	if (width != null) {
+	    		textArea.setPrefColumnCount(width.intValue());
+	    	}
+	    	if (height != null) {
+	    		textArea.setPrefRowCount(height.intValue());
+	    	}
 	    	//addPreferenceUpdateListener(textArea);
 		    getChildren().addAll(label, textArea);
 	    } else if (type == Type.TYPE_NUMERIC_STEPPER) {
@@ -131,9 +170,10 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	textArea = null;
 	    	passwordField = null;
 		    
+	    	label.getStyleClass().add("gauge-header");
 		    // create/add numeric stepper
 	    	numericStepperDigits = new Digits(String.format(this.numericStepperFormat, Integer.parseInt(textValue)),
-					0.15f, Color.ORANGERED, null);
+					0.15f, numericStepperColor, null);
 	    	final VBox stepperBar = new VBox(NUMERIC_STEPPER_QUARTER_HEIGHT);
 	    	stepperBar.getChildren().addAll(createArrowButton(true), createArrowButton(false));
 	    	
@@ -147,6 +187,12 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	numericStepperDigits = null;
 		    textField = new TextField();
 		    textField.setText(textValue);
+	    	if (width != null) {
+	    		textField.setPrefWidth(width.doubleValue());
+	    	}
+	    	if (height != null) {
+	    		textField.setPrefHeight(height.doubleValue());
+	    	}
 		    //addPreferenceUpdateListener(textField);
 		    getChildren().addAll(label, textField);
 	    }
@@ -193,11 +239,7 @@ public class UGateTextFieldPreferenceView extends VBox {
 					} else {
 						newValue = Float.parseFloat(numericStepperDigits.getValue()) + (adjustedIncrementDecrementAmount(1).floatValue() * (isUp ? 1 : -1));
 					}
-					if (newValue.floatValue() >= minValue.floatValue() && 
-							newValue.floatValue() <= maxValue.floatValue()) {
-						numericStepperDigits.setValue(String.format(numericStepperFormat, newValue));
-						UGateKeeper.DEFAULT.settingsSet(settings, nodeIndex, newValue.toString());
-					}
+					setNumericStepperValue(newValue);
 				}
 			}
 		});
@@ -278,14 +320,66 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	return textArea.getText();
 	    } else if (type == Type.TYPE_NUMERIC_STEPPER) {
 	    	if (numericStepperUseInt) {
-	    		return Integer.parseInt(numericStepperDigits.getValue());
+	    		return Integer.valueOf(numericStepperDigits.getValue());
 	    	} else {
-	    		return Float.parseFloat(numericStepperDigits.getValue());
+	    		return Float.valueOf(numericStepperDigits.getValue());
 	    	}
 	    } else {
 	    	return textField.getText();
 	    }
 	}
+	
+	/**
+	 * @return gets the value of the control
+	 */
+	public void setValue(final Object value) {
+	    if (type == Type.TYPE_PASSWORD) {
+	    	passwordField.setText(value == null ? "" : value.toString());
+	    	valuePropertyWrapper.set(passwordField.getText());
+	    } else if (type == Type.TYPE_TEXT_AREA) {
+	    	textArea.setText(value == null ? "" : value.toString());
+	    	valuePropertyWrapper.set(textArea.getText());
+	    } else if (type == Type.TYPE_NUMERIC_STEPPER) {
+	    	setNumericStepperValue(value);
+	    } else {
+	    	textField.setText(value == null ? "" : value.toString());
+	    	valuePropertyWrapper.set(textField.getText());
+	    }
+	}
+	
+	/**
+	 * Sets the numeric stepper value
+	 * 
+	 * @param value the value to set
+	 */
+	protected void setNumericStepperValue(final Object value) {
+		Number newValue;
+		if (value instanceof Number) {
+			if (numericStepperUseInt) {
+	    		newValue = ((Number) value).intValue();
+	    	} else {
+	    		newValue = ((Number) value).floatValue();
+	    	}
+		} else if (numericStepperUseInt) {
+	    	newValue = Integer.parseInt(value == null ? "0" : value.toString());
+    	} else {
+    		newValue = Float.parseFloat(value == null ? "0" : value.toString());
+    	}
+		if (newValue.floatValue() >= minValue.floatValue() && 
+				newValue.floatValue() <= maxValue.floatValue()) {
+			numericStepperDigits.setValue(String.format(numericStepperFormat, newValue));
+			UGateKeeper.DEFAULT.settingsSet(settings, nodeIndex, newValue.toString());
+			valuePropertyWrapper.set(numericStepperDigits.getValue());
+		}
+	}
+	
+	/**
+	 * @return the value property
+	 */
+	public ReadOnlyObjectProperty<Object> valueProperty() {
+		return valuePropertyWrapper.getReadOnlyProperty();
+	}
+	
 	/**
 	 * The type of text control
 	 */

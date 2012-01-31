@@ -66,10 +66,10 @@ public class AccessSettings extends ControlPane {
 				if (GuiUtil.isPrimaryPress(event)) {
 					UGateKeeper.DEFAULT.settingsSet(RemoteSettings.WIRELESS_ADDRESS_NODE, 
 							UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-							remoteAddress.textField.getText());
+							remoteAddress.getValue().toString());
 					UGateKeeper.DEFAULT.settingsSet(RemoteSettings.WIRELESS_WORKING_DIR_PATH, 
 							UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-							workingDir.textField.getText());
+							workingDir.getValue().toString());
 				}
 			}
 		});
@@ -87,15 +87,15 @@ public class AccessSettings extends ControlPane {
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
 	    accessKey1 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_1, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 1), null);
+	    		ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel("wireless.access.key", 1), null);
 	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel("wireless.access.key.desc", 1));
 	    accessKey2 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_2, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 2), null);
+	    		ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel("wireless.access.key", 2), null);
 	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel("wireless.access.key.desc", 2));
 	    accessKey3 = new UGateTextFieldPreferenceView(RemoteSettings.ACCESS_CODE_3, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		ACCESS_KEY_CODE_FORMAT, null, null, RS.rbLabel("wireless.access.key", 3), null);
+	    		ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel("wireless.access.key", 3), null);
 	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel("wireless.access.key.desc", 3));
 	    
 	    final HBox accessKeysContainer = new HBox(5);

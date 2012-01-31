@@ -29,12 +29,18 @@ public enum RemoteSettings implements ISettings {
 	CAM_RES("cam.resolution", true),
 	CAM_ANGLE_PAN("cam.angle.pan", true),
 	CAM_ANGLE_TILT("cam.angle.pan", true),
+	CAM_SONAR_TRIP_ANGLE_PRIORITY("cam.sonar.trip.angle.priority", true),
 	CAM_SONAR_TRIP_ANGLE_PAN("cam.sonar.trip.angle.pan", true),
 	CAM_SONAR_TRIP_ANGLE_TILT("cam.sonar.trip.angle.tilt", true),
-	CAM_IR_TRIP_ANGLE_PAN("cam.ir.trip.angle.pan", true),
-	CAM_IR_TRIP_ANGLE_TILT("cam.ir.trip.angle.tilt", true),
+	CAM_PIR_TRIP_ANGLE_PRIORITY("cam.pir.trip.angle.priority", true),
+	CAM_PIR_TRIP_ANGLE_PAN("cam.pir.trip.angle.pan", true),
+	CAM_PIR_TRIP_ANGLE_TILT("cam.pir.trip.angle.tilt", true),
+	CAM_MW_TRIP_ANGLE_PRIORITY("cam.mw.trip.angle.priority", true),
 	CAM_MW_TRIP_ANGLE_PAN("cam.mw.trip.angle.pan", true),
-	CAM_MW_TRIP_ANGLE_TILT("cam.mw.trip.angle.tilt", true);
+	CAM_MW_TRIP_ANGLE_TILT("cam.mw.trip.angle.tilt", true),
+	CAM_LASER_TRIP_ANGLE_PRIORITY("cam.laser.trip.angle.priority", true),
+	CAM_LASER_TRIP_ANGLE_PAN("cam.laser.trip.angle.pan", true),
+	CAM_LASER_TRIP_ANGLE_TILT("cam.laser.trip.angle.tilt", true);
 	
 	public static final int WIRELESS_ADDRESS_START_INDEX = 1;
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;

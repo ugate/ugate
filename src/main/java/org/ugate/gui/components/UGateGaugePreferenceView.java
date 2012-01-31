@@ -142,8 +142,8 @@ public class UGateGaugePreferenceView extends VBox {
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
 			final String format, final ImageView icon, final Color onColor, final Color offColor, 
 			final Orientation orientation) {
-		super(10d);
-		setPadding(new Insets(20d, 10d, 20d, 10d));
+		super(0d);
+		//setPadding(new Insets(20d, 10d, 20d, 10d));
 		final boolean useInt = format.indexOf("d") > -1;
 		
 		// create the gauge

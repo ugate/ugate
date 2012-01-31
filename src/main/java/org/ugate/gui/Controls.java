@@ -37,10 +37,10 @@ public class Controls extends TabPane {
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab confTab = createTab(null, RS.rbLabel("remoteaccess"), AccessSettings.class, controlBar);
-		final Tab camTab = createTab(null, RS.rbLabel("positionsettings"), PositionSettings.class, controlBar);
-		final Tab sensorsTab = createTab(null, RS.rbLabel("alarmsettings"), AlarmSettings.class, controlBar);
-		getTabs().addAll(confTab, camTab, sensorsTab);
+		final Tab remoteAccessTab = createTab(null, RS.rbLabel("remoteaccess"), AccessSettings.class, controlBar);
+		final Tab alarmSettingsTab = createTab(null, RS.rbLabel("alarmsettings"), AlarmSettings.class, controlBar);
+		final Tab positioningTab = createTab(null, RS.rbLabel("positionsettings"), PositionSettings.class, controlBar);
+		getTabs().addAll(remoteAccessTab, alarmSettingsTab, positioningTab);
 	}
 	
 	/**

@@ -216,7 +216,7 @@ public class GuiUtil {
 			row = col == (numItemsPerRow - 1) ? row + 1 : row;
 			col = col == (numItemsPerRow - 1) ? -1 : col;
 		}
-//		grid.setAlignment(Pos.CENTER_RIGHT);
+//		grid.setAlignment(Pos.CENTER_LEFT);
 		grid.getStyleClass().add("background-display");
 		return grid;
 	}
