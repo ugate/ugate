@@ -67,10 +67,8 @@ public class EmailHostConnectionView extends StatusView {
 		recipients = new UGateTextFieldPreferenceView(
 				HostSettings.MAIL_RECIPIENTS, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 				UGateTextFieldPreferenceView.Type.TYPE_TEXT_AREA, 
-				RS.rbLabel("mail.alarm.notify.emails"), "");
+				RS.rbLabel("mail.alarm.notify.emails"), null, 5, "");
 		controlBar.addHelpTextTrigger(recipients, RS.rbLabel("mail.alarm.notify.emails.desc"));
-		recipients.textArea.setPrefRowCount(5);
-		recipients.textArea.setWrapText(true);
 		
 	    // update the status when email connections are made/lost
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
@@ -147,34 +145,34 @@ public class EmailHostConnectionView extends StatusView {
 	 */
 	@Override
 	public void connect() {
-		if (smtpHost.textField.getText().length() > 0 && smtpPort.textField.getText().length() > 0 && 
-				imapHost.textField.getText().length() > 0 && imapPort.textField.getText().length() > 0 && 
-				username.textField.getText().length() > 0 && password.passwordField.getText().length() > 0) {
+		if (smtpHost.getValue().toString().length() > 0 && smtpPort.getValue().toString().length() > 0 && 
+				imapHost.getValue().toString().length() > 0 && imapPort.getValue().toString().length() > 0 && 
+				username.getValue().toString().length() > 0 && password.getValue().toString().length() > 0) {
 			log.debug("Connecting to email...");
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_SMTP_HOST, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					smtpHost.textField.getText());
+					smtpHost.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_SMTP_PORT, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					smtpPort.textField.getText());
+					smtpPort.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_IMAP_HOST, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					imapHost.textField.getText());
+					imapHost.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_IMAP_PORT, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					imapPort.textField.getText());
+					imapPort.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_USERNAME, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					username.textField.getText());
+					username.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_PASSWORD, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					password.passwordField.getText());
+					password.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_INBOX_NAME, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					inboxFolder.textField.getText());
+					inboxFolder.getValue().toString());
 			UGateKeeper.DEFAULT.settingsSet(HostSettings.MAIL_RECIPIENTS, 
 					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					recipients.textArea.getText());
+					recipients.getValue().toString());
 			controlBar.createEmailConnectionService().start();
 		}
 	}

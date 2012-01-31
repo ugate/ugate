@@ -60,7 +60,7 @@ public class ControlBar extends ToolBar {
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				helpTextDropShadow, Color.YELLOW, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
+				helpTextDropShadow, Color.RED, Color.BLACK, HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
 		helpTextPane = new ScrollPane();
 		helpTextPane.getStyleClass().add("text-area-help");
 		//helpTextPane.setPrefHeight(40d);

@@ -77,7 +77,7 @@ public class TextFieldMenu extends VBox {
 				}
 			}
 		});
-		textField.getStyleClass().setAll("text-field-fx");
+		//textField.getStyleClass().setAll("text-field-fx");
 		textField.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
