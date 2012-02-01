@@ -141,7 +141,6 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	textArea = null;
 	    	numericStepperDigits = null;
 	    	passwordField = new PasswordField();
-	    	passwordField.setText(textValue);
 	    	if (width != null) {
 	    		passwordField.setPrefWidth(width.doubleValue());
 	    	}
@@ -155,7 +154,6 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	passwordField = null;
 	    	numericStepperDigits = null;
 	    	textArea = new TextArea();
-	    	textArea.setText(textValue);
 	    	textArea.setWrapText(true);
 	    	if (width != null) {
 	    		textArea.setPrefColumnCount(width.intValue());
@@ -181,12 +179,12 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    			NUMERIC_STEPPER_QUARTER_HEIGHT, NUMERIC_STEPPER_EIGHTH_HEIGHT, NUMERIC_STEPPER_QUARTER_HEIGHT), 
 	    			NUMERIC_STEPPER_QUARTER_HEIGHT, 2, true, numericStepperDigits, stepperBar);
 	    	getChildren().addAll(label, digitsDisplay);
+	    	setValue(numericStepperDigits.getValue());
 	    } else {
 	    	textArea = null;
 	    	passwordField = null;
 	    	numericStepperDigits = null;
 		    textField = new TextField();
-		    textField.setText(textValue);
 	    	if (width != null) {
 	    		textField.setPrefWidth(width.doubleValue());
 	    	}
@@ -195,6 +193,9 @@ public class UGateTextFieldPreferenceView extends VBox {
 	    	}
 		    //addPreferenceUpdateListener(textField);
 		    getChildren().addAll(label, textField);
+	    }
+	    if (type != Type.TYPE_NUMERIC_STEPPER) {
+	    	setValue(textValue);
 	    }
 	}
 	
@@ -255,8 +256,8 @@ public class UGateTextFieldPreferenceView extends VBox {
 	 */
 	protected Number adjustedMinMax(final Number minMax, final boolean isMin) {
 		final String minMaxStr = minMax == null ? null : String.valueOf(minMax);
-		if (minMaxStr != null && ((!isMin && minMaxStr.length() < numericStepperDigitCount) || 
-				(isMin && minMaxStr.length() > numericStepperDigitCount))) {
+		if (minMaxStr != null && ((!isMin && minMaxStr.length() <= numericStepperDigitCount) || 
+				(isMin && minMaxStr.length() >= numericStepperDigitCount))) {
 			return minMax;
 		}
 		if (isMin) {
