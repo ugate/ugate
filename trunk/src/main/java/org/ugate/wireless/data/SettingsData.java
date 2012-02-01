@@ -25,12 +25,18 @@ public class SettingsData extends RxData {
 	private int mwSpeedThresholdCyclesPerSecond;
 	private int mwDelayBetweenTrips;
 	private int multiAlarmTripState;
+	private int camSonarPriority;
 	private int camSonarTripPanAngle;
 	private int camSonarTripTiltAngle;
-	private int camIrTripPanAngle;
-	private int camIrTripTiltAngle;
+	private int camPirPriority;
+	private int camPirTripPanAngle;
+	private int camPirTripTiltAngle;
+	private int camMicrowavePriority;
 	private int camMicrowaveTripPanAngle;
 	private int camMicrowaveTripTiltAngle;
+	private int camLaserPriority;
+	private int camLaserTripPanAngle;
+	private int camLaserTripTiltAngle;
 	
 	/**
 	 * Constructs settings data with the current preference data
@@ -42,14 +48,18 @@ public class SettingsData extends RxData {
 		super(nodeIndex,Status.NORMAL, 0);
 		setPreferenceValues();
 	}
-	
+
+
 	/**
 	 * Full constructor
 	 * 
 	 * @param nodeIndex
 	 * @param status
+	 * @param signalStrength
 	 * @param universalRemoteOn
-	 * @param keyCodes
+	 * @param keyCode1
+	 * @param keyCode2
+	 * @param keyCode3
 	 * @param camResolution
 	 * @param gateAlarmOn
 	 * @param sonarDistanceThresholdFeet
@@ -61,23 +71,22 @@ public class SettingsData extends RxData {
 	 * @param mwSpeedThresholdCyclesPerSecond
 	 * @param mwDelayBetweenTrips
 	 * @param multiAlarmTripState
+	 * @param camSonarPriority
 	 * @param camSonarTripPanAngle
 	 * @param camSonarTripTiltAngle
-	 * @param camIrTripPanAngle
-	 * @param camIrTripTiltAngle
+	 * @param camPirPriority
+	 * @param camPirTripPanAngle
+	 * @param camPirTripTiltAngle
+	 * @param camMicrowavePriority
 	 * @param camMicrowaveTripPanAngle
 	 * @param camMicrowaveTripTiltAngle
+	 * @param camLaserPriority
+	 * @param camLaserTripPanAngle
+	 * @param camLaserTripTiltAngle
 	 */
-	public SettingsData(final Integer nodeIndex, final Status status, final int signalStrength, int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3,
-			int camResolution,
-			int gateAlarmOn, int sonarDistanceThresholdFeet,
-			int sonarDistanceThresholdInches, int sonarDelayBetweenTrips,
-			int irDistanceThresholdFeet, int irDistanceThresholdInches,
-			int irDelayBetweenTrips, int mwSpeedThresholdCyclesPerSecond,
-			int mwDelayBetweenTrips, int multiAlarmTripState,
-			int camSonarTripPanAngle, int camSonarTripTiltAngle,
-			int camIrTripPanAngle, int camIrTripTiltAngle,
-			int camMicrowaveTripPanAngle, int camMicrowaveTripTiltAngle) {
+	public SettingsData(Integer nodeIndex, Status status, int signalStrength, int universalRemoteOn, int keyCode1, int keyCode2, int keyCode3, int camResolution, int gateAlarmOn, int sonarDistanceThresholdFeet, int sonarDistanceThresholdInches, int sonarDelayBetweenTrips, int irDistanceThresholdFeet,
+			int irDistanceThresholdInches, int irDelayBetweenTrips, int mwSpeedThresholdCyclesPerSecond, int mwDelayBetweenTrips, int multiAlarmTripState, int camSonarPriority, int camSonarTripPanAngle, int camSonarTripTiltAngle, int camPirPriority, int camPirTripPanAngle, int camPirTripTiltAngle,
+			int camMicrowavePriority, int camMicrowaveTripPanAngle, int camMicrowaveTripTiltAngle, int camLaserPriority, int camLaserTripPanAngle, int camLaserTripTiltAngle) {
 		super(nodeIndex, status, signalStrength);
 		this.universalRemoteOn = universalRemoteOn;
 		this.keyCodes = new KeyCodes(nodeIndex, status, signalStrength, keyCode1, keyCode2, keyCode3);
@@ -92,13 +101,20 @@ public class SettingsData extends RxData {
 		this.mwSpeedThresholdCyclesPerSecond = mwSpeedThresholdCyclesPerSecond;
 		this.mwDelayBetweenTrips = mwDelayBetweenTrips;
 		this.multiAlarmTripState = multiAlarmTripState;
+		this.camSonarPriority = camSonarPriority;
 		this.camSonarTripPanAngle = camSonarTripPanAngle;
 		this.camSonarTripTiltAngle = camSonarTripTiltAngle;
-		this.camIrTripPanAngle = camIrTripPanAngle;
-		this.camIrTripTiltAngle = camIrTripTiltAngle;
+		this.camPirPriority = camPirPriority;
+		this.camPirTripPanAngle = camPirTripPanAngle;
+		this.camPirTripTiltAngle = camPirTripTiltAngle;
+		this.camMicrowavePriority = camMicrowavePriority;
 		this.camMicrowaveTripPanAngle = camMicrowaveTripPanAngle;
 		this.camMicrowaveTripTiltAngle = camMicrowaveTripTiltAngle;
+		this.camLaserPriority = camLaserPriority;
+		this.camLaserTripPanAngle = camLaserTripPanAngle;
+		this.camLaserTripTiltAngle = camLaserTripTiltAngle;
 	}
+
 
 	/**
 	 * Sets the parameter values from data stored in the preferences
@@ -121,12 +137,18 @@ public class SettingsData extends RxData {
 		mwSpeedThresholdCyclesPerSecond = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MW_SPEED_THRES_CYCLES_PER_SEC, getNodeIndex()));
 		mwDelayBetweenTrips = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MW_DELAY_BTWN_TRIPS, getNodeIndex()));
 		multiAlarmTripState = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.MULTI_ALARM_TRIP_STATE, getNodeIndex()));
+		camSonarPriority = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_PRIORITY, getNodeIndex()));
 		camSonarTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_PAN, getNodeIndex()));
 		camSonarTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_SONAR_TRIP_ANGLE_TILT, getNodeIndex()));
-		camIrTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_PAN, getNodeIndex()));
-		camIrTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_TILT, getNodeIndex()));
+		camPirPriority = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_PRIORITY, getNodeIndex()));
+		camPirTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_PAN, getNodeIndex()));
+		camPirTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_PIR_TRIP_ANGLE_TILT, getNodeIndex()));
+		camMicrowavePriority = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_PRIORITY, getNodeIndex()));
 		camMicrowaveTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_PAN, getNodeIndex()));
 		camMicrowaveTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_TILT, getNodeIndex()));
+		camLaserPriority = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_MW_TRIP_ANGLE_PRIORITY, getNodeIndex()));
+		camLaserTripPanAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_LASER_TRIP_ANGLE_PAN, getNodeIndex()));
+		camLaserTripTiltAngle = Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(RemoteSettings.CAM_LASER_TRIP_ANGLE_TILT, getNodeIndex()));
 	}
 	
 	/**
@@ -371,28 +393,28 @@ public class SettingsData extends RxData {
 	 * @return the camIrTripPanAngle
 	 */
 	public int getCamIrTripPanAngle() {
-		return camIrTripPanAngle;
+		return camPirTripPanAngle;
 	}
 
 	/**
 	 * @param camIrTripPanAngle the camIrTripPanAngle to set
 	 */
 	public void setCamIrTripPanAngle(int camIrTripPanAngle) {
-		this.camIrTripPanAngle = camIrTripPanAngle;
+		this.camPirTripPanAngle = camIrTripPanAngle;
 	}
 
 	/**
 	 * @return the camIrTripTiltAngle
 	 */
 	public int getCamIrTripTiltAngle() {
-		return camIrTripTiltAngle;
+		return camPirTripTiltAngle;
 	}
 
 	/**
 	 * @param camIrTripTiltAngle the camIrTripTiltAngle to set
 	 */
 	public void setCamIrTripTiltAngle(int camIrTripTiltAngle) {
-		this.camIrTripTiltAngle = camIrTripTiltAngle;
+		this.camPirTripTiltAngle = camIrTripTiltAngle;
 	}
 
 	/**
@@ -421,5 +443,133 @@ public class SettingsData extends RxData {
 	 */
 	public void setCamMicrowaveTripTiltAngle(int camMicrowaveTripTiltAngle) {
 		this.camMicrowaveTripTiltAngle = camMicrowaveTripTiltAngle;
+	}
+
+
+	/**
+	 * @return the camSonarPriority
+	 */
+	public int getCamSonarPriority() {
+		return camSonarPriority;
+	}
+
+
+	/**
+	 * @param camSonarPriority the camSonarPriority to set
+	 */
+	public void setCamSonarPriority(int camSonarPriority) {
+		this.camSonarPriority = camSonarPriority;
+	}
+
+
+	/**
+	 * @return the camPirPriority
+	 */
+	public int getCamPirPriority() {
+		return camPirPriority;
+	}
+
+
+	/**
+	 * @param camPirPriority the camPirPriority to set
+	 */
+	public void setCamPirPriority(int camPirPriority) {
+		this.camPirPriority = camPirPriority;
+	}
+
+
+	/**
+	 * @return the camPirTripPanAngle
+	 */
+	public int getCamPirTripPanAngle() {
+		return camPirTripPanAngle;
+	}
+
+
+	/**
+	 * @param camPirTripPanAngle the camPirTripPanAngle to set
+	 */
+	public void setCamPirTripPanAngle(int camPirTripPanAngle) {
+		this.camPirTripPanAngle = camPirTripPanAngle;
+	}
+
+
+	/**
+	 * @return the camPirTripTiltAngle
+	 */
+	public int getCamPirTripTiltAngle() {
+		return camPirTripTiltAngle;
+	}
+
+
+	/**
+	 * @param camPirTripTiltAngle the camPirTripTiltAngle to set
+	 */
+	public void setCamPirTripTiltAngle(int camPirTripTiltAngle) {
+		this.camPirTripTiltAngle = camPirTripTiltAngle;
+	}
+
+
+	/**
+	 * @return the camMicrowavePriority
+	 */
+	public int getCamMicrowavePriority() {
+		return camMicrowavePriority;
+	}
+
+
+	/**
+	 * @param camMicrowavePriority the camMicrowavePriority to set
+	 */
+	public void setCamMicrowavePriority(int camMicrowavePriority) {
+		this.camMicrowavePriority = camMicrowavePriority;
+	}
+
+
+	/**
+	 * @return the camLaserPriority
+	 */
+	public int getCamLaserPriority() {
+		return camLaserPriority;
+	}
+
+
+	/**
+	 * @param camLaserPriority the camLaserPriority to set
+	 */
+	public void setCamLaserPriority(int camLaserPriority) {
+		this.camLaserPriority = camLaserPriority;
+	}
+
+
+	/**
+	 * @return the camLaserTripPanAngle
+	 */
+	public int getCamLaserTripPanAngle() {
+		return camLaserTripPanAngle;
+	}
+
+
+	/**
+	 * @param camLaserTripPanAngle the camLaserTripPanAngle to set
+	 */
+	public void setCamLaserTripPanAngle(int camLaserTripPanAngle) {
+		this.camLaserTripPanAngle = camLaserTripPanAngle;
+	}
+
+
+	/**
+	 * @return the camLaserTripTiltAngle
+	 */
+	public int getCamLaserTripTiltAngle() {
+		return camLaserTripTiltAngle;
+	}
+
+
+	/**
+	 * @param camLaserTripTiltAngle the camLaserTripTiltAngle to set
+	 */
+	public void setCamLaserTripTiltAngle(int camLaserTripTiltAngle) {
+		this.camLaserTripTiltAngle = camLaserTripTiltAngle;
 	}
 }

@@ -199,6 +199,8 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
+					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
+					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i],
 					rxResponse.getData()[++i], rxResponse.getData()[++i]);
 			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, sd, 
 					RS.rbLabel("service.rx.settings", sd));

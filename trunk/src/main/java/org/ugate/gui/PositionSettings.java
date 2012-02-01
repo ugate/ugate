@@ -1,5 +1,9 @@
 package org.ugate.gui;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Group;
@@ -19,8 +23,9 @@ import org.ugate.resources.RS;
  */
 public class PositionSettings extends ControlPane {
 	
-	public static final int NUM_OF_SENSORS = 4;
-	public static final int MAX_SENSOR_INDEX = PositionSettings.NUM_OF_SENSORS - 1;
+	public static final int MIN_SENSOR_INDEX = 1;
+	public static final int MAX_SENSOR_INDEX = 4;
+	private final AtomicBoolean NUMERIC_STEPPER_CHANGING = new AtomicBoolean(false);
 	private UGateTextFieldPreferenceView sonarAnglePriority;
 	private UGateTextFieldPreferenceView pirAnglePriority;
 	private UGateTextFieldPreferenceView mwAnglePriority;
@@ -102,7 +107,7 @@ public class PositionSettings extends ControlPane {
 		sonarAnglePriority = new UGateTextFieldPreferenceView(
 	    		RemoteSettings.CAM_SONAR_TRIP_ANGLE_PRIORITY, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		PRIORITY_FORMAT, COLOR_SONAR, 0, MAX_SENSOR_INDEX, RS.rbLabel("cam.sonar.trip.angle.priority"), null);
+	    		PRIORITY_FORMAT, COLOR_SONAR, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX, RS.rbLabel("cam.sonar.trip.angle.priority"), null);
 		controlBar.addHelpTextTrigger(sonarAnglePriority, RS.rbLabel("cam.trip.angle.priority.desc",
 				RS.rbLabel("cam.sonar.trip.angle.priority")));
 		addPriorityValueListener(sonarAnglePriority);
@@ -131,7 +136,7 @@ public class PositionSettings extends ControlPane {
 		pirAnglePriority = new UGateTextFieldPreferenceView(
 	    		RemoteSettings.CAM_PIR_TRIP_ANGLE_PRIORITY, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		PRIORITY_FORMAT, COLOR_PIR, 0, MAX_SENSOR_INDEX, RS.rbLabel("cam.pir.trip.angle.priority"), null);
+	    		PRIORITY_FORMAT, COLOR_PIR, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX, RS.rbLabel("cam.pir.trip.angle.priority"), null);
 		controlBar.addHelpTextTrigger(pirAnglePriority, RS.rbLabel("cam.trip.angle.priority.desc",
 				RS.rbLabel("cam.pir.trip.angle.priority")));
 		addPriorityValueListener(pirAnglePriority);
@@ -165,7 +170,7 @@ public class PositionSettings extends ControlPane {
 		mwAnglePriority = new UGateTextFieldPreferenceView(
 	    		RemoteSettings.CAM_MW_TRIP_ANGLE_PRIORITY, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		PRIORITY_FORMAT, COLOR_MW, 0, MAX_SENSOR_INDEX, RS.rbLabel("cam.mw.trip.angle.priority"), null);
+	    		PRIORITY_FORMAT, COLOR_MW, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX, RS.rbLabel("cam.mw.trip.angle.priority"), null);
 		controlBar.addHelpTextTrigger(mwAnglePriority, RS.rbLabel("cam.trip.angle.priority.desc",
 				RS.rbLabel("cam.mw.trip.angle.priority")));
 		addPriorityValueListener(mwAnglePriority);
@@ -192,7 +197,7 @@ public class PositionSettings extends ControlPane {
 		laserAnglePriority = new UGateTextFieldPreferenceView(
 	    		RemoteSettings.CAM_LASER_TRIP_ANGLE_PRIORITY, 
 	    		UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-	    		PRIORITY_FORMAT, COLOR_LASER, 0, MAX_SENSOR_INDEX, RS.rbLabel("cam.laser.trip.angle.priority"), null);
+	    		PRIORITY_FORMAT, COLOR_LASER, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX, RS.rbLabel("cam.laser.trip.angle.priority"), null);
 		controlBar.addHelpTextTrigger(laserAnglePriority, RS.rbLabel("cam.trip.angle.priority.desc",
 				RS.rbLabel("cam.laser.trip.angle.priority")));
 		addPriorityValueListener(laserAnglePriority);
@@ -220,31 +225,32 @@ public class PositionSettings extends ControlPane {
 		add(cell, 2, 0);
 	}
 	
+	/**
+	 * Adds a priority listener that will ensure the priorities are unique and in sequence by setting the old value of the
+	 * changing priority control on the priority control that has the changing priority controls new value.
+	 * 
+	 * @param control the control to listen for priority number changes
+	 */
 	protected void addPriorityValueListener(final UGateTextFieldPreferenceView control) {
 		control.valueProperty().addListener(new ChangeListener<Object>() {
-			private boolean init = false;
 			@Override
 			public void changed(final ObservableValue<? extends Object> observable, 
 					final Object oldValue, final Object newValue) {
-				if (init) {
+				if (NUMERIC_STEPPER_CHANGING.get()) {
+					// should be called immediately after the swap is made
+					NUMERIC_STEPPER_CHANGING.set(false);
 					return;
 				}
-				init = true;
-				/* TODO : enforce sensor priority
-				final int diff = (Integer.valueOf(newValue.toString()) - Integer.valueOf(oldValue.toString())) / MAX_SENSOR_INDEX;
-				if (control != sonarAnglePriority) {
-					sonarAnglePriority.setValue((Integer) sonarAnglePriority.getValue() + diff);
-				}
-				if (control != pirAnglePriority) {
-					pirAnglePriority.setValue((Integer) pirAnglePriority.getValue() + diff);
-				}
-				if (control != mwAnglePriority) {
-					mwAnglePriority.setValue((Integer) mwAnglePriority.getValue() + diff);
-				}
-				if (control != laserAnglePriority) {
-					laserAnglePriority.setValue((Integer) laserAnglePriority.getValue() + diff);
-				}*/
-				init = false;
+				// swap old value 
+		        final List<UGateTextFieldPreferenceView> a = Arrays.asList(sonarAnglePriority, pirAnglePriority, 
+		        		mwAnglePriority, laserAnglePriority);
+		        final List<Integer> b = Arrays.asList(control == sonarAnglePriority ? null : 
+		        	(Integer) sonarAnglePriority.getValue(),
+		        		control == pirAnglePriority ? null : (Integer) pirAnglePriority.getValue(),
+		        				control == mwAnglePriority ? null : (Integer) mwAnglePriority.getValue(),
+		        						control == laserAnglePriority ? null : (Integer) laserAnglePriority.getValue());
+		        NUMERIC_STEPPER_CHANGING.set(true);
+		        a.get(b.indexOf(Integer.valueOf(newValue.toString()))).setValue(oldValue);
 			}
 		});
 	}
