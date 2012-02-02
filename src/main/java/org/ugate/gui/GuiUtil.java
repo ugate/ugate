@@ -13,6 +13,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.LabelBuilder;
+import javafx.scene.control.ProgressBarBuilder;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.ColorAdjustBuilder;
 import javafx.scene.effect.DropShadow;
@@ -29,6 +31,8 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+
+import org.ugate.resources.RS;
 
 /**
  * General GUI utility
@@ -63,13 +67,14 @@ public class GuiUtil {
 	 * @return the progress alert service
 	 */
 	public static <T> Service<T> alertProgress(final Stage parent, final Task<T> progressTask) {
-		final ProgressIndicator pi = new ProgressIndicator();
 		final Light light = new Light.Distant();
 		final Lighting lighting = new Lighting();
-		lighting.setSurfaceScale(3d);
+		lighting.setSurfaceScale(1d);
 		lighting.setLight(light);
-		pi.setEffect(lighting);
-		final Stage alert = alert(parent, 200, 150, Modality.APPLICATION_MODAL, pi);
+		//final ProgressIndicator pi = ProgressIndicatorBuilder.create().maxWidth(200d).effect(lighting).build(); 
+		final ProgressIndicator pi = ProgressBarBuilder.create().maxWidth(parent.getWidth() / 2d).maxHeight(25d).effect(lighting).build();
+		final Stage alert = alert(parent, parent.getWidth(), parent.getHeight(), Modality.APPLICATION_MODAL, pi, 
+				LabelBuilder.create().text(RS.rbLabel("sending")).build());
 		final Service<T> service = new Service<T>() {
 			@Override
 			protected Task<T> createTask() {
@@ -120,8 +125,8 @@ public class GuiUtil {
 		if (children != null) {
 			root.getChildren().addAll(children);
 		}
-		stage.setScene(new Scene(root, width, height, Color.TRANSPARENT));
 		if (parent != null) {
+			stage.setScene(new Scene(root, parent.getWidth(), parent.getHeight(), Color.TRANSPARENT));
 			stage.initOwner(parent);
 			stage.setX(parent.getX() + parent.getScene().getWidth() / 2d - width / 2d);
 			stage.setY(parent.getY() + parent.getScene().getHeight() / 2d - height / 2d);
@@ -137,6 +142,8 @@ public class GuiUtil {
 					stage.setY(newValue.doubleValue() + parent.getScene().getHeight() / 2d - height / 2d);
 				}
 			});
+		} else {
+			stage.setScene(new Scene(root, width, height, Color.TRANSPARENT));
 		}
 		return stage;
 	}
