@@ -15,7 +15,7 @@ import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
 import org.ugate.wireless.data.RxData;
-import org.ugate.wireless.data.SettingsData;
+import org.ugate.wireless.data.RxTxRemoteSettingsData;
 
 import com.rapplogic.xbee.api.AtCommand;
 import com.rapplogic.xbee.api.AtCommandResponse;
@@ -724,8 +724,8 @@ public enum UGateKeeper {
 			return allSuccess;
 		}
 		try {
-			final SettingsData sd = new SettingsData(nodeIndex);
-			final int[] sendData = sd.toArray();
+			final RxTxRemoteSettingsData sd = new RxTxRemoteSettingsData(nodeIndex);
+			final int[] sendData = sd.getAllData();
 			log.info(String.format("Attempting to send: %s", sd));
 			final Map<Integer, String> was = wirelessGetRemoteAddressMap(nodeIndex);
 			final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, 

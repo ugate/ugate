@@ -1,5 +1,7 @@
 package org.ugate;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Settings related to an individual node device located in a remote location
  */
@@ -46,6 +48,7 @@ public enum RemoteSettings implements ISettings {
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
 	private final String key;
 	private final boolean canRemote;
+	private static AtomicInteger canRemoteCount = new AtomicInteger(-1);
 	
 	/**
 	 * Constructor
@@ -56,6 +59,21 @@ public enum RemoteSettings implements ISettings {
 	private RemoteSettings(final String key, final boolean canRemote) {
 		this.key = key;
 		this.canRemote = canRemote;
+	}
+	
+	/**
+	 * @return the number of elements that can remote
+	 */
+	public static int canRemoteCount() {
+		if (canRemoteCount.get() < 0) {
+			canRemoteCount.incrementAndGet();
+			for (final RemoteSettings rs : values()) {
+				if (rs.canRemote()) {
+					canRemoteCount.incrementAndGet();
+				}
+			}
+		}
+		return canRemoteCount.get();
 	}
 	
 	/**

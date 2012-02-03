@@ -18,7 +18,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.gui.components.UGateTextFieldPreferenceView;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
-import org.ugate.wireless.data.SensorReadings;
+import org.ugate.wireless.data.RxTxSensorReadings;
 
 /**
  * Node configuration
@@ -128,10 +128,10 @@ public class AccessSettings extends ControlPane {
 				}
 			}
 		});
-		controlBar.sensorReadingsProperty().addListener(new ChangeListener<SensorReadings>() {
+		controlBar.sensorReadingsProperty().addListener(new ChangeListener<RxTxSensorReadings>() {
 			@Override
-			public void changed(final ObservableValue<? extends SensorReadings> observable, 
-					final SensorReadings oldValue, final SensorReadings newValue) {
+			public void changed(final ObservableValue<? extends RxTxSensorReadings> observable, 
+					final RxTxSensorReadings oldValue, final RxTxSensorReadings newValue) {
 				// when a command is sent to a remote node to open/close a gate a response for
 				// sensor readings will be sent to the host where the gate state update is captured
 				gateToggleButton.setImage(newValue.getGateState() == 1 ? RS.img(RS.IMG_GATE_OPENED) : 
