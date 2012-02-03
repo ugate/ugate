@@ -65,6 +65,7 @@ public class RS {
 	public static final String IMG_PAN = "pan.png";
 	public static final String IMG_READINGS_GET = "readings-get48x48.png";
 	public static final String IMG_SETTINGS_SET = "settings-set48x48.png";
+	public static final String IMG_SETTINGS_GET = "settings-get48x48.png";
 	public static final String IMG_SONAR = "sonar32x32.png";
 	public static final String IMG_PIR = "pir32x32.png";
 	public static final String IMG_LASER = "laser32x32.png";

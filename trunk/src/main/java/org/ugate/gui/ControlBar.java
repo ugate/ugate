@@ -36,7 +36,7 @@ import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.TextFieldMenu;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
-import org.ugate.wireless.data.SensorReadings;
+import org.ugate.wireless.data.RxTxSensorReadings;
 
 /**
  * Main menu control bar
@@ -45,7 +45,7 @@ public class ControlBar extends ToolBar {
 	
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
-	private final ReadOnlyObjectWrapper<SensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<SensorReadings>();
+	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
 	
 	private static final Logger log = Logger.getLogger(ControlBar.class);
 	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
@@ -105,6 +105,18 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(settingsSet, RS.rbLabel("settings.send"));
 		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
+		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
+		settingsGet.setCursor(Cursor.HAND);
+		settingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					createCommandService(Command.SENSOR_GET_SETTINGS, true);
+				}
+			}
+	    });
+		addHelpTextTrigger(settingsGet, RS.rbLabel("settings.receive"));
+		settingsGet.setEffect(new DropShadow());
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
 		addHelpTextTrigger(readingsGet, RS.rbLabel("sensors.readings.get"));
 		readingsGet.setCursor(Cursor.HAND);
@@ -152,7 +164,7 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));
 		
 		// add the menu items
-		getItems().addAll(camTakeQvga, camTakeVga, settingsSet, readingsGet, 
+		getItems().addAll(camTakeQvga, camTakeVga, settingsSet, settingsGet, readingsGet, 
 				new Separator(Orientation.VERTICAL), readingsGroup, 
 				new Separator(Orientation.VERTICAL), multiAlarmGroup);
 		
@@ -170,8 +182,8 @@ public class ControlBar extends ToolBar {
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
 					settingsSetTimeline.stop();
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
-					if (event.getNewValue() instanceof SensorReadings) {
-						final SensorReadings sr = (SensorReadings) event.getNewValue();
+					if (event.getNewValue() instanceof RxTxSensorReadings) {
+						final RxTxSensorReadings sr = (RxTxSensorReadings) event.getNewValue();
 						sensorReadingsPropertyWrapper.set(sr);
 						sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 
 								Double.parseDouble(sr.getSonarFeet() + "." + sr.getSonarInches())));
@@ -354,7 +366,7 @@ public class ControlBar extends ToolBar {
 	/**
 	 * @return the sensor readings property
 	 */
-	public ReadOnlyObjectProperty<SensorReadings> sensorReadingsProperty() {
+	public ReadOnlyObjectProperty<RxTxSensorReadings> sensorReadingsProperty() {
 		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
 	}
 }

@@ -14,8 +14,8 @@ import org.ugate.wireless.data.RxData.Status;
 import org.ugate.wireless.data.RxRawData;
 import org.ugate.wireless.data.RxTxImage;
 import org.ugate.wireless.data.RxTxJPEG;
-import org.ugate.wireless.data.SensorReadings;
-import org.ugate.wireless.data.SettingsData;
+import org.ugate.wireless.data.RxTxSensorReadings;
+import org.ugate.wireless.data.RxTxRemoteSettingsData;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -185,25 +185,22 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 		} else if (command == Command.SENSOR_GET_READINGS) {
 			log.info("=== Sensor Readings received ===");
 			int i = 1;
-			final SensorReadings sr = new SensorReadings(remoteIndex, status, rxResponse.getRssi(), 
+			final RxTxSensorReadings sr = new RxTxSensorReadings(remoteIndex, status, rxResponse.getRssi(), 
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]);
 			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, sr, 
 					RS.rbLabel("service.rx.readings", sr));
 		} else if (command == Command.SENSOR_GET_SETTINGS) {
+			// the number of response data and their order is important!
 			int i = 1;
-			final SettingsData sd = new SettingsData(remoteIndex, status, rxResponse.getRssi(), rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i],
-					rxResponse.getData()[++i], rxResponse.getData()[++i]);
-			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, sd, 
-					RS.rbLabel("service.rx.settings", sd));
+			final int[] sd = new int[RemoteSettings.canRemoteCount()];
+			for (int j = 0; j<RemoteSettings.canRemoteCount(); j++) {
+				sd[j] = rxResponse.getData()[++i];
+			}
+			final RxTxRemoteSettingsData rsd = new RxTxRemoteSettingsData(remoteIndex, status, 
+					rxResponse.getRssi(), sd);
+			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, rsd, 
+					RS.rbLabel("service.rx.settings", rsd));
 		} else {
 			log.error("Unrecognized command: " + command);
 		}

@@ -5,9 +5,9 @@ import org.apache.log4j.Logger;
 /**
  * Sensor readings
  */
-public class SensorReadings extends RxData  {
+public class RxTxSensorReadings extends RxData  {
 	
-	private static final Logger log = Logger.getLogger(SensorReadings.class);
+	private static final Logger log = Logger.getLogger(RxTxSensorReadings.class);
 	private final int sonarFeet;
 	private final int sonarInches;
 	private final int microwaveCycleCnt;
@@ -28,7 +28,7 @@ public class SensorReadings extends RxData  {
 	 * @param irInches the IR inches portion
 	 * @param gateState the gate state
 	 */
-	public SensorReadings(final Integer nodeIndex, final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
+	public RxTxSensorReadings(final Integer nodeIndex, final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
 			final int microwaveCycleCnt, final int irFeet, final int irInches, final int gateState) {
 		super(nodeIndex, status, signalStrength);
 		this.sonarFeet = sonarFeet;

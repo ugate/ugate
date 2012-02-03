@@ -35,7 +35,7 @@ public class KeyCodes extends RxData {
 	@Override
 	public String toString() {
 		final Field[] fields = getClass().getDeclaredFields();
-		final StringBuffer sb = new StringBuffer(SettingsData.class.getSimpleName() + " [");
+		final StringBuffer sb = new StringBuffer(RxTxRemoteSettingsData.class.getSimpleName() + " [");
 		for (final Field field : fields) {
 			try {
 				sb.append(field.getName());
