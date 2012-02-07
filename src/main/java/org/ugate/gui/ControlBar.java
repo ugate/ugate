@@ -116,9 +116,8 @@ public class ControlBar extends ToolBar {
 			}
 	    });
 		addHelpTextTrigger(settingsGet, RS.rbLabel("settings.receive"));
-		settingsGet.setEffect(new DropShadow());
+		settingsGet.setEffect(ds);
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
-		addHelpTextTrigger(readingsGet, RS.rbLabel("sensors.readings.get"));
 		readingsGet.setCursor(Cursor.HAND);
 		readingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
 			@Override
@@ -128,6 +127,8 @@ public class ControlBar extends ToolBar {
 				}
 			}
 	    });
+		addHelpTextTrigger(readingsGet, RS.rbLabel("sensors.readings.get"));
+		readingsGet.setEffect(ds);
 		
 		// add the readings view
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
@@ -151,13 +152,13 @@ public class ControlBar extends ToolBar {
 		// add the multi-alarm trip state
 		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
 				RemoteSettings.MULTI_ALARM_TRIP_STATE, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_ON, 
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_MULTI, 
 						RS.IMG_SONAR_ALARM_OFF, RS.IMG_SONAR_ALARM_ANY, null, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_PIR_ALARM_ON, 
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_PIR_ALARM_MULTI, 
 						RS.IMG_PIR_ALARM_OFF, RS.IMG_PIR_ALARM_ANY, null, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_ON,
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_MULTI,
 						RS.IMG_MICROWAVE_ALARM_OFF, RS.IMG_MICROWAVE_ALARM_ANY, null, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_LASER_ALARM_ON, 
+				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
 						RS.IMG_LASER_ALARM_OFF, RS.IMG_LASER_ALARM_ANY, null, false));
 		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				false, multiAlarmToggleSwitch);
@@ -169,7 +170,7 @@ public class ControlBar extends ToolBar {
 				new Separator(Orientation.VERTICAL), multiAlarmGroup);
 		
 		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				settingsDS, Color.RED, Color.BLACK, Timeline.INDEFINITE);
+				settingsDS, Color.YELLOW, Color.BLACK, Timeline.INDEFINITE);
 		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
