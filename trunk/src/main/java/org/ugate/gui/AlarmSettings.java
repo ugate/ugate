@@ -86,7 +86,7 @@ public class AlarmSettings extends ControlPane {
 		final Label pirDelay = createLabel("pir.alarm.delay");
 		grid.add(pirDelay, 1, 2);
 		final UGateGaugePreferenceView pirTripRateGauge = new UGateGaugePreferenceView(
-				RemoteSettings.IR_DELAY_BTWN_TRIPS, null, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				RemoteSettings.PIR_DELAY_BTWN_TRIPS, null, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 				IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
 				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_PIR);
 		controlBar.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel("pir.alarm.delay.desc"));
@@ -102,7 +102,6 @@ public class AlarmSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(mwTripGauge, RS.rbLabel("microwave.threshold.desc"));
 		grid.add(mwTripGauge, 2, 1);
 		
-
 		final Label mwDelay = createLabel("microwave.alarm.delay");
 		grid.add(mwDelay, 2, 2);
 		final UGateGaugePreferenceView mwTripRateGauge = new UGateGaugePreferenceView(
@@ -112,6 +111,28 @@ public class AlarmSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel("microwave.alarm.delay.desc"));
 		mwTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		grid.add(mwTripRateGauge, 2, 3);
+		
+		final Label laserThreshold = createLabel("laser.threshold");
+		grid.add(laserThreshold, 3, 0);
+		final UGateGaugePreferenceView laserTripGauge = new UGateGaugePreferenceView(
+				RemoteSettings.LASER_DISTANCE_THRES_FEET, RemoteSettings.LASER_DISTANCE_THRES_INCHES, 
+				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
+				2d, 0, 0d, 180d, 11, 4, FORMAT_LASER, RS.IMG_RULER, COLOR_LASER);
+		laserTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
+		controlBar.addHelpTextTrigger(laserTripGauge, RS.rbLabel("laser.threshold.desc"));
+		sonarTripGauge.gauge.setIntensity(80d, 15d, 5d);
+		grid.add(laserTripGauge, 3, 1);
+		
+		final Label laserDelay = createLabel("laser.alarm.delay");
+		grid.add(laserDelay, 3, 2);
+		final UGateGaugePreferenceView laserTripRateGauge = new UGateGaugePreferenceView(
+				RemoteSettings.LASER_DELAY_BTWN_TRIPS, null, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				IndicatorType.NEEDLE, NEEDLE_SIZE_SCALE,
+				1d, 0, 0, 180d, 61, 0, FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_LASER);
+		controlBar.addHelpTextTrigger(laserTripRateGauge, RS.rbLabel("laser.alarm.delay.desc"));
+		laserTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
+		grid.add(laserTripRateGauge, 3, 3);
 		
 		final Group camCell = createCell(false, true, grid);
 		add(camCell, 1, 0);

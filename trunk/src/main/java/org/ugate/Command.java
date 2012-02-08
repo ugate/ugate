@@ -4,6 +4,7 @@ package org.ugate;
  * Commands sent/received to/from remote nodes
  */
 public enum Command {
+	SERVO_LASER_CALIBRATE(11, false, true),
 	SERVO_TILT_UP(16, false, true), 
 	SERVO_TILT_DOWN(17, false, true), 
 	SERVO_PAN_RIGHT(18, false, true), 
@@ -15,8 +16,8 @@ public enum Command {
 	SERVO_TOGGLE_CAM_SONARIR(58, false, true), 
 	GATE_TOGGLE_OPEN_CLOSE(59, true, true), 
 	SERVO_CAM_MOVE(100, false, true), 
-	SERVO_SONAR_MOVE(101, false, true), 
-	SERVO_MICROWAVE_MOVE(102, false, true), 
+	SERVO_SONAR_PIR__MOVE(101, false, true), 
+	SERVO_MICROWAVE_MOVE(102, false, true),
 	SENSOR_GET_READINGS(103, true, false), 
 	SENSOR_GET_SETTINGS(104, true, false),
 	SENSOR_SET_SETTINGS(105, false, true);

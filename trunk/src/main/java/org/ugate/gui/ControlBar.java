@@ -48,6 +48,7 @@ public class ControlBar extends ToolBar {
 	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
 	
 	private static final Logger log = Logger.getLogger(ControlBar.class);
+	public static final Color ATTENTION_COLOR = Color.YELLOW;
 	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 5d;
@@ -61,7 +62,7 @@ public class ControlBar extends ToolBar {
 		final DropShadow helpTextDropShadow = new DropShadow();
 		helpTextDropShadow.setRadius(50d);
 		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				helpTextDropShadow, Color.ORANGERED, Color.BLACK.brighter(), HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
+				helpTextDropShadow, ATTENTION_COLOR, Color.BLACK.brighter(), HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
 		helpTextPane = new ScrollPane();
 		helpTextPane.getStyleClass().add("text-area-help");
 		//helpTextPane.setPrefHeight(40d);
@@ -170,7 +171,7 @@ public class ControlBar extends ToolBar {
 				new Separator(Orientation.VERTICAL), multiAlarmGroup);
 		
 		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				settingsDS, Color.YELLOW, Color.BLACK, Timeline.INDEFINITE);
+				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
 		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
