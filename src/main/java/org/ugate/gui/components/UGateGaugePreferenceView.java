@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 import org.ugate.ISettings;
 import org.ugate.RemoteSettings;
@@ -54,7 +55,7 @@ public class UGateGaugePreferenceView extends VBox {
 			final String format, final ImageView icon, final Color onColor) {
 		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
 				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numOfMinorTickMarksPerMajorTick, format, icon, onColor, null, Orientation.VERTICAL);
+				numOfMinorTickMarksPerMajorTick, null, format, icon, onColor, null, Orientation.VERTICAL);
 	}
 	
 	/**
@@ -99,6 +100,35 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param angleLength the angle length of the gauge {@linkplain Gauge#angleLength}
 	 * @param numberOfMajorTickMarks the number of major tick marks {@linkplain Gauge#numOfMajorTickMarks}
 	 * @param numOfMinorTickMarksPerMajorTick the number of minor tick marks {@linkplain Gauge#numOfMinorTickMarksPerMajorTick}
+	 * @param tickValueFont the {@linkplain Font} applied to the gauge
+	 * @param format the string format of the digits
+	 * @param iconFileName the icon of the gauge
+	 * @param onColor the color of the on digits
+	 */
+	public UGateGaugePreferenceView(final RemoteSettings preferenceKeyInteger, final RemoteSettings preferenceKeyFraction, 
+			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
+			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, final Font tickValueFont,
+			final String format, final String iconFileName, final Color onColor) {
+		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
+				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
+				numOfMinorTickMarksPerMajorTick, tickValueFont, format, iconFileName, onColor, null, Orientation.VERTICAL);
+	}
+	
+	/**
+	 * Constructs a new gauge display
+	 * 
+	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
+	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param nodeIndex the node index (if applicable)
+	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
+	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
+	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
+	 * @param tickValueZeroOffset the gauge tick value zero offset {@linkplain Gauge#tickValueZeroOffset}
+	 * @param startAngle the start angle of the gauge {@linkplain Gauge#angleStart}
+	 * @param angleLength the angle length of the gauge {@linkplain Gauge#angleLength}
+	 * @param numberOfMajorTickMarks the number of major tick marks {@linkplain Gauge#numOfMajorTickMarks}
+	 * @param numOfMinorTickMarksPerMajorTick the number of minor tick marks {@linkplain Gauge#numOfMinorTickMarksPerMajorTick}
 	 * @param format the string format of the digits
 	 * @param iconFileName the icon of the gauge
 	 * @param onColor the color of the on digits
@@ -113,7 +143,39 @@ public class UGateGaugePreferenceView extends VBox {
 			final Color offColor, final Orientation orientation) {
 		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
 				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numOfMinorTickMarksPerMajorTick, format, RS.imgView(iconFileName), onColor, offColor, orientation);
+				numOfMinorTickMarksPerMajorTick, null, format, RS.imgView(iconFileName), onColor, offColor, orientation);
+	}
+	
+	/**
+	 * Constructs a new gauge display
+	 * 
+	 * @param preferenceKeyInteger the preference key used to sync the controls integer portion of the value to
+	 * @param preferenceKeyFraction the preference key used to sync the controls decimal portion of the value to
+	 * @param nodeIndex the node index (if applicable)
+	 * @param indicatorType the gauge indicator type {@linkplain Gauge#indicatorType}
+	 * @param sizeScale the gauge size scale {@linkplain Gauge#sizeScale}
+	 * @param tickValueScale the gauge tick value scale {@linkplain Gauge#tickValueScale}
+	 * @param tickValueZeroOffset the gauge tick value zero offset {@linkplain Gauge#tickValueZeroOffset}
+	 * @param startAngle the start angle of the gauge {@linkplain Gauge#angleStart}
+	 * @param angleLength the angle length of the gauge {@linkplain Gauge#angleLength}
+	 * @param numberOfMajorTickMarks the number of major tick marks {@linkplain Gauge#numOfMajorTickMarks}
+	 * @param numOfMinorTickMarksPerMajorTick the number of minor tick marks {@linkplain Gauge#numOfMinorTickMarksPerMajorTick}
+	 * @param tickValueFont the {@linkplain Font} applied to the gauge
+	 * @param format the string format of the digits
+	 * @param iconFileName the icon of the gauge
+	 * @param onColor the color of the on digits
+	 * @param offColor the color of the off digits
+	 * @param orientation the orientation of the control
+	 */
+	public UGateGaugePreferenceView(final RemoteSettings preferenceKeyInteger, final RemoteSettings preferenceKeyFraction, 
+			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
+			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, final Font tickValueFont,
+			final String format, final String iconFileName, final Color onColor, 
+			final Color offColor, final Orientation orientation) {
+		this(preferenceKeyInteger, preferenceKeyFraction, nodeIndex, indicatorType, sizeScale, tickValueScale, 
+				tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
+				numOfMinorTickMarksPerMajorTick, tickValueFont, format, RS.imgView(iconFileName), onColor, offColor, orientation);
 	}
 
 	/**
@@ -130,6 +192,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param angleLength the angle length of the gauge {@linkplain Gauge#angleLength}
 	 * @param numberOfMajorTickMarks the number of major tick marks {@linkplain Gauge#numOfMajorTickMarks}
 	 * @param numOfMinorTickMarksPerMajorTick the number of minor tick marks {@linkplain Gauge#numOfMinorTickMarksPerMajorTick}
+	 * @param tickValueFont the {@linkplain Font} applied to the gauge
 	 * @param format the string format of the digits
 	 * @param icon the icon of the gauge
 	 * @param onColor the color of the on digits
@@ -139,7 +202,7 @@ public class UGateGaugePreferenceView extends VBox {
 	public UGateGaugePreferenceView(final ISettings settingsKeyInteger, final ISettings settingsKeyFraction, 
 			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
-			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, 
+			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, final Font tickValueFont,
 			final String format, final ImageView icon, final Color onColor, final Color offColor, 
 			final Orientation orientation) {
 		super(0d);
@@ -148,7 +211,7 @@ public class UGateGaugePreferenceView extends VBox {
 		
 		// create the gauge
 		gauge = new Gauge(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, 
-				angleLength, numberOfMajorTickMarks, numOfMinorTickMarksPerMajorTick);
+				angleLength, numberOfMajorTickMarks, numOfMinorTickMarksPerMajorTick, tickValueFont);
 		gauge.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
 		if (indicatorType == IndicatorType.KNOB) {
 			gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);

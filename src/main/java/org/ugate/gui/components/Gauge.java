@@ -71,7 +71,7 @@ public class Gauge extends Group {
 				0xA9A9A9);
 	}
 	public static final int ROUNDING_MODE = BigDecimal.ROUND_HALF_UP;
-	public static final String FONT_NAME = "Trebuchet MS";
+	public static final String FONT_NAME = "Verdana";
 	public final IndicatorType indicatorType;
 	public final double sizeScale;
 	public final int numOfMajorTickMarks;
@@ -131,6 +131,13 @@ public class Gauge extends Group {
 			final int numberOfMinorTickMarksPerMajorTick) {
 		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
 				numberOfMinorTickMarksPerMajorTick, -1, 0, null, null);
+	}
+	
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
+			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
+			final int numberOfMinorTickMarksPerMajorTick, final Font tickValueFont) {
+		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
+				numberOfMinorTickMarksPerMajorTick, -1, 0, null, tickValueFont);
 	}
 	
 	/**
@@ -730,7 +737,7 @@ public class Gauge extends Group {
 		final int numOfTotalMinorTicks = getNumberOfMinorTicks();
 		int i;
 		String label;
-		double angle, labelAngle, labelRadius, tlx, tly;
+		double angle, labelWidthOffset, labelAngle, labelRadius, tlx, tly;
 		// add the minor tick marks
 		for (i=0; i<=numOfTotalMinorTicks; i++) {
 			angle = tickMarkAngle(numOfTotalMinorTicks, i);
@@ -745,14 +752,15 @@ public class Gauge extends Group {
 					angle + majorTickMarkHeight / 2.5d, majorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTickMarks || !isCircular())) {
+				label = getTickValueLabel(angle);
+				labelWidthOffset = (new Text(0, 0, label).getBoundsInLocal().getWidth() / 2d);
 				labelAngle = positiveAngle(angle - (majorTickMarkHeight / 2d) -180d);
 				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius : 
-					innerRadius;
+					innerRadius - (majorTickMarkWidth) - labelWidthOffset;
 				tlx = (centerX + labelRadius) 
 						* Math.cos(Math.toRadians(labelAngle));
 				tly = (centerY + labelRadius) 
 						* Math.sin(Math.toRadians(labelAngle));
-				label = getTickValueLabel(angle);
 				tickGroup.getChildren().add(createTickMarkLabel(tlx, tly, angle, labelAngle, label, tick,
 						tickMarkLabelFillProperty));
 			}
@@ -776,6 +784,7 @@ public class Gauge extends Group {
 	protected Shape createTickMarkLabel(final double x, final double y, final double tickMarkAngle,
 			final double labelAngle, final String label, final Shape tickMark,
 			final ObjectProperty<Paint> tickMarkLabelFillProperty) {
+		/*
 		final double lx = indicatorType == IndicatorType.KNOB ? outerRadius + majorTickMarkHeight : 
 			innerRadius - majorTickMarkWidth * (label.indexOf('.') > -1 ? 2d : 1.8d);
 		final Text lbl = new Text(lx, 0, label);
@@ -785,8 +794,12 @@ public class Gauge extends Group {
 		lbl.getTransforms().addAll(new Rotate(labelAngle, centerX, centerY),
 				new Rotate(90d, lbl.getBoundsInParent().getMinX() + lbl.getBoundsInParent().getWidth() / 2d, 
 						0));
-		Bindings.bindBidirectional(lbl.fillProperty(), tickMarkLabelFillProperty);
+		*/		
+		Text lbl = new Text(x, y, label);
+		lbl = new Text(x, y, label);
+		
 		lbl.setFont(tickValueFont);
+		Bindings.bindBidirectional(lbl.fillProperty(), tickMarkLabelFillProperty);
 		lbl.setTextAlignment(TextAlignment.CENTER);
 		return lbl;
 	}

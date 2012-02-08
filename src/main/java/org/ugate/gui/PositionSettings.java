@@ -6,11 +6,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
+import org.ugate.Command;
 import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
@@ -71,7 +75,7 @@ public class PositionSettings extends ControlPane {
 		final Label sonarPirPanHeader = createLabel("sonarpir.pan");
 		grid.add(sonarPirPanHeader, 0, 2);
 		final UGateGaugePreferenceView sonarPirPanGauge = new UGateGaugePreferenceView(
-				RemoteSettings.SONAR_IR_ANGLE_PAN, null, 
+				RemoteSettings.SONAR_PIR_ANGLE_PAN, null, 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_MULTI);
 		controlBar.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel("sonarpir.pan.desc"));
@@ -82,7 +86,7 @@ public class PositionSettings extends ControlPane {
 		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugePreferenceView sonarPirTiltGauge = new UGateGaugePreferenceView(
-				RemoteSettings.SONAR_IR_ANGLE_TILT, null, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+				RemoteSettings.SONAR_PIR_ANGLE_TILT, null, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 				IndicatorType.KNOB, KNOB_SIZE_SCALE,
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, sonarPirTiltImgView, COLOR_MULTI);
 		controlBar.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel("sonarpir.tilt.desc"));
@@ -96,6 +100,20 @@ public class PositionSettings extends ControlPane {
 				10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_MW);
 		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel("microwave.pan.desc"));
 		grid.add(mwPanGauge, 0, 5);
+		// laser calibration
+	    final Button laserCalibrate = new Button(RS.rbLabel("laser.calibration"));
+	    laserCalibrate.setMaxWidth(125d);
+	    laserCalibrate.setWrapText(true);
+	    laserCalibrate.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					controlBar.createCommandService(Command.SERVO_LASER_CALIBRATE, true);
+				}
+			}
+		});
+		controlBar.addHelpTextTrigger(laserCalibrate, RS.rbLabel("laser.calibration.desc"));
+		grid.add(laserCalibrate, 1, 4, 1, 2);
 		
 		final Group camCell = createCell(false, true, grid);
 		add(camCell, 0, 0);

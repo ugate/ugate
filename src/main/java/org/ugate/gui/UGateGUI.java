@@ -106,6 +106,7 @@ public class UGateGUI extends Application {
 	@Override
 	public void init() {
 		log.debug("Iniitializing GUI...");
+		//Text.setFontSmoothingType(FontSmoothingType.LCD);
 	}
 
 	/**
