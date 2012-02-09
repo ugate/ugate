@@ -91,7 +91,7 @@ public class AlarmSettings extends ControlPane {
 				RemoteSettings.LASER_DISTANCE_THRES_FEET, RemoteSettings.LASER_DISTANCE_THRES_INCHES, 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
 				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE,
-				2d, 0, 0d, 180d, 13, 3, FORMAT_LASER, RS.IMG_RULER, COLOR_LASER);
+				4d, 0, 0d, 180d, 9, 3, FORMAT_LASER, RS.IMG_RULER, COLOR_LASER);
 		laserTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
 		controlBar.addHelpTextTrigger(laserTripGauge, RS.rbLabel("laser.threshold.desc"));
 		laserTripGauge.gauge.setIntensity(100d, 0d, 0d);
