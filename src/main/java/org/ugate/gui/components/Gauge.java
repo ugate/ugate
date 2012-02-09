@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -43,7 +44,6 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 
 /**
@@ -737,7 +737,7 @@ public class Gauge extends Group {
 		final int numOfTotalMinorTicks = getNumberOfMinorTicks();
 		int i;
 		String label;
-		double angle, labelWidthOffset, labelAngle, labelRadius, tlx, tly;
+		double angle, labelAngle, labelRadius, tlx, tly;
 		// add the minor tick marks
 		for (i=0; i<=numOfTotalMinorTicks; i++) {
 			angle = tickMarkAngle(numOfTotalMinorTicks, i);
@@ -752,11 +752,11 @@ public class Gauge extends Group {
 					angle + majorTickMarkHeight / 2.5d, majorTickMarkFillProperty);
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTickMarks || !isCircular())) {
-				label = getTickValueLabel(angle);
-				labelWidthOffset = (new Text(0, 0, label).getBoundsInLocal().getWidth() / 2d);
-				labelAngle = positiveAngle(angle - (majorTickMarkHeight / 2d) -180d);
+				// TODO : adjust position to accommodate for number of digits in guage label
+				label = getTickValueLabel(angle); // 180d - ((angleLength / numOfMarks) * index) - angleStart
+				labelAngle = positiveAngle(angle - (majorTickMarkHeight / 2d) - 180d);
 				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius : 
-					innerRadius - (majorTickMarkWidth) - labelWidthOffset;
+					innerRadius - majorTickMarkWidth * 2d;
 				tlx = (centerX + labelRadius) 
 						* Math.cos(Math.toRadians(labelAngle));
 				tly = (centerY + labelRadius) 
@@ -795,12 +795,13 @@ public class Gauge extends Group {
 				new Rotate(90d, lbl.getBoundsInParent().getMinX() + lbl.getBoundsInParent().getWidth() / 2d, 
 						0));
 		*/		
-		Text lbl = new Text(x, y, label);
-		lbl = new Text(x, y, label);
-		
+		final Text lbl = new Text(x, y, label);
 		lbl.setFont(tickValueFont);
 		Bindings.bindBidirectional(lbl.fillProperty(), tickMarkLabelFillProperty);
-		lbl.setTextAlignment(TextAlignment.CENTER);
+		// center text horizontally
+		lbl.setLayoutX((lbl.getBoundsInLocal().getWidth() / 2d) * -1);
+		// center text vertically
+		lbl.setTextOrigin(VPos.CENTER);
 		return lbl;
 	}
 	

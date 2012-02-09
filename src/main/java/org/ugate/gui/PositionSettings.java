@@ -101,7 +101,10 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel("microwave.pan.desc"));
 		grid.add(mwPanGauge, 0, 5);
 		// laser calibration
-	    final Button laserCalibrate = new Button(RS.rbLabel("laser.calibration"));
+		final Label headerLaser = createLabel("laser.calibration");
+		grid.add(headerLaser, 1, 4);
+	    final Button laserCalibrate = new Button(); //new Button(RS.rbLabel("laser.calibration"));
+	    laserCalibrate.setGraphic(RS.imgView(RS.IMG_LASER_CALIBRATE));
 	    laserCalibrate.setMaxWidth(125d);
 	    laserCalibrate.setWrapText(true);
 	    laserCalibrate.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
@@ -113,7 +116,7 @@ public class PositionSettings extends ControlPane {
 			}
 		});
 		controlBar.addHelpTextTrigger(laserCalibrate, RS.rbLabel("laser.calibration.desc"));
-		grid.add(laserCalibrate, 1, 4, 1, 2);
+		grid.add(laserCalibrate, 1, 5);
 		
 		final Group camCell = createCell(false, true, grid);
 		add(camCell, 0, 0);
