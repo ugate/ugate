@@ -61,6 +61,7 @@ public class RS {
 	public static final String IMG_LASER_ALARM_MULTI = "laser-alarm-multi.png";
 	public static final String IMG_LASER_ALARM_ANY = "laser-alarm-any.png";
 	public static final String IMG_LASER_ALARM_OFF = "laser-alarm-off.png";
+	public static final String IMG_LASER_CALIBRATE = "laser-calibrate.png";
 	public static final String IMG_SPEEDOMETER = "speedometer.png";
 	public static final String IMG_PAN = "pan.png";
 	public static final String IMG_READINGS_GET = "readings-get48x48.png";
