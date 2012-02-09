@@ -4,7 +4,7 @@ package org.ugate;
  * Commands sent/received to/from remote nodes
  */
 public enum Command {
-	SERVO_LASER_CALIBRATE(11, false, true),
+	SERVO_LASER_CALIBRATE(11, true, true),
 	SERVO_TILT_UP(16, false, true), 
 	SERVO_TILT_DOWN(17, false, true), 
 	SERVO_PAN_RIGHT(18, false, true), 

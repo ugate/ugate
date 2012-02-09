@@ -182,6 +182,10 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					rxResponse.getData()[2], rxResponse.getData()[3]);
 			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, kc, 
 					RS.rbLabel("service.rx.keycodes", kc));
+		} else if (command == Command.SERVO_LASER_CALIBRATE) {
+			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, 
+					new RxRawData<Void>(remoteIndex, status, rxResponse.getRssi(), null), 
+					failures > 0 ? RS.rbLabel("laser.calibration.failed") : RS.rbLabel("laser.calibration.success"));
 		} else if (command == Command.SENSOR_GET_READINGS) {
 			log.info("=== Sensor Readings received ===");
 			int i = 1;
