@@ -49,11 +49,12 @@ public class TextFieldMenu extends VBox {
 	/**
 	 * Constructor
 	 * 
-	 * @param text the label for the text field
+	 * @param labelText the label for the text field
+	 * @param promptText the prompt text
 	 */
-	public TextFieldMenu(final String text, final String promptText) {
+	public TextFieldMenu(final String labelText, final String promptText) {
 		super(5d);
-		label.setText(text);
+		label.setText(labelText);
 		textField.setPromptText(promptText);
 		addMenuItems();
 	}
@@ -71,7 +72,7 @@ public class TextFieldMenu extends VBox {
 						!textField.getText().isEmpty()) {
 					for (final MenuItem mi : c.getRemoved()) {
 						if (mi.getText() != null && mi.getText().equals(textField.getText())) {
-							textField.setText("");
+							setSelectionText(null);
 						}
 					}
 				}
@@ -106,6 +107,7 @@ public class TextFieldMenu extends VBox {
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
 					addMenuItems(textField.getText());
+					select(textField.getText());
 				}
 			}
 		});
@@ -157,6 +159,9 @@ public class TextFieldMenu extends VBox {
 	 * @param itemContents the menu item content(s)
 	 */
 	public void addMenuItems(final Object... itemContents) {
+		if (itemContents == null || itemContents.length == 0) {
+			return;
+		}
 		final RadioMenuItem[] existingMenuItems = menu.getItems() != null ? 
 				menu.getItems().toArray(new RadioMenuItem[]{}) : new RadioMenuItem[]{};
 		final List<MenuItem> its = new ArrayList<MenuItem>();
@@ -175,7 +180,7 @@ public class TextFieldMenu extends VBox {
 				mi.setToggleGroup(toggleGroup);
 				mi.setOnAction(new EventHandler<ActionEvent>() {
 					public void handle(final ActionEvent event) {
-						textField.setText(((MenuItem)event.getSource()).getText());
+						setSelectionText(((MenuItem)event.getSource()).getText());
 					}
 				});
 				its.add(mi);
@@ -212,9 +217,8 @@ public class TextFieldMenu extends VBox {
 				if (remove) {
 					removeItem = ei;
 				} else {
-					textField.setText(ei.getText());
 					ei.setSelected(true);
-					selectionWrapper.set(ei.getText());
+					setSelectionText(ei.getText());
 				}
 			} else {
 				ei.setSelected(false);
@@ -222,8 +226,21 @@ public class TextFieldMenu extends VBox {
 		}
 		if (removeItem != null) {
 			menu.getItems().remove(removeItem);
-			selectionWrapper.set(null);
+			if (itemContent.equals(removeItem.getText())) {
+				setSelectionText(null);
+			}
 		}
+	}
+	
+	/**
+	 * Sets the selection text on the text input
+	 * 
+	 * @param selectionText the selection text
+	 */
+	protected void setSelectionText(final String selectionText) {
+		// no binding because updates will occur when typing
+		textField.setText(selectionText);
+		selectionWrapper.set(selectionText);
 	}
 	
 	/**

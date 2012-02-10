@@ -213,6 +213,21 @@ public class ControlBar extends ToolBar {
 	    final Object[] raddys = UGateKeeper.DEFAULT.wirelessGetRemoteAddressMap().values().toArray();
 	    raddy.addMenuItems(raddys);
 	    raddy.select(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress());
+	    raddy.selectionProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(final ObservableValue<? extends String> observable, 
+					final String oldValue, final String newValue) {
+				if (newValue == null && oldValue != null) {
+					//SETTINGS_REMOTE_NODE_CHANGED
+					// removing existing 
+					UGateKeeper.DEFAULT.wirelessRemoveNode(oldValue);
+				} else if (newValue != null) {
+					// add new or set existing remote node
+					UGateKeeper.DEFAULT.wirelessSetRemoteNode(newValue);
+				}
+				System.out.println("Old Value: " + oldValue + " New Value: " + newValue);
+			}
+		});
 	    menu.getChildren().addAll(raddy, helpTextPane);
 	    return menu;
 	}

@@ -79,8 +79,9 @@ public class EmailHostConnectionView extends StatusView {
 					connect.setText(RS.rbLabel("mail.connecting"));
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTED) {
 					connect.setDisable(false);
-					connect.setText(RS.rbLabel("mail.reconnect"));
-					log.debug("Turning ON email connection icon");
+					//connect.setText(RS.rbLabel("mail.reconnect"));
+					connect.setText(RS.rbLabel("mail.connected"));
+					connect.setDisable(true);
 					setStatusFill(statusIcon, true);
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
