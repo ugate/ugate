@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javafx.application.Platform;
+
 import org.apache.log4j.Logger;
 import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
@@ -46,6 +48,7 @@ public enum UGateKeeper {
 	private final StorageFile hostSettings;
 	private Map<Integer, RemoteNode> remoteNodes = new HashMap<Integer, RemoteNode>(1);
 	private int wirelessCurrentRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
+	private int wirelessNextRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 	
 	private UGateKeeper() {
 		log = Logger.getLogger(UGateKeeper.class);
@@ -172,7 +175,17 @@ public enum UGateKeeper {
 			try {
 				pl.handle(event);
 			} catch (final Throwable t) {
-				log.warn("Unable to notify listener: " + pl, t);
+				// TODO : remove reference to GUI impl
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							pl.handle(event);
+						} catch (final Throwable t) {
+							log.warn("Unable to notify listener: " + pl, t);
+						}
+					}
+				});
 			}
 		}
 	}
@@ -666,6 +679,51 @@ public enum UGateKeeper {
 	}
 	
 	/**
+	 * Removes a wireless node by address and sets the new wireless node address/index with the next one in the list
+	 * 
+	 * @param nodeAddress the wireless node address to remove
+	 * @return the new wireless node address (the same node address passed if it cannot be removed)
+	 */
+	public String wirelessRemoveNode(final String nodeAddress) {
+		if (remoteNodes.entrySet().size() <= 1) {
+			return nodeAddress;
+		}
+		Map.Entry<Integer, RemoteNode> wakRemove = null;
+		Map.Entry<Integer, RemoteNode> wakSelect = null;
+		for (final Map.Entry<Integer, RemoteNode> wak : remoteNodes.entrySet()) {
+			if (wak.getValue().settings.hasKey(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey())) {
+				if (wak.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()).equals(nodeAddress)) {
+					wakRemove = wak;
+					if (wakSelect != null) {
+						break;
+					}
+				} else if (wakSelect == null) {
+					wakSelect = wak;
+					if (wakRemove != null) {
+						break;
+					}
+				}
+			}
+		}
+		if (wakRemove != null && wakSelect != null) {
+			remoteNodes.remove(wakRemove.getKey());
+			wirelessSetCurrentRemoteNodeIndex(wakSelect.getKey(), null);
+			return wakSelect.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey());
+		}
+		return nodeAddress;
+	}
+	
+	/**
+	 * 
+	 * @param nodeAddress the existing or new node address
+	 */
+	public void wirelessSetRemoteNode(final String nodeAddress) {
+		if (nodeAddress != null && !nodeAddress.isEmpty()) {
+			wirelessSetCurrentRemoteNodeIndex(wirelessGetAddressIndex(nodeAddress), nodeAddress);
+		}
+	}
+	
+	/**
 	 * Gets the index for a wireless node address
 	 * 
 	 * @param nodeAddress the wireless node address
@@ -748,7 +806,7 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * @return the remote index of the device node for which the controls represent
+	 * @return the remote index of the current device node for which the controls represent
 	 */
 	public int wirelessGetCurrentRemoteNodeIndex() {
 		return this.wirelessCurrentRemoteNodeIndex;
@@ -757,17 +815,44 @@ public enum UGateKeeper {
 	/**
 	 * Sets the current wireless remote node index
 	 * 
-	 * @param wirelessCurrentRemoteNodeIndex the remote index of the device node for which the controls represent
+	 * @param newNodeIndex the remote index of the device node for which the controls represent
+	 * @param nodeAddy the new node address to set (when
 	 */
-	public void wirelessSetCurrentRemoteNodeIndex(final int wirelessCurrentRemoteNodeIndex) {
-		if (wirelessCurrentRemoteNodeIndex <= 0) {
-			throw new ArrayIndexOutOfBoundsException(wirelessCurrentRemoteNodeIndex);
+	private void wirelessSetCurrentRemoteNodeIndex(final int newNodeIndex, final String nodeAddy) {
+		int newAdjNodeIndex = newNodeIndex < 0 ? wirelessNextRemoteNodeIndex : newNodeIndex;
+		if (newNodeIndex >= wirelessNextRemoteNodeIndex) {
+			throw new ArrayIndexOutOfBoundsException(
+					String.format("The node index cannot be set to %1$s because it must be less than the next node index: %2$s", 
+							newAdjNodeIndex, wirelessNextRemoteNodeIndex));
+		}
+		if (newNodeIndex < 0) {
+			if ((nodeAddy == null || nodeAddy.isEmpty())) {
+				throw new IllegalArgumentException(
+						String.format("The node index cannot be set to %1$s because the node address is required", 
+								newAdjNodeIndex));
+			} else if (wirelessGetAddressIndex(nodeAddy) > -1) {
+				final int existingNodeIndex = wirelessGetAddressIndex(nodeAddy);
+				if (existingNodeIndex > -1 && existingNodeIndex != newAdjNodeIndex) {
+					log.warn(String.format("Found existing index %1$s for node address %2$s, but it does not match the specified index %3$s", 
+							existingNodeIndex, nodeAddy, newAdjNodeIndex));
+					newAdjNodeIndex = existingNodeIndex;
+				}
+			}
 		}
 		final int oldIndex = wirelessGetCurrentRemoteNodeIndex();
-		if (oldIndex != wirelessCurrentRemoteNodeIndex) {
-			this.wirelessCurrentRemoteNodeIndex = wirelessCurrentRemoteNodeIndex;
+		if (oldIndex != newAdjNodeIndex) {
 			// add the remote node- if it doesn't already exist
-			addRemoteNode(this.wirelessCurrentRemoteNodeIndex, oldIndex, true);
+			RemoteNode rn;
+			if ((rn = addRemoteNode(newAdjNodeIndex, oldIndex, true)) == null) {
+				this.wirelessCurrentRemoteNodeIndex = oldIndex;
+				throw new NullPointerException(String.format("Unable to set new remote node from index %1$s to %2$s", 
+						oldIndex, newAdjNodeIndex));
+			}
+			if (newNodeIndex < 0 && nodeAddy != null) {
+				// need to set the node address to the newly created node
+				rn.settings.set(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey(), nodeAddy);
+			}
+			this.wirelessCurrentRemoteNodeIndex = newAdjNodeIndex;
 			final String msg = RS.rbLabel("wireless.node.remote.changing", oldIndex, this.wirelessCurrentRemoteNodeIndex);
 			log.info(msg);
 			notifyListeners(new UGateKeeperEvent<Integer>(this, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED, 
@@ -831,6 +916,9 @@ public enum UGateKeeper {
 				log.info(String.format("Loaded remote node settings storage at %1$s and history storage at %2$s", 
 						remoteNode.settings.getAbsoluteFilePath(), 
 						remoteNode.history.getAbsoluteFilePath()));
+				if ((nodeIndex + 1) > this.wirelessNextRemoteNodeIndex) {
+					this.wirelessNextRemoteNodeIndex = nodeIndex + 1;
+				}
 				return remoteNode;
 			}
 		}
