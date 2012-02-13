@@ -50,7 +50,7 @@ void loop() {
   execBufferCmds();
   xbeeRead();
   sonarRead(true);
-  //irRead(true);
+  irRead(true);
   //mwReadFreq(true);
   LEDOFF();
   SERVODETACH();
@@ -361,7 +361,7 @@ byte irRead(byte isTrip) {
   irInterrupt(false);
   // one period at 38.5khZ is aproximately 26 microseconds
   // 26 microseconds * 38 is more or less 1 millisecond
-  /*long usecs = 500;
+  long usecs = 500;
   while (usecs > 0) {
     // 38 kHz is about 13 microseconds high and 13 microseconds low
    digitalWrite(IR_LED_PIN, HIGH);  // this takes about 3 microseconds to happen
@@ -370,7 +370,7 @@ byte irRead(byte isTrip) {
    delayMicroseconds(10);         // hang out for 10 microseconds
    // so 26 microseconds altogether
    usecs -= 26;
-  }*/
+  }
   /*if (digitalRead(IR_REMOTE_PIN) == 1) {
       // buffer trip command (default takes a picture and send the data over xbee)
       //pressBuffer((int*) cmdBuffer, NUMOFELEM(cmdBuffer), &tripCmd);
