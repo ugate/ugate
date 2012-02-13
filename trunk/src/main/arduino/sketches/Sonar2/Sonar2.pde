@@ -10,13 +10,16 @@ void setup() {
   // Pin 13 has an LED connected on most Arduino boards:
   //pinMode(3, OUTPUT);
   //pinMode(4, INPUT);
-  pinMode(27, INPUT);
+  pinMode(2, INPUT);
+  pinMode(9, OUTPUT);
   Serial.begin(19200);
+  tone(9, 38000);
 }
 
 void loop() {
-  Serial.println(digitalRead(27));
-  delay(10);
+  long pulse = pulseIn(2, HIGH);
+  Serial.println(pulse);
+  delay(500);
   /*long pulse;
   long pulseTmp;
   unsigned int cnt;
