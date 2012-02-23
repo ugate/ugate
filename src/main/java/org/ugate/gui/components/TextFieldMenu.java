@@ -39,7 +39,7 @@ public class TextFieldMenu extends VBox {
 	public static final double MENU_BUTTON_HEIGHT = 8d;
 	private final ToggleGroup toggleGroup = new ToggleGroup();
 	private final ContextMenu menu = new ContextMenu();
-	public final Label label = new Label();
+	private final Label label;
 	private final TextField textField = new TextField();
 	private final Region menuNewItemButton = new Region();
 	private final Region menuRemoveItemButton = new Region();
@@ -54,7 +54,12 @@ public class TextFieldMenu extends VBox {
 	 */
 	public TextFieldMenu(final String labelText, final String promptText) {
 		super(5d);
-		label.setText(labelText);
+		if (labelText != null && !labelText.isEmpty()) {
+			label = new Label(labelText);
+			getChildren().add(label);
+		} else {
+			label = null;
+		}
 		textField.setPromptText(promptText);
 		addMenuItems();
 	}
@@ -138,7 +143,7 @@ public class TextFieldMenu extends VBox {
 		textStack.getChildren().addAll(textField, menuButton);
 		final HBox textBox = new HBox(2d);
 		textBox.getChildren().addAll(textStack, editMenu);
-	    getChildren().addAll(label, textBox);
+	    getChildren().addAll(textBox);
 	}
 	
 	/**

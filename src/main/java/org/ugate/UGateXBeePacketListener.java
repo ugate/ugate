@@ -234,7 +234,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 				final int nodeIndex = UGateKeeper.DEFAULT.wirelessGetAddressIndex(remoteAddress);
 				final Map<Integer, String> addyMap = new HashMap<Integer, String>(1);
 				addyMap.put(nodeIndex, remoteAddress);
-				handleEvent(new UGateKeeperEvent<V>(this, type, addyMap, nodeIndex, null, command, null, data, messages));
+				handleEvent(new UGateKeeperEvent<V>(this, type, true, addyMap, null, command, null, data, messages));
 			}
 		}, UGateXBeePacketListener.class.getSimpleName() + "-event");
 		eventThread.setDaemon(true);

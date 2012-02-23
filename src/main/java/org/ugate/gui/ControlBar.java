@@ -4,6 +4,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -11,6 +12,7 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -33,7 +35,6 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.Digits;
-import org.ugate.gui.components.TextFieldMenu;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
 import org.ugate.wireless.data.RxTxSensorReadings;
@@ -66,7 +67,7 @@ public class ControlBar extends ToolBar {
 		helpTextPane = new ScrollPane();
 		helpTextPane.getStyleClass().add("text-area-help");
 		//helpTextPane.setPrefHeight(40d);
-		helpTextPane.setPrefWidth(200d);
+		helpTextPane.setPrefWidth(300d);
 		helpTextPane.setEffect(helpTextDropShadow);
 		helpText = new Label(RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY));
 		helpText.setWrapText(true);
@@ -206,29 +207,11 @@ public class ControlBar extends ToolBar {
 	 * @return the menu bar items related to the control bar
 	 */
 	public Region createTitleBarItems() {
-		final HBox menu = new HBox(10);
-	    final TextFieldMenu raddy = new TextFieldMenu(RS.rbLabel("wireless.node.remote"), 
-	    		RS.rbLabel("wireless.node.remote.prompt"));
-	    menu.getStyleClass().add("title-bar-menu");
-	    final Object[] raddys = UGateKeeper.DEFAULT.wirelessGetRemoteAddressMap().values().toArray();
-	    raddy.addMenuItems(raddys);
-	    raddy.select(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress());
-	    raddy.selectionProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(final ObservableValue<? extends String> observable, 
-					final String oldValue, final String newValue) {
-				if (newValue == null && oldValue != null) {
-					//SETTINGS_REMOTE_NODE_CHANGED
-					// removing existing 
-					UGateKeeper.DEFAULT.wirelessRemoveNode(oldValue);
-				} else if (newValue != null) {
-					// add new or set existing remote node
-					UGateKeeper.DEFAULT.wirelessSetRemoteNode(newValue);
-				}
-				System.out.println("Old Value: " + oldValue + " New Value: " + newValue);
-			}
-		});
-	    menu.getChildren().addAll(raddy, helpTextPane);
+		final HBox menu = new HBox();
+		menu.getStyleClass().add("title-bar-menu");
+		menu.setAlignment(Pos.CENTER);
+		menu.setPadding(new Insets(0, 50d, 0, 50d));
+		menu.getChildren().add(helpTextPane);
 	    return menu;
 	}
 	
@@ -341,22 +324,23 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
+	 * Adds the help from the {@linkplain StringProperty} text when the node is right clicked
+	 * 
+	 * @param node the node to trigger the text
+	 * @param stringProperty the {@linkplain StringProperty} to show as the text value
+	 */
+	public void addHelpTextTrigger(final Node node, final StringProperty stringProperty) {
+		node.setOnMousePressed(new HelpTextMouseHandler(stringProperty, null));
+	}
+	
+	/**
 	 * Adds the help text when the node is right clicked
 	 * 
 	 * @param node the node to trigger the text
 	 * @param text the text to show
 	 */
 	public void addHelpTextTrigger(final Node node, final String text) {
-		node.setOnMousePressed(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (event.isSecondaryButtonDown()) {
-					helpTextPane.setVvalue(helpTextPane.getVmin());
-					helpText.setText(text);
-					event.consume();
-				}
-			}
-		});
+		node.setOnMousePressed(new HelpTextMouseHandler(null, text));
 	}
 	
 	/**
@@ -385,5 +369,41 @@ public class ControlBar extends ToolBar {
 	 */
 	public ReadOnlyObjectProperty<RxTxSensorReadings> sensorReadingsProperty() {
 		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
+	}
+	
+	/**
+	 * Help text mouse handler that shows either the {@linkplain StringProperty} or text
+	 */
+	private final class HelpTextMouseHandler implements EventHandler<MouseEvent> {
+		
+		private final StringProperty stringProperty;
+		private final String text;
+		
+		/**
+		 * Constructor
+		 * 
+		 * @param stringProperty the {@linkplain StringProperty} to show as the text value
+		 * @param text the text to show
+		 */
+		private HelpTextMouseHandler(final StringProperty stringProperty, final String text) {
+			this.stringProperty = stringProperty;
+			this.text = text;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void handle(final MouseEvent event) {
+			if (event.isSecondaryButtonDown()) {
+				helpTextPane.setVvalue(helpTextPane.getVmin());
+				if (stringProperty != null) {
+					helpText.setText(stringProperty.get());
+				} else {
+					helpText.setText(text);
+				}
+				event.consume();
+			}
+		}
 	}
 }
