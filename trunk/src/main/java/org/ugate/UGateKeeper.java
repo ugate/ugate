@@ -104,7 +104,7 @@ public enum UGateKeeper {
 				throw new UnsupportedOperationException(String.format("Unhandled %1$s implementation for %2$s", 
 						ISettings.class.getSimpleName(), key));
 			}
-			notifyListeners(new UGateKeeperEvent<String>(this, UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL, null, 0,
+			notifyListeners(new UGateKeeperEvent<String>(this, UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL, false, null,
 					key, null, oldValue, value));
 		}
 	}
@@ -218,7 +218,7 @@ public enum UGateKeeper {
 		try {
 			msg = RS.rbLabel("mail.connecting");
 			log.info(msg);
-			event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECTING);
+			event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECTING, false);
 			event.addMessage(msg);
 			notifyListeners(event);
 			final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
@@ -249,36 +249,38 @@ public enum UGateKeeper {
 								}
 							}
 							if (!addys.isEmpty()) {
-								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, addys, 0, 
-										RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, 
+										false, addys, RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, 
+										commandMsgs.toArray(new String[]{})));
 							} else {
-								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, addys, 0, 
-										RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, commandMsgs.toArray(new String[]{})));
+								notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, 
+										false, addys, RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, 
+										commandMsgs.toArray(new String[]{})));
 							}
 						} else {
 							msg = RS.rbLabel("service.email.commandexec.failed", UGateUtil.toString(event.commands), UGateUtil.toString(event.from), 
 									UGateUtil.toString(event.toAddresses), RS.rbLabel("service.wireless.connection.required"));
 							log.warn(msg);
-							notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, null, 0, 
+							notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, false, null,
 									RemoteSettings.WIRELESS_ADDRESS_NODE, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
 						isEmailConnected = true;
 						msg = RS.rbLabel("mail.connected");
 						log.info(msg);
-						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CONNECTED, null, 0, 
+						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CONNECTED, false, null,
 								null, null, null, event.commands, msg));
 					} else if (event.type == EmailEvent.Type.DISCONNECT) {
 						isEmailConnected = false;
 						msg = RS.rbLabel("mail.disconnected");
 						log.info(msg);
-						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTED, null, 0, 
+						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTED, false, null,
 								null, null, null, event.commands, msg));
 					} else if (event.type == EmailEvent.Type.CLOSED) {
 						isEmailConnected = false;
 						msg = RS.rbLabel("mail.closed");
 						log.info(msg);
-						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CLOSED, null, 0, 
+						notifyListeners(new UGateKeeperEvent<List<Command>>(this, UGateKeeperEvent.Type.EMAIL_CLOSED, false, null, 
 								null, null, null, event.commands, msg));
 					}
 				}
@@ -303,7 +305,7 @@ public enum UGateKeeper {
 			msg = RS.rbLabel("mail.connect.failed", 
 					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);
 			log.error(msg, t);
-			event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED);
+			event = new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED, false);
 			event.addMessage(msg);
 			event.addMessage(t.getMessage());
 			notifyListeners(event);
@@ -317,7 +319,7 @@ public enum UGateKeeper {
 		if (emailAgent != null) {
 			final String msg = RS.rbLabel("mail.disconnecting");
 			log.info(msg);
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTING, msg));
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.EMAIL_DISCONNECTING, false, msg));
 			emailAgent.disconnect();
 			emailAgent = null;
 		}
@@ -389,8 +391,12 @@ public enum UGateKeeper {
 	 */
 	public boolean wirelessConnect(final String comPort, final int baudRate) {
 		wirelessDisconnect();
+		// TODO :
+		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, true, 
+				wirelessGetRemoteAddressMap(1), 
+				null, Command.ACCESS_CODE_CHANGE, null, null));
 		log.info("Connecting to local XBee");
-		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING));
+		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
 			xbee.open(comPort, baudRate);
 			xbee.addPacketListener(new UGateXBeePacketListener(){
@@ -402,13 +408,13 @@ public enum UGateKeeper {
 			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
 					comPort, baudRate));
 			// XBee connection is blocking so notification can be sent here
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED));
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED, false));
 			return true;
 		} catch (final Throwable t) {
 			final String errorMsg = String.format("Unable to establish a connection to the local XBee using port %1$s and baud rate %2$s", 
 					comPort, baudRate);
 			log.error(errorMsg, t);
-			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED, errorMsg, t.getMessage()));
+			notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED, false, errorMsg, t.getMessage()));
 			if (t instanceof XBeeException) {
 				// bug in XBee connection that will show xbee.isConnected() as true after an XBeeException unless we close it here
 				try {
@@ -440,7 +446,7 @@ public enum UGateKeeper {
 			String msg = "Disconnecting from XBee";
 			log.info(msg);
 			if (notify) {
-				notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING, msg));	
+				notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING, false, msg));	
 			}
 			try {
 				xbee.close();
@@ -448,13 +454,13 @@ public enum UGateKeeper {
 				log.info(msg);
 				if (notify) {
 					// XBee close is blocking so notification can be sent here
-					notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED, msg));
+					notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED, false, msg));
 				}
 			} catch (final Throwable t) {
 				msg = "Unable to close wireless connection";
 				log.error(msg, t);
 				if (notify) {
-					notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED, 
+					notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED, false, 
 							msg, t.getMessage()));
 				}
 			}
@@ -551,8 +557,8 @@ public enum UGateKeeper {
 		if (addys.isEmpty()) {
 			throw new ArrayIndexOutOfBoundsException(nodeIndex);
 		}
-		return wirelessSendData(new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, 
-				addys, 0, null, command, null, data));
+		return wirelessSendData(new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, false, 
+				addys, null, command, null, data));
 	}
 	
 	/**
@@ -706,8 +712,18 @@ public enum UGateKeeper {
 			}
 		}
 		if (wakRemove != null && wakSelect != null) {
+			final String oldAddy = wirelessGetAddress(wakRemove.getKey());
 			remoteNodes.remove(wakRemove.getKey());
-			wirelessSetCurrentRemoteNodeIndex(wakSelect.getKey(), null);
+			wirelessSetCurrentRemoteNodeIndex(wakSelect.getKey(), null, false);
+			
+			final String msg = RS.rbLabel("wireless.node.remote.remove", wakSelect.getKey(), this.wirelessCurrentRemoteNodeIndex);
+			log.info(msg);
+			// send notification(s)
+			final Map<Integer, String> removed = new HashMap<Integer, String>();
+			removed.put(wakRemove.getKey(), oldAddy);
+			notifyListeners(new UGateKeeperEvent<Integer>(this, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_REMOVE, false,
+					removed, null, null, wakRemove.getKey(), 
+					this.wirelessCurrentRemoteNodeIndex, msg));
 			return wakSelect.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey());
 		}
 		return nodeAddress;
@@ -719,7 +735,7 @@ public enum UGateKeeper {
 	 */
 	public void wirelessSetRemoteNode(final String nodeAddress) {
 		if (nodeAddress != null && !nodeAddress.isEmpty()) {
-			wirelessSetCurrentRemoteNodeIndex(wirelessGetAddressIndex(nodeAddress), nodeAddress);
+			wirelessSetCurrentRemoteNodeIndex(wirelessGetAddressIndex(nodeAddress), nodeAddress, true);
 		}
 	}
 	
@@ -786,8 +802,8 @@ public enum UGateKeeper {
 			final int[] sendData = sd.getAllData();
 			log.info(String.format("Attempting to send: %s", sd));
 			final Map<Integer, String> was = wirelessGetRemoteAddressMap(nodeIndex);
-			final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, 
-					was, 0, null, Command.SENSOR_SET_SETTINGS, null, sendData);
+			final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, false, 
+					was, null, Command.SENSOR_SET_SETTINGS, null, sendData);
 			if (wirelessSendData(event)) {
 				log.info(String.format("Settings sent to %1$s node(s)", was.size()));
 				allSuccess = true;
@@ -816,9 +832,10 @@ public enum UGateKeeper {
 	 * Sets the current wireless remote node index
 	 * 
 	 * @param newNodeIndex the remote index of the device node for which the controls represent
-	 * @param nodeAddy the new node address to set (when
+	 * @param nodeAddy the new node address to set (when adding a new node and setting it's index)
+	 * @param notifyListeners true to notify any listeners of the change
 	 */
-	private void wirelessSetCurrentRemoteNodeIndex(final int newNodeIndex, final String nodeAddy) {
+	private void wirelessSetCurrentRemoteNodeIndex(final int newNodeIndex, final String nodeAddy, final boolean notifyListeners) {
 		int newAdjNodeIndex = newNodeIndex < 0 ? wirelessNextRemoteNodeIndex : newNodeIndex;
 		if (newNodeIndex >= wirelessNextRemoteNodeIndex) {
 			throw new ArrayIndexOutOfBoundsException(
@@ -841,9 +858,13 @@ public enum UGateKeeper {
 		}
 		final int oldIndex = wirelessGetCurrentRemoteNodeIndex();
 		if (oldIndex != newAdjNodeIndex) {
-			// add the remote node- if it doesn't already exist
 			RemoteNode rn;
-			if ((rn = addRemoteNode(newAdjNodeIndex, oldIndex, true)) == null) {
+			// add the remote node (if it doesn't already exist)
+			// otherwise, just set the 
+			final boolean noAdd = remoteNodes.containsKey(newAdjNodeIndex);
+			if (noAdd) {
+				rn = remoteNodes.get(newAdjNodeIndex);
+			} else if ((rn = addRemoteNode(newAdjNodeIndex, oldIndex, true)) == null) {
 				this.wirelessCurrentRemoteNodeIndex = oldIndex;
 				throw new NullPointerException(String.format("Unable to set new remote node from index %1$s to %2$s", 
 						oldIndex, newAdjNodeIndex));
@@ -853,10 +874,15 @@ public enum UGateKeeper {
 				rn.settings.set(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey(), nodeAddy);
 			}
 			this.wirelessCurrentRemoteNodeIndex = newAdjNodeIndex;
-			final String msg = RS.rbLabel("wireless.node.remote.changing", oldIndex, this.wirelessCurrentRemoteNodeIndex);
+			final String msg = RS.rbLabel(noAdd ? "wireless.node.remote.changing" : "wireless.node.remote.add", 
+					oldIndex, this.wirelessCurrentRemoteNodeIndex);
 			log.info(msg);
-			notifyListeners(new UGateKeeperEvent<Integer>(this, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED, 
-					null, 0, null, null, oldIndex, this.wirelessCurrentRemoteNodeIndex, msg));
+			if (notifyListeners) {
+				notifyListeners(new UGateKeeperEvent<Integer>(this, noAdd ? UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_SELECT : 
+					UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_ADD, false,
+						wirelessGetRemoteAddressMap(this.wirelessCurrentRemoteNodeIndex),null, null, oldIndex, 
+						this.wirelessCurrentRemoteNodeIndex, msg));
+			}
 		}
 	}
 	
@@ -913,7 +939,7 @@ public enum UGateKeeper {
 				}
 				final RemoteNode remoteNode = new RemoteNode(sf, hs);
 				remoteNodes.put(nodeIndex, remoteNode);
-				log.info(String.format("Loaded remote node settings storage at %1$s and history storage at %2$s", 
+				log.info(String.format("Loaded remote node settings storage at %1$s \nand history storage at %2$s", 
 						remoteNode.settings.getAbsoluteFilePath(), 
 						remoteNode.history.getAbsoluteFilePath()));
 				if ((nodeIndex + 1) > this.wirelessNextRemoteNodeIndex) {

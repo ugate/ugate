@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ugate.wireless.data.RxData;
+import org.ugate.wireless.data.RxRawData;
 
 /**
  * Gate keeper event
@@ -24,7 +25,7 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	private final Command command;
 	private final V oldValue;
 	private final V newValue;
-	private int nodeIndex;
+	private boolean fromRemote;
 	private List<String> messages;
 	
 	/**
@@ -32,10 +33,11 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	 * 
 	 * @param source the {@linkplain UGateKeeper} the event is for
 	 * @param type the {@linkplain Type} type
+	 * @param fromRemote true when the event is initialized from a remote source
 	 * @param messages messages (if any)
 	 */
-	UGateKeeperEvent(final Object source, final Type type, final String... messages) {
-		this(source, type, null, 0, null, null, null, null, messages);
+	UGateKeeperEvent(final Object source, final Type type, final boolean fromRemote, final String... messages) {
+		this(source, type, fromRemote, null, null, null, null, null, messages);
 	}
 	
 	/**
@@ -43,17 +45,17 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	 * 
 	 * @param source the {@linkplain UGateKeeper} the event is for
 	 * @param type the {@linkplain Type} type
-	 * @param nodeAddress the remote node address the event is for (null when event is for all nodes)
-	 * @param nodeIndex the index of the node (starting at index zero up to the length of the {@linkplain #nodeAddresses})
+	 * @param fromRemote true when the event originated from a remote node
+	 * @param nodeAddresses the remote node addresses the event is for (null when event is for all nodes)
 	 * @param key the {@linkplain ISettings} (null when event is for all nodes)
 	 * @param command the executing {@linkplain Command} (null when not applicable)
 	 * @param oldValue the old value (null when event is for all nodes)
 	 * @param newValue the new value (null when event is for all nodes)
 	 * @param messages messages (if any)
 	 */
-	UGateKeeperEvent(final Object source, final Type type, final Map<Integer, String> nodeAddresses, final int nodeIndex, 
+	UGateKeeperEvent(final Object source, final Type type, final boolean fromRemote, final Map<Integer, String> nodeAddresses,
 			final ISettings key, final Command command, final V oldValue, final V newValue, final String... messages) {
-		this(source, type, nodeAddresses, nodeIndex, key, command, oldValue, newValue, 
+		this(source, type, fromRemote, nodeAddresses, key, command, oldValue, newValue, 
 				messages != null && messages.length > 0 ? new ArrayList<String>(Arrays.asList(messages)) : null);
 	}
 
@@ -62,26 +64,24 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	 * 
 	 * @param source the {@linkplain UGateKeeper} the event is for
 	 * @param type the {@linkplain Type} type
-	 * @param nodeAddress the remote node address the event is for (null when event is for all nodes)
-	 * @param nodeIndex the index of the node (starting at index zero up to the length of the {@linkplain #nodeAddresses})
+	 * @param fromRemote true when the event originated from a remote node
+	 * @param nodeAddresses the remote node addresses the event is for (null when event is for all nodes)
 	 * @param key the {@linkplain ISettings} (null when event is for all nodes)
 	 * @param command the executing {@linkplain Command} (null when not applicable)
 	 * @param oldValue the old value (null when event is for all nodes)
 	 * @param newValue the new value (null when event is for all nodes)
 	 * @param messages messages (if any)
 	 */
-	UGateKeeperEvent(final Object source, final Type type, final Map<Integer, String> nodeAddresses, final int nodeIndex, 
+	UGateKeeperEvent(final Object source, final Type type, final boolean fromRemote, final Map<Integer, String> nodeAddresses,  
 			final ISettings key, final Command command, final V oldValue, final V newValue, final List<String> messages) {
 		super(source);
 		this.type = type;
 		this.nodeAddresses = nodeAddresses;
-		this.nodeIndex = this.nodeAddresses == null ? RemoteSettings.WIRELESS_ADDRESS_START_INDEX : 
-			!this.nodeAddresses.containsKey(nodeIndex) ? 
-				this.nodeAddresses.keySet().iterator().next() : nodeIndex;
 		this.key = key;
 		this.command = command;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
+		this.fromRemote = fromRemote;
 		this.messages = messages;
 	}
 	
@@ -98,7 +98,6 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		try {
 			event = (UGateKeeperEvent<V>) super.clone();
 			event.type = type;
-			event.nodeIndex = nodeIndex;
 			if (messages != null) {
 				for (final String error : messages) {
 					event.addMessage(error);
@@ -161,17 +160,10 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 	
 	/**
-	 * @return the total number of node addresses
+	 * @return the total number of node addresses for the event
 	 */
 	public int getTotalNodeAddresses() {
 		return nodeAddresses == null ? 0 : nodeAddresses.size();
-	}
-	
-	/**
-	 * @return the node address for which the event is for
-	 */
-	public String getEventNodeAddress() {
-		return nodeAddresses != null ? nodeAddresses.get(nodeIndex) : null;
 	}
 	
 	/**
@@ -188,12 +180,12 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	/**
 	 * @return the nodeAddresses
 	 */
-	public Collection<String> getNodeAddresses() {
-		return nodeAddresses != null ? nodeAddresses.values() : null;
+	public Map<Integer, String> getNodeAddresses() {
+		return nodeAddresses;
 	}
 	
 	/**
-	 * @return the type
+	 * @return the {@linkplain Type}
 	 */
 	public Type getType() {
 		return type;
@@ -228,10 +220,10 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 
 	/**
-	 * @return the nodeIndex
+	 * @return true when the event originated from a remote node
 	 */
-	public int getNodeIndex() {
-		return nodeIndex;
+	public boolean isFromRemote() {
+		return fromRemote;
 	}
 
 	/**
@@ -242,7 +234,7 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 	
 	/**
-	 * @return the errors
+	 * @return the messages
 	 */
 	public List<String> getMessages() {
 		if (messages == null) {
@@ -280,15 +272,19 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 
 	/**
-	 * The event types
+	 * The {@linkplain UGateKeeperEvent} types
 	 */
 	public enum Type {
 		/** Event when the event is initializing */
 		INITIALIZE, 
 		/** Event when preferences/settings are being set on the host */
 		SETTINGS_SAVE_LOCAL, 
-		/** Event when the remote node for the preferences/settings has changed */
-		SETTINGS_REMOTE_NODE_CHANGED, 
+		/** Event when the remote node for the preferences/settings has changed due to a new node being added */
+		SETTINGS_REMOTE_NODE_CHANGED_FROM_ADD, 
+		/** Event when the remote node for the preferences/settings has changed due to an existing node being removed */
+		SETTINGS_REMOTE_NODE_CHANGED_FROM_REMOVE, 
+		/** Event when the remote node for the preferences/settings has changed from an existing node to another existing node */
+		SETTINGS_REMOTE_NODE_CHANGED_FROM_SELECT, 
 		/** Event when connecting to the local host wireless device */
 		WIRELESS_HOST_CONNECTING,
 		/** Event when a connection has been established with the local host wireless device */

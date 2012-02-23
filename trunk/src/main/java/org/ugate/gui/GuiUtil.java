@@ -38,6 +38,12 @@ import org.ugate.resources.RS;
  * General GUI utility
  */
 public class GuiUtil {
+	
+	public static final Color COLOR_SELECTED = Color.DEEPSKYBLUE;
+	public static final Color COLOR_SELECTED_BLAND = Color.DEEPSKYBLUE.deriveColor(1d, 1d, 0.7d, 1d);
+	public static final Color COLOR_SELECTING = Color.YELLOW;
+	public static final Color COLOR_SELECTING_BLAND = COLOR_SELECTING.deriveColor(1d, 1d, 0.7d, 1d);
+	public static final Color COLOR_UNSELECTED = Color.DARKSLATEGRAY;
 
 	/**
 	 * Private utility constructor

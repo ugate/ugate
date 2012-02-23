@@ -11,6 +11,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
@@ -152,9 +153,16 @@ public class UGateGUI extends Application {
 			connectionView.getChildren().addAll(wirelessConnectionView,
 					createSeparator(Orientation.VERTICAL), mailConnectionView);
 			
+			final VBox bottom = new VBox();
+			bottom.setPadding(new Insets(0, 50d, 0, 50d));
+			bottom.getChildren().addAll(taskbar, new RemoteNodeToolBar(controlBar, Orientation.HORIZONTAL));
+			content.setTop(bottom);
+			
 			content.setTop(controlBar);
+//			content.setLeft(new RemoteNodeToolBar(controlBar, Orientation.VERTICAL));
 			content.setCenter(centerView);
-			content.setBottom(taskbar);
+//			content.setBottom(taskbar);
+			content.setBottom(bottom);
 	
 			taskbar.getChildren().add(
 					createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"), 0,
@@ -309,7 +317,7 @@ public class UGateGUI extends Application {
 			@Override
 			public void handle(MouseEvent event) {
 				if (selectProperty == null || selectProperty.get() != index) {
-					effect.setColor(Color.YELLOW);
+					effect.setColor(GuiUtil.COLOR_SELECTING);
 				}
 			}
 		});
@@ -319,7 +327,7 @@ public class UGateGUI extends Application {
 				if (selectProperty == null || selectProperty.get() != index) {
 					effect.setColor(Color.TRANSPARENT);
 				} else if (selectProperty.get() == index) {
-					effect.setColor(Color.DEEPSKYBLUE);
+					effect.setColor(GuiUtil.COLOR_SELECTED);
 				}
 			}
 		});
@@ -329,7 +337,7 @@ public class UGateGUI extends Application {
 				public void changed(final ObservableValue<? extends Number> observable,
 						final Number oldValue, final Number newValue) {
 					if (newValue.intValue() == index) {
-						effect.setColor(Color.DEEPSKYBLUE);
+						effect.setColor(GuiUtil.COLOR_SELECTED);
 					} else {
 						effect.setColor(Color.TRANSPARENT);
 					}

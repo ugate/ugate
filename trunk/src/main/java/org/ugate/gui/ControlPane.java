@@ -41,6 +41,11 @@ public abstract class ControlPane extends GridPane {
 	public static final Color COLOR_MULTI = Color.ORANGE;
 	protected final ControlBar controlBar;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param controlBar the control bar
+	 */
 	public ControlPane(final ControlBar controlBar) {
 		this.controlBar = controlBar;
 		getStyleClass().add("gauge-control-pane");

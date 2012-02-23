@@ -38,7 +38,7 @@ public class WirelessHostConnectionView extends StatusView {
 	 * Creates the wireless connection view
 	 */
 	public WirelessHostConnectionView(final ControlBar controlBar) {
-		super(controlBar, 20);
+		super(controlBar, false, 20);
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
 		
@@ -62,7 +62,7 @@ public class WirelessHostConnectionView extends StatusView {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("wireless.reconnect"));
 					log.debug("Turning ON email connection icon");
-					setStatusFill(statusIcon, true);
+					setStatusFill(true);
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
@@ -80,7 +80,7 @@ public class WirelessHostConnectionView extends StatusView {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("wireless.connect"));
 					log.debug("Turning OFF email connection icon");
-					setStatusFill(statusIcon, false);
+					setStatusFill(false);
 				}
 			}
 		});
@@ -166,7 +166,6 @@ public class WirelessHostConnectionView extends StatusView {
 	/**
 	 * Establishes a wireless connection using the internal parameters.
 	 */
-	@Override
 	public void connect() {
 		if (!port.choice.getSelectionModel().isEmpty() && port.choice.getSelectionModel().getSelectedItem() != null && 
 				!baud.choice.getSelectionModel().isEmpty() && baud.choice.getSelectionModel().getSelectedItem() != null) {

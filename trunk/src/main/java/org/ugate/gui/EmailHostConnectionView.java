@@ -34,7 +34,7 @@ public class EmailHostConnectionView extends StatusView {
 	public final Button connect;
 
 	public EmailHostConnectionView(final ControlBar controlBar) {
-	    super(controlBar, 20);
+	    super(controlBar, false, 20);
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		smtpHost = new UGateTextFieldPreferenceView(HostSettings.MAIL_SMTP_HOST, 
 				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
@@ -82,11 +82,11 @@ public class EmailHostConnectionView extends StatusView {
 					//connect.setText(RS.rbLabel("mail.reconnect"));
 					connect.setText(RS.rbLabel("mail.connected"));
 					connect.setDisable(true);
-					setStatusFill(statusIcon, true);
+					setStatusFill(true);
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel("mail.connect"));
-					setStatusFill(statusIcon, false);
+					setStatusFill(false);
 				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel("mail.disconnecting"));
@@ -99,7 +99,7 @@ public class EmailHostConnectionView extends StatusView {
 							connect.setDisable(false);
 							connect.setText(RS.rbLabel("mail.connect"));
 							log.debug("Turning OFF email connection icon");
-							setStatusFill(statusIcon, false);
+							setStatusFill(false);
 						}
 					});
 				}
@@ -144,7 +144,6 @@ public class EmailHostConnectionView extends StatusView {
 	/**
 	 * Establishes an email connection using internal parameters
 	 */
-	@Override
 	public void connect() {
 		if (smtpHost.getValue().toString().length() > 0 && smtpPort.getValue().toString().length() > 0 && 
 				imapHost.getValue().toString().length() > 0 && imapPort.getValue().toString().length() > 0 && 
