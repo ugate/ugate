@@ -12,6 +12,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
@@ -19,7 +20,6 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 
 import org.apache.log4j.Logger;
 import org.ugate.Command;
@@ -34,10 +34,11 @@ import org.ugate.resources.RS;
 public class RemoteNodeToolBar extends ToolBar {
 
 	private static final Logger log = Logger.getLogger(RemoteNodeToolBar.class);
+	private static final double BUTTON_ADD_REMOVE_SIZE = 12d;
 	protected final ControlBar controlBar;
 	private final TextField textField = new TextField();
-	private final Region addNodeButton = new Region();
-	private final Region removeNodeButton = new Region();
+	private final Region addNodeGraphic = new Region();
+	private final Region removeNodeGraphic = new Region();
 	
 	/**
 	 * Constructor
@@ -47,6 +48,7 @@ public class RemoteNodeToolBar extends ToolBar {
 	 */
 	public RemoteNodeToolBar(final ControlBar controlBar, final Orientation orientation) {
 		super();
+		getStyleClass().add("map-toolbar");
 		setOrientation(orientation);
 		this.controlBar = controlBar;
 		addGlobalNodeControls();
@@ -122,7 +124,10 @@ public class RemoteNodeToolBar extends ToolBar {
 //		textField.setTooltip(new Tooltip(RS.rbLabel("wireless.node.remote")));
 		textField.setMaxWidth(100d);
 		controlBar.addHelpTextTrigger(textField, RS.rbLabel("wireless.node.remote.desc"));
-		addNodeButton.getStyleClass().setAll(new String[] { "text-field-menu-add-choice" });
+		final Button addNodeButton = new Button();
+		addNodeButton.getStyleClass().add("button-mini");
+		addNodeButton.setCursor(Cursor.HAND);
+		addNodeButton.setMaxSize(BUTTON_ADD_REMOVE_SIZE, BUTTON_ADD_REMOVE_SIZE);
 		addNodeButton.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
@@ -131,7 +136,13 @@ public class RemoteNodeToolBar extends ToolBar {
 				}
 			}
 		});
-		removeNodeButton.getStyleClass().setAll(new String[] { "text-field-menu-remove-choice" });
+		controlBar.addHelpTextTrigger(addNodeButton, RS.rbLabel("wireless.node.remote.add.desc"));
+		addNodeGraphic.getStyleClass().setAll(new String[] { "text-field-menu-add-choice" });
+		addNodeButton.setGraphic(addNodeGraphic);
+		final Button removeNodeButton = new Button();
+		removeNodeButton.getStyleClass().add("button-mini");
+		removeNodeButton.setCursor(Cursor.HAND);
+		removeNodeButton.setMaxSize(BUTTON_ADD_REMOVE_SIZE, BUTTON_ADD_REMOVE_SIZE);
 		removeNodeButton.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
@@ -140,9 +151,10 @@ public class RemoteNodeToolBar extends ToolBar {
 				}
 			}
 		});
-		final VBox vbox = new VBox(7);
-		vbox.getChildren().addAll(addNodeButton, removeNodeButton);
-		getItems().addAll(textField, vbox, new Separator(Orientation.VERTICAL));
+		controlBar.addHelpTextTrigger(removeNodeButton, RS.rbLabel("wireless.node.remote.remove.desc"));
+		removeNodeGraphic.getStyleClass().setAll(new String[] { "text-field-menu-remove-choice" });
+		removeNodeButton.setGraphic(removeNodeGraphic);
+		getItems().addAll(textField, addNodeButton, removeNodeButton, new Separator(Orientation.VERTICAL));
 	}
 	
 	/**

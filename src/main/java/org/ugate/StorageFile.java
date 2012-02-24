@@ -26,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.log4j.Logger;
 
 /**
- * Storage files are used to store simple key/value pair data to disk. The file approach is taken
+ * {@linkplain StorageFile}s are used to store simple key/value pair data to disk. The file approach is taken
  * versus the typical {@link java.util.prefs.Preferences} so they can be readily accessible for
  * manual editing when needed.
  */
@@ -43,7 +43,7 @@ public class StorageFile {
 	private String absoluteFilePath;
 
 	/**
-	 * Storage file that can be used to store simple key/value pairs (generated when non-existent)
+	 * {@linkplain StorageFile} that can be used to store simple key/value pairs (generated when non-existent)
 	 * 
 	 * @param filePath the file path (without a file extension)
 	 * @param createIfNotExists true to create the storage file when it doesn't exist
@@ -62,17 +62,18 @@ public class StorageFile {
 			initEncryption();
 		} catch (final FileNotFoundException e) {
 			if (!createIfNotExists) {
-				log.debug(String.format("Unable to find storage file: %1$s", this.filePath));
+				log.debug(String.format("Unable to find %1$s: %2$s", StorageFile.class.getSimpleName(), 
+						this.filePath));
 				return;
 			}
 			create(this.filePath);
 		} catch (final IOException e) {
-			log.error("Unable to retrieve/create storage file", e);
+			log.error(String.format("Unable to retrieve/create %1$s", StorageFile.class.getSimpleName()), e);
 		}
 	}
 	
 	/**
-	 * Creates a copy of the current storage file at the specified path
+	 * Creates a copy of the current {@linkplain StorageFile} at the specified path
 	 * 
 	 * @param filePath the path to the new/existing file copy (without a file extension)
 	 * @return a copy of the {@linkplain StorageFile} located at the specified path
@@ -114,6 +115,22 @@ public class StorageFile {
 	}
 	
 	/**
+	 * Deletes the {@linkplain StorageFile} and disposes of any residual data
+	 * 
+	 * @return true when successful
+	 */
+	public boolean dispose() {
+		try {
+			new File(absoluteFilePath).delete();
+			return true;
+		} catch (final Throwable t) {
+			log.error(String.format("Unable to delete %1$s: %2$s", StorageFile.class.getSimpleName(), 
+					absoluteFilePath), t);
+		}
+		return false;
+	}
+	
+	/**
 	 * Initializes encryption
 	 */
 	private void initEncryption() {
@@ -129,6 +146,11 @@ public class StorageFile {
 		}
 	}
 	
+	/**
+	 * Creates the actual {@linkplain StorageFile} and stores it to disk
+	 * 
+	 * @param filePath the file path to write to
+	 */
 	private void create(final String filePath) {
         BufferedWriter out = null;
 		try {
@@ -150,13 +172,15 @@ public class StorageFile {
 	}
 	
 	/**
-	 * @return true when the storage is loaded
+	 * @return true when the {@linkplain StorageFile} is loaded
 	 */
 	public boolean isLoaded() {
 		return this.isLoaded;
 	}
 	
 	/**
+	 * Determines an entry in the {@linkplain StorageFile} exists
+	 * 
 	 * @param key the key to check for
 	 * @return true when the key exists
 	 */
@@ -165,9 +189,9 @@ public class StorageFile {
 	}
 	
 	/**
-	 * Gets a list of storage values by key using a delimiter
+	 * Gets a list of {@linkplain StorageFile} values by key using a delimiter
 	 * 
-	 * @param key the storage key
+	 * @param key the {@linkplain StorageFile} parameter key
 	 * @param delimiter the delimiter for the multi-value preference
 	 * @return the list of values
 	 */
@@ -177,7 +201,7 @@ public class StorageFile {
 	}
 
 	/**
-	 * Gets a storage value by key. If the key does not exist it will be created
+	 * Gets a {@linkplain StorageFile} value by key. If the key does not exist it will be created
 	 * 
 	 * @param key the key
 	 * @return the value
@@ -199,7 +223,7 @@ public class StorageFile {
 	}
 
 	/**
-	 * Sets a key/value storage
+	 * Sets a key/value within the {@linkplain StorageFile}
 	 * 
 	 * @param key the key
 	 * @param value the value
@@ -209,7 +233,7 @@ public class StorageFile {
 	}
 	
 	/**
-	 * Sets a a key/value storage
+	 * Sets a a key/value within the {@linkplain StorageFile}
 	 * 
 	 * @param key the key
 	 * @param value the value
@@ -232,6 +256,18 @@ public class StorageFile {
 		}
 	}
 
+	/**
+	 * Encrypts or Decrypts a string
+	 * 
+	 * @param value the value to encrypt/decrypt
+	 * @param encryptDecryptMode
+	 * @return the encrypted or decrypted bytes
+	 * @throws NoSuchAlgorithmException {@linkplain Cipher#getInstance(String)}
+	 * @throws NoSuchPaddingException {@linkplain Cipher#getInstance(String)}
+	 * @throws InvalidKeyException {@linkplain Cipher#init(int, java.security.cert.Certificate)}
+	 * @throws IllegalBlockSizeException {@linkplain Cipher#doFinal(byte[])}
+	 * @throws BadPaddingException {@linkplain Cipher#doFinal(byte[])}
+	 */
 	private byte[] encryptDecrypt(final String value, final int encryptDecryptMode) throws NoSuchAlgorithmException,
 			NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		Cipher cipher = Cipher.getInstance(ENCRYPTION_TYPE);
@@ -258,14 +294,14 @@ public class StorageFile {
 	}
 
 	/**
-	 * @return the file path
+	 * @return the file path of the {@linkplain StorageFile}
 	 */
 	public String getFilePath() {
 		return filePath;
 	}
 
 	/**
-	 * @return the absolute file path of the storage file
+	 * @return the absolute file path of the {@linkplain StorageFile}
 	 */
 	public String getAbsoluteFilePath() {
 		return absoluteFilePath;
