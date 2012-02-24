@@ -379,6 +379,7 @@ public class UGateGUI extends Application {
 		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && 
 				event.getNewValue() instanceof ImageCapture) {
 			mediaPlayerDoorBell.play();
+			// TODO : send email with image as attachment (only when the image is captured via alarm trip rather, but not from GUI)
 //			UGateKeeper.DEFAULT.emailSend("UGate Tripped", trippedImage.toString(), 
 //					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY), 
 //					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY, UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}), 

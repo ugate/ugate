@@ -103,75 +103,24 @@
 		linear-gradient(from 0% 0% to 0% 100%, black, white 3%, white 97%, black);
 	-fx-alignment: CENTER;
 }
-.tool-bar {
-    -fx-skin: "com.sun.javafx.scene.control.skin.ToolBarSkin";
-}
-.tool-bar:vertical {
-    -fx-background: derive(-fx-base,-20%);
-    -fx-background-color:
-        /*linear (0%,0%) to (100%,0%) stops (0%,derive(-fx-base,-30%)) (100%,derive(-fx-base,-60%)),*/
-        linear-gradient(from 0% 0% to 100% 0%, derive(-fx-base,-30%) 0%, derive(-fx-base,-60%) 100%),
-        /*linear (0%,0%) to (100%,0%) stops (2%,derive(-fx-base,65%)) (95%,derive(-fx-base,-20%));*/
-        linear-gradient(from 0% 0% to 100% 0%, derive(-fx-base,-65%) 2%, derive(-fx-base,-20%) 95%);
-    -fx-background-insets: 0, 0 1 0 1;
-    -fx-background-radius: 0 ;
-    -fx-padding: 0.833em 0.416667em 0.833em 0.416667em; /* 10 5 10 5 */
-    -fx-spacing: 0.333em; /* 4 */
-    -fx-alignment: TOP_LEFT;
-}
-
-.tool-bar .separator:vertical .line {
-    -fx-border-style: solid;
-    -fx-background-color: null;
-    -fx-border-color:  transparent derive(-fx-base,-35%) transparent transparent;
-}
-
-.tool-bar .separator:horizontal .line {
-    -fx-border-style: solid;
-    -fx-background-color: null;
-    -fx-border-color:  transparent transparent derive(-fx-base,-35%) transparent;
-}
-
-.tool-bar:vertical .separator {
-    -fx-orientation: horizontal;    
-    -fx-padding: 0.0em 0.0835em 0.0em 0.0835em; /* 0 1 0 1 */
-}
-
-.tool-bar:horizontal {
-    -fx-background: derive(-fx-base,-30%);
-    -fx-background-color:
-        /*linear (0%,0%) to (0%,100%) stops (0%,derive(-fx-base,-30%)) (100%, derive(-fx-base,-60%)),*/
-        /*linear (0%,0%) to (0%,100%) stops (2%,derive(-fx-base,65%)) (95%,derive(-fx-base,-20%));*/
-        linear-gradient(from 0% 0% to 0% 100%, derive(-fx-base,-30%), derive(-fx-base,65%) 2%, derive(-fx-base,-20%) 95%, derive(-fx-base,-60%));
-    -fx-background-insets: 0, 1 0 1 0;
-    -fx-background-radius: 0, 0 ;
-    -fx-padding: 0.416667em 0.833em 0.416667em 0.833em; /* 5 10 5 10 */
-    -fx-spacing: 0.333em; /* 4 */
-    -fx-alignment: CENTER_LEFT;
-}
-
-.tool-bar:horizontal .separator {
-    -fx-orientation: vertical;
-    -fx-padding: 0.0835em 0.0em 0.0835em 0.0em; /* 1 0 1 0 */
-}
-
-.tool-bar-overflow-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0.666667em 0.916667em 0em 0em; /* 8 11 0 0 */
-}
-
-.tool-bar-overflow-button .arrow {
-    -fx-background-color: -fx-mark-highlight-color, -fx-mark-color;
-    -fx-background-insets: 1 0 -1 0, 0;
-    -fx-padding: 0.666667em 0.916667em 0em 0em; /* 8 11 0 0 */
-    -fx-shape: "M337.273,297.622l-0.016,1.069l2.724,2.639l-2.723,2.628l0.015,1.048h0.881l3.81-3.685l-3.788-3.699H337.273z M343.783,297.622h-0.902l-0.015,1.069l2.724,2.639l-2.724,2.628l0.015,1.048h0.882l3.809-3.685L343.783,297.622z" ;
-}
-
-.tool-bar-overflow-button:hover .arrow {
-    -fx-background-color: -fx-mark-highlight-color, derive(-fx-hover-base,-50%);
-    -fx-background-insets: 1 0 -1 0, 0;
-}
 /* ====== CUSTOM ============================================================== */
+.map-toolbar .button, .map-toolbar .toggle-button, .map-toolbar .label {
+    -fx-text-fill: white;
+    -fx-background-radius: 0;
+}
+.map-toolbar {
+    -fx-base: #505359;
+    -fx-background: #505359;
+    -fx-shadow-highlight-color: transparent;
+    -fx-spacing: 5;
+    -fx-padding: 4 4 4 4;
+    -fx-background-color:
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+}
 /*******************************************************************************
  *                                                                             *
  * Button                                                                      *
@@ -229,6 +178,18 @@
 
 .button:show-mnemonics .mnemonic-underline {
     -fx-stroke: -fx-text-fill;
+}
+.button-mini {
+    -fx-background-color:
+        #a6b5c9,
+        linear-gradient(#303842 0%, #3e5577 20%, #375074 100%),
+        linear-gradient(#768aa5 0%, #849cbb 5%, #5877a2 50%, #486a9a 51%, #4a6c9b 100%);
+    -fx-background-insets: 0 0 -1 0,0,1;
+    -fx-background-radius: 5,5,4;
+    -fx-padding: 0 7 0 7;
+    -fx-text-fill: #242d35;
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
 }
 /*******************************************************************************
  *                                                                             *
@@ -313,7 +274,7 @@
 /* } */
 .text-field-menu-add-choice {
     -fx-padding: 0.666667em 0.416667em 0.0em 0.416667em;  /* 8 5 0 5 */
-    -fx-background-color: #348017;
+    -fx-background-color: #00CC00;
     -fx-scale-shape: false;
     -fx-shape: "M3.5 0 L3.5 3.5 L0 3.5 L0 6.5 L3.5 6.5 L3.5 10 L6.5 10 L6.5 10 L6.5 6.5 L10 6.5 L10 3.5 L6.5 3.5 L6.5 0 Z";
     -fx-effect: dropshadow(two-pass-box , rgba(255, 255, 255, 0.4), 1, 0.0 , 0, 1);

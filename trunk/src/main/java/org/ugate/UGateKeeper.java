@@ -713,10 +713,12 @@ public enum UGateKeeper {
 		}
 		if (wakRemove != null && wakSelect != null) {
 			final String oldAddy = wirelessGetAddress(wakRemove.getKey());
-			remoteNodes.remove(wakRemove.getKey());
+			removeRemoteNode(wakRemove.getKey());
 			wirelessSetCurrentRemoteNodeIndex(wakSelect.getKey(), null, false);
 			
-			final String msg = RS.rbLabel("wireless.node.remote.remove", wakSelect.getKey(), this.wirelessCurrentRemoteNodeIndex);
+			final String msg = RS.rbLabel("wireless.node.remote.remove", 
+					wakRemove.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()), 
+					wakSelect.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()));
 			log.info(msg);
 			// send notification(s)
 			final Map<Integer, String> removed = new HashMap<Integer, String>();
@@ -857,6 +859,7 @@ public enum UGateKeeper {
 			}
 		}
 		final int oldIndex = wirelessGetCurrentRemoteNodeIndex();
+		final String oldAddy = wirelessGetCurrentRemoteNodeAddress();
 		if (oldIndex != newAdjNodeIndex) {
 			RemoteNode rn;
 			// add the remote node (if it doesn't already exist)
@@ -875,7 +878,7 @@ public enum UGateKeeper {
 			}
 			this.wirelessCurrentRemoteNodeIndex = newAdjNodeIndex;
 			final String msg = RS.rbLabel(noAdd ? "wireless.node.remote.changing" : "wireless.node.remote.add", 
-					oldIndex, this.wirelessCurrentRemoteNodeIndex);
+					oldAddy, nodeAddy);
 			log.info(msg);
 			if (notifyListeners) {
 				notifyListeners(new UGateKeeperEvent<Integer>(this, noAdd ? UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_SELECT : 
@@ -952,6 +955,23 @@ public enum UGateKeeper {
 	}
 	
 	/**
+	 * Removes a remote node by index key
+	 * 
+	 * @param nodeIndex the node index to remove
+	 */
+	private void removeRemoteNode(final Integer nodeIndex) {
+		remoteNodes.get(nodeIndex).dispose();
+		remoteNodes.remove(nodeIndex);
+		int maxNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
+		for (final Map.Entry<Integer, RemoteNode> rn : remoteNodes.entrySet()) {
+			if (rn.getKey() > maxNodeIndex) {
+				maxNodeIndex = rn.getKey();
+			}
+		}
+		wirelessNextRemoteNodeIndex = maxNodeIndex + 1;
+	}
+	
+	/**
 	 * Composite of required {@linkplain StorageFile}s for each remote node 
 	 */
 	private static class RemoteNode {
@@ -959,9 +979,24 @@ public enum UGateKeeper {
 		public final StorageFile settings;
 		public final StorageFile history;
 		
+		/**
+		 * Constructor
+		 * 
+		 * @param settings the {@linkplain RemoteSettings} {@linkplain StorageFile}
+		 * @param history the history {@linkplain StorageFile}
+		 */
 		public RemoteNode(final StorageFile settings, final StorageFile history) {
 			this.settings = settings;
 			this.history = history;
+		}
+		
+		/**
+		 * Disposes of the {@linkplain #settings} and {@linkplain #history} 
+		 * by calling {@linkplain StorageFile#dispose()}
+		 */
+		public void dispose() {
+			settings.dispose();
+			history.dispose();
 		}
 	}
 }
