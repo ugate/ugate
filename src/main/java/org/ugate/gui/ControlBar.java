@@ -20,6 +20,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -207,11 +208,27 @@ public class ControlBar extends ToolBar {
 	 * @return the menu bar items related to the control bar
 	 */
 	public Region createTitleBarItems() {
-		final HBox menu = new HBox();
+		final HBox menu = new HBox(10d);
 		menu.getStyleClass().add("title-bar-menu");
 		menu.setAlignment(Pos.CENTER);
 		menu.setPadding(new Insets(0, 50d, 0, 50d));
-		menu.getChildren().add(helpTextPane);
+		final ImageView helpButton = RS.imgView(RS.IMG_HELP);
+		final DropShadow effect = DropShadowBuilder.create().color(GuiUtil.COLOR_SELECTED).build();
+		helpButton.setCursor(Cursor.HAND);
+		helpButton.setEffect(effect);
+		helpButton.addEventHandler(MouseEvent.ANY, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (event.getEventType() == MouseEvent.MOUSE_ENTERED) {
+					effect.setColor(GuiUtil.COLOR_SELECTING);
+				} else if (event.getEventType() == MouseEvent.MOUSE_EXITED) {
+					effect.setColor(GuiUtil.COLOR_SELECTED);
+				} else if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
+					setHelpText(null);
+				}
+			}
+		});
+		menu.getChildren().addAll(helpButton, helpTextPane);
 	    return menu;
 	}
 	

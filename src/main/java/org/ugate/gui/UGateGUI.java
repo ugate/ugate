@@ -1,6 +1,8 @@
 package org.ugate.gui;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -23,6 +25,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Control;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.InnerShadow;
@@ -44,6 +48,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
+import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.gui.components.TextAreaAppender;
 import org.ugate.resources.RS;
 import org.ugate.wireless.data.ImageCapture;
@@ -225,7 +230,32 @@ public class UGateGUI extends Application {
 												random.nextDouble() * 150));
 							}
 							chart.getData().add(manualImageSeries);
-							changeCenterView(chart, 3);
+
+					        SimpleCalendar simpleCalender = new SimpleCalendar();
+					        simpleCalender.setMaxSize(100d, 20d);
+					        final TextField dateField = new TextField(new SimpleDateFormat("MM/dd/yyyy").format(
+					        		simpleCalender.dateProperty().get()));
+					        dateField.setMaxSize(simpleCalender.getMaxWidth(), simpleCalender.getMaxHeight());
+					        dateField.setEditable(false);
+					        dateField.setDisable(true);
+					        simpleCalender.dateProperty().addListener(new ChangeListener<Date>() {
+
+								@Override
+								public void changed(ObservableValue<? extends Date> ov,
+										Date oldDate, Date newDate) {
+									dateField.setText(new SimpleDateFormat("MM/dd/yyyy").format(newDate));
+									
+								}
+							});
+					        
+							final HBox dateBox = new HBox();
+					        dateBox.setAlignment(Pos.BOTTOM_RIGHT);
+					        dateBox.getChildren().addAll(dateField, simpleCalender);
+					        final StackPane history = new StackPane();
+					        history.setPadding(new Insets(10d));
+					        history.setAlignment(Pos.BOTTOM_RIGHT);
+							history.getChildren().addAll(chart, dateBox);
+							changeCenterView(history, 3);
 						}
 					}));
 			taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), 4, 
@@ -298,7 +328,7 @@ public class UGateGUI extends Application {
 		node.setFitHeight(height);
 
 		final DropShadow effect = DropShadowBuilder.create().color(
-				selectProperty != null && selectProperty.get() == index ? Color.DEEPSKYBLUE :
+				selectProperty != null && selectProperty.get() == index ? GuiUtil.COLOR_SELECTED :
 					Color.TRANSPARENT).build();
 		final Reflection effect2 = new Reflection();
 		effect.setInput(effect2);

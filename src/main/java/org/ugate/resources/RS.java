@@ -29,6 +29,7 @@ public class RS {
 	public static final String IMG_SKIN_MAX = "ugskin-btn-max25x10.png";
 	public static final String IMG_SKIN_RESTORE = "ugskin-btn-res25x10.png";
 	public static final String IMG_SKIN_CLOSE = "ugskin-btn-close32x10.png";
+	public static final String IMG_HELP = "help.png";
 	public static final String IMG_CONNECT = "power-red.png";
 	public static final String IMG_PICS = "pics.png";
 	public static final String IMG_WIRELESS = "wireless-globe.png";
