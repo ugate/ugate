@@ -119,7 +119,7 @@ public class RxTxSensorReadings extends RxData  {
 	 * 		(calculated from {@link #getMicrowaveCycleCnt()}
 	 */
 	public double getSpeedMPH() {
-		return getSpeedInchesPerSec() * 30000 / 53467;
+		return getSpeedInchesPerSec() * 30000d / 53467d;
 	}
 	
 	/**

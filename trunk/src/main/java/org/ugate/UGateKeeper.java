@@ -172,10 +172,10 @@ public enum UGateKeeper {
 	 */
 	private <V> void notifyListeners(final UGateKeeperEvent<V> event) {
 		for (final IGateKeeperListener pl : listeners) {
-			try {
+			// TODO : remove reference to GUI implementation
+			if (Platform.isFxApplicationThread()) {
 				pl.handle(event);
-			} catch (final Throwable t) {
-				// TODO : remove reference to GUI impl
+			} else {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
@@ -287,20 +287,6 @@ public enum UGateKeeper {
 			});
 			this.emailAgent = EmailAgent.start(smtpHost, smtpPort, imapHost, imapPort, 
 					username, password, mainFolderName, listeners.toArray(new IEmailListener[0]));
-			// TODO : remove reference to GUI impl
-//			final Service<Void> emailService = new Service<Void>() {
-//				@Override
-//				protected Task<Void> createTask() {
-//					return new Task<Void>() {
-//						@Override
-//						protected Void call() throws Exception {
-//							UGateKeeper.this.emailAgent.run();
-//							return null;
-//						}
-//					};
-//				}
-//			};
-//			emailService.start();
 		} catch (final Throwable t) {
 			msg = RS.rbLabel("mail.connect.failed", 
 					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);
@@ -391,10 +377,6 @@ public enum UGateKeeper {
 	 */
 	public boolean wirelessConnect(final String comPort, final int baudRate) {
 		wirelessDisconnect();
-		// TODO :
-		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, true, 
-				wirelessGetRemoteAddressMap(1), 
-				null, Command.ACCESS_CODE_CHANGE, null, null));
 		log.info("Connecting to local XBee");
 		notifyListeners(new UGateKeeperEvent<Void>(this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
@@ -402,6 +384,13 @@ public enum UGateKeeper {
 			xbee.addPacketListener(new UGateXBeePacketListener(){
 				@Override
 				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<V> event) {
+					// TODO : update the remote nodes history for incoming data
+//					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
+//							event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+//						for (final Map.Entry<Integer, String> ea : event.getNodeAddresses().entrySet()) {
+//							
+//						}
+//					}
 					notifyListeners(event);
 				}
 			});

@@ -2,8 +2,11 @@ package org.ugate.gui.components;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -27,7 +30,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
 
-import javax.activation.MimetypesFileTypeMap;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 /**
  * Display for viewing images in a book shelf type manner.
@@ -225,14 +230,14 @@ public class DisplayShelf extends Region {
      * @return the image files
      */
     protected void updateFiles() {
-    	final MimetypesFileTypeMap mftm = new MimetypesFileTypeMap();
+    	//final MimetypesFileTypeMap mftm = new MimetypesFileTypeMap();
     	final FileFilter imageFilter = new FileFilter() {
         	@Override
             public boolean accept(final File file) {
-                return !file.isDirectory() && file.canRead() && !file.isHidden() && 
-                	mftm.getContentType(file).startsWith("image");
+                return !file.isDirectory() && file.canRead() && !file.isHidden() && isImage(file);
+                	//mftm.getContentType(file).startsWith("image");
             }
-        };
+        };imageDirectory.getAbsolutePath();
         files = imageDirectory.listFiles(imageFilter);
         Arrays.sort(files, new Comparator<File>() {
         	@Override
@@ -246,6 +251,45 @@ public class DisplayShelf extends Region {
         		}
         	}
         });
+    }
+    
+    /**
+     * @param fileOrStream the {@linkplain File} or {@linkplain FileInputStream} to check
+     * @return true when the file is an image
+     */
+    private static boolean isImage(final Object fileOrStream) {
+    	final String imgFormatName = getImageFormatName(fileOrStream);
+    	return imgFormatName != null && (imgFormatName.equals("JPEG") || 
+    			imgFormatName.equals("PNG") || imgFormatName.equals("BMP") || 
+    			imgFormatName.equals("WBMP") || imgFormatName.equals("GIF"));
+    }
+    
+    /**
+     * @param fileOrStream the {@linkplain File} or {@linkplain FileInputStream} to check
+     * @return the name of the image type (null when not an image)
+     */
+    private static String getImageFormatName(final Object fileOrStream) {
+    	ImageInputStream iis = null;
+        try {
+            iis = ImageIO.createImageInputStream(fileOrStream);
+            // Find all image readers that recognize the image format
+            Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+            if (!iter.hasNext()) {
+                return null;
+            }
+            return iter.next().getFormatName().toUpperCase();
+        } catch (final IOException e) {
+        	// image cannot be read
+        } finally {
+        	if (iis != null) {
+        		try {
+					iis.close();
+				} catch (final IOException e) {
+					// cannot be closed
+				}
+        	}
+        }
+        return null;
     }
     
     /**

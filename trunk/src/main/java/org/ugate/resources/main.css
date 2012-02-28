@@ -1,5 +1,5 @@
 /*******************************************************************************
- *      http://download.oracle.com/javafx/2.0/api/javafx/scene/doc-files/cssref.html                                                                       *
+ *      http://download.oracle.com/javafx/2.0/api/javafx/scene/doc-files/cssref.html *
  * Toolbar                                                                     *
  *                                                                             *
  * Corresponding hex values for the color derivations used below are:          *
@@ -353,6 +353,111 @@
 }
 /*******************************************************************************
  *                                                                             *
+ * Date Chooser                                                                *
+ *                                                                             *
+ ******************************************************************************/
+#DatepickerArrow {
+	-fx-fill: gray;
+	-fx-stroke: gray;
+}
+#DatepickerArrow:hover {
+	-fx-fill: white;
+	-fx-stroke: white;
+}
+#DatePicker {
+	-fx-background-color: 
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+    -fx-text-fill: white;
+    -fx-border-color: gray;
+}
+#DatepickerDayCell {
+	-fx-background-color: transparent;
+	-fx-border-radius: 4;
+	-fx-spacing: 0;
+}
+#DatepickerDayCell:hover {
+	-fx-background-color: azure;
+	-fx-border-color: royalblue;
+	-fx-border-radius: 3;
+	-fx-text-fill: royalblue;
+}
+#DatepickerDayCell .datepicker-today-cell {
+    -fx-background-color: lightsteelblue;
+   	-fx-border-radius: 3;
+   	-fx-border-style: segments(2,2);
+   	-fx-border-color: royalblue;
+    -fx-text-fill: royalblue;
+	-fx-font-size: 12px;
+}
+.datepicker-weekday-row {
+    -fx-background-color: linear-gradient(to bottom, gray, lightgray, lightgray, lightgray, gray);
+    -fx-text-fill: black;
+	-fx-font-size: 12px;
+}
+.datepicker-monthyear-row {
+	-fx-background-color: 
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%); 
+	-fx-text-fill: white;
+	-fx-font-size: 12px;
+}
+.datepicker-othermonth-cell {
+   	-fx-border-radius: 4;
+    -fx-text-fill: gray;
+	-fx-font-size: 12px;
+}
+#DatepickerTodayButton {
+	-fx-font-size: 12px;
+	-fx-background-color: 
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+}
+#DatepickerTodayButton:focused {
+    -fx-color: -fx-focused-base;
+    -fx-effect: dropshadow( one-pass-box , black, 0, 0.0 , 2, 2);
+    -fx-background-insets: -1.4, 0, 1, 2;
+    -fx-background-radius:  6.4, 5, 4, 3;
+}
+#DatepickerTodayButtonBox {
+	-fx-background-color: 
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+}
+#CalenderButton {
+/*     -fx-font-size: 14px; */
+/* 	-fx-background-image: url("calender_icon.png"); */
+/* 	-fx-background-color: null; */
+/* 	-fx-background-repeat: no-repeat; */
+/* 	-fx-background-position: center; */
+    -fx-background-color: 
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+    -fx-background-insets: 1 0 -1 0, 0;
+    -fx-padding: 0.238083em 0.416667em 0.238083em 0.416667em; /* 2.857 5 2.857 5 */
+    -fx-shape: "M 0 0 L 6 12 L 12 0 z";
+    -fx-scale-shape: false;
+}
+#CalenderButton:hover {
+    -fx-background-color: -fx-accent;
+}
+/*******************************************************************************
+ *                                                                             *
  * Other                                                                       *
  *                                                                             *
  ******************************************************************************/
@@ -366,7 +471,7 @@
     -fx-background-insets: 0,1,2,0;
     -fx-font-weight: bold;
     -fx-text-fill: white;
-	-fx-shape: "M0 0 L0 40 L170 40 L170 35 L150 0 Z";
+	-fx-shape: "M0 10 L0 40 L170 40 L170 35 L150 0 L5 0 Z";
     -fx-padding: 2 70 0 5;
 }
 .title-bar-menu TextFieldMenu {
