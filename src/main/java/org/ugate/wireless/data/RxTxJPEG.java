@@ -3,7 +3,8 @@ package org.ugate.wireless.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.ByteUtils;
 
 /**
@@ -11,7 +12,7 @@ import org.ugate.ByteUtils;
  */
 public class RxTxJPEG extends RxTxImage {
 	
-	private static final Logger log = Logger.getLogger(RxTxJPEG.class);
+	private static final Logger log = LoggerFactory.getLogger(RxTxJPEG.class);
 	public static final String JPEG_EXT = "jpg";
 	public static final String JPEG_EOF = "0xff,0xd9";
 	

@@ -2,7 +2,8 @@ package org.ugate.wireless.data;
 
 import java.util.Calendar;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 
 /**
@@ -10,7 +11,7 @@ import org.ugate.UGateUtil;
  */
 public abstract class RxData {
 
-	private static final Logger log = Logger.getLogger(RxData.class);
+	private static final Logger log = LoggerFactory.getLogger(RxData.class);
 	private final Integer nodeIndex;
 	private final Calendar createdTime;
 	private final int signalStrength;

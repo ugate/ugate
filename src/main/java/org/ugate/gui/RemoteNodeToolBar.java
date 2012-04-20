@@ -21,7 +21,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
@@ -33,7 +34,7 @@ import org.ugate.resources.RS;
  */
 public class RemoteNodeToolBar extends ToolBar {
 
-	private static final Logger log = Logger.getLogger(RemoteNodeToolBar.class);
+	private static final Logger log = LoggerFactory.getLogger(RemoteNodeToolBar.class);
 	private static final double BUTTON_ADD_REMOVE_SIZE = 12d;
 	protected final ControlBar controlBar;
 	private final TextField textField = new TextField();

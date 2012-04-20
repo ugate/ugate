@@ -12,7 +12,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.HostSettings;
 import org.ugate.IGateKeeperListener;
@@ -28,7 +29,7 @@ import org.ugate.resources.RS;
  */
 public class WirelessHostConnectionView extends StatusView {
 	
-	private static final Logger log = Logger.getLogger(WirelessHostConnectionView.class);
+	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
 	public final UGateChoiceBox<String> port;
 	public final UGateChoiceBox<Integer> baud;
 	public final UGateTextFieldPreferenceView hostAddress;
@@ -115,7 +116,7 @@ public class WirelessHostConnectionView extends StatusView {
 	 */
 	public void configComPorts() {
 		log.debug("Loading available serial ports");
-		port.choice.getItems().addAll(UGateKeeper.DEFAULT.getSerialPorts());
+		port.choice.getItems().addAll(UGateKeeper.DEFAULT.wirelessSerialPorts());
 		final String xbeeComPort = UGateKeeper.DEFAULT.settingsGet(HostSettings.WIRELESS_COM_PORT, null);
 		final boolean hasItem = xbeeComPort != null && xbeeComPort.length() > 0 && port.choice.getItems().contains(xbeeComPort);
 		if (hasItem) {

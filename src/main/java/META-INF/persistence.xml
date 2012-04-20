@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!-- Maven filtered from src/main/config/persistence -->
+<!-- ##################################################################### 
+	Maven filtered from src/main/config/persistence ............................. 
+	DO NOT EDIT IN ANY OTHER DIRECTORY OR IT WILL BE OVERWRITTEN!!!!!!!!!!!!!!! 
+	############################## -->
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+	version="2.0">
+	<persistence-unit name="ugate" transaction-type="RESOURCE_LOCAL">
+		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+		<class>org.ugate.service.entity.jpa.Message</class>
+		<properties>
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/>
+			<property name="openjpa.ConnectionURL" value="jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=1" />
+			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" />
+			<property name="openjpa.ConnectionUserName" value="sa" />
+			<property name="openjpa.ConnectionPassword" value="sa" />
+			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.UGateJdbcListener"/>
+			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO"/>
+		</properties>
+	</persistence-unit>
+</persistence>

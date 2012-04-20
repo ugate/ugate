@@ -7,7 +7,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -23,7 +27,9 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.ugate.resources.RS;
 
 /**
  * {@linkplain StorageFile}s are used to store simple key/value pair data to disk. The file approach is taken
@@ -32,15 +38,27 @@ import org.apache.log4j.Logger;
  */
 public class StorageFile {
 
-	private static final Logger log = Logger.getLogger(StorageFile.class);
+	private static final Logger log = LoggerFactory.getLogger(StorageFile.class);
+	public static final String PACKAGE_CHECK_EXTENSION = ".jar!";
 	public static final String FILE_EXTENSION = ".properties";
 	public static final String ENCRYPTION_TYPE = "AES";
 	public static final String ENCRYPTION_POSTFIX = ".encrypted";
-	private final Properties properties;
-	private final String filePath;
+	private Properties properties;
+	private Path filePath;
 	private SecretKeySpec skeySpec;
+	private boolean fromCopy = false;
+	private boolean wasCreated = false;
 	private boolean isLoaded = false;
-	private String absoluteFilePath;
+	
+	/**
+	 * {@linkplain StorageFile} that can be used to store simple key/value pairs (generated when non-existent)
+	 * 
+	 * @param filePath the file {@linkplain Path} (without a file extension)
+	 * @param copyFromFilePathIfNotExists the {@linkplain Path} to copy the storage file from when it doesn't exist
+	 */
+	public StorageFile(final Path filePath, final Path copyFromFilePathIfNotExists) {
+		this(filePath, true, copyFromFilePathIfNotExists);
+	}
 
 	/**
 	 * {@linkplain StorageFile} that can be used to store simple key/value pairs (generated when non-existent)
@@ -48,22 +66,45 @@ public class StorageFile {
 	 * @param filePath the file path (without a file extension)
 	 * @param createIfNotExists true to create the storage file when it doesn't exist
 	 */
-	public StorageFile(final String filePath, final boolean createIfNotExists) {
-		this.filePath = filePath + (filePath.indexOf(FILE_EXTENSION) > -1 ? "" : FILE_EXTENSION);
+	public StorageFile(final Path filePath, final boolean createIfNotExists) {
+		this(filePath, createIfNotExists, null);
+	}
+	
+	/**
+	 * {@linkplain StorageFile} that can be used to store simple key/value pairs (generated when non-existent)
+	 * 
+	 * @param filePath the file path (without a file extension)
+	 * @param createIfNotExists true to create the storage file when it doesn't exist
+	 * @param copyFromFilePathIfNotExists the path to copy the storage file from when it doesn't exist
+	 */
+	protected StorageFile(final Path filePath, final boolean createIfNotExists, 
+			final Path copyFromFilePathIfNotExists) {
+		this.filePath = pathWithExt(filePath);
 		this.properties = new Properties();
 		try {
-			final File file = new File(this.filePath);
-			this.absoluteFilePath = file.getAbsolutePath();
-			if (!file.exists() && file.canWrite() && createIfNotExists) {
-				file.createNewFile();
+			final File file = this.filePath.toFile();
+			if (!file.exists() && createIfNotExists) {
+				//file.canWrite()
+				if (copyFromFilePathIfNotExists != null && !copyFromFilePathIfNotExists.toAbsolutePath().toString().isEmpty()) {
+					if (copy(copyFromFilePathIfNotExists, this.filePath)) {
+						wasCreated = true;
+					} else {
+						return;
+					}
+				} else {
+					file.createNewFile();
+					log.info(String.format("Created new %1$s in %2$s", 
+							StorageFile.class.getSimpleName(), this.filePath));
+					wasCreated = true;
+				}
 			}
-			this.properties.load(new FileInputStream(this.filePath));
+			this.properties.load(new FileInputStream(file));
 			this.isLoaded = true;
 			initEncryption();
 		} catch (final FileNotFoundException e) {
 			if (!createIfNotExists) {
 				log.debug(String.format("Unable to find %1$s: %2$s", StorageFile.class.getSimpleName(), 
-						this.filePath));
+						this.filePath), e);
 				return;
 			}
 			create(this.filePath);
@@ -75,43 +116,98 @@ public class StorageFile {
 	/**
 	 * Creates a copy of the current {@linkplain StorageFile} at the specified path
 	 * 
-	 * @param filePath the path to the new/existing file copy (without a file extension)
+	 * @param toFilePath the path to the new/existing file copy (without a file extension)
 	 * @return a copy of the {@linkplain StorageFile} located at the specified path
 	 */
-	public StorageFile createCopy(final String filePath) {
-		if (filePath != null && !filePath.isEmpty()) {
-			final String cp = filePath + (filePath.indexOf(FILE_EXTENSION) > -1 ? "" : FILE_EXTENSION);
-			FileChannel in = null;
-			FileChannel out = null;
+	public StorageFile createCopy(final Path toFilePath) {
+		if (copy(getFilePath(), toFilePath)) {
+			final StorageFile copy = new StorageFile(toFilePath, false);
+			copy.fromCopy = true;
+			return copy;
+		}
+		return null;
+	}
+	
+	/**
+	 * Creates a copy of the current {@linkplain StorageFile} at the specified path
+	 * 
+	 * @param toFilePath the path to the new/existing file copy (without a file extension)
+	 * @return a copy of the {@linkplain StorageFile} located at the specified path
+	 */
+	protected static boolean copy(final Path fromFilePath, final Path toFilePath) {
+		boolean success = false;
+		if (toFilePath != null && !toFilePath.toString().isEmpty()) {
+			final Path toPath = pathWithExt(toFilePath);
+			InputStream in = null;
+			File fileCopy = null;
 			try {
-				final File fileCopy = new File(cp);
+				fileCopy = toPath.toFile();
 				if (!fileCopy.exists()) {
 					fileCopy.createNewFile();
 				}
-				in = new FileInputStream(getAbsoluteFilePath()).getChannel();
-				out = new FileOutputStream(cp).getChannel();
-				out.transferFrom(in, 0, in.size());
+				//final int pckIndex = fromFilePath.toAbsolutePath().toString().toLowerCase().indexOf(PACKAGE_CHECK_EXTENSION);
+				Path fromPath = fromFilePath; // pckIndex > -1 ? null : fromFilePath;
+				if (fromPath == null) {
+					// when the from file is within a package we need to extract it to a temporary file
+					in = StorageFile.class.getResourceAsStream(
+							fromFilePath.toAbsolutePath().toString());
+					Files.copy(in, toPath, StandardCopyOption.REPLACE_EXISTING);
+				} else {
+					if (fromPath.getFileSystem().isOpen()) {
+						Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+					} else {
+						FileSystem fromFs = null;
+						try {
+							log.debug(String.format("Opening %1$s in order to copy to %2$s", fromPath.toAbsolutePath(), toPath));
+							fromFs = RS.applicationFileSystem();
+							fromPath = fromFs.getPath(fromPath.toString());
+							Files.copy(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING);
+						} finally {
+							if (fromFs != null) {
+								fromFs.close();
+							}
+						}
+					}
+					
+				}
+				success = true;
 			} catch (final IOException e) {
-				log.warn(String.format("Unable to create storage file %1$s", cp), e);
+				log.warn(String.format("Unable to copy file from %1$s to %2$s", fromFilePath, toPath), e);
 			} finally {
+				// TODO : can move to java 7 try block, but IDE may not like
 				if (in != null) {
 					try {
 						in.close();
+						log.info(String.format("Copied file from %1$s to %2$s", fromFilePath, toPath));
 					} catch (final IOException e) {
-						log.error(String.format("Unable to close storage file %1$s", getAbsoluteFilePath()), e);
-					}
-				}
-				if (out != null) {
-					try {
-						out.close();
-						return new StorageFile(filePath, false);
-					} catch (final IOException e) {
-						log.error(String.format("Unable to load storage file %1$s", cp), e);
+						log.error(String.format("Unable to close storage file %1$s", fromFilePath), e);
 					}
 				}
 			}
 		}
-		return null;
+		return success;
+	}
+	
+	/**
+	 * Ensures the specified {@linkplain Path} has the required {@linkplain #FILE_EXTENSION}
+	 * 
+	 * @param path the {@linkplain Path} to check
+	 * @return the {@linkplain Path} with the required {@linkplain #FILE_EXTENSION}
+	 */
+	protected static Path pathWithExt(final Path path) {
+		if (path.getFileName().toString().indexOf(FILE_EXTENSION) > -1) {
+			return path;
+		}
+		FileSystem fs = null;
+		try {
+			fs = path.getFileSystem();
+			return fs.getPath(path.toAbsolutePath() + FILE_EXTENSION).toAbsolutePath();
+		} finally {
+			try {
+				fs.close();
+			} catch (final Exception e) {
+			}
+		}
 	}
 	
 	/**
@@ -121,11 +217,11 @@ public class StorageFile {
 	 */
 	public boolean dispose() {
 		try {
-			new File(absoluteFilePath).delete();
+			this.filePath.toFile().delete();
 			return true;
 		} catch (final Throwable t) {
 			log.error(String.format("Unable to delete %1$s: %2$s", StorageFile.class.getSimpleName(), 
-					absoluteFilePath), t);
+					this.filePath.toAbsolutePath().toString()), t);
 		}
 		return false;
 	}
@@ -142,7 +238,7 @@ public class StorageFile {
 			final byte[] raw = skey.getEncoded();
 			this.skeySpec = new SecretKeySpec(raw, ENCRYPTION_TYPE);
 		} catch (final NoSuchAlgorithmException e) {
-			log.warn(e);
+			log.warn("Encryption failed", e);
 		}
 	}
 	
@@ -151,10 +247,10 @@ public class StorageFile {
 	 * 
 	 * @param filePath the file path to write to
 	 */
-	private void create(final String filePath) {
+	private void create(final Path filePath) {
         BufferedWriter out = null;
 		try {
-			out = new BufferedWriter(new FileWriter(filePath));
+			out = new BufferedWriter(new FileWriter(filePath.toFile()));
 	        out.write("");
 		} catch (final IOException e2) {
 			throw new RuntimeException(String.format("Unable to create storage file %1$s", filePath), e2);
@@ -162,7 +258,7 @@ public class StorageFile {
 			if (out != null) {
 				try {
 					out.close();
-					this.properties.load(new FileInputStream(filePath));
+					this.properties.load(new FileInputStream(filePath.toFile()));
 					this.isLoaded = true;
 				} catch (final IOException e3) {
 					log.error(String.format("Unable to load storage file %1$s", filePath), e3);
@@ -176,6 +272,20 @@ public class StorageFile {
 	 */
 	public boolean isLoaded() {
 		return this.isLoaded;
+	}
+	
+	/**
+	 * @return true when the {@linkplain File} was created on initialization of the {@linkplain StorageFile}
+	 */
+	public boolean wasCreated() {
+		return wasCreated;
+	}
+	
+	/**
+	 * @return true when the {@linkplain StorageFile} was created from another {@linkplain StorageFile}
+	 */
+	public boolean fromCopy() {
+		return fromCopy;
 	}
 	
 	/**
@@ -250,7 +360,7 @@ public class StorageFile {
 				}
 			}
 			properties.setProperty(key, value);
-			properties.store(new FileOutputStream(filePath), null);
+			properties.store(new FileOutputStream(this.filePath.toFile()), null);
 		} catch (IOException e) {
 			log.error("Unable to save storage file", e);
 		}
@@ -294,16 +404,9 @@ public class StorageFile {
 	}
 
 	/**
-	 * @return the file path of the {@linkplain StorageFile}
+	 * @return the file {@linkplain Path} of the {@linkplain StorageFile}
 	 */
-	public String getFilePath() {
+	public Path getFilePath() {
 		return filePath;
-	}
-
-	/**
-	 * @return the absolute file path of the {@linkplain StorageFile}
-	 */
-	public String getAbsoluteFilePath() {
-		return absoluteFilePath;
 	}
 }

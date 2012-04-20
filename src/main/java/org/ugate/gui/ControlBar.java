@@ -28,7 +28,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.RemoteSettings;
@@ -49,7 +50,7 @@ public class ControlBar extends ToolBar {
 	private final Label helpText;
 	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
 	
-	private static final Logger log = Logger.getLogger(ControlBar.class);
+	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
 	public static final Color ATTENTION_COLOR = Color.YELLOW;
 	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
 	public static final double CHILD_SPACING = 10d;

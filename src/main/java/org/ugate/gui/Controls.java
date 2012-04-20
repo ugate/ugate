@@ -15,7 +15,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.resources.RS;
 import org.w3c.dom.Element;
 
@@ -24,7 +25,7 @@ import org.w3c.dom.Element;
  */
 public class Controls extends TabPane {
 
-	private static final Logger log = Logger.getLogger(Controls.class);
+	private static final Logger log = LoggerFactory.getLogger(Controls.class);
 	protected static final String NAVIGATE_JS = "nav";
 
 	/**

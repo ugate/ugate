@@ -9,7 +9,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.HostSettings;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
@@ -22,7 +23,7 @@ import org.ugate.resources.RS;
  */
 public class EmailHostConnectionView extends StatusView {
 	
-	private static final Logger log = Logger.getLogger(EmailHostConnectionView.class);
+	private static final Logger log = LoggerFactory.getLogger(EmailHostConnectionView.class);
 	public final UGateTextFieldPreferenceView smtpHost;
 	public final UGateTextFieldPreferenceView smtpPort;
 	public final UGateTextFieldPreferenceView imapHost;

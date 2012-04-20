@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 
@@ -18,7 +21,7 @@ import org.ugate.UGateUtil;
  */
 public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> {
 	
-	private static final Logger log = Logger.getLogger(RxTxImage.class);
+	private static final Logger log = LoggerFactory.getLogger(RxTxImage.class);
 	private Calendar endTime = null;
 	
 	/**
@@ -74,13 +77,13 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	}
 	
 	/**
-	 * @return the file path/name to where the image will/has been written
+	 * @return the file {@linkplain Path} to where the image will/has been written
 	 */
-	public String getImagePath() {
+	public Path getImagePath() {
 		//return "C:\\ugate\\" + UGateUtil.calFormat(getCreated()).replaceAll(":", "-") + '.' + getImageExtension();
 		final String imgFileName = getCreatedTimeString().replaceAll(":", "-") + '.' + getImageExtension();
-		final String imgRootPath = UGateKeeper.DEFAULT.wirelessWorkingDirectory(getNodeIndex());
-		return imgRootPath + imgFileName;
+		final Path imgRootPath = UGateKeeper.DEFAULT.wirelessWorkingDirectory(getNodeIndex());
+		return Paths.get(imgRootPath.toAbsolutePath().toString(), imgFileName);
 	}
 
 	/**
@@ -114,7 +117,7 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 		}
 		try {
 			final ByteBuffer byteBuffer = getBytes();
-			final String filePath = getImagePath();
+			final Path filePath = getImagePath();
 			writeImage(byteBuffer.array(), filePath);
 			endTime = Calendar.getInstance();
 			if (log.isInfoEnabled()) {
@@ -140,11 +143,11 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	 * Writes the image to file
 	 * 
 	 * @param bytes the image bytes
-	 * @param filePath the file path/name
+	 * @param filePath the file {@linkplain Path}
 	 * @throws IOException any {@linkplain IOException} that may occur
 	 */
-	protected void writeImage(final byte[] bytes, final String filePath) throws IOException {
-		final File imageFile = new File(filePath);
+	protected void writeImage(final byte[] bytes, final Path filePath) throws IOException {
+		final File imageFile = filePath.toFile();
 		if (!imageFile.exists()) {
 			imageFile.createNewFile();
 		}

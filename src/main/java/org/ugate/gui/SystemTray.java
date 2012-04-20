@@ -25,7 +25,8 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
@@ -37,7 +38,7 @@ import org.ugate.resources.RS;
  */
 public class SystemTray extends Service<Void> {
 
-	private static final Logger log = Logger.getLogger(SystemTray.class);
+	private static final Logger log = LoggerFactory.getLogger(SystemTray.class);
 	private static SystemTray systemTray;
 	public static final double NOTIFY_WINDOW_WIDTH = 350d;
 	public static final double NOTIFY_WINDOW_HEIGHT = 100d;

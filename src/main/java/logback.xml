@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Maven filtered from src/main/config/filter -->
+<!-- ##################################################################### 
+	Maven filtered from src/main/config/filter ............................. 
+	DO NOT EDIT IN ANY OTHER DIRECTORY OR IT WILL BE OVERWRITTEN!!!!!!!!!!!!!!! 
+	############################## -->
+<configuration scan="false" scanPeriod="30 seconds">
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %level [%thread] [%logger{10}:%line] %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="MSGOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>===> %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${user.home}/ugate-1.0.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>ugate-1.0.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>3</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>5MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	<logger name="com.rapplogic" level="WARN"/>
+	<logger name="org.rxtx" level="WARN"/>
+	<logger name="org.ugate.UGateUtil" additivity="false">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="MSGOUT" />
+	</logger>
+	<!-- default logging -->
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>

@@ -1,13 +1,14 @@
 package org.ugate.wireless.data;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Sensor readings
  */
 public class RxTxSensorReadings extends RxData  {
 	
-	private static final Logger log = Logger.getLogger(RxTxSensorReadings.class);
+	private static final Logger log = LoggerFactory.getLogger(RxTxSensorReadings.class);
 	private final int sonarFeet;
 	private final int sonarInches;
 	private final int microwaveCycleCnt;
