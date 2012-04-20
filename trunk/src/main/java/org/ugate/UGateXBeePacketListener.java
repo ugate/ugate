@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.UGateKeeperEvent.Type;
 import org.ugate.resources.RS;
 import org.ugate.wireless.data.ImageCapture;
@@ -14,8 +15,8 @@ import org.ugate.wireless.data.RxData.Status;
 import org.ugate.wireless.data.RxRawData;
 import org.ugate.wireless.data.RxTxImage;
 import org.ugate.wireless.data.RxTxJPEG;
-import org.ugate.wireless.data.RxTxSensorReadings;
 import org.ugate.wireless.data.RxTxRemoteSettingsData;
+import org.ugate.wireless.data.RxTxSensorReadings;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -29,7 +30,7 @@ import com.rapplogic.xbee.util.ByteUtils;
  */
 public abstract class UGateXBeePacketListener implements PacketListener {
 
-	private static final Logger log = Logger.getLogger(UGateXBeePacketListener.class);
+	private static final Logger log = LoggerFactory.getLogger(UGateXBeePacketListener.class);
 	/**
 	 * The index of the image start byte
 	 */

@@ -1,17 +1,16 @@
 package org.ugate;
 
-import gnu.io.CommPortIdentifier;
-
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
@@ -36,10 +35,7 @@ import com.rapplogic.xbee.api.wpan.TxStatusResponse;
 public enum UGateKeeper {
 	
 	DEFAULT;
-
-	private static final String WIRELESS_HOST_SETTINGS_FILE = "host";
-	private static final String WIRELESS_PREFERENCE_FILE_PREFIX = "remote-node-";
-	private static final String WIRELESS_PREFERENCE_HISTORY_FILE = "history";
+	
 	private final Logger log;
 	private final List<IGateKeeperListener> listeners = new ArrayList<IGateKeeperListener>();
 	private final XBee xbee;
@@ -51,10 +47,15 @@ public enum UGateKeeper {
 	private int wirelessNextRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 	
 	private UGateKeeper() {
-		log = Logger.getLogger(UGateKeeper.class);
-		hostSettings = new StorageFile(WIRELESS_HOST_SETTINGS_FILE, true);
-		wirelessInitRemoteNodeStorage();
+		log = LoggerFactory.getLogger(UGateKeeper.class);
+		log.info("Iniitializing the gate keeper...");
+		final Path hostPropPath = RS.hostPropertiesFilePath();
+		final Path hostCpyFrmPropPath = RS.hostDefaultPropertiesPath();
+		log.info(String.format("Loading %1$s (copies from %2$s when not present)", hostPropPath, hostCpyFrmPropPath));
+		hostSettings = new StorageFile(hostPropPath, hostCpyFrmPropPath);
+		wirelessInit();
 		xbee = new XBee();
+		log.info("...iniitialized the gate keeper");
 	}
 	
 	/**
@@ -334,44 +335,13 @@ public enum UGateKeeper {
 	public boolean emailIsConnected() {
 		return isEmailConnected;
 	}
-
-	/* ======= Serial Ports ======= */
-	
-	/**
-	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
-	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
-	 * {@link #connect(String)} or {@link #connect(String, int)} to open a Serial connection.
-	 * 
-	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
-	 */
-	@SuppressWarnings("unchecked")
-	public List<String> getSerialPorts() {
-		log.debug("Loading available COM ports");
-		Enumeration<CommPortIdentifier> portList;
-		List<String> ports = new ArrayList<String>();
-		portList = CommPortIdentifier.getPortIdentifiers();
-		CommPortIdentifier portId;
-		while (portList.hasMoreElements()) {
-			portId = portList.nextElement();
-			if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-				ports.add(portId.getName());
-			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("Found the following ports:");
-			for (int i = 0; i < ports.size(); i++) {
-				log.debug("   " + ports.get(i));
-			}
-		}
-		return ports;
-	}
 	
 	/* ======= Wireless Communications ======= */
 	
 	/**
 	 * Connects to the wireless network
 	 * 
-	 * @param comPort the COM port to connect to {@link #getSerialPorts()}
+	 * @param comPort the COM port to connect to {@link #wirelessSerialPorts()}
 	 * @param baudRate the baud rate to connect at (if applicable)
 	 * @return true when on successful connection
 	 */
@@ -471,7 +441,7 @@ public enum UGateKeeper {
 	 * @param nodeIndex the node index
 	 * @return the path
 	 */
-	public String wirelessWorkingDirectory(final int nodeIndex) {
+	public Path wirelessWorkingDirectory(final int nodeIndex) {
 		if (!remoteNodes.containsKey(nodeIndex)) {
 			return null;
 		}
@@ -486,23 +456,13 @@ public enum UGateKeeper {
 	 * @param nodeIndex the node index
 	 * @return the path
 	 */
-	private String wirelessWorkingDirectory(final StorageFile storageFile, final int nodeIndex) {
+	private Path wirelessWorkingDirectory(final StorageFile storageFile, final int nodeIndex) {
 		String workingDir = storageFile.get(RemoteSettings.WIRELESS_WORKING_DIR_PATH.getKey());
-		workingDir += workingDir.charAt(workingDir.length() - 1) != '/' ? "/" + nodeIndex + '/' : nodeIndex + "/";
-		final File filePath = new File(workingDir);
-		if (!filePath.exists()) {
-			try {
-				filePath.mkdirs();
-			} catch (final Exception e) {
-				log.warn("Unable to initialize the working directory path at: " + workingDir, e);
-				return null;
-			}
-		} else if(!filePath.isDirectory() || !filePath.canWrite()) {
-			log.error(String.format("The %1$s path %2$s must be an accessible/writable directory", 
-					RemoteSettings.WIRELESS_WORKING_DIR_PATH, filePath));
-			return null;
+		if (workingDir == null || workingDir.isEmpty()) {
+			throw new NullPointerException(String.format("%1$s is null for remote node %2$s", 
+					RemoteSettings.WIRELESS_WORKING_DIR_PATH, nodeIndex));
 		}
-		return workingDir;
+		return RS.workingDirectoryPath(Paths.get(workingDir, String.valueOf(nodeIndex)), null);
 	}
 
 	/**
@@ -856,7 +816,7 @@ public enum UGateKeeper {
 			final boolean noAdd = remoteNodes.containsKey(newAdjNodeIndex);
 			if (noAdd) {
 				rn = remoteNodes.get(newAdjNodeIndex);
-			} else if ((rn = addRemoteNode(newAdjNodeIndex, oldIndex, true)) == null) {
+			} else if ((rn = addRemoteNode(newAdjNodeIndex, oldIndex, true, null)) == null) {
 				this.wirelessCurrentRemoteNodeIndex = oldIndex;
 				throw new NullPointerException(String.format("Unable to set new remote node from index %1$s to %2$s", 
 						oldIndex, newAdjNodeIndex));
@@ -879,16 +839,31 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * Initializes all of the existing remote wireless node settings/preferences
+	 * Performs the required wireless initialization
 	 */
-	private void wirelessInitRemoteNodeStorage() {
+	private void wirelessInit() {
+		// ensure that the needed RXTX is installed (if not install it)
+		RS.initComm();
+		// initialize all of the existing remote wireless node settings/preferences
 		int i = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 		RemoteNode sfs = null;
 		do {
 			// should always have at least one remote node- thus the create clause
-			sfs = addRemoteNode(i, null, i == RemoteSettings.WIRELESS_ADDRESS_START_INDEX);
+			sfs = addRemoteNode(i, null, i == RemoteSettings.WIRELESS_ADDRESS_START_INDEX, 
+					i == RemoteSettings.WIRELESS_ADDRESS_START_INDEX ? RS.remoteDefaultPropertiesPath() : null);
 			i++;
 		} while (sfs != null);
+	}
+	
+	/**
+	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
+	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
+	 * {@link #connect(String)} or {@link #connect(String, int)} to open a Serial connection.
+	 * 
+	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
+	 */
+	public List<String> wirelessSerialPorts() {
+		return RS.getSerialPorts();
 	}
 	
 	/**
@@ -899,9 +874,12 @@ public enum UGateKeeper {
 	 * 		from (null when a copy should not be made)
 	 * @param createIfNotExists true to create the {@linkplain RemoteNode#settings} when it doesn't already exist 
 	 * 		(not applicable when copying)
+	 * @param copyFromFilePathIfNotExists the path to copy the storage file from when it doesn't exist
+	 * 		(not applicable when copying from index)
 	 * @return the added node (when successful)
 	 */
-	private RemoteNode addRemoteNode(final int nodeIndex, final Integer copyFromIndex, final boolean createIfNotExists) {
+	private RemoteNode addRemoteNode(final int nodeIndex, final Integer copyFromIndex, final boolean createIfNotExists,
+			final Path copyFromFilePathIfNotExists) {
 		StorageFile sf;
 		if (copyFromIndex == null) {
 			if (remoteNodes.containsKey(nodeIndex)) {
@@ -909,21 +887,26 @@ public enum UGateKeeper {
 						RemoteNode.class.getSimpleName(), nodeIndex));
 				return null;
 			}
-			sf = new StorageFile(WIRELESS_PREFERENCE_FILE_PREFIX + nodeIndex, createIfNotExists);
+			if (copyFromFilePathIfNotExists != null && !copyFromFilePathIfNotExists.toAbsolutePath().toString().isEmpty()) {
+				sf = new StorageFile(RS.remotePropertiesFilePath(nodeIndex), copyFromFilePathIfNotExists);
+			} else {
+				sf = new StorageFile(RS.remotePropertiesFilePath(nodeIndex), createIfNotExists);
+			}
 		} else {
 			if (!remoteNodes.containsKey(copyFromIndex)) {
 				log.warn(String.format("No %1$s exists to copy from at remote node index %2$s", 
 						RemoteNode.class.getSimpleName(), copyFromIndex));
 				return null;
 			}
-			sf = remoteNodes.get(copyFromIndex).settings.createCopy(WIRELESS_PREFERENCE_FILE_PREFIX + nodeIndex);
+			sf = remoteNodes.get(copyFromIndex).settings.createCopy(Paths.get(RS.remotePropertiesFileName(nodeIndex)));
 		}
 		if (!sf.isLoaded()) {
 			return null;
 		}
-		final String workingDir = wirelessWorkingDirectory(sf, nodeIndex);
+		final Path workingDir = wirelessWorkingDirectory(sf, nodeIndex);
 		if (workingDir != null) {
-			final StorageFile hs = new StorageFile(workingDir + WIRELESS_PREFERENCE_HISTORY_FILE, true);
+			final StorageFile hs = new StorageFile(Paths.get(workingDir.toAbsolutePath().toString(), 
+					RS.WIRELESS_PREFERENCE_HISTORY_FILE), true);
 			if (hs.isLoaded()) {
 				if (copyFromIndex != null) {
 					// the new node shouldn't have the same address as the one that it was copied from
@@ -932,8 +915,8 @@ public enum UGateKeeper {
 				final RemoteNode remoteNode = new RemoteNode(sf, hs);
 				remoteNodes.put(nodeIndex, remoteNode);
 				log.info(String.format("Loaded remote node settings storage at %1$s \nand history storage at %2$s", 
-						remoteNode.settings.getAbsoluteFilePath(), 
-						remoteNode.history.getAbsoluteFilePath()));
+						remoteNode.settings.getFilePath().toAbsolutePath().toString(), 
+						remoteNode.history.getFilePath().toAbsolutePath().toString()));
 				if ((nodeIndex + 1) > this.wirelessNextRemoteNodeIndex) {
 					this.wirelessNextRemoteNodeIndex = nodeIndex + 1;
 				}

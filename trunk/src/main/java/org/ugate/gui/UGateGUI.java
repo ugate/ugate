@@ -1,8 +1,9 @@
 package org.ugate.gui;
 
-import java.io.File;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -26,7 +27,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.InnerShadow;
@@ -41,16 +41,23 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import org.apache.log4j.Logger;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.IGateKeeperListener;
 import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
-import org.ugate.gui.components.TextAreaAppender;
 import org.ugate.resources.RS;
+import org.ugate.service.entity.jpa.Message;
 import org.ugate.wireless.data.ImageCapture;
 
 /**
@@ -58,7 +65,7 @@ import org.ugate.wireless.data.ImageCapture;
  */
 public class UGateGUI extends Application {
 
-	private static final Logger log = Logger.getLogger(UGateGUI.class);
+	private static final Logger log = LoggerFactory.getLogger(UGateGUI.class);
 
 	public static final double APPLICATION_WIDTH = 900d;
 	public static final double APPLICATION_HEIGHT = 800d;
@@ -87,7 +94,7 @@ public class UGateGUI extends Application {
 	 * Constructor
 	 */
 	public UGateGUI() {
-		TextAreaAppender.setTextArea(loggingView);
+		//TextAreaAppender.setTextArea(loggingView);
 	}
 
 	/**
@@ -112,9 +119,54 @@ public class UGateGUI extends Application {
 	@Override
 	public void init() {
 		log.debug("Iniitializing GUI...");
+		try {
+	        // Create a new EntityManagerFactory using the System properties.
+	        // The "hellojpa" name will be used to configure based on the
+	        // corresponding name in the META-INF/persistence.xml file
+	        EntityManagerFactory factory = Persistence.
+	            createEntityManagerFactory(RS.rbLabel("persistent.unit"), System.getProperties());
+
+	        // Create a new EntityManager from the EntityManagerFactory. The
+	        // EntityManager is the main object in the persistence API, and is
+	        // used to create, delete, and query objects, as well as access
+	        // the current transaction
+	        EntityManager em = factory.createEntityManager();
+
+	        // Begin a new local transaction so that we can persist a new entity
+	        em.getTransaction().begin();
+
+	        // Create and persist a new Message entity
+	        em.persist(new Message("Hello Persistence!"));
+
+	        // Commit the transaction, which will cause the entity to
+	        // be stored in the database
+	        em.getTransaction().commit();
+
+	        // It is always good practice to close the EntityManager so that
+	        // resources are conserved.
+	        em.close();
+
+	        // Create a fresh, new EntityManager
+	        EntityManager em2 = factory.createEntityManager();
+
+	        // Perform a simple query for all the Message entities
+	        Query q = em2.createQuery("select m from Message m");
+
+	        // Go through each of the entities and print out each of their
+	        // messages, as well as the date on which it was created 
+	        for (Message m : (List<Message>) q.getResultList()) {
+	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')'); 
+	        }
+
+	        // Again, it is always good to clean up after ourselves
+	        em2.close();
+	        factory.close();
+		} catch (Throwable t) {
+			log.error("JPA error: ", t);
+		}
 		//Text.setFontSmoothingType(FontSmoothingType.LCD);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -191,8 +243,8 @@ public class UGateGUI extends Application {
 						@Override
 						public void run() {
 							changeCenterView(
-									new DisplayShelf(new File(UGateKeeper.DEFAULT.wirelessWorkingDirectory(
-											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex())),
+									new DisplayShelf(UGateKeeper.DEFAULT.wirelessWorkingDirectory(
+											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()).toFile(),
 											350, 350, 0.25, 45, 80,
 											DisplayShelf.TOOLBAR_POSITION_TOP, 
 											RS.rbLabel("displayshelf.fullsize.tooltip")), 2);
@@ -282,6 +334,7 @@ public class UGateGUI extends Application {
 	@Override
 	public void stop() throws Exception {
 		log.info("Exiting application");
+		UGateUtil.PLAIN_LOGGER.info("====================================================================================================");
 		UGateKeeper.DEFAULT.exit();
 		SystemTray.exit();
 		Platform.exit();

@@ -8,11 +8,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * General utility
  */
 public class UGateUtil {
 	
+	public static final Logger PLAIN_LOGGER = LoggerFactory.getLogger(UGateUtil.class);
 	public static final String HELP_TEXT_DEFAULT_KEY = "help.text.default";
 	
 	/**
@@ -211,5 +215,54 @@ public class UGateUtil {
 		}
 		sb.append(']');
 		return sb.toString();
+	}
+	
+	/**
+	 * @return the operating system name
+	 */
+	public static String os() {
+		return System.getProperty("os.name").toLowerCase();
+	}
+
+	/**
+	 * @return true when the operating system is <code>Windows</code> based
+	 */
+	public static boolean isWindows() {
+		return os().indexOf("win") >= 0;
+	}
+
+	/**
+	 * @return true when the operating system is <code>Solaris</code> based
+	 */
+	public static boolean isSolaris() {
+		return os().indexOf("sunos") >= 0;
+	}
+
+	/**
+	 * @return true when the operating system is <code>Mac</code> based
+	 */
+	public static boolean isMac() {
+		return os().indexOf("mac") >= 0;
+	}
+
+	/**
+	 * @return true when the operating system is <code>Linux</code> based
+	 */
+	public static boolean isLinux() {
+		return os().indexOf("nux") >= 0;
+	}
+
+	/**
+	 * @return true when the operating system is <code>Unix</code> based
+	 */
+	public static boolean isUnix() {
+		return os().indexOf("nix") >= 0 || os().indexOf("nux") >= 0;
+	}
+	
+	/**
+	 * @return the processor bit
+	 */
+	public static int getBitness() {
+		return Integer.parseInt(System.getProperty("sun.arch.data.model"));
 	}
 }

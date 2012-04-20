@@ -30,7 +30,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.HostSettings;
 import org.ugate.UGateKeeper;
@@ -44,7 +45,7 @@ import com.sun.mail.imap.IMAPStore;
  */
 public class EmailAgent implements Runnable {
 
-	private static final Logger log = Logger.getLogger(EmailAgent.class);
+	private static final Logger log = LoggerFactory.getLogger(EmailAgent.class);
 	public static final Pattern SUBJECT_LINE_PATTERN = Pattern.compile("(?:\\[?(?:[Ff][Ww][Dd]?|[Rr][Ee])(?:\\s*[:;-]+\\s*\\]?))+");
 	public static final String DEFAULT_INBOX_FOLDER_NAME = "Inbox";
 	public static final String GMAIL_SMTP_HOST = "smtp.gmail.com";
