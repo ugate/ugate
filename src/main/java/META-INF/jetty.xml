@@ -13,12 +13,18 @@
 	<!-- Configure container scoped jndi resources -->
 	<!-- =========================================================== -->
 	<!-- Define an Atomikos transaction manager -->
-	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
-		<Arg>
-			<New class="com.atomikos.icatch.jta.UserTransactionImp" />
-			<!-- <New class="com.atomikos.icatch.jta.J2eeUserTransaction" /> -->
-		</Arg>
+	<New id="txMgr" class="com.atomikos.icatch.jta.UserTransactionManager">
+		<Call name="init" />
 	</New>
+	<Ref id='Server'>
+		<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
+			<Arg>
+				<!-- <New class="com.atomikos.icatch.jta.UserTransactionManager" /> -->
+				<New class="com.atomikos.icatch.jta.UserTransactionImp" />
+				<!-- <New class="com.atomikos.icatch.jta.J2eeUserTransaction" /> -->
+			</Arg>
+		</New>
+	</Ref>
 	<!-- JTA XADataSource -->
 	<New id="xaDataSource" class="org.eclipse.jetty.plus.jndi.Resource">
 		<Arg></Arg>

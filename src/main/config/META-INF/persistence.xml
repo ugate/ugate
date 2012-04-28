@@ -16,6 +16,9 @@
 <!-- 		<non-jta-data-source>jdbc/UGateDS</non-jta-data-source> -->
 		<class>${ugate.db.jpa.package}.Message</class>
 		<properties>
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+			<property name="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/>
+			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=${ugate.log.level}"/>
 			<property name="openjpa.ConnectionFactoryMode" value="managed" />
 			<property name="openjpa.TransactionMode" value="managed" />
 			<property name="openjpa.ManagedRuntime"

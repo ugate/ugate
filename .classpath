@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="C:/java/maven/repository/javax/servlet/javax.servlet-api/3.0.1/javax.servlet-api-3.0.1.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-all/8.1.2.v20120308/jetty-all-8.1.2.v20120308.jar" sourcepath="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-all/8.1.2.v20120308/jetty-all-8.1.2.v20120308-sources.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/com/atomikos/transactions-jdbc/3.7.1/transactions-jdbc-3.7.1.jar"/>
+	<classpathentry kind="lib" path="C:/java/maven/repository/javax/transaction/jta/1.1/jta-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

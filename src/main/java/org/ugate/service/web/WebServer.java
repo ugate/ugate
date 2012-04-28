@@ -1,6 +1,7 @@
 package org.ugate.service.web;
 
-import java.nio.file.Paths;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -9,6 +10,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.resources.RS;
 
 //import org.eclipse.jetty.server.Connector;
 //import org.eclipse.jetty.server.Server;
@@ -19,8 +21,23 @@ import org.slf4j.LoggerFactory;
 public class WebServer {
 
 	private static final Logger log = LoggerFactory.getLogger(WebServer.class);
+	private static EntityManagerFactory factory;
 	private static Server server;
 //	private static Tomcat server;
+	
+	/**
+	 * Starts the web server
+	 */
+	public static final void start() {
+		final Thread webServerAgent = new Thread(Thread.currentThread().getThreadGroup(), new Runnable() {
+			@Override
+			public void run() {
+				WebServer.startServer();
+			}
+		}, WebServer.class.getSimpleName());
+		webServerAgent.setDaemon(true);
+		webServerAgent.start();
+	}
 
 	/**
 	 * Starts the web server
@@ -45,27 +62,19 @@ public class WebServer {
 	 * </ol>
 	 * </p>
 	 */
-	public static final void start() {
+	protected static final void startServer() {
 		try {
-			String jtaService = System.getProperty("com.atomikos.icatch.service");
-			System.setProperty("com.atomikos.icatch.service", "com.atomikos.icatch.standalone.UserTransactionServiceFactory");
-			System.setProperty("com.atomikos.icatch.file", 
-					Paths.get(WebServer.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toAbsolutePath().toString());
-			jtaService = System.getProperty("com.atomikos.icatch.service");
-			log.info(jtaService + " path: " + System.getProperty("com.atomikos.icatch.file"));
-			
 			final Resource serverXml = Resource.newSystemResource("META-INF/jetty.xml");
 			final XmlConfiguration configuration = new XmlConfiguration(serverXml.getInputStream());
 			server = (Server) configuration.configure();
 			// set the connector based upon user settings
 			final SelectChannelConnector defaultConnnector = new SelectChannelConnector();
 			defaultConnnector.setPort(9080);
-			defaultConnnector.setMaxIdleTime(30000);
-			defaultConnnector.setRequestHeaderSize(8192);
 			server.setConnectors(new Connector[] { defaultConnnector });
 			server.setHandler(new DefaultHandler());
-			server.setStopAtShutdown(true);
+			server.setDumpAfterStart(true);
 			server.start();
+			getEmFactory();
 			server.join();
 			
 			// Tomcat currently doesn't allow for a self-contained executable JAR
@@ -119,15 +128,34 @@ public class WebServer {
 		}
 	}
 
+	/**
+	 * Stops the web server
+	 */
 	public static final void stop() {
+		try {
+			if (factory != null && factory.isOpen()) {
+				factory.close();
+			}
+			factory = null;
+		} catch (final Exception e) {
+			log.error("Unable to close " + EntityManagerFactory.class.getSimpleName(), e);
+		}
 		try {
 			if (server != null && !server.isStopped() && !server.isStopping()) {
 				server.stop();
 			}
 			server.destroy();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (final Exception e) {
+			log.error("Unable to shutdown", e);
 		}
+	}
+	
+	public static final EntityManagerFactory getEmFactory() {
+		if (factory == null || !factory.isOpen()) {
+			factory = Persistence.
+		            createEntityManagerFactory(RS.rbLabel("persistent.unit"), 
+		            		System.getProperties());
+		}
+		return factory;
 	}
 }
