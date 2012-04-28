@@ -3,7 +3,6 @@ package org.ugate.gui;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -41,11 +40,6 @@ import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.IGateKeeperListener;
@@ -57,7 +51,7 @@ import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
-import org.ugate.service.entity.jpa.Message;
+import org.ugate.service.web.WebServer;
 import org.ugate.wireless.data.ImageCapture;
 
 /**
@@ -119,51 +113,6 @@ public class UGateGUI extends Application {
 	@Override
 	public void init() {
 		log.debug("Iniitializing GUI...");
-		try {
-	        // Create a new EntityManagerFactory using the System properties.
-	        // The "hellojpa" name will be used to configure based on the
-	        // corresponding name in the META-INF/persistence.xml file
-	        EntityManagerFactory factory = Persistence.
-	            createEntityManagerFactory(RS.rbLabel("persistent.unit"), System.getProperties());
-
-	        // Create a new EntityManager from the EntityManagerFactory. The
-	        // EntityManager is the main object in the persistence API, and is
-	        // used to create, delete, and query objects, as well as access
-	        // the current transaction
-	        EntityManager em = factory.createEntityManager();
-
-	        // Begin a new local transaction so that we can persist a new entity
-	        em.getTransaction().begin();
-
-	        // Create and persist a new Message entity
-	        em.persist(new Message("Hello Persistence!"));
-
-	        // Commit the transaction, which will cause the entity to
-	        // be stored in the database
-	        em.getTransaction().commit();
-
-	        // It is always good practice to close the EntityManager so that
-	        // resources are conserved.
-	        em.close();
-
-	        // Create a fresh, new EntityManager
-	        EntityManager em2 = factory.createEntityManager();
-
-	        // Perform a simple query for all the Message entities
-	        Query q = em2.createQuery("select m from Message m");
-
-	        // Go through each of the entities and print out each of their
-	        // messages, as well as the date on which it was created 
-	        for (Message m : (List<Message>) q.getResultList()) {
-	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')'); 
-	        }
-
-	        // Again, it is always good to clean up after ourselves
-	        em2.close();
-	        factory.close();
-		} catch (Throwable t) {
-			log.error("JPA error: ", t);
-		}
 		//Text.setFontSmoothingType(FontSmoothingType.LCD);
 	}
 	
@@ -326,6 +275,14 @@ public class UGateGUI extends Application {
 			throw new RuntimeException("Unable to start GUI", t);
 		}
 		log.debug("GUI started");
+		final Thread webServerAgent = new Thread(Thread.currentThread().getThreadGroup(), new Runnable() {
+			@Override
+			public void run() {
+				WebServer.start();
+			}
+		}, WebServer.class.getSimpleName());
+		webServerAgent.setDaemon(true);
+		webServerAgent.start();
 	}
 	
 	/**
@@ -333,10 +290,11 @@ public class UGateGUI extends Application {
 	 */
 	@Override
 	public void stop() throws Exception {
-		log.info("Exiting application");
-		UGateUtil.PLAIN_LOGGER.info("====================================================================================================");
+		log.info("Exiting application...");
+		WebServer.stop();
 		UGateKeeper.DEFAULT.exit();
 		SystemTray.exit();
+		UGateUtil.PLAIN_LOGGER.info("=============================================Exit Complete=============================================");
 		Platform.exit();
 		//System.exit(0);
 	}

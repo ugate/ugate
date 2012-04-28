@@ -9,12 +9,12 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
 	version="2.0">
-	<persistence-unit name="ugate" transaction-type="JTA">
+	<persistence-unit name="${project.artifactId}" transaction-type="JTA">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
 		<!-- managed DataSource -->
-		<jta-data-source>jdbc/UGateDS</jta-data-source>
+		<jta-data-source>${ugate.db.jta.ds.name}</jta-data-source>
 <!-- 		<non-jta-data-source>jdbc/UGateDS</non-jta-data-source> -->
-		<class>org.ugate.service.entity.jpa.Message</class>
+		<class>${ugate.db.jpa.package}.Message</class>
 		<properties>
 			<property name="openjpa.ConnectionFactoryMode" value="managed" />
 			<property name="openjpa.TransactionMode" value="managed" />
@@ -24,12 +24,12 @@
 		<!-- use OpenJPA's built-in DataSource for unmanaged connections -->
 <!-- 		<properties> -->
 <!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/> -->
-<!-- 			<property name="openjpa.ConnectionURL" value="jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=1" /> -->
-<!-- 			<property name="openjpa.ConnectionDriverName" value="org.h2.Driver" /> -->
-<!-- 			<property name="openjpa.ConnectionUserName" value="sa" /> -->
-<!-- 			<property name="openjpa.ConnectionPassword" value="sa" /> -->
-<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.UGateJdbcListener"/> -->
-<!-- 			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO"/> -->
+<!-- 			<property name="openjpa.ConnectionURL" value="${ugate.db.connection.url}" /> -->
+<!-- 			<property name="openjpa.ConnectionDriverName" value="${ugate.db.driver.name}" /> -->
+<!-- 			<property name="openjpa.ConnectionUserName" value="${ugate.db.username}" /> -->
+<!-- 			<property name="openjpa.ConnectionPassword" value="${ugate.db.password}" /> -->
+<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/> -->
+<!-- 			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=${ugate.log.level}"/> -->
 <!-- 		</properties> -->
 	</persistence-unit>
 </persistence>
