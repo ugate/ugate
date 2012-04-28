@@ -14,6 +14,9 @@ public class UGateJdbcListener implements JDBCListener {
 
 	@Override
 	public void afterCommit(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.info("Commited " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override

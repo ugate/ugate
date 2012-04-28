@@ -51,7 +51,7 @@ import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
-import org.ugate.service.web.WebServer;
+import org.ugate.service.ServiceManager;
 import org.ugate.wireless.data.ImageCapture;
 
 /**
@@ -275,14 +275,7 @@ public class UGateGUI extends Application {
 			throw new RuntimeException("Unable to start GUI", t);
 		}
 		log.debug("GUI started");
-		final Thread webServerAgent = new Thread(Thread.currentThread().getThreadGroup(), new Runnable() {
-			@Override
-			public void run() {
-				WebServer.start();
-			}
-		}, WebServer.class.getSimpleName());
-		webServerAgent.setDaemon(true);
-		webServerAgent.start();
+		ServiceManager.startServices();
 	}
 	
 	/**
@@ -291,7 +284,7 @@ public class UGateGUI extends Application {
 	@Override
 	public void stop() throws Exception {
 		log.info("Exiting application...");
-		WebServer.stop();
+		ServiceManager.stopServices();
 		UGateKeeper.DEFAULT.exit();
 		SystemTray.exit();
 		UGateUtil.PLAIN_LOGGER.info("=============================================Exit Complete=============================================");
