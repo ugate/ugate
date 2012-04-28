@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0">
+	<display-name>${project.name}</display-name>
+<!-- 	<servlet> -->
+<!-- 		<servlet-name>DefaultServlet</servlet-name> -->
+<!-- 		<servlet-class>${ugate.web.package}.DefaultServlet</servlet-class> -->
+<!-- 		<init-param> -->
+<!-- 			<param-name>debug</param-name> -->
+<!-- 			<param-value>0</param-value> -->
+<!-- 		</init-param> -->
+<!-- 		<init-param> -->
+<!-- 			<param-name>listings</param-name> -->
+<!-- 			<param-value>false</param-value> -->
+<!-- 		</init-param> -->
+<!-- 		<load-on-startup>1</load-on-startup> -->
+<!-- 	</servlet> -->
+<!-- 	<servlet-mapping> -->
+<!-- 		<servlet-name>DefaultServlet</servlet-name> -->
+<!-- 		<url-pattern>/</url-pattern> -->
+<!-- 	</servlet-mapping> -->
+	<resource-ref>
+		<description>Application Database Resource</description>
+		<res-ref-name>${ugate.db.jta.ds.name}</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+<!-- 		<injection-target> -->
+<!-- 			<injection-target-class>com.acme.JNDITest</injection-target-class> -->
+<!-- 			<injection-target-name>myDatasource</injection-target-name> -->
+<!-- 		</injection-target> -->
+	</resource-ref>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Disable TRACE</web-resource-name>
+			<url-pattern>/</url-pattern>
+			<http-method>TRACE</http-method>
+		</web-resource-collection>
+		<auth-constraint />
+	</security-constraint>
+</web-app>
