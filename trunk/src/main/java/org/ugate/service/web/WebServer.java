@@ -29,6 +29,10 @@ public class WebServer {
 	 * Starts the web server
 	 */
 	public static final void start() {
+//		System.setProperty("java.naming.factory.url.pkgs", 
+//				org.eclipse.jetty.jndi.InitialContextFactory.class.getPackage().getName());
+//		System.setProperty("java.naming.factory.initial", 
+//				org.eclipse.jetty.jndi.InitialContextFactory.class.getName());
 		final Thread webServerAgent = new Thread(Thread.currentThread().getThreadGroup(), new Runnable() {
 			@Override
 			public void run() {

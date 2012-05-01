@@ -11,28 +11,27 @@
 	version="2.0">
 	<persistence-unit name="${project.artifactId}" transaction-type="JTA">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-		<!-- managed DataSource -->
 		<jta-data-source>${ugate.db.jta.ds.name}</jta-data-source>
-<!-- 		<non-jta-data-source>jdbc/UGateDS</non-jta-data-source> -->
+<!-- 		<non-jta-data-source>${ugate.db.jta.ds.name.unmanaged}</non-jta-data-source> -->
 		<class>${ugate.db.jpa.package}.Message</class>
 		<properties>
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
 			<property name="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/>
-			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=${ugate.log.level}"/>
+<!-- 			<property name="openjpa.DynamicEnhancementAgent" value="false"/> -->
+			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
+			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=${ugate.log.level}, SQL=WARN"/>
+
 			<property name="openjpa.ConnectionFactoryMode" value="managed" />
 			<property name="openjpa.TransactionMode" value="managed" />
 			<property name="openjpa.ManagedRuntime"
-				value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" />
+				value="jndi(TransactionManagerName=${ugate.db.jta.tx.manager.name})" />
+<!-- 			<property name="openjpa.ManagedRuntime" -->
+<!-- 				value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" /> -->
+		<!-- use OpenJPA's built-in DataSource for unmanaged connections (can use non-jta-data-source for JNDI lookup instead) -->
+<!-- 			<property name="openjpa.Connection2URL" value="${ugate.db.connection.url}" /> -->
+<!-- 			<property name="openjpa.Connection2DriverName" value="${ugate.db.driver.name}" /> -->
+<!-- 			<property name="openjpa.Connection2UserName" value="${ugate.db.username}" /> -->
+<!-- 			<property name="openjpa.Connection2Password" value="${ugate.db.password}" /> -->
 		</properties>
-		<!-- use OpenJPA's built-in DataSource for unmanaged connections -->
-<!-- 		<properties> -->
-<!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/> -->
-<!-- 			<property name="openjpa.ConnectionURL" value="${ugate.db.connection.url}" /> -->
-<!-- 			<property name="openjpa.ConnectionDriverName" value="${ugate.db.driver.name}" /> -->
-<!-- 			<property name="openjpa.ConnectionUserName" value="${ugate.db.username}" /> -->
-<!-- 			<property name="openjpa.ConnectionPassword" value="${ugate.db.password}" /> -->
-<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/> -->
-<!-- 			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=${ugate.log.level}"/> -->
-<!-- 		</properties> -->
 	</persistence-unit>
 </persistence>

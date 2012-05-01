@@ -1,80 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
-	<!-- Add a mapping from name in web.xml to the environment -->
-<!-- 	<New id="map1" class="org.eclipse.jetty.plus.jndi.Link"> -->
-<!-- 		<Arg> -->
-<!-- 			<Ref id='Server' /> -->
-<!-- 		</Arg> -->
-<!-- 		<Arg>${ugate.db.jta.ds.name}</Arg> -->
-<!-- 		<Arg>${ugate.db.jta.ds.name}</Arg> -->
-<!-- 	</New> -->
-	<!-- =========================================================== -->
-	<!-- Configure container scoped jndi resources -->
-	<!-- =========================================================== -->
-	<!-- Define an Atomikos transaction manager -->
-	<New id="txMgr" class="com.atomikos.icatch.jta.UserTransactionManager">
-		<Call name="init" />
-	</New>
-	<Ref id='Server'>
-		<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
-			<Arg>
-				<!-- <New class="com.atomikos.icatch.jta.UserTransactionManager" /> -->
-				<New class="com.atomikos.icatch.jta.UserTransactionImp" />
-				<!-- <New class="com.atomikos.icatch.jta.J2eeUserTransaction" /> -->
-			</Arg>
-		</New>
-	</Ref>
-	<!-- JTA XADataSource -->
-	<New id="xaDataSource" class="org.eclipse.jetty.plus.jndi.Resource">
-		<Arg></Arg>
-		<Arg>${ugate.db.jta.ds.name}</Arg>
-		<Arg>
-			<New id="atomikosDS" class="com.atomikos.jdbc.AtomikosDataSourceBean">
-				<Set name="minPoolSize">2</Set>
-				<Set name="maxPoolSize">50</Set>
-				<Set name="xaDataSourceClassName">${ugate.db.jta.ds.xa}</Set>
-				<Set name="UniqueResourceName">${ugate.db.jta.ds.name}</Set>
-				<Get name="xaProperties">
-					<Call name="setProperty">
-						<!-- Must be upper case -->
-						<Arg>URL</Arg>
-						<Arg>${ugate.db.connection.url}</Arg>
-					</Call>
-					<Call name="setProperty">
-						<Arg>user</Arg>
-						<Arg>${ugate.db.username}</Arg>
-					</Call>
-					<Call name="setProperty">
-						<Arg>password</Arg>
-						<Arg>${ugate.db.password}</Arg>
-					</Call>
-				</Get>
-			</New>
-		</Arg>
-	</New>
-	<Ref id='Server'>
-		<Call name="addBean">
-			<Arg>
-				<New class="org.eclipse.jetty.jndi.DataSourceCloser">
-					<Arg>
-						<Ref id="atomikosDS" />
-					</Arg>
-				</New>
-			</Arg>
-		</Call>
-	</Ref>
-	<!-- =========================================================== -->
-	<!-- Server Thread Pool -->
-	<!-- =========================================================== -->
-	<Set name="ThreadPool">
-		<!-- Default queued blocking threadpool -->
-		<New class="org.eclipse.jetty.util.thread.QueuedThreadPool">
-			<Set name="minThreads">10</Set>
-			<Set name="maxThreads">200</Set>
-			<Set name="detailedDump">false</Set>
-		</New>
-	</Set>
 	<!-- =========================================================== -->
 	<!-- Sequence of configurations to defining Plus features. -->
 	<!-- =========================================================== -->
@@ -98,6 +24,17 @@
 			<Ref id="plusConfig" />
 		</Arg>
 	</Call>
+	<!-- =========================================================== -->
+	<!-- Server Thread Pool -->
+	<!-- =========================================================== -->
+	<Set name="ThreadPool">
+		<!-- Default queued blocking threadpool -->
+		<New class="org.eclipse.jetty.util.thread.QueuedThreadPool">
+			<Set name="minThreads">10</Set>
+			<Set name="maxThreads">200</Set>
+			<Set name="detailedDump">false</Set>
+		</New>
+	</Set>
     <!-- =========================================================== -->
     <!-- extra options                                               -->
     <!-- =========================================================== -->
@@ -107,7 +44,101 @@
 	<Set name="gracefulShutdown">1000</Set>
 	<Set name="dumpAfterStart">false</Set>
 	<Set name="dumpBeforeStop">false</Set>
-
+	<!-- =========================================================== -->
+	<!-- Define a server aware DB XA connection data source -->
+	<!-- =========================================================== -->
+	<New id="xaDataSource" class="org.eclipse.jetty.plus.jndi.Resource">
+		<Arg></Arg>
+		<Arg>${ugate.db.jta.ds.name}</Arg>
+		<Arg>
+			<New id="atomikosDS" class="com.atomikos.jdbc.AtomikosDataSourceBean">
+				<Set name="minPoolSize">2</Set>
+				<Set name="maxPoolSize">50</Set>
+				<Set name="xaDataSourceClassName">${ugate.db.jta.ds.xa}</Set>
+				<Set name="UniqueResourceName">${ugate.db.jta.ds.name}</Set>
+				<Set name="testQuery">${ugate.db.test.query}</Set>
+				<Get name="xaProperties">
+					<Call name="setProperty">
+						<!-- Must be upper case -->
+						<Arg>URL</Arg>
+						<Arg>${ugate.db.connection.url}</Arg>
+					</Call>
+					<Call name="setProperty">
+						<Arg>user</Arg>
+						<Arg>${ugate.db.username}</Arg>
+					</Call>
+					<Call name="setProperty">
+						<Arg>password</Arg>
+						<Arg>${ugate.db.password}</Arg>
+					</Call>
+				</Get>
+			</New>
+		</Arg>
+	</New>
+	<!-- =========================================================== -->
+	<!-- Add a closer bean that will dispose of the DB DS -->
+	<!-- =========================================================== -->
+	<Ref id='Server'>
+		<Call name="addBean">
+			<Arg>
+				<New class="org.eclipse.jetty.jndi.DataSourceCloser">
+					<Arg>
+						<Ref id="atomikosDS" />
+					</Arg>
+				</New>
+			</Arg>
+		</Call>
+	</Ref>
+	<!-- =========================================================== -->
+	<!-- Add a mapping from name in web.xml to the environment -->
+	<!-- =========================================================== -->
+<!-- 	<New id="map1" class="org.eclipse.jetty.plus.jndi.Link"> -->
+<!-- 		<Arg> -->
+<!-- 			<Ref id='Server' /> -->
+<!-- 		</Arg> -->
+<!-- 		<Arg>jdbc/UGateDS</Arg> -->
+<!-- 		<Arg>jdbc/UGateDS</Arg> -->
+<!-- 	</New> -->
+	<!-- =========================================================== -->
+	<!-- Define an Atomikos transaction manager and initialize it -->
+	<!-- =========================================================== -->
+	<New id="txMgr" class="com.atomikos.icatch.jta.UserTransactionManager">
+		<Call name="init" />
+	</New>
+	<New id="txMgrResource" class="org.eclipse.jetty.plus.jndi.Resource">
+		<Arg></Arg>
+		<Arg>${ugate.db.jta.tx.manager.name}</Arg>
+		<Arg>
+			<Ref id="txMgr" />
+		</Arg>
+	</New>
+	<!-- =========================================================== -->
+	<!-- Define server transaction aware JTA implementation -->
+	<!-- Atomikos < 3.x uses com.atomikos.icatch.jta.J2eeUserTransaction -->
+	<!-- Use com.atomikos.icatch.jta.UserTransactionFactory ? -->
+	<!-- =========================================================== -->
+	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
+		<Arg>
+			<Ref id="txMgr">
+				<Get name="Transaction" />
+			</Ref>
+		</Arg>
+	</New>
+	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
+		<Arg>
+			<New class="com.atomikos.icatch.jta.UserTransactionImp" />
+		</Arg>
+	</New>
+<!-- 	<New id="txResource" class="org.eclipse.jetty.plus.jndi.Resource"> -->
+<!-- 		<Arg></Arg> -->
+<!-- 		<Arg>java:comp/env/UserTransaction</Arg> -->
+<!-- 		<Arg> -->
+<!-- 			<Ref id="tx" /> -->
+<!-- 		</Arg> -->
+<!-- 	</New> -->
+	<!-- =========================================================== -->
+	<!-- Web Application -->
+	<!-- =========================================================== -->
 <!-- 	<call name="addLifeCycle"> -->
 <!-- 		<arg> -->
 <!-- 			<new class="org.mortbay.jetty.deployer.WebAppDeployer"> -->
