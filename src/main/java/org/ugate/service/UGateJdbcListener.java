@@ -28,23 +28,29 @@ public class UGateJdbcListener implements JDBCListener {
 
 	@Override
 	public void afterCreateStatement(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Created statement: " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override
 	public void afterExecuteStatement(final JDBCEvent jdbcEvent) {
-		if (log.isDebugEnabled()) {
-			log.debug("Executing: " + jdbcEvent.getSQL());
+		if (log.isInfoEnabled()) {
+			log.debug("Executed statement: " + jdbcEvent.getSQL());
 		}
 	}
 
 	@Override
 	public void afterPrepareStatement(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Prepared statement: " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override
 	public void afterRollback(final JDBCEvent jdbcEvent) {
-		if (log.isDebugEnabled()) {
-			log.debug("Rolling back: " + jdbcEvent.getSQL());
+		if (log.isInfoEnabled()) {
+			log.debug("Rolled back: " + jdbcEvent.getSQL());
 		}
 	}
 
@@ -57,21 +63,36 @@ public class UGateJdbcListener implements JDBCListener {
 
 	@Override
 	public void beforeCommit(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Before commit: " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override
 	public void beforeCreateStatement(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Creating statement: " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override
 	public void beforeExecuteStatement(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Executing statement: " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override
 	public void beforePrepareStatement(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Preparing statement: " + jdbcEvent.getSQL());
+		}
 	}
 
 	@Override
 	public void beforeRollback(final JDBCEvent jdbcEvent) {
+		if (log.isInfoEnabled()) {
+			log.debug("Rolling back: " + jdbcEvent.getSQL());
+		}
 	}
 }
