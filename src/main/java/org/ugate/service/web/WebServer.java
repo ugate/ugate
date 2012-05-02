@@ -1,16 +1,23 @@
 package org.ugate.service.web;
 
+import java.util.EnumSet;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.servlet.DispatcherType;
 
+import org.eclipse.jetty.plus.servlet.ServletHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.resources.RS;
+import org.ugate.service.ServiceManager;
 
 //import org.eclipse.jetty.server.Connector;
 //import org.eclipse.jetty.server.Server;
@@ -21,26 +28,28 @@ import org.ugate.resources.RS;
 public class WebServer {
 
 	private static final Logger log = LoggerFactory.getLogger(WebServer.class);
-	private static EntityManagerFactory factory;
-	private static Server server;
+	private final int portNumber;
+	private Server server;
 //	private static Tomcat server;
+	
+	private WebServer(final int portNumber) {
+		this.portNumber = portNumber <=0 ? 80 : portNumber;
+	}
 	
 	/**
 	 * Starts the web server
 	 */
-	public static final void start() {
-//		System.setProperty("java.naming.factory.url.pkgs", 
-//				org.eclipse.jetty.jndi.InitialContextFactory.class.getPackage().getName());
-//		System.setProperty("java.naming.factory.initial", 
-//				org.eclipse.jetty.jndi.InitialContextFactory.class.getName());
+	public static final WebServer start(final int portNumber) {
+		final WebServer webServer = new WebServer(portNumber);
 		final Thread webServerAgent = new Thread(Thread.currentThread().getThreadGroup(), new Runnable() {
 			@Override
 			public void run() {
-				WebServer.startServer();
+				webServer.startServer();
 			}
-		}, WebServer.class.getSimpleName());
+		}, WebServer.class.getSimpleName() + '-' + System.currentTimeMillis());
 		webServerAgent.setDaemon(true);
 		webServerAgent.start();
+		return webServer;
 	}
 
 	/**
@@ -66,19 +75,26 @@ public class WebServer {
 	 * </ol>
 	 * </p>
 	 */
-	protected static final void startServer() {
+	protected final void startServer() {
 		try {
 			final Resource serverXml = Resource.newSystemResource("META-INF/jetty.xml");
 			final XmlConfiguration configuration = new XmlConfiguration(serverXml.getInputStream());
 			server = (Server) configuration.configure();
+			//server.addBean(new org.eclipse.jetty.plus.jndi.Transaction(ServiceManager.TM));
 			// set the connector based upon user settings
 			final SelectChannelConnector defaultConnnector = new SelectChannelConnector();
 			defaultConnnector.setPort(9080);
 			server.setConnectors(new Connector[] { defaultConnnector });
-			server.setHandler(new DefaultHandler());
+			
+			final EnumSet<DispatcherType> dispatchers = EnumSet.range(DispatcherType.FORWARD, DispatcherType.ERROR);
+			ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			context.setContextPath("/");
+			context.addFilter(TransactionFilter.class, "/*", dispatchers);
+			context.addServlet(DefaultAppServlet.class, "/");
+			server.setHandler(context);
+			
 			server.setDumpAfterStart(true);
 			server.start();
-			getEmFactory();
 			server.join();
 			
 			// Tomcat currently doesn't allow for a self-contained executable JAR
@@ -112,38 +128,32 @@ public class WebServer {
 //			rootContext.setDefaultContextXml(appBaseMetaInf.resolve("context.xml").toAbsolutePath().toString());
 //			
 //			Wrapper defaultServlet = rootContext.createWrapper();
-//			defaultServlet.setName(DefaultHandler.class.getSimpleName() + "-test");
-//			defaultServlet.setServletClass(DefaultHandler.class.toString());
+//			defaultServlet.setName(DefaultAppServlet.class.getSimpleName() + "-test");
+//			defaultServlet.setServletClass(DefaultAppServlet.class.toString());
 //			defaultServlet.addInitParameter("debug", "0");
 //			defaultServlet.addInitParameter("listings", "false");
 //			defaultServlet.setLoadOnStartup(1);
 //			rootContext.addChild(defaultServlet);
-//			rootContext.addServletMapping("/", DefaultHandler.class.getSimpleName() + "-test");
+//			rootContext.addServletMapping("/", DefaultAppServlet.class.getSimpleName() + "-test");
 //
 //			rootContext.setConfigFile(appBaseMetaInf.resolve("context.xml").toUri().toURL());
 //			log.info(String.format("Hosting %1$s from web directory: %2$s", server.getClass().getSimpleName(), 
 //					server.getHost().getAppBase()));
-//			Tomcat.addServlet(context, DefaultHandler.class.getSimpleName(), new DefaultHandler());
-//			context.addServletMapping("/*", DefaultHandler.class.getSimpleName());
+//			Tomcat.addServlet(context, DefaultAppServlet.class.getSimpleName(), new DefaultAppServlet());
+//			context.addServletMapping("/*", DefaultAppServlet.class.getSimpleName());
 //			server.start();
 //			server.getServer().await();
 		} catch (final Throwable e) {
 			log.error("Unable to start web server", e);
+		} finally {
+
 		}
 	}
 
 	/**
 	 * Stops the web server
 	 */
-	public static final void stop() {
-		try {
-			if (factory != null && factory.isOpen()) {
-				factory.close();
-			}
-			factory = null;
-		} catch (final Exception e) {
-			log.error("Unable to close " + EntityManagerFactory.class.getSimpleName(), e);
-		}
+	public final void stop() {
 		try {
 			if (server != null && !server.isStopped() && !server.isStopping()) {
 				server.stop();
@@ -154,12 +164,7 @@ public class WebServer {
 		}
 	}
 	
-	public static final EntityManagerFactory getEmFactory() {
-		if (factory == null || !factory.isOpen()) {
-			factory = Persistence.
-		            createEntityManagerFactory(RS.rbLabel("persistent.unit"), 
-		            		System.getProperties());
-		}
-		return factory;
+	public int getPortNumber() {
+		return portNumber;
 	}
 }

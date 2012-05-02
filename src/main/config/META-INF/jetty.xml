@@ -46,6 +46,7 @@
 	<Set name="dumpBeforeStop">false</Set>
 	<!-- =========================================================== -->
 	<!-- Define a server aware DB XA connection data source -->
+	<!-- Alt com.atomikos.jdbc.nonxa.NonXADataSourceBean -->
 	<!-- =========================================================== -->
 	<New id="xaDataSource" class="org.eclipse.jetty.plus.jndi.Resource">
 		<Arg></Arg>
@@ -96,22 +97,9 @@
 <!-- 		<Arg> -->
 <!-- 			<Ref id='Server' /> -->
 <!-- 		</Arg> -->
-<!-- 		<Arg>jdbc/UGateDS</Arg> -->
-<!-- 		<Arg>jdbc/UGateDS</Arg> -->
+<!-- 		<Arg>${ugate.db.jta.ds.name}</Arg> -->
+<!-- 		<Arg>${ugate.db.jta.ds.name}</Arg> -->
 <!-- 	</New> -->
-	<!-- =========================================================== -->
-	<!-- Define an Atomikos transaction manager and initialize it -->
-	<!-- =========================================================== -->
-	<New id="txMgr" class="com.atomikos.icatch.jta.UserTransactionManager">
-		<Call name="init" />
-	</New>
-	<New id="txMgrResource" class="org.eclipse.jetty.plus.jndi.Resource">
-		<Arg></Arg>
-		<Arg>${ugate.db.jta.tx.manager.name}</Arg>
-		<Arg>
-			<Ref id="txMgr" />
-		</Arg>
-	</New>
 	<!-- =========================================================== -->
 	<!-- Define server transaction aware JTA implementation -->
 	<!-- Atomikos < 3.x uses com.atomikos.icatch.jta.J2eeUserTransaction -->
@@ -119,23 +107,9 @@
 	<!-- =========================================================== -->
 	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
 		<Arg>
-			<Ref id="txMgr">
-				<Get name="Transaction" />
-			</Ref>
+			<New class="com.atomikos.icatch.jta.UserTransactionManager" />
 		</Arg>
 	</New>
-	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
-		<Arg>
-			<New class="com.atomikos.icatch.jta.UserTransactionImp" />
-		</Arg>
-	</New>
-<!-- 	<New id="txResource" class="org.eclipse.jetty.plus.jndi.Resource"> -->
-<!-- 		<Arg></Arg> -->
-<!-- 		<Arg>java:comp/env/UserTransaction</Arg> -->
-<!-- 		<Arg> -->
-<!-- 			<Ref id="tx" /> -->
-<!-- 		</Arg> -->
-<!-- 	</New> -->
 	<!-- =========================================================== -->
 	<!-- Web Application -->
 	<!-- =========================================================== -->

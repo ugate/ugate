@@ -52,13 +52,10 @@
 <!-- 		<ugate.db.jta.ds.xa>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</ugate.db.jta.ds.xa> -->
 		<ugate.db.username>sa</ugate.db.username>
 		<ugate.db.password>sa</ugate.db.password>
-		<ugate.db.jta.impl>com.atomikos.icatch.jta.UserTransactionImp</ugate.db.jta.impl>
-		<ugate.db.nonjta.impl.bean>com.atomikos.jdbc.nonxa.NonXADataSourceBean</ugate.db.nonjta.impl.bean>
 		<!-- http://www.h2database.com/javadoc/org/h2/jdbcx/JdbcDataSource.html -->
-		<ugate.db.jta.ds>UGateDS</ugate.db.jta.ds>
-		<ugate.db.jta.ds.name>java:comp/env/jdbc/${ugate.db.jta.ds}</ugate.db.jta.ds.name>
-		<ugate.db.jta.ds.name.unmanaged>java:comp/env/jdbc/Unmannaged${ugate.db.jta.ds}</ugate.db.jta.ds.name.unmanaged>
-		<ugate.db.jta.tx.manager.name>java:comp/env/UserTransactionManager</ugate.db.jta.tx.manager.name>
+		<ugate.db.jta.ds>${project.artifactId}DS</ugate.db.jta.ds>
+		<ugate.db.jta.ds.name>jdbc/${ugate.db.jta.ds}</ugate.db.jta.ds.name>
+		<ugate.db.jta.ds.name.unmanaged>jdbc/Unmannaged${ugate.db.jta.ds}</ugate.db.jta.ds.name.unmanaged>
 		<ugate.db.package>${project.groupId}.service</ugate.db.package>
 		<ugate.web.package>${ugate.db.package}.web</ugate.web.package>
 		<ugate.db.entity.package>${ugate.db.package}.entity</ugate.db.entity.package>

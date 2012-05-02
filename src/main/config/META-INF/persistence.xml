@@ -24,7 +24,7 @@
 			<property name="openjpa.ConnectionFactoryMode" value="managed" />
 			<property name="openjpa.TransactionMode" value="managed" />
 			<property name="openjpa.ManagedRuntime"
-				value="jndi(TransactionManagerName=${ugate.db.jta.tx.manager.name})" />
+				value="jndi(TransactionManagerName=UserTransaction)" />
 <!-- 			<property name="openjpa.ManagedRuntime" -->
 <!-- 				value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" /> -->
 		<!-- use OpenJPA's built-in DataSource for unmanaged connections (can use non-jta-data-source for JNDI lookup instead) -->

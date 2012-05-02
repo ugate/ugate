@@ -49,13 +49,13 @@
 	<!-- =========================================================== -->
 	<New id="xaDataSource" class="org.eclipse.jetty.plus.jndi.Resource">
 		<Arg></Arg>
-		<Arg>java:comp/env/jdbc/UGateDS</Arg>
+		<Arg>jdbc/UGateDS</Arg>
 		<Arg>
 			<New id="atomikosDS" class="com.atomikos.jdbc.AtomikosDataSourceBean">
 				<Set name="minPoolSize">2</Set>
 				<Set name="maxPoolSize">50</Set>
 				<Set name="xaDataSourceClassName">org.h2.jdbcx.JdbcDataSource</Set>
-				<Set name="UniqueResourceName">java:comp/env/jdbc/UGateDS</Set>
+				<Set name="UniqueResourceName">jdbc/UGateDS</Set>
 				<Set name="testQuery">SELECT 1 and SELECT 1 FROM DUAL</Set>
 				<Get name="xaProperties">
 					<Call name="setProperty">
@@ -102,16 +102,16 @@
 	<!-- =========================================================== -->
 	<!-- Define an Atomikos transaction manager and initialize it -->
 	<!-- =========================================================== -->
-	<New id="txMgr" class="com.atomikos.icatch.jta.UserTransactionManager">
-		<Call name="init" />
-	</New>
-	<New id="txMgrResource" class="org.eclipse.jetty.plus.jndi.Resource">
-		<Arg></Arg>
-		<Arg>java:comp/env/UserTransactionManager</Arg>
-		<Arg>
-			<Ref id="txMgr" />
-		</Arg>
-	</New>
+<!-- 	<New id="txMgr" class="com.atomikos.icatch.jta.UserTransactionManager"> -->
+<!-- 		<Call name="init" /> -->
+<!-- 	</New> -->
+<!-- 	<New id="txMgrResource" class="org.eclipse.jetty.plus.jndi.Resource"> -->
+<!-- 		<Arg></Arg> -->
+<!-- 		<Arg>java:comp/env/UserTransactionManager</Arg> -->
+<!-- 		<Arg> -->
+<!-- 			<Ref id="txMgr" /> -->
+<!-- 		</Arg> -->
+<!-- 	</New> -->
 	<!-- =========================================================== -->
 	<!-- Define server transaction aware JTA implementation -->
 	<!-- Atomikos < 3.x uses com.atomikos.icatch.jta.J2eeUserTransaction -->
@@ -119,21 +119,7 @@
 	<!-- =========================================================== -->
 	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
 		<Arg>
-			<Ref id="txMgr">
-				<Get name="Transaction" />
-			</Ref>
-		</Arg>
-	</New>
-	<New id="tx" class="org.eclipse.jetty.plus.jndi.Transaction">
-		<Arg>
-			<New class="com.atomikos.icatch.jta.UserTransactionImp" />
-		</Arg>
-	</New>
-	<New id="txResource" class="org.eclipse.jetty.plus.jndi.Resource">
-		<Arg></Arg>
-		<Arg>java:comp/env/UserTransaction</Arg>
-		<Arg>
-			<Ref id="tx" />
+			<New class="com.atomikos.icatch.jta.UserTransactionManager" />
 		</Arg>
 	</New>
 	<!-- =========================================================== -->
