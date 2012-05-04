@@ -112,6 +112,12 @@ public class RS {
 	public static final String IMG_UNIVERSAL_REMOTE_OFF = "universal-remote-off.png";
 	public static final String IMG_CORNER_RESIZE = "ugskin-resize11x11.png";
 	private static final String RB_GUI = "LabelsBundle";
+	public static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
+	public static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
+	public static final AudioClip mediaPlayerCam = RS.audioClip("x_cam.wav");
+	public static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
+	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
+	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	
 	private RS() {
@@ -207,9 +213,14 @@ public class RS {
 	 * @return the audio clip
 	 */
 	public static AudioClip audioClip(final String fileName) {
-		return new AudioClip(RS.class.getResource(fileName).toExternalForm());
-//		return new AudioClip(RS.class.getResource(fileName).getPath()
-//				.replace("/C", "file"));
+		try {
+			return new AudioClip(RS.class.getResource(fileName).toExternalForm());
+//			return new AudioClip(RS.class.getResource(fileName).getPath()
+//					.replace("/C", "file"));
+		} catch (final Throwable t) {
+			log.error("Unable to get audio clip for resource named: " + fileName);
+		}
+		return null;
 	}
 
 	/**

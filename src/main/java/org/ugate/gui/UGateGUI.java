@@ -23,6 +23,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Control;
+import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -36,12 +37,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.AudioClip;
 import javafx.scene.paint.Color;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ugate.IGateKeeperListener;
 import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
@@ -59,7 +59,7 @@ import org.ugate.wireless.data.ImageCapture;
  */
 public class UGateGUI extends Application {
 
-	private static final Logger log = LoggerFactory.getLogger(UGateGUI.class);
+	private static final Logger log = UGateUtil.getLogger(UGateGUI.class);
 
 	public static final double APPLICATION_WIDTH = 900d;
 	public static final double APPLICATION_HEIGHT = 800d;
@@ -68,12 +68,8 @@ public class UGateGUI extends Application {
 	private static final double TASKBAR_BUTTON_WIDTH = 100d;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100d;
 
-	private static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
-	private static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
-	private static final AudioClip mediaPlayerCam = RS.audioClip("x_cam.wav");
-	private static final AudioClip mediaPlayerComplete = RS.audioClip("x_complete.wav");
-	private static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
-	private static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
+	private ServiceManager serviceManager;
+
 	protected final HBox taskbar = new HBox(10d);
 	protected final HBox connectionView = new HBox(10d);
 	protected final TextArea loggingView = new TextArea();
@@ -83,12 +79,27 @@ public class UGateGUI extends Application {
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
+	private static StringBuffer initErrors;
 
 	/**
 	 * Constructor
 	 */
 	public UGateGUI() {
 		//TextAreaAppender.setTextArea(loggingView);
+		try {
+			serviceManager = new ServiceManager();
+		} catch (final Throwable t) {
+			log.error("Unable to start services", t);
+			try {
+				initErrors = new StringBuffer();
+				initErrors.append(RS.rbLabel("app.service.init.error"));
+				initErrors.append('\n');
+				initErrors.append(t.getMessage());
+				initErrors.append('\n');
+			} catch (final Throwable t2) {
+				log.error("Unable notify user that services failed to start", t2);
+			}
+		}
 	}
 
 	/**
@@ -102,8 +113,8 @@ public class UGateGUI extends Application {
 			// BasicConfigurator.configure();
 			// PropertyConfigurator.configure(RS.class.getResource("log4j.xml").getPath());
 			Application.launch(UGateGUI.class, args);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (final Throwable t) {
+			log.error("Unable to launch GUI", t);
 		}
 	}
 
@@ -112,8 +123,24 @@ public class UGateGUI extends Application {
 	 */
 	@Override
 	public void init() {
-		log.debug("Iniitializing GUI...");
-		//Text.setFontSmoothingType(FontSmoothingType.LCD);
+		try {
+			log.debug("Iniitializing GUI...");
+			UGateKeeper.DEFAULT.init();
+			//Text.setFontSmoothingType(FontSmoothingType.LCD);
+		} catch (final Throwable t) {
+			log.error("Unable to initialize the GUI", t);
+			try {
+				if (initErrors == null) {
+					initErrors = new StringBuffer();
+				}
+				initErrors.append(RS.rbLabel("app.gatekeeper.init.error"));
+				initErrors.append('\n');
+				initErrors.append(t.getMessage());
+				initErrors.append('\n');
+			} catch (final Throwable t2) {
+				log.error("Unable notify user that the gate keeper failed to start", t2);
+			}
+		}
 	}
 	
 	/**
@@ -121,8 +148,8 @@ public class UGateGUI extends Application {
 	 */
 	@Override
 	public void start(final Stage stage) throws Exception {
-		log.debug("Starting GUI...");
 		try {
+			log.debug("Starting GUI...");
 			// TODO : add GUI support for multiple remote wireless nodes
 			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 			stage.setTitle(RS.rbLabel("app.title"));
@@ -152,7 +179,11 @@ public class UGateGUI extends Application {
 			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 				@Override
 				public void handle(final UGateKeeperEvent<?> event) {
-					playSound(event);
+					try {
+						playSound(event);
+					} catch (final Exception e) {
+						log.warn("Unable to play sound", e);
+					}
 				}
 			});
 			connectionView.setId("connection-view");
@@ -270,12 +301,25 @@ public class UGateGUI extends Application {
 			changeCenterView(connectionView, 0);
 			stage.show();
 			SystemTray.initSystemTray(stage);
+			log.debug("GUI started");
+			if (initErrors != null && initErrors.length() > 0) {
+				final VBox errorParent = new VBox(30d);
+				errorParent.setStyle("map-toolbar");
+				final Label errorTitle = new Label(RS.rbLabel("app.title.error"));
+				final TextArea errorTa = new TextArea(initErrors.toString());
+				errorParent.getChildren().addAll(errorTitle, errorTa);
+				final Popup errorPopUp = new Popup();
+				errorPopUp.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
+				errorPopUp.getContent().add(errorParent);
+				errorPopUp.setAutoHide(true);
+				errorPopUp.setHideOnEscape(true);
+				errorPopUp.setAutoFix(true);
+				errorPopUp.show(stage);
+			}
 		} catch (final Throwable t) {
 			log.error("Unable to start GUI", t);
 			throw new RuntimeException("Unable to start GUI", t);
 		}
-		log.debug("GUI started");
-		ServiceManager.startServices();
 	}
 	
 	/**
@@ -284,10 +328,24 @@ public class UGateGUI extends Application {
 	@Override
 	public void stop() throws Exception {
 		log.info("Exiting application...");
-		ServiceManager.stopServices();
-		UGateKeeper.DEFAULT.exit();
-		SystemTray.exit();
-		UGateUtil.PLAIN_LOGGER.info("=============================================Exit Complete=============================================");
+		try {
+			if (serviceManager != null) {
+				serviceManager.close();
+			}
+		} catch (final Throwable t) {
+			log.error("Unable to stop services", t);
+		}
+		try {
+			UGateKeeper.DEFAULT.close();
+		} catch (final Throwable t) {
+			log.error("Unable to stop gate keeper", t);
+		}
+		try {
+			SystemTray.exit();
+			UGateUtil.PLAIN_LOGGER.info("=============================================Exit Complete=============================================");
+		} catch (final Throwable t) {
+			log.error("Unable to exit the system tray", t);
+		}
 		Platform.exit();
 		//System.exit(0);
 	}
@@ -405,23 +463,23 @@ public class UGateGUI extends Application {
 			return;
 		}
 		if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
-			mediaPlayerConfirm.play();
+			RS.mediaPlayerConfirm.play();
 		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-			mediaPlayerBlip.play();
+			RS.mediaPlayerBlip.play();
 		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
-			mediaPlayerError.play();
+			RS.mediaPlayerError.play();
 		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && 
 				event.getNewValue() instanceof ImageCapture) {
-			mediaPlayerDoorBell.play();
+			RS.mediaPlayerDoorBell.play();
 			// TODO : send email with image as attachment (only when the image is captured via alarm trip rather, but not from GUI)
 //			UGateKeeper.DEFAULT.emailSend("UGate Tripped", trippedImage.toString(), 
 //					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY), 
 //					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY, UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}), 
 //					imageFile.filePath);
-			mediaPlayerComplete.play();
+			RS.mediaPlayerComplete.play();
 		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && 
 				event.getNewValue() instanceof ImageCapture) {
-			mediaPlayerCam.play();
+			RS.mediaPlayerCam.play();
 		}
 	}
 }

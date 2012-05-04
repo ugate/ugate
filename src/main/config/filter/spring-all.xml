@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/beans 
+     http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+     http://www.springframework.org/schema/tx 
+     http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+     http://www.springframework.org/schema/aop 
+     http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<!-- post-processors for all standard configuration annotations -->
+	<context:annotation-config />
+	<tx:annotation-driven transaction-manager="JpaTransactionManager" />
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+	<bean id="SettingsDao" class="org.ugate.service.dao.SettingsDao"
+		depends-on="JpaTransactionManager" />
+	<bean id="SettingsService" class="org.ugate.service.SettingsService"
+		depends-on="SettingsDao" />
+	<!-- =========================================================== -->
+	<!-- Atomikos JDBC data source configuration -->
+	<!-- =========================================================== -->
+	<bean id="dataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean"
+		destroy-method="close">
+		<property name="minPoolSize" value="2" />
+		<property name="maxPoolSize" value="50" />
+		<property name="xaDataSourceClassName" value="${ugate.db.jta.ds.xa}" />
+		<property name="UniqueResourceName" value="${ugate.db.jta.ds.name}" />
+		<property name="testQuery" value="${ugate.db.test.query}" />
+		<property name="xaProperties">
+			<props>
+				<prop key="URL">${ugate.db.connection.url}</prop>
+				<prop key="user">${ugate.db.username}</prop>
+				<prop key="password">${ugate.db.password}</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- =========================================================== -->
+	<!-- Atomikos JTA configuration -->
+	<!-- =========================================================== -->
+	<!-- Optional: add a log administrator -->
+<!-- 	<bean id="localLogAdministrator" class="com.atomikos.icatch.admin.imp.LocalLogAdministrator" /> -->
+	<bean id="userTransactionService" class="com.atomikos.icatch.config.UserTransactionServiceImp"
+		depends-on="dataSource" init-method="init" destroy-method="shutdownForce">
+		<constructor-arg>
+			<!-- IMPORTANT: specify all Atomikos properties here -->
+			<props>
+				<prop key="com.atomikos.icatch.service">
+					com.atomikos.icatch.standalone.UserTransactionServiceFactory 
+            	</prop>
+				<prop key="com.atomikos.icatch.max_timeout">1000</prop>
+	            <prop key="com.atomikos.icatch.default_jta_timeout">1000</prop>
+	            <prop key="com.atomikos.icatch.max_actives ">200</prop>
+			</props>
+		</constructor-arg>
+<!-- 		<property name="initialLogAdministrators"> -->
+<!-- 			<list> -->
+<!-- 				<ref bean="localLogAdministrator" /> -->
+<!-- 			</list> -->
+<!-- 		</property> -->
+	</bean>
+	<!-- Construct Atomikos UserTransactionManager, needed to configure Spring -->
+	<bean id="AtomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager"
+		init-method="init" destroy-method="close" depends-on="userTransactionService">
+		<!-- IMPORTANT: disable startup because the userTransactionService above 
+			does this -->
+		<property name="startupTransactionService" value="false" />
+		<!-- when close is called, should we force transactions to terminate or 
+			not? -->
+		<property name="forceShutdown" value="false" />
+		
+	</bean>
+	<!-- Also use Atomikos UserTransactionImp, needed to configure Spring -->
+	<bean id="AtomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp"
+		depends-on="userTransactionService">
+		<property name="transactionTimeout" value="1000" />
+	</bean>
+	<!-- =========================================================== -->
+	<!-- Spring Atomikos/JTA integration -->
+	<!-- =========================================================== -->
+	<!-- Configure the Spring framework to use JTA transactions from Atomikos -->
+	<bean id="JtaTransactionManager"
+		class="org.springframework.transaction.jta.JtaTransactionManager"
+		depends-on="AtomikosTransactionManager,AtomikosUserTransaction">
+		<property name="transactionManager" ref="AtomikosTransactionManager" />
+		<property name="userTransaction" ref="AtomikosUserTransaction" />
+<!-- 		<property name="transactionSynchronizationName" value="SYNCHRONIZATION_ON_ACTUAL_TRANSACTION"/> -->
+	</bean>
+	<!-- =========================================================== -->
+	<!-- JPA configuration -->
+	<!-- =========================================================== -->
+	<bean id="entityManagerFactory" depends-on="JtaTransactionManager"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="${project.artifactId}" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+				<property name="showSql" value="true" />
+				<property name="generateDdl" value="true" />
+				<property name="database" value="H2" />
+				<property name="databasePlatform"
+					value="oracle.toplink.essentials.platform.database.MySQL4Platform" />
+			</bean>
+		</property>
+		<property name="jpaPropertyMap">
+			<map>
+				<entry key="openjpa.jdbc.SynchronizeMappings"
+					value="buildSchema(SchemaAction=add,ForeignKeys=true)" />
+				<entry key="openjpa.Log" value="DefaultLevel=${ugate.log.level}, Tool=${ugate.log.level}, SQL=${ugate.log.level}" />
+				<entry key="openjpa.jdbc.DBDictionary"
+					value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" />
+				<!-- <entry key="openjpa.jdbc.UpdateManager" value="operation-order" /> -->
+				<entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
+			</map>
+ 		</property>
+		<property name="loadTimeWeaver">
+			<bean
+				class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver" />
+		</property>
+	</bean>
+	<bean id="JpaTransactionManager" depends-on="entityManagerFactory"
+		class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+<!-- 		<property name="transactionManager" ref="JtaTransactionManager" /> -->
+<!-- 		<property name="userTransaction" ref="AtomikosUserTransaction" /> -->
+<!-- 		<property name="dataSource" ref="dataSource" /> -->
+	</bean>
+	<!-- =========================================================== -->
+	<!-- Transaction configuration -->
+	<!-- =========================================================== -->
+	<!-- this is the service object that we want to make transactional -->
+<!-- 	<bean id="fooService" class="x.y.service.DefaultFooService" /> -->
+	<!-- enable the configuration of transactional behavior based on annotations -->
+<!-- 	<tx:annotation-driven transaction-manager="AtomikosTransactionManager" /> -->
+	<!-- a PlatformTransactionManager is still required -->
+<!-- 	<bean id="txManager" -->
+<!-- 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> -->
+<!-- 		<property name="dataSource" ref="dataSource" /> -->
+<!-- 	</bean> -->
+</beans>

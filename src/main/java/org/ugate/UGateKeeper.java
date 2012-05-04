@@ -10,7 +10,6 @@ import java.util.Map;
 import javafx.application.Platform;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
@@ -36,18 +35,26 @@ public enum UGateKeeper {
 	
 	DEFAULT;
 	
-	private final Logger log;
+	private final Logger log = UGateUtil.getLogger(UGateKeeper.class);
 	private final List<IGateKeeperListener> listeners = new ArrayList<IGateKeeperListener>();
-	private final XBee xbee;
+	private XBee xbee;
 	private EmailAgent emailAgent;
 	private boolean isEmailConnected;
-	private final StorageFile hostSettings;
+	private StorageFile hostSettings;
 	private Map<Integer, RemoteNode> remoteNodes = new HashMap<Integer, RemoteNode>(1);
 	private int wirelessCurrentRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 	private int wirelessNextRemoteNodeIndex = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 	
+	/**
+	 * Constructor
+	 */
 	private UGateKeeper() {
-		log = LoggerFactory.getLogger(UGateKeeper.class);
+	}
+	
+	/**
+	 * Initializes the {@linkplain UGateKeeper}
+	 */
+	public void init() {
 		log.info("Iniitializing the gate keeper...");
 		final Path hostPropPath = RS.hostPropertiesFilePath();
 		final Path hostCpyFrmPropPath = RS.hostDefaultPropertiesPath();
@@ -59,9 +66,9 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * Exit the gate keeper services
+	 * Closes the gate keeper services
 	 */
-	public void exit() {
+	public void close() {
 		emailDisconnect();
 		wirelessDisconnect();
 	}

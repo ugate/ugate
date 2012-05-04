@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UGateUtil {
 	
-	public static final Logger PLAIN_LOGGER = LoggerFactory.getLogger(UGateUtil.class);
+	public static final Logger PLAIN_LOGGER = getLogger(UGateUtil.class);
 	public static final String HELP_TEXT_DEFAULT_KEY = "help.text.default";
 	
 	/**
@@ -47,6 +47,20 @@ public class UGateUtil {
 	 * Private utility constructor
 	 */
 	private UGateUtil() {
+	}
+	
+	/**
+	 * @param clazz the {@linkplain Class} to get the logger for
+	 * @return exception safe logger generator
+	 */
+	public static final Logger getLogger(final Class<?> clazz) {
+		try {
+			return LoggerFactory.getLogger(clazz);
+		} catch (final Throwable t) {
+			System.out.println("Unable to start services");
+			t.printStackTrace();
+		}
+		return null;
 	}
 
 	/**

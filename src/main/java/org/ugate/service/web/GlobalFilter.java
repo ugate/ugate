@@ -11,22 +11,25 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
 
-public class TransactionFilter implements Filter {
+@WebFilter
+public class GlobalFilter implements Filter {
+	
 	// Use the Atomikos UserTransaction implementation to start and end
 	// the transactions!
 	//private J2eeUserTransaction utx = new J2eeUserTransaction();
 
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
 		try {
 
 			// start a new transaction for this request
 			//utx.begin();
 			// http://stackoverflow.com/questions/2131798/jetty-mysql-connection-pool-configuration-error-javax-naming-namenotfoundexcept
-			getTransaction().setTransactionTimeout(1000);
-			getTransaction().begin();
+//			getTransaction().setTransactionTimeout(1000);
+//			getTransaction().begin();
 
 			// delegate the request to the next filter, and eventually to the
 			// target servlet or JSP
@@ -34,7 +37,7 @@ public class TransactionFilter implements Filter {
 
 			// if no exception happened: commit the transaction
 			//utx.commit();
-			getTransaction().commit();
+//			getTransaction().commit();
 		} catch (final Throwable t) {
 			// analyze exception to dermine of rollback is required or not
 			// and then call rollback or commit on utx as appropriate
