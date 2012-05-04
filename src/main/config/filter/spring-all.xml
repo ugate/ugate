@@ -101,8 +101,6 @@
 				<property name="showSql" value="true" />
 				<property name="generateDdl" value="true" />
 				<property name="database" value="H2" />
-				<property name="databasePlatform"
-					value="oracle.toplink.essentials.platform.database.MySQL4Platform" />
 			</bean>
 		</property>
 		<property name="jpaPropertyMap">
@@ -116,10 +114,11 @@
 				<entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
 			</map>
  		</property>
-		<property name="loadTimeWeaver">
-			<bean
-				class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver" />
-		</property>
+ 		<!-- class load weaving not required for openjpa -->
+<!-- 		<property name="loadTimeWeaver"> -->
+<!-- 			<bean -->
+<!-- 				class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver" /> -->
+<!-- 		</property> -->
 	</bean>
 	<bean id="JpaTransactionManager" depends-on="entityManagerFactory"
 		class="org.springframework.orm.jpa.JpaTransactionManager">

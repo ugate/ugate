@@ -14,6 +14,8 @@
 	<!-- post-processors for all standard configuration annotations -->
 	<context:annotation-config />
 	<tx:annotation-driven transaction-manager="JpaTransactionManager" />
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+	<bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
 	<bean id="SettingsDao" class="org.ugate.service.dao.SettingsDao"
 		depends-on="JpaTransactionManager" />
 	<bean id="SettingsService" class="org.ugate.service.SettingsService"
@@ -54,6 +56,7 @@
 	            <prop key="com.atomikos.icatch.max_actives ">200</prop>
 			</props>
 		</constructor-arg>
+		<!-- class load weaving not required for openjpa -->
 <!-- 		<property name="initialLogAdministrators"> -->
 <!-- 			<list> -->
 <!-- 				<ref bean="localLogAdministrator" /> -->
@@ -99,8 +102,6 @@
 				<property name="showSql" value="true" />
 				<property name="generateDdl" value="true" />
 				<property name="database" value="H2" />
-				<property name="databasePlatform"
-					value="oracle.toplink.essentials.platform.database.MySQL4Platform" />
 			</bean>
 		</property>
 		<property name="jpaPropertyMap">
@@ -114,10 +115,10 @@
 				<entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
 			</map>
  		</property>
-		<property name="loadTimeWeaver">
-			<bean
-				class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver" />
-		</property>
+<!-- 		<property name="loadTimeWeaver"> -->
+<!-- 			<bean -->
+<!-- 				class="org.springframework.instrument.classloading.SimpleLoadTimeWeaver" /> -->
+<!-- 		</property> -->
 	</bean>
 	<bean id="JpaTransactionManager" depends-on="entityManagerFactory"
 		class="org.springframework.orm.jpa.JpaTransactionManager">

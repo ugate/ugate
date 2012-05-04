@@ -25,12 +25,15 @@ public class ServiceManager {
 	 * Creates/Initializes a new {@linkplain ServiceManager}
 	 */
 	public ServiceManager() {
-		appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
-		appContext.start();
-		//TransactionManager tm = com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager();
-		getSettingsService().saveMessage(new Message(""));
-		// TODO : get port number from DB
-		startWebServer();
+		try {
+			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
+			appContext.start();
+			//TransactionManager tm = com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager();
+			getSettingsService().saveMessage(new Message(""));
+		} finally {
+			// TODO : get port number from DB
+			startWebServer();
+		}
 	}
 	
 	/**
