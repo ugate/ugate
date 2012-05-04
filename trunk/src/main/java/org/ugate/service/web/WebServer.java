@@ -2,22 +2,14 @@ package org.ugate.service.web;
 
 import java.util.EnumSet;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.servlet.DispatcherType;
 
-import org.eclipse.jetty.plus.servlet.ServletHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.xml.XmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.resources.RS;
-import org.ugate.service.ServiceManager;
 
 //import org.eclipse.jetty.server.Connector;
 //import org.eclipse.jetty.server.Server;
@@ -77,23 +69,26 @@ public class WebServer {
 	 */
 	protected final void startServer() {
 		try {
-			final Resource serverXml = Resource.newSystemResource("META-INF/jetty.xml");
-			final XmlConfiguration configuration = new XmlConfiguration(serverXml.getInputStream());
-			server = (Server) configuration.configure();
+			// Get server from configuration file
+//			final Resource serverXml = Resource.newSystemResource("META-INF/jetty.xml");
+//			final XmlConfiguration configuration = new XmlConfiguration(serverXml.getInputStream());
+//			server = (Server) configuration.configure();
+			
+			server = new Server();
 			//server.addBean(new org.eclipse.jetty.plus.jndi.Transaction(ServiceManager.TM));
 			// set the connector based upon user settings
 			final SelectChannelConnector defaultConnnector = new SelectChannelConnector();
-			defaultConnnector.setPort(9080);
+			defaultConnnector.setPort(getPortNumber());
 			server.setConnectors(new Connector[] { defaultConnnector });
 			
 			final EnumSet<DispatcherType> dispatchers = EnumSet.range(DispatcherType.FORWARD, DispatcherType.ERROR);
 			ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 			context.setContextPath("/");
-			context.addFilter(TransactionFilter.class, "/*", dispatchers);
+			context.addFilter(GlobalFilter.class, "/*", dispatchers);
 			context.addServlet(DefaultAppServlet.class, "/");
 			server.setHandler(context);
 			
-			server.setDumpAfterStart(true);
+			//server.setDumpAfterStart(true);
 			server.start();
 			server.join();
 			

@@ -60,7 +60,6 @@
 				<Set name="testQuery">${ugate.db.test.query}</Set>
 				<Get name="xaProperties">
 					<Call name="setProperty">
-						<!-- Must be upper case -->
 						<Arg>URL</Arg>
 						<Arg>${ugate.db.connection.url}</Arg>
 					</Call>
@@ -93,13 +92,13 @@
 	<!-- =========================================================== -->
 	<!-- Add a mapping from name in web.xml to the environment -->
 	<!-- =========================================================== -->
-<!-- 	<New id="map1" class="org.eclipse.jetty.plus.jndi.Link"> -->
-<!-- 		<Arg> -->
-<!-- 			<Ref id='Server' /> -->
-<!-- 		</Arg> -->
-<!-- 		<Arg>${ugate.db.jta.ds.name}</Arg> -->
-<!-- 		<Arg>${ugate.db.jta.ds.name}</Arg> -->
-<!-- 	</New> -->
+	<New id="map1" class="org.eclipse.jetty.plus.jndi.Link">
+		<Arg>
+			<Ref id='Server' />
+		</Arg>
+		<Arg>${ugate.db.jta.ds.name}</Arg>
+		<Arg>${ugate.db.jta.ds.name}</Arg>
+	</New>
 	<!-- =========================================================== -->
 	<!-- Define server transaction aware JTA implementation -->
 	<!-- Atomikos < 3.x uses com.atomikos.icatch.jta.J2eeUserTransaction -->
