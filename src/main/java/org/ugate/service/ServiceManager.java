@@ -1,38 +1,44 @@
 package org.ugate.service;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.ugate.resources.RS;
 import org.ugate.service.entity.jpa.Message;
 import org.ugate.service.web.WebServer;
 
 /**
  * Service manager
  */
-public class ServiceManager {
+public enum ServiceManager {
+	
+	IMPL;
 
-	private static final Logger log = LoggerFactory.getLogger(ServiceManager.class);
+	private final Logger log = LoggerFactory.getLogger(ServiceManager.class);
 	private int webServerPortNumber = 9080;
-	private final ClassPathXmlApplicationContext appContext;
+	private ClassPathXmlApplicationContext appContext;
 	private WebServer webServer;
-	private static EntityManagerFactory factory;
 	
 	/**
 	 * Creates/Initializes a new {@linkplain ServiceManager}
 	 */
-	public ServiceManager() {
+	private ServiceManager() {
+	}
+	
+	/**
+	 * Opens all underlying managed services
+	 */
+	public void open() {
 		try {
 			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
 			appContext.start();
-			//TransactionManager tm = com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager();
-			getSettingsService().saveMessage(new Message(""));
-		} finally {
+			//getSettingsService().saveMessage(new Message("Initialization Message!"));
 			// TODO : get port number from DB
 			startWebServer();
+		} catch (final Throwable t) {
+			log.error(String.format("Unable to initialize/start %1$s", 
+					ServiceManager.class.getSimpleName()), t);
+			close();
+			throw new RuntimeException(t);
 		}
 	}
 	
@@ -50,14 +56,8 @@ public class ServiceManager {
 		} catch (final Exception e) {
 			log.error("Unable to close application service context", e);
 		}
-		try {
-			if (factory != null && factory.isOpen()) {
-				factory.close();
-			}
-			factory = null;
-		} catch (final Exception e) {
-			log.error("Unable to close service factory", e);
-		}
+		log.info(String.format("%1$s closed", 
+				ServiceManager.class.getSimpleName()));
 	}
 	
 	/**
@@ -88,23 +88,5 @@ public class ServiceManager {
 	 */
 	protected ClassPathXmlApplicationContext getApplicationContext() {
 		return appContext;
-	}
-	
-	protected static final EntityManagerFactory getEmFactory() {
-		return factory;
-	}
-	
-	protected static final void setEmFactory(final EntityManagerFactory factory) {
-		if (ServiceManager.factory != null && ServiceManager.factory.isOpen()) {
-			ServiceManager.factory.close();
-		}
-		if (factory == null || !factory.isOpen()) {
-			//new javax.naming.InitialContext().lookup("jdbc/ugateDS");
-			ServiceManager.factory = Persistence.
-		            createEntityManagerFactory(RS.rbLabel("persistent.unit"), 
-		            		System.getProperties());
-			return;
-		}
-		ServiceManager.factory = factory;
 	}
 }

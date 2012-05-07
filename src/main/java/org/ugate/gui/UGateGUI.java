@@ -68,8 +68,6 @@ public class UGateGUI extends Application {
 	private static final double TASKBAR_BUTTON_WIDTH = 100d;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100d;
 
-	private ServiceManager serviceManager;
-
 	protected final HBox taskbar = new HBox(10d);
 	protected final HBox connectionView = new HBox(10d);
 	protected final TextArea loggingView = new TextArea();
@@ -87,7 +85,7 @@ public class UGateGUI extends Application {
 	public UGateGUI() {
 		//TextAreaAppender.setTextArea(loggingView);
 		try {
-			serviceManager = new ServiceManager();
+			ServiceManager.IMPL.open();
 		} catch (final Throwable t) {
 			log.error("Unable to start services", t);
 			try {
@@ -329,9 +327,7 @@ public class UGateGUI extends Application {
 	public void stop() throws Exception {
 		log.info("Exiting application...");
 		try {
-			if (serviceManager != null) {
-				serviceManager.close();
-			}
+			ServiceManager.IMPL.close();
 		} catch (final Throwable t) {
 			log.error("Unable to stop services", t);
 		}
