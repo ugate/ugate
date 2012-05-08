@@ -35,8 +35,10 @@
 		<ugate.jta.version>1.1</ugate.jta.version>
 		<ugate.atomikos.version>3.7.1</ugate.atomikos.version>
 		<ugate.spring.version>3.1.1.RELEASE</ugate.spring.version>
+		<ugate.cglib.version>2.2.2</ugate.cglib.version>
 		<ugate.junit.version>4.9</ugate.junit.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
+		<ugate.plugin.shade.version>1.6</ugate.plugin.shade.version>
 		<ugate.plugin.dependency.version>2.4</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.5</ugate.plugin.resources.version>
@@ -122,45 +124,61 @@
 						<index>true</index>
 						<manifestEntries>
 							<Main-Class>${ugate.main}</Main-Class>
-							<Class-Path>./ ${ugate.javafx.jar.path}</Class-Path>
+							<Class-Path>./${ugate.javafx.jar.path}</Class-Path>
 						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
+			<!-- build JAR with filtered dependencies -->
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>${ugate.plugin.shade.version}</version>
+				<executions>
+					<execution>
+						<id>uber-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+<!-- 								<transformer -->
+<!-- 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
+<!-- 									<mainClass>at.seresunit.lecturemanager_connector.App</mainClass> -->
+<!-- 								</transformer> -->
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- Copy unpack dependencies to ${project.build.directory}/dependency 
-				to be included in the final JAR -->
+				to be included in the final JAR (there may be a more efficient way to do this) -->
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>${ugate.plugin.dependency.version}</version>
 				<executions>
 					<execution>
-						<id>copy</id>
-						<phase>process-resources</phase>
+						<id>unpack-shade-for-fx</id>
+						<phase>package</phase>
 						<goals>
-							<goal>copy</goal>
+							<goal>unpack</goal>
 						</goals>
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>org.rxtx</groupId>
-									<artifactId>rxtx</artifactId>
-									<type>zip</type>
-									<overWrite>false</overWrite>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>${project.artifactId}</artifactId>
+									<version>${project.version}</version>
 								</artifactItem>
 							</artifactItems>
-						</configuration>
-					</execution>
-					<execution>
-						<id>unpack-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeScope>runtime</includeScope>
-							<!-- java.lang.SecurityException: Invalid signature file digest for Manifest main attributes
-								will occur when we copy META-INF data over -->
-							<excludes>META-INF/**/*.xml,META-INF/**/*.inf,META-INF/**/*.RSA,META-INF/**/*.SF,META-INF/**/*.LIST,META-INF/**/*.txt,META-INF/**/*.MF</excludes>
 						</configuration>
 					</execution>
 				</executions>
@@ -174,7 +192,11 @@
 				<version>${ugate.plugin.antrun.version}</version>
 				<executions>
 					<execution>
+						<id>javafx-jar</id>
 						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
 						<configuration>
 							<target>
 								<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar"
@@ -182,10 +204,10 @@
 								<jar
 									destfile="${project.build.directory}/bin/${project.build.finalName}.${project.packaging}">
 									<application mainClass="${ugate.main}" />
-									<fileset dir="${project.build.outputDirectory}"
-										includes="**/*" />
 									<fileset dir="${project.build.directory}/dependency"
 										includes="**/*" />
+<!-- 									<fileset dir="${project.build.outputDirectory}" -->
+<!-- 										includes="**/*" /> -->
 									<!-- <manifest> -->
 									<!-- <attribute name="JavaFX-Class-Path" value="." /> -->
 									<!-- </manifest> -->
@@ -204,16 +226,13 @@
 								<!-- </jfxdeploy> -->
 							</target>
 						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
 					</execution>
 				</executions>
 				<dependencies>
 					<dependency>
 						<groupId>com.sun.javafx</groupId>
 						<artifactId>javafx-ant</artifactId>
-						<version>2.0</version>
+						<version>${ugate.javafx.version}</version>
 						<scope>system</scope>
 						<systemPath>${ugate.javafx.antjar.path}</systemPath>
 					</dependency>
@@ -231,7 +250,7 @@
 				<artifactId>openjpa-maven-plugin</artifactId>
 				<version>${ugate.openjpa.version}</version>
 				<configuration>
-					<includes>org/ugate/entities/**/*.class</includes>
+					<includes>org/ugate/entity/jpa/**/*.class</includes>
 					<addDefaultConstructor>true</addDefaultConstructor>
 					<enforcePropertyRestrictions>true</enforcePropertyRestrictions>
 				</configuration>
@@ -284,7 +303,7 @@
 			<groupId>org.rxtx</groupId>
 			<artifactId>rxtx</artifactId>
 			<version>${ugate.rxtx.version}</version>
-			<scope>provided</scope>
+<!-- 			<scope>provided</scope> -->
 			<type>zip</type>
 		</dependency>
 		<dependency>
@@ -353,7 +372,7 @@
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
-			<version>2.2.2</version>
+			<version>${ugate.cglib.version}</version>
 		</dependency>
 		<!-- JPA -->
 		<dependency>

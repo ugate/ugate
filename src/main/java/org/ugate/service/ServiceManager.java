@@ -3,7 +3,6 @@ package org.ugate.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.ugate.service.entity.jpa.Message;
 import org.ugate.service.web.WebServer;
 
 /**
