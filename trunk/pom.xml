@@ -66,6 +66,7 @@
 		<ugate.db.jpa.package>${ugate.db.entity.package}.jpa</ugate.db.jpa.package>
 		<ugate.db.listeners>${ugate.db.package}.UGateJdbcListener</ugate.db.listeners>
 		<ugate.main>${project.groupId}.gui.UGateGUI</ugate.main>
+		<ugate.preloader>${project.groupId}.gui.components.StartupPreloader</ugate.preloader>
 	</properties>
 
 	<repositories>
@@ -142,10 +143,6 @@
 						</goals>
 						<configuration>
 							<transformers>
-<!-- 								<transformer -->
-<!-- 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
-<!-- 									<mainClass>at.seresunit.lecturemanager_connector.App</mainClass> -->
-<!-- 								</transformer> -->
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
 									<resource>META-INF/spring.handlers</resource>
@@ -165,6 +162,23 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>${ugate.plugin.dependency.version}</version>
 				<executions>
+					<execution>
+						<id>copy-rxtx-zip</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.rxtx</groupId>
+									<artifactId>rxtx</artifactId>
+									<type>zip</type>
+									<overWrite>false</overWrite>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
 					<execution>
 						<id>unpack-shade-for-fx</id>
 						<phase>package</phase>
@@ -203,7 +217,7 @@
 									classpathref="maven.plugin.classpath" />
 								<jar
 									destfile="${project.build.directory}/bin/${project.build.finalName}.${project.packaging}">
-									<application mainClass="${ugate.main}" />
+									<application mainClass="${ugate.main}" preloaderClass="${ugate.preloader}"/>
 									<fileset dir="${project.build.directory}/dependency"
 										includes="**/*" />
 <!-- 									<fileset dir="${project.build.outputDirectory}" -->
@@ -303,7 +317,7 @@
 			<groupId>org.rxtx</groupId>
 			<artifactId>rxtx</artifactId>
 			<version>${ugate.rxtx.version}</version>
-<!-- 			<scope>provided</scope> -->
+			<scope>provided</scope>
 			<type>zip</type>
 		</dependency>
 		<dependency>
@@ -323,11 +337,11 @@
 <!-- 			<version>${ugate.db.version}</version> -->
 <!-- 		</dependency> -->
 		<!-- JTA -->
-		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>jta</artifactId>
-			<version>${ugate.jta.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>javax.transaction</groupId> -->
+<!-- 			<artifactId>jta</artifactId> -->
+<!-- 			<version>${ugate.jta.version}</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>com.atomikos</groupId>
 			<artifactId>atomikos-util</artifactId>
@@ -379,6 +393,16 @@
 			<groupId>org.apache.openjpa</groupId>
 			<artifactId>openjpa-all</artifactId>
 			<version>${ugate.openjpa.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.apache.openjpa</groupId> -->

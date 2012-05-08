@@ -84,20 +84,6 @@ public class UGateGUI extends Application {
 	 */
 	public UGateGUI() {
 		//TextAreaAppender.setTextArea(loggingView);
-		try {
-			ServiceManager.IMPL.open();
-		} catch (final Throwable t) {
-			log.error("Unable to start services", t);
-			try {
-				initErrors = new StringBuffer();
-				initErrors.append(RS.rbLabel("app.service.init.error"));
-				initErrors.append('\n');
-				initErrors.append(t.getMessage());
-				initErrors.append('\n');
-			} catch (final Throwable t2) {
-				log.error("Unable notify user that services failed to start", t2);
-			}
-		}
 	}
 
 	/**
@@ -121,6 +107,20 @@ public class UGateGUI extends Application {
 	 */
 	@Override
 	public void init() {
+		try {
+			ServiceManager.IMPL.open();
+		} catch (final Throwable t) {
+			log.error("Unable to start services", t);
+			try {
+				initErrors = new StringBuffer();
+				initErrors.append(RS.rbLabel("app.service.init.error"));
+				initErrors.append('\n');
+				initErrors.append(t.getMessage());
+				initErrors.append('\n');
+			} catch (final Throwable t2) {
+				log.error("Unable notify user that services failed to start", t2);
+			}
+		}
 		try {
 			log.debug("Iniitializing GUI...");
 			UGateKeeper.DEFAULT.init();

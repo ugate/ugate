@@ -7,7 +7,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,9 @@ import org.ugate.UGateUtil;
 import org.ugate.service.ServiceManager;
 import org.ugate.service.entity.jpa.Message;
 
+/**
+ * {@linkplain DefaultServlet} for root context calls
+ */
 @WebServlet
 public class DefaultAppServlet extends DefaultServlet {
 
@@ -24,19 +26,15 @@ public class DefaultAppServlet extends DefaultServlet {
 	public DefaultAppServlet() {
 		super();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doHandle(null, null, request, response);
-	}
-
-	//@Override
-	public void doHandle(final String target, final Request baseRequest, final HttpServletRequest request, 
-			final HttpServletResponse response) throws IOException, ServletException {
-		response.setContentType("text/html;charset=utf-8");
-		response.setStatus(HttpServletResponse.SC_OK);
-		//baseRequest.setHandled(true);
-		response.getWriter().println("<h1>RESULTS</h1>");
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		try {
+			response.getWriter().println("<h1>RESULTS</h1>");
+			
 	        final Message msg = new Message("Hello Persistence! " + System.currentTimeMillis());
 	        ServiceManager.IMPL.getSettingsService().saveMessage(msg);
 	        log.info("NEW Message ID: " + msg.getId());
@@ -46,8 +44,10 @@ public class DefaultAppServlet extends DefaultServlet {
 	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')');
 	            response.getWriter().println("<h3>" + m.getMessage() + " (created on: " + m.getCreated() + ')' + "</h3>");
 	        }
-		} catch (Throwable t) {
+	        response.setStatus(HttpServletResponse.SC_OK);
+		} catch (final Throwable t) {
 			log.error("JPA error: ", t);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
 }
