@@ -103,23 +103,40 @@
 		linear-gradient(from 0% 0% to 0% 100%, black, white 3%, white 97%, black);
 	-fx-alignment: CENTER;
 }
-/* ====== CUSTOM ============================================================== */
-.map-toolbar .button, .map-toolbar .toggle-button, .map-toolbar .label {
-    -fx-text-fill: white;
-    -fx-background-radius: 0;
+/*******************************************************************************
+ *                                                                             *
+ * Dialog                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+.dialog-title {
+    -fx-fill: white;
+    -fx-font-style: oblique;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow( one-pass-box , rgba(75,75,75,0.8) , 0, 0.0 , 2, 2);
+/*     -fx-text-alignment: center; */
 }
-.map-toolbar {
+.dialog {
     -fx-base: #505359;
     -fx-background: #505359;
-    -fx-shadow-highlight-color: transparent;
-    -fx-spacing: 5;
-    -fx-padding: 4 4 4 4;
+/*     -fx-shadow-highlight-color: transparent; */
+    -fx-spacing: 20;
+    -fx-padding: 10 10 10 10;
     -fx-background-color:
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
         linear-gradient(#020b02, #3a3a3a),
         linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
         linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
         linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+	-fx-alignment: center;
+	-fx-border-width: 3;
+    -fx-border-color: 
+    	linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%) 
+		linear-gradient(#686868 10%, white 40%, #343534 90%, #757575 100%)
+		linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%)
+		linear-gradient(#686868 10%, white 40%, #343534 90%, #757575 100%);
+	-fx-border-insets: 1 1 1 1;
+	-fx-border-radius: 8 8 8 8;
+	-fx-background-radius: 10 10 10 10;
 }
 /*******************************************************************************
  *                                                                             *
@@ -132,9 +149,9 @@
         linear-gradient(#303842 0%, #3e5577 20%, #375074 100%),
         linear-gradient(#768aa5 0%, #849cbb 5%, #5877a2 50%, #486a9a 51%, #4a6c9b 100%);
     -fx-background-insets: 0 0 -1 0,0,1;
-    -fx-background-radius: 5,5,4;
+    /*-fx-background-radius: 5,5,4;*/
+    -fx-background-radius: 0;
     -fx-padding: 7 30 7 30;
-    -fx-text-fill: #242d35;
     -fx-font-size: 12px;
     -fx-text-fill: white;
 }
@@ -144,9 +161,9 @@
 .button:focused {
     -fx-color: -fx-focused-base;
     /*-fx-background-color: -fx-focus-color, -fx-outer-border, -fx-inner-border, -fx-body-color;*/
-    -fx-effect: dropshadow( one-pass-box , -fx-focus-color , 0, 0.0 , 2, 2);
+    -fx-effect: dropshadow( one-pass-box , black, 0, 0.0 , 2, 2);
     -fx-background-insets: -1.4, 0, 1, 2;
-    -fx-background-radius:  6.4, 5, 4, 3;
+/*     -fx-background-radius:  6.4, 5, 4, 3; */
 }
 
 .button:hover {
