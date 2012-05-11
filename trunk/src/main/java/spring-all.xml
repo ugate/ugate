@@ -24,6 +24,10 @@
 		depends-on="entityManagerFactory" />
 	<bean id="SettingsService" class="org.ugate.service.SettingsService"
 		depends-on="SettingsDao" />
+	<bean id="CredentialDao" class="org.ugate.service.dao.CredentialDao"
+		depends-on="entityManagerFactory" />
+	<bean id="CredentialService" class="org.ugate.service.CredentialService"
+		depends-on="CredentialDao" />
 	<!-- =========================================================== -->
 	<!-- Atomikos JDBC data source configuration -->
 	<!-- =========================================================== -->

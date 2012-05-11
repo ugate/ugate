@@ -9,6 +9,9 @@
 	<packaging>jar</packaging>
 	<version>1.0</version>
 	<name>UGate Console</name>
+	<description>
+		${project.name} interface that facilitates access and maintainability of remote micro-controller node(s) used for security surveillance.
+	</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

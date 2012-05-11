@@ -1,6 +1,5 @@
 package org.ugate.gui;
 
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -11,6 +10,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -23,10 +24,11 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Control;
-import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextAreaBuilder;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFieldBuilder;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.effect.InnerShadow;
@@ -38,7 +40,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
+import org.ugate.service.RoleType;
 import org.ugate.service.ServiceManager;
 import org.ugate.wireless.data.ImageCapture;
 
@@ -63,7 +65,7 @@ public class UGateGUI extends Application {
 
 	public static final double APPLICATION_WIDTH = 900d;
 	public static final double APPLICATION_HEIGHT = 800d;
-	
+
 	private static final double TASKBAR_HEIGHT = 180d;
 	private static final double TASKBAR_BUTTON_WIDTH = 100d;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100d;
@@ -83,7 +85,7 @@ public class UGateGUI extends Application {
 	 * Constructor
 	 */
 	public UGateGUI() {
-		//TextAreaAppender.setTextArea(loggingView);
+		// TextAreaAppender.setTextArea(loggingView);
 	}
 
 	/**
@@ -124,7 +126,7 @@ public class UGateGUI extends Application {
 		try {
 			log.debug("Iniitializing GUI...");
 			UGateKeeper.DEFAULT.init();
-			//Text.setFontSmoothingType(FontSmoothingType.LCD);
+			// Text.setFontSmoothingType(FontSmoothingType.LCD);
 		} catch (final Throwable t) {
 			log.error("Unable to initialize the GUI", t);
 			try {
@@ -140,7 +142,7 @@ public class UGateGUI extends Application {
 			}
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -148,178 +150,220 @@ public class UGateGUI extends Application {
 	public void start(final Stage stage) throws Exception {
 		try {
 			log.debug("Starting GUI...");
-			// TODO : add GUI support for multiple remote wireless nodes
-			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
-			stage.setTitle(RS.rbLabel("app.title"));
-	
-			controlBar = new ControlBar(stage);
-			final BorderPane content = new BorderPane();
-			content.setId("main-content");
-			content.setEffect(new InnerShadow());
-			applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, 
-					APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false, 
-					new String[]{RS.path(RS.CSS_MAIN), RS.path(RS.CSS_DISPLAY_SHELF)},
-					controlBar.createTitleBarItems());
-	
-			taskbar.setId("taskbar");
-			taskbar.setCache(true);
-			taskbar.setPrefHeight(TASKBAR_HEIGHT);
 			
-			centerView = new StackPane();
-			centerView.setId("center-view");
-
-			final Controls controls = new Controls(controlBar);
-			
-			wirelessConnectionView = new WirelessHostConnectionView(controlBar);
-			mailConnectionView = new EmailHostConnectionView(controlBar);
-	
-			// change the center view back to the connection view when connections are lost
-			UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
-				@Override
-				public void handle(final UGateKeeperEvent<?> event) {
-					try {
-						playSound(event);
-					} catch (final Exception e) {
-						log.warn("Unable to play sound", e);
-					}
-				}
-			});
-			connectionView.setId("connection-view");
-			connectionView.getChildren().addAll(wirelessConnectionView,
-					createSeparator(Orientation.VERTICAL), mailConnectionView);
-			
-			final VBox bottom = new VBox();
-			bottom.setPadding(new Insets(0, 50d, 0, 50d));
-			bottom.getChildren().addAll(taskbar, new RemoteNodeToolBar(controlBar, Orientation.HORIZONTAL));
-			content.setTop(bottom);
-			
-			content.setTop(controlBar);
-//			content.setLeft(new RemoteNodeToolBar(controlBar, Orientation.VERTICAL));
-			content.setCenter(centerView);
-//			content.setBottom(taskbar);
-			content.setBottom(bottom);
-	
-			taskbar.getChildren().add(
-					createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"), 0,
-							new Runnable() {
-								@Override
-								public void run() {
-									changeCenterView(connectionView, 0);
-								}
-							})));
-			taskbar.getChildren().add(
-					genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), 1, 
-					new Runnable() {
-						@Override			
-						public void run() {
-							changeCenterView(controls, 1);
-						}
-					}));
-			taskbar.getChildren().add(
-					genTaskbarItem(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), 2, 
-					new Runnable() {
-						@Override
-						public void run() {
-							changeCenterView(
-									new DisplayShelf(UGateKeeper.DEFAULT.wirelessWorkingDirectory(
-											UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()).toFile(),
-											350, 350, 0.25, 45, 80,
-											DisplayShelf.TOOLBAR_POSITION_TOP, 
-											RS.rbLabel("displayshelf.fullsize.tooltip")), 2);
-						}
-					}));
-			taskbar.getChildren().add(
-					genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), 3, 
-					new Runnable() {
-						@Override
-						public void run() {
-							NumberAxis xAxis = new NumberAxis();
-							NumberAxis yAxis = new NumberAxis();
-							LineChart<Number, Number> chart = new LineChart<Number, Number>(
-									xAxis, yAxis);
-							chart.setTitle(RS.rbLabel("graph.alarm.notify"));
-							xAxis.setLabel(RS.rbLabel("graph.axis.x"));
-							yAxis.setLabel(RS.rbLabel("graph.axis.y"));
-							XYChart.Series<Number, Number> sonarTrippedSeries = new XYChart.Series<Number, Number>();
-							sonarTrippedSeries.setName(RS.rbLabel("graph.series.alarm"));
-							Random random = new Random();
-							for (int i = 0; i < 10 + random.nextInt(20); i++) {
-								sonarTrippedSeries.getData().add(
-										new XYChart.Data<Number, Number>(
-												10 * i + 10,
-												random.nextDouble() * 150));
-							}
-							chart.getData().add(sonarTrippedSeries);
-							XYChart.Series<Number, Number> manualImageSeries = new XYChart.Series<Number, Number>();
-							manualImageSeries
-									.setName(RS.rbLabel("graph.series.activity.manual"));
-							for (int i = 0; i < 10 + random.nextInt(20); i++) {
-								manualImageSeries.getData().add(
-										new XYChart.Data<Number, Number>(
-												10 * i + 10,
-												random.nextDouble() * 150));
-							}
-							chart.getData().add(manualImageSeries);
-
-					        SimpleCalendar simpleCalender = new SimpleCalendar();
-					        simpleCalender.setMaxSize(100d, 20d);
-					        final TextField dateField = new TextField(new SimpleDateFormat("MM/dd/yyyy").format(
-					        		simpleCalender.dateProperty().get()));
-					        dateField.setMaxSize(simpleCalender.getMaxWidth(), simpleCalender.getMaxHeight());
-					        dateField.setEditable(false);
-					        dateField.setDisable(true);
-					        simpleCalender.dateProperty().addListener(new ChangeListener<Date>() {
-
-								@Override
-								public void changed(ObservableValue<? extends Date> ov,
-										Date oldDate, Date newDate) {
-									dateField.setText(new SimpleDateFormat("MM/dd/yyyy").format(newDate));
-									
-								}
-							});
-					        
-							final HBox dateBox = new HBox();
-					        dateBox.setAlignment(Pos.BOTTOM_RIGHT);
-					        dateBox.getChildren().addAll(dateField, simpleCalender);
-					        final StackPane history = new StackPane();
-					        history.setPadding(new Insets(10d));
-					        history.setAlignment(Pos.BOTTOM_RIGHT);
-							history.getChildren().addAll(chart, dateBox);
-							changeCenterView(history, 3);
-						}
-					}));
-			taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), 4, 
-					new Runnable() {
-						@Override
-						public void run() {
-							loggingView.setEditable(false);
-							changeCenterView(loggingView, 4);
-						}
-					}));
-			changeCenterView(connectionView, 0);
-			stage.show();
-			SystemTray.initSystemTray(stage);
-			log.debug("GUI started");
 			if (initErrors != null && initErrors.length() > 0) {
-				final VBox errorParent = new VBox(30d);
-				errorParent.setStyle("map-toolbar");
-				final Label errorTitle = new Label(RS.rbLabel("app.title.error"));
-				final TextArea errorTa = new TextArea(initErrors.toString());
-				errorParent.getChildren().addAll(errorTitle, errorTa);
-				final Popup errorPopUp = new Popup();
-				errorPopUp.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
-				errorPopUp.getContent().add(errorParent);
-				errorPopUp.setAutoHide(true);
-				errorPopUp.setHideOnEscape(true);
-				errorPopUp.setAutoFix(true);
-				errorPopUp.show(stage);
+				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
+						).focusTraversable(false).editable(false).opacity(0.7d).build();
+				final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", "app.title.error", "close", 550d, 300d, new Service<String>() {
+					@Override
+					protected Task<String> createTask() {
+						return new Task<String>() {
+							@Override
+							protected String call() throws Exception {
+								// if the dialog shouldn't be closed call super.cancel()
+								return null;
+							}
+						};
+					}
+				}, errorDetails);
+				dialogService.start();
+			} else {
+				// start the main GUI
+				mainStageStart(stage);
 			}
+			
+			log.debug("GUI started");
 		} catch (final Throwable t) {
 			log.error("Unable to start GUI", t);
 			throw new RuntimeException("Unable to start GUI", t);
 		}
 	}
 	
+	/**
+	 * Starts the primary {@linkplain Stage} but does not call {@linkplain Stage#show()}
+	 * 
+	 * @param stage the primary {@linkplain Stage}
+	 */
+	protected void mainStageStart(final Stage stage) {
+		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
+		stage.setTitle(RS.rbLabel("app.title"));
+
+		controlBar = new ControlBar(stage);
+		final BorderPane content = new BorderPane();
+		content.setId("main-content");
+		content.setEffect(new InnerShadow());
+		applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false, new String[] { RS.path(RS.CSS_MAIN), RS.path(RS.CSS_DISPLAY_SHELF) }, controlBar.createTitleBarItems());
+
+		taskbar.setId("taskbar");
+		taskbar.setCache(true);
+		taskbar.setPrefHeight(TASKBAR_HEIGHT);
+
+		centerView = new StackPane();
+		centerView.setId("center-view");
+
+		final Controls controls = new Controls(controlBar);
+
+		wirelessConnectionView = new WirelessHostConnectionView(controlBar);
+		mailConnectionView = new EmailHostConnectionView(controlBar);
+
+		// change the center view back to the connection view when
+		// connections are lost
+		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+			@Override
+			public void handle(final UGateKeeperEvent<?> event) {
+				try {
+					playSound(event);
+				} catch (final Exception e) {
+					log.warn("Unable to play sound", e);
+				}
+			}
+		});
+		connectionView.setId("connection-view");
+		connectionView.getChildren().addAll(wirelessConnectionView, createSeparator(Orientation.VERTICAL), mailConnectionView);
+
+		final VBox bottom = new VBox();
+		bottom.setPadding(new Insets(0, 50d, 0, 50d));
+		bottom.getChildren().addAll(taskbar, new RemoteNodeToolBar(controlBar, Orientation.HORIZONTAL));
+		content.setTop(bottom);
+
+		content.setTop(controlBar);
+		// content.setLeft(new RemoteNodeToolBar(controlBar,
+		// Orientation.VERTICAL));
+		content.setCenter(centerView);
+		// content.setBottom(taskbar);
+		content.setBottom(bottom);
+
+		taskbar.getChildren().add(createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"), 0, new Runnable() {
+			@Override
+			public void run() {
+				changeCenterView(connectionView, 0);
+			}
+		})));
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), 1, new Runnable() {
+			@Override
+			public void run() {
+				changeCenterView(controls, 1);
+			}
+		}));
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), 2, new Runnable() {
+			@Override
+			public void run() {
+				changeCenterView(new DisplayShelf(UGateKeeper.DEFAULT.wirelessWorkingDirectory(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()).toFile(), 350, 350, 0.25, 45, 80, DisplayShelf.TOOLBAR_POSITION_TOP, RS.rbLabel("displayshelf.fullsize.tooltip")), 2);
+			}
+		}));
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), 3, new Runnable() {
+			@Override
+			public void run() {
+				NumberAxis xAxis = new NumberAxis();
+				NumberAxis yAxis = new NumberAxis();
+				LineChart<Number, Number> chart = new LineChart<Number, Number>(xAxis, yAxis);
+				chart.setTitle(RS.rbLabel("graph.alarm.notify"));
+				xAxis.setLabel(RS.rbLabel("graph.axis.x"));
+				yAxis.setLabel(RS.rbLabel("graph.axis.y"));
+				XYChart.Series<Number, Number> sonarTrippedSeries = new XYChart.Series<Number, Number>();
+				sonarTrippedSeries.setName(RS.rbLabel("graph.series.alarm"));
+				Random random = new Random();
+				for (int i = 0; i < 10 + random.nextInt(20); i++) {
+					sonarTrippedSeries.getData().add(new XYChart.Data<Number, Number>(10 * i + 10, random.nextDouble() * 150));
+				}
+				chart.getData().add(sonarTrippedSeries);
+				XYChart.Series<Number, Number> manualImageSeries = new XYChart.Series<Number, Number>();
+				manualImageSeries.setName(RS.rbLabel("graph.series.activity.manual"));
+				for (int i = 0; i < 10 + random.nextInt(20); i++) {
+					manualImageSeries.getData().add(new XYChart.Data<Number, Number>(10 * i + 10, random.nextDouble() * 150));
+				}
+				chart.getData().add(manualImageSeries);
+
+				SimpleCalendar simpleCalender = new SimpleCalendar();
+				simpleCalender.setMaxSize(100d, 20d);
+				final TextField dateField = new TextField(new SimpleDateFormat("MM/dd/yyyy").format(simpleCalender.dateProperty().get()));
+				dateField.setMaxSize(simpleCalender.getMaxWidth(), simpleCalender.getMaxHeight());
+				dateField.setEditable(false);
+				dateField.setDisable(true);
+				simpleCalender.dateProperty().addListener(new ChangeListener<Date>() {
+
+					@Override
+					public void changed(ObservableValue<? extends Date> ov, Date oldDate, Date newDate) {
+						dateField.setText(new SimpleDateFormat("MM/dd/yyyy").format(newDate));
+
+					}
+				});
+
+				final HBox dateBox = new HBox();
+				dateBox.setAlignment(Pos.BOTTOM_RIGHT);
+				dateBox.getChildren().addAll(dateField, simpleCalender);
+				final StackPane history = new StackPane();
+				history.setPadding(new Insets(10d));
+				history.setAlignment(Pos.BOTTOM_RIGHT);
+				history.getChildren().addAll(chart, dateBox);
+				changeCenterView(history, 3);
+			}
+		}));
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), 4, new Runnable() {
+			@Override
+			public void run() {
+				loggingView.setEditable(false);
+				changeCenterView(loggingView, 4);
+			}
+		}));
+		changeCenterView(connectionView, 0);
+		afterStart(stage);
+	}
+
+	/**
+	 * After {@linkplain Application#start(Stage)} and before {@linkplain Stage#show()}
+	 * 
+	 * @param stage the primary {@linkplain Stage}
+	 */
+	protected void afterStart(final Stage stage) {
+		// if there are no users then the user needs to be prompted for a username/password
+		if (ServiceManager.IMPL.getCredentialService().getActorCount() <= 0) {
+			final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel("app.setup.dialog.username")).build();
+			final TextField password = TextFieldBuilder.create().promptText(RS.rbLabel("app.setup.dialog.password")).build();
+			final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", "app.setup.dialog", null, 550d, 300d, new Service<String>() {
+				@Override
+				protected Task<String> createTask() {
+					return new Task<String>() {
+						@Override
+						protected String call() throws Exception {
+							if (!username.getText().isEmpty() && !password.getText().isEmpty()) {
+								try {
+									ServiceManager.IMPL.getCredentialService().addUser(
+											username.getText(), password.getText(), true, RoleType.ADMIN.newRole());
+									Platform.runLater(new Runnable() {
+										@Override
+										public void run() {
+											showApplication(stage);
+										}
+									});
+								} catch (final Throwable t) {
+									log.error("Unable to add user: " + username.getText(), t);
+									return RS.rbLabel("", username.getText());
+								}
+							} else {
+								super.cancel(true);
+							}
+							return null;
+						}
+					};
+				}
+			}, username, password);
+			dialogService.start();
+		} else {
+			showApplication(stage);
+		}
+	}
+
+	/**
+	 * Shows the primary {@linkplain Stage} and shows the {@linkplain SystemTray}
+	 * 
+	 * @param stage the primary {@linkplain Stage}
+	 */
+	protected void showApplication(final Stage stage) {
+		stage.show();
+		SystemTray.initSystemTray(stage);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -343,7 +387,7 @@ public class UGateGUI extends Application {
 			log.error("Unable to exit the system tray", t);
 		}
 		Platform.exit();
-		//System.exit(0);
+		// System.exit(0);
 	}
 
 	private Separator createSeparator(final Orientation orientation) {
@@ -369,25 +413,18 @@ public class UGateGUI extends Application {
 		return node;
 	}
 
-	protected ImageView genTaskbarItem(final String iconName,
-			final String helpText, final int index, final Runnable action) {
-		return genFisheye(iconName, TASKBAR_BUTTON_WIDTH,
-				TASKBAR_BUTTON_HEIGHT, helpText, index, taskBarSelectProperty, action);
+	protected ImageView genTaskbarItem(final String iconName, final String helpText, final int index, final Runnable action) {
+		return genFisheye(iconName, TASKBAR_BUTTON_WIDTH, TASKBAR_BUTTON_HEIGHT, helpText, index, taskBarSelectProperty, action);
 	}
 
-	public ImageView genFisheye(final String iconName,
-			final double width, final double height, 
-			final String helpText, final int index, 
-			final IntegerProperty selectProperty, final Runnable action) {
+	public ImageView genFisheye(final String iconName, final double width, final double height, final String helpText, final int index, final IntegerProperty selectProperty, final Runnable action) {
 		final ImageView node = RS.imgView(iconName);
 		node.setCache(true);
 		node.setCacheHint(CacheHint.SPEED);
 		node.setFitWidth(width);
 		node.setFitHeight(height);
 
-		final DropShadow effect = DropShadowBuilder.create().color(
-				selectProperty != null && selectProperty.get() == index ? GuiUtil.COLOR_SELECTED :
-					Color.TRANSPARENT).build();
+		final DropShadow effect = DropShadowBuilder.create().color(selectProperty != null && selectProperty.get() == index ? GuiUtil.COLOR_SELECTED : Color.TRANSPARENT).build();
 		final Reflection effect2 = new Reflection();
 		effect.setInput(effect2);
 		node.setEffect(effect);
@@ -422,8 +459,7 @@ public class UGateGUI extends Application {
 		if (selectProperty != null) {
 			selectProperty.addListener(new ChangeListener<Number>() {
 				@Override
-				public void changed(final ObservableValue<? extends Number> observable,
-						final Number oldValue, final Number newValue) {
+				public void changed(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
 					if (newValue.intValue() == index) {
 						effect.setColor(GuiUtil.COLOR_SELECTED);
 					} else {
@@ -440,21 +476,22 @@ public class UGateGUI extends Application {
 	 * 
 	 * @param node
 	 *            the node to change the center view to
-	 * @param index the index of the task bar item
+	 * @param index
+	 *            the index of the task bar item
 	 */
 	protected void changeCenterView(final Node node, final int index) {
 		centerView.getChildren().setAll(node);
 		taskBarSelectProperty.set(index);
 	}
-	
+
 	/**
 	 * Plays a sound for predefined events if preferences is set to do so
 	 * 
-	 * @param event the event
+	 * @param event
+	 *            the event
 	 */
 	protected void playSound(final UGateKeeperEvent<?> event) {
-		final String soundsOn = UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SOUNDS_ON, 
-				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex());
+		final String soundsOn = UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SOUNDS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex());
 		if (soundsOn == null || soundsOn.isEmpty() || Integer.parseInt(soundsOn) != 1) {
 			return;
 		}
@@ -464,17 +501,18 @@ public class UGateGUI extends Application {
 			RS.mediaPlayerBlip.play();
 		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
 			RS.mediaPlayerError.play();
-		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && 
-				event.getNewValue() instanceof ImageCapture) {
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
 			RS.mediaPlayerDoorBell.play();
-			// TODO : send email with image as attachment (only when the image is captured via alarm trip rather, but not from GUI)
-//			UGateKeeper.DEFAULT.emailSend("UGate Tripped", trippedImage.toString(), 
-//					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY), 
-//					UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY, UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}), 
-//					imageFile.filePath);
+			// TODO : send email with image as attachment (only when the image
+			// is captured via alarm trip rather, but not from GUI)
+			// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
+			// trippedImage.toString(),
+			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
+			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
+			// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
+			// imageFile.filePath);
 			RS.mediaPlayerComplete.play();
-		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && 
-				event.getNewValue() instanceof ImageCapture) {
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
 			RS.mediaPlayerCam.play();
 		}
 	}

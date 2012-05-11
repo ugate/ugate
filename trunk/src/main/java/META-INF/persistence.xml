@@ -14,6 +14,8 @@
 		<jta-data-source>jdbc/ugateDS</jta-data-source>
 <!-- 		<non-jta-data-source>jdbc/UnmannagedugateDS</non-jta-data-source> -->
 		<class>org.ugate.service.entity.jpa.Message</class>
+		<class>org.ugate.service.entity.jpa.Actor</class>
+		<class>org.ugate.service.entity.jpa.Role</class>
 		<!-- properties maintained in spring -->
 <!-- 		<properties> -->
 <!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/> -->
