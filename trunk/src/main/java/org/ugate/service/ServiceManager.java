@@ -30,11 +30,6 @@ public enum ServiceManager {
 		try {
 			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
 			appContext.start();
-			if (getCredentialService().getActorCount() == 0) {
-				
-			}
-			CredentialService.hasDigestMatch("admin", "testme222", "testme");
-			//getSettingsService().saveMessage(new Message("Initialization Message!"));
 			// TODO : get port number from DB
 			startWebServer();
 		} catch (final Throwable t) {

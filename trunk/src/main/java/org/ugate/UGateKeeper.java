@@ -62,6 +62,8 @@ public enum UGateKeeper {
 		hostSettings = new StorageFile(hostPropPath, hostCpyFrmPropPath);
 		wirelessInit();
 		xbee = new XBee();
+		// test the serial ports
+		wirelessSerialPorts();
 		log.info("...iniitialized the gate keeper");
 	}
 	

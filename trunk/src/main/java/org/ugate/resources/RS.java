@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.scene.CacheHint;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -292,9 +293,11 @@ public class RS {
 		try {
 			getSerialPorts();
 		} catch (final NoClassDefFoundError e) {
+			log.info("RXTX not installed... attempting to install", e);
 			// ClassNotFoundException
 			//installComm();
 		} catch (final UnsatisfiedLinkError e) {
+			log.info("RXTX not installed... attempting to install", e);
 			//installComm();
 		}
 	}
@@ -446,12 +449,14 @@ public class RS {
 //			}
 //		});
 		try {
+			//final ProcessBuilder processBuilder
 			Runtime.getRuntime().exec(cmd.toString());
 			cnt++;
 		} catch (final IOException e) {
 			log.error(String.format("Unable to restart the application at entry point: %1$s", cmd.toString()), e);
 		}
-		System.exit(0);
+		Platform.exit();
+		//System.exit(0);
 	}
 	
 	/**

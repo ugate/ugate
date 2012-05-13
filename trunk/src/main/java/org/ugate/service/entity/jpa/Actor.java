@@ -21,17 +21,14 @@ public class Actor implements Serializable {
 	@Column(unique=true, nullable=false)
 	private int id;
 
-	@Column(nullable=false)
-	private boolean encrypted;
-
 	@Column(unique=true, nullable=false, length=100)
 	private String login;
 
-	@Column(nullable=false, length=50)
+	@Column(nullable=false, length=64)
 	private String pwd;
 
 	//bi-directional many-to-many association to Role
-    @ManyToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)
+    @ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinTable(
 		name="ACTOR_ROLE"
 		, joinColumns={
@@ -52,14 +49,6 @@ public class Actor implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public boolean getEncrypted() {
-		return this.encrypted;
-	}
-
-	public void setEncrypted(boolean encrypted) {
-		this.encrypted = encrypted;
 	}
 
 	public String getLogin() {
