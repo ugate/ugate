@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+import javax.security.sasl.AuthenticationException;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -23,6 +25,8 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.Control;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
@@ -154,12 +158,12 @@ public class UGateGUI extends Application {
 			if (initErrors != null && initErrors.length() > 0) {
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
-				final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", "app.title.error", "close", 550d, 300d, new Service<String>() {
+				final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", "app.title.error", "close", 550d, 300d, new Service<Void>() {
 					@Override
-					protected Task<String> createTask() {
-						return new Task<String>() {
+					protected Task<Void> createTask() {
+						return new Task<Void>() {
 							@Override
-							protected String call() throws Exception {
+							protected Void call() throws Exception {
 								// if the dialog shouldn't be closed call super.cancel()
 								return null;
 							}
@@ -317,41 +321,68 @@ public class UGateGUI extends Application {
 	 */
 	protected void afterStart(final Stage stage) {
 		// if there are no users then the user needs to be prompted for a username/password
-		if (ServiceManager.IMPL.getCredentialService().getActorCount() <= 0) {
-			final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel("app.setup.dialog.username")).build();
-			final TextField password = TextFieldBuilder.create().promptText(RS.rbLabel("app.setup.dialog.password")).build();
-			final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", "app.setup.dialog", null, 550d, 300d, new Service<String>() {
-				@Override
-				protected Task<String> createTask() {
-					return new Task<String>() {
-						@Override
-						protected String call() throws Exception {
-							if (!username.getText().isEmpty() && !password.getText().isEmpty()) {
-								try {
-									ServiceManager.IMPL.getCredentialService().addUser(
-											username.getText(), password.getText(), true, RoleType.ADMIN.newRole());
-									Platform.runLater(new Runnable() {
-										@Override
-										public void run() {
-											showApplication(stage);
-										}
-									});
-								} catch (final Throwable t) {
-									log.error("Unable to add user: " + username.getText(), t);
-									return RS.rbLabel("", username.getText());
-								}
-							} else {
-								super.cancel(true);
-							}
-							return null;
-						}
-					};
-				}
-			}, username, password);
-			dialogService.start();
+		final boolean isAuth = ServiceManager.IMPL.getCredentialService().getActorCount() > 0;
+		String dialogHeaderKey;
+		if (isAuth) {
+			dialogHeaderKey = "app.dialog.auth";
+			log.debug("Presenting authentication dialog prompt");
 		} else {
-			showApplication(stage);
+			dialogHeaderKey = "app.dialog.setup";
+			log.info("Initializing post installation dialog prompt");
 		}
+		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel("app.dialog.username")).build();
+		final TextField password = TextFieldBuilder.create().promptText(RS.rbLabel("app.dialog.password")).build();
+		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel("close")).build() : null;
+		final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
+			@Override
+			protected Task<Void> createTask() {
+				return new Task<Void>() {
+					@Override
+					protected Void call() throws Exception {
+						final boolean hasUsername = !username.getText().isEmpty();
+						final boolean hasPassword = !password.getText().isEmpty();
+						if (hasUsername && hasPassword) {
+							try {
+								if (isAuth) {
+									if (!ServiceManager.IMPL.getCredentialService().authenticate(
+											username.getText(), password.getText())) {
+										throw new AuthenticationException();
+									}
+								} else {
+									ServiceManager.IMPL.getCredentialService().addUser(
+											username.getText(), password.getText(), RoleType.ADMIN.newRole());
+								}
+								Platform.runLater(new Runnable() {
+									@Override
+									public void run() {
+										showApplication(stage);
+									}
+								});
+							} catch (final Throwable t) {
+								final String errorMsg = RS.rbLabel(isAuth ? 
+										"app.dialog.auth.error" : "app.dialog.setup.error", username.getText());
+								log.warn(errorMsg, t);
+								throw new RuntimeException(errorMsg, t);
+							}
+						} else {
+							final String invalidFields = (!hasUsername ? username.getPromptText() : "") + ' ' +
+									(!hasPassword ? password.getPromptText() : "");
+							throw new RuntimeException(RS.rbLabel("app.dialog.required", invalidFields));
+						}
+						return null;
+					}
+				};
+			}
+		}, closeBtn, username, password);
+		if (closeBtn != null) {
+			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(final MouseEvent event) {
+					dialogService.hide();
+				}
+			});	
+		}
+		dialogService.start();
 	}
 
 	/**
@@ -360,6 +391,7 @@ public class UGateGUI extends Application {
 	 * @param stage the primary {@linkplain Stage}
 	 */
 	protected void showApplication(final Stage stage) {
+		log.info("Showing GUI");
 		stage.show();
 		SystemTray.initSystemTray(stage);
 	}

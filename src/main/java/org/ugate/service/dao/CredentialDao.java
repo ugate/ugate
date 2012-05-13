@@ -24,8 +24,14 @@ public class CredentialDao extends Dao {
 	}
 	
 	public Actor getActor(final String login) {
-		final TypedQuery<Actor> q = em.createQuery("select a from Actor a where a.id = ?1", Actor.class);
+		final TypedQuery<Actor> q = em.createQuery("select a from Actor a where a.login = ?1", Actor.class);
 		q.setParameter(1, login);
+		return q.getSingleResult();
+	}
+
+	public Actor getActorByPassword(final String password) {
+		final TypedQuery<Actor> q = em.createQuery("select a from Actor a where a.pwd = ?1", Actor.class);
+		q.setParameter(1, password);
 		return q.getSingleResult();
 	}
 	
