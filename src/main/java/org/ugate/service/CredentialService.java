@@ -27,7 +27,7 @@ public class CredentialService {
 	private static final Logger log = LoggerFactory.getLogger(CredentialService.class);
 	// TODO : Until browsers support SHA-256 http://tools.ietf.org/html/rfc5843 we have to use MD5
 	private static final String ALGORITHM = "MD5"; //"SHA-256";
-	private static final String SALT = CredentialService.class.getName() + "-ouscs-";
+	public static final String SALT = "Authorization";
 
 	@Resource
 	private CredentialDao credentialDao;
@@ -161,7 +161,7 @@ public class CredentialService {
 	protected static byte[] digestBytes(final String username, final String password) {
 		try {
 			MessageDigest sha = MessageDigest.getInstance(ALGORITHM);
-			sha.update(getBytes(SALT + username + password));
+			sha.update(getBytes(getSaltedPassword(username, password)));
 			return sha.digest();
 		} catch (final Exception e) {
 			log.warn("Unable to create message digest for " + ALGORITHM, e);
@@ -208,5 +208,19 @@ public class CredentialService {
 			buf.append((char) c);
 		}
 		return buf.toString();
+	}
+	
+	/**
+	 * Gets a salted password
+	 * 
+	 * @param username
+	 *            the login ID
+	 * @param password
+	 *            the password
+	 * @return the salted password
+	 */
+	public static final String getSaltedPassword(final String username, final String password) {
+		// Do not change the salt generation below or web use will be rendered unusable!
+		return username + ':' + SALT + ':' + password;
 	}
 }

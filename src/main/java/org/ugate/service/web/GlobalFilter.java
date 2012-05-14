@@ -32,7 +32,7 @@ public class GlobalFilter implements Filter {
 						request.getRemoteAddr()));
 			}
 			response.setContentType("text/html;charset=utf-8");
-			response.getWriter().println("<html><body>");
+			response.getWriter().println("<html><body><button onclick=\"header('HTTP/1.1 401 Unauthorized');\">Logout</button>");
 			response.getWriter().println("<h1>" + RS.rbLabel("app.title") + "</h1>");
 
 			// delegate the request to the next filter, and eventually to the target servlet or JSP
@@ -43,6 +43,11 @@ public class GlobalFilter implements Filter {
 			log.error("Unable to process " + GlobalFilter.class.getSimpleName(), t);
 		}
 	}
+	// TODO : add logout feature for digest
+//	private String getLogoutJS(final ServletRequest request) {
+//        return "header('HTTP/1.1 401 Unauthorized');" +
+//        "header('WWW-Authenticate: Digest realm=\"'" + request.get.getUserPrincipal().getName() + "'\",qop="auth",nonce="'.$_SESSION['http_digest_nonce'].'",opaque="'.md5($realm).'"');
+//	}
 
 	/**
 	 * {@inheritDoc}
