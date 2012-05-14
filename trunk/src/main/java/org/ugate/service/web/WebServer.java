@@ -20,12 +20,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.service.RoleType;
 
+/**
+ * Embedded web server
+ */
 public class WebServer {
 
 	private static final Logger log = LoggerFactory.getLogger(WebServer.class);
 	private final int portNumber;
 	private Server server;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param portNumber
+	 *            the port number
+	 */
 	private WebServer(final int portNumber) {
 		this.portNumber = portNumber <= 0 ? 80 : portNumber;
 	}
@@ -60,6 +69,7 @@ public class WebServer {
 			// server = (Server) configuration.configure();
 
 			server = new Server();
+			// TODO : add SSL support
 			final SelectChannelConnector defaultConnnector = new SelectChannelConnector();
 			defaultConnnector.setPort(getPortNumber());
 			server.setConnectors(new Connector[] { defaultConnnector });
@@ -72,8 +82,7 @@ public class WebServer {
 			context.addFilter(GlobalFilter.class, "/*", dispatchers);
 			context.addServlet(DefaultAppServlet.class, "/");
 
-			addAuthentication(null, context);
-			createRealmProperty("user", "mypwd");
+			addAuthentication(context);
 			server.setHandler(context);
 
 			// server.setDumpAfterStart(true);
@@ -86,7 +95,21 @@ public class WebServer {
 		}
 	}
 
-	protected static void createRealmProperty(final String username,
+	/**
+	 * Programmatic approach to <a
+	 * href="http://wiki.eclipse.org/Jetty/Howto/Secure_Passwords">Jetty's
+	 * command line password generation</a>
+	 * 
+	 * @param username
+	 *            the login ID
+	 * @param password
+	 *            the password
+	 * @return a {@linkplain String} array of {@linkplain Password}, Obfuscated,
+	 *         {@linkplain Credential.MD5#digest(String)} and
+	 *         {@linkplain Credential.Crypt#crypt(String, String)} versions of
+	 *         the user name and password
+	 */
+	public static String[] createRealmProperty(final String username,
 			final String password) {
 		// http://wiki.eclipse.org/Jetty/Howto/Secure_Passwords
 		final Password pw = new Password(password);
@@ -96,10 +119,18 @@ public class WebServer {
 		log.info(String.format(
 				"Password: %1$s, Obfuscated: %2$s, Digest: %3$s, Crypt: %4$s",
 				pw.toString(), obf, digest, crypt));
+		return new String[] { pw.toString(), obf, digest, crypt };
 	}
 
-	protected void addAuthentication(final String[] roles,
-			final HandlerWrapper handler) {
+	/**
+	 * Adds a {@linkplain DigestAuthenticator} via {@linkplain JPALoginService}.
+	 * <b>NOTE: digest authentication will be valid until the user closes the
+	 * browser. Therefore, there is no default logout mechanism</b>
+	 * 
+	 * @param handler
+	 *            the {@linkplain HandlerWrapper} to add authentication to
+	 */
+	protected void addAuthentication(final HandlerWrapper handler) {
 		final Constraint constraint = new Constraint();
 		constraint.setName(Constraint.__DIGEST_AUTH);
 		constraint.setRoles(RoleType.names());
@@ -116,8 +147,8 @@ public class WebServer {
 //		final JDBCLoginService loginService = new JDBCLoginService();
 //		loginService.setConfig("META-INF/realm.properties");
 
-//		final HashLoginService loginService = new HashLoginService("MyRealm",
-//				"META-INF/realm.properties");
+//		 final HashLoginService loginService = new HashLoginService("MyRealm",
+//		 "META-INF/realm.properties");
 		
 		final JPALoginService loginService = new JPALoginService();
 		
@@ -141,6 +172,9 @@ public class WebServer {
 		}
 	}
 
+	/**
+	 * @return the port number of the web server
+	 */
 	public int getPortNumber() {
 		return portNumber;
 	}
