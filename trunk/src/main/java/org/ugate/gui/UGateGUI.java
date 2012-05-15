@@ -28,6 +28,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.Control;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.PasswordFieldBuilder;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextAreaBuilder;
@@ -331,7 +333,7 @@ public class UGateGUI extends Application {
 			log.info("Initializing post installation dialog prompt");
 		}
 		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel("app.dialog.username")).build();
-		final TextField password = TextFieldBuilder.create().promptText(RS.rbLabel("app.dialog.password")).build();
+		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel("app.dialog.password")).build();
 		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel("close")).build() : null;
 		final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
 			@Override
@@ -361,7 +363,9 @@ public class UGateGUI extends Application {
 							} catch (final Throwable t) {
 								final String errorMsg = RS.rbLabel(isAuth ? 
 										"app.dialog.auth.error" : "app.dialog.setup.error", username.getText());
-								log.warn(errorMsg, t);
+								if (!(t instanceof AuthenticationException)) {
+									log.warn(errorMsg, t);
+								}
 								throw new RuntimeException(errorMsg, t);
 							}
 						} else {

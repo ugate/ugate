@@ -113,13 +113,17 @@
     -fx-font-style: oblique;
     -fx-font-size: 14px;
     -fx-effect: dropshadow( one-pass-box , rgba(75,75,75,0.8) , 0, 0.0 , 2, 2);
-/*     -fx-text-alignment: center; */
+}
+.dialog-message {
+    -fx-fill: crimson;
+    -fx-font-style: oblique;
+    -fx-font-size: 12px;
+    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 1, 1);
 }
 .dialog {
     -fx-base: #505359;
     -fx-background: #505359;
-/*     -fx-shadow-highlight-color: transparent; */
-    -fx-spacing: 20;
+    -fx-spacing: 10;
     -fx-padding: 10 10 10 10;
     -fx-background-color:
         linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
