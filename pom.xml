@@ -40,6 +40,7 @@
 		<ugate.spring.version>3.1.1.RELEASE</ugate.spring.version>
 		<ugate.cglib.version>2.2.2</ugate.cglib.version>
 		<ugate.junit.version>4.9</ugate.junit.version>
+		<ugate.plugin.compiler.version>2.4</ugate.plugin.compiler.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
 		<ugate.plugin.shade.version>1.6</ugate.plugin.shade.version>
 		<ugate.plugin.dependency.version>2.4</ugate.plugin.dependency.version>
@@ -119,6 +120,10 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${ugate.plugin.compiler.version}</version>
+			</plugin>
 			<!-- Add the class path to the JARs manifest -->
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>

@@ -26,6 +26,11 @@ public class Actor implements Serializable {
 
 	@Column(nullable=false, length=64)
 	private String pwd;
+	
+	//bi-directional many-to-one association to Host
+    @ManyToOne
+	@JoinColumn(name="HOST_ID", nullable=false)
+	private Host host;
 
 	//bi-directional many-to-many association to Role
     @ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
@@ -65,6 +70,14 @@ public class Actor implements Serializable {
 
 	public void setPwd(String pwd) {
 		this.pwd = pwd;
+	}
+	
+	public Host getHost() {
+		return this.host;
+	}
+
+	public void setHost(Host host) {
+		this.host = host;
 	}
 
 	public Set<Role> getRoles() {

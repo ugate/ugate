@@ -167,7 +167,7 @@ public class GuiUtil {
 	 * {@linkplain DialogService#start()} is called and hidden when the submit
 	 * {@linkplain Service#restart()} returns {@linkplain State#SUCCEEDED}. When
 	 * a {@linkplain Task} throws an {@linkplain Exception} the
-	 * {@linkplain Exception#getMessage()} will be used to update the header of
+	 * {@linkplain Exception#getMessage()} will be used to update the messageHeader of
 	 * the dialog.
 	 * 
 	 * @param parent
@@ -176,7 +176,7 @@ public class GuiUtil {
 	 *            the resource key for the {@linkplain Stage#setTitle(String)}
 	 * @param headerKey
 	 *            the resource key for the {@linkplain Text#setText(String)}
-	 *            header
+	 *            messageHeader
 	 * @param submitLabelKey
 	 *            the resource key for the {@linkplain Button#setText(String)}
 	 * @param width
@@ -188,7 +188,7 @@ public class GuiUtil {
 	 *            {@linkplain Button} is clicked
 	 * @param children
 	 *            the child {@linkplain Node}s that will be added between the
-	 *            header and submit {@linkplain Button} (if any). If any of the
+	 *            messageHeader and submit {@linkplain Button} (if any). If any of the
 	 *            {@linkplain Node}s are {@linkplain Button}s they will be added
 	 *            to the internal {@linkplain Button} {@linkplain FlowPane}
 	 *            added to the bottom of the dialog.
@@ -201,7 +201,9 @@ public class GuiUtil {
 		final Stage window = new Stage();
 		final Text header = TextBuilder.create().text(headerText).styleClass(
 				"dialog-title").wrappingWidth(width / 1.2d).build();
-		final DialogService service = new DialogService(parent, window, header, submitService);
+		final Text messageHeader = TextBuilder.create().styleClass(
+				"dialog-message").wrappingWidth(width / 1.2d).build();
+		final DialogService service = new DialogService(parent, window, messageHeader, submitService);
 		window.initModality(Modality.APPLICATION_MODAL);
 		window.initStyle(StageStyle.TRANSPARENT);
 		window.getIcons().add(RS.img(RS.IMG_LOGO_16));
@@ -225,7 +227,7 @@ public class GuiUtil {
 		flowPane.setHgap(10d);
 		flowPane.setPrefWrapLength(width);
 		flowPane.getChildren().add(submitBtn);
-		content.getChildren().add(header);
+		content.getChildren().addAll(header, messageHeader);
 		if (children != null && children.length > 0) {
 			for (final Node node : children) {
 				if (node == null) {
@@ -339,7 +341,6 @@ public class GuiUtil {
 	 */
 	public static class DialogService extends Service<Void> {
 
-		private final Text header;
 		private final Stage window;
 		private final Stage parent;
 		private final Effect origEffect;
@@ -348,16 +349,23 @@ public class GuiUtil {
 		/**
 		 * Creates a dialog service for showing and hiding a {@linkplain Stage}
 		 * 
-		 * @param parent the parent {@linkplain Stage}
-		 * @param window the window {@linkplain Stage} that will be shown/hidden
-		 * @param header the header {@linkplain Text} used for the service
-		 * @param submitService the {@linkplain Service} that will be listened to for {@linkplain State#SUCCEEDED}
-		 * 				at which point the {@linkplain DialogService} window {@linkplain Stage} will be hidden
+		 * @param parent
+		 *            the parent {@linkplain Stage}
+		 * @param window
+		 *            the window {@linkplain Stage} that will be shown/hidden
+		 * @param messageHeader
+		 *            the messageHeader {@linkplain Text} used for the service
+		 *            that will be updated with exception information as the
+		 *            submitService informs the {@linkplain DialogService} of
+		 * @param submitService
+		 *            the {@linkplain Service} that will be listened to for
+		 *            {@linkplain State#SUCCEEDED} at which point the
+		 *            {@linkplain DialogService} window {@linkplain Stage} will
+		 *            be hidden
 		 */
-		protected DialogService(final Stage parent, final Stage window, final Text header, final Service<Void> submitService) {
+		protected DialogService(final Stage parent, final Stage window, final Text messageHeader, final Service<Void> submitService) {
 			this.window = window;
 			this.parent = parent;
-			this.header = header;
 			this.origEffect = hasParentSceneRoot() ? this.parent.getScene().getRoot().getEffect() : null;
 			this.submitService = submitService;
 			this.submitService.stateProperty().addListener(new ChangeListener<State>() {
@@ -365,7 +373,7 @@ public class GuiUtil {
 				public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 					if (submitService.getException() != null) {
 						// service indicated that an error occurred
-						header.setText(submitService.getException().getMessage());
+						messageHeader.setText(submitService.getException().getMessage());
 					} else if (newValue == State.SUCCEEDED) {
 						window.getScene().getRoot().setEffect(ColorAdjustBuilder.create().brightness(-0.5d).build());
 						Platform.runLater(createHideTask());
@@ -420,7 +428,7 @@ public class GuiUtil {
 				@Override
 				protected Void call() throws Exception {
 					window.hide();
-					if (parent != null) {
+					if (hasParentSceneRoot()) {
 						parent.getScene().getRoot().setEffect(origEffect);
 					}
 					window.getScene().getRoot().setDisable(false);
@@ -433,7 +441,7 @@ public class GuiUtil {
 		/**
 		 * @return true when the parent {@linkplain Stage#getScene()} has a valid {@linkplain Scene#getRoot()}
 		 */
-		public boolean hasParentSceneRoot() {
+		private boolean hasParentSceneRoot() {
 			return this.parent != null && this.parent.getScene() != null && this.parent.getScene().getRoot() != null;
 		}
 		
@@ -442,13 +450,6 @@ public class GuiUtil {
 		 */
 		public void hide() {
 			Platform.runLater(createHideTask());
-		}
-		
-		/**
-		 * @return the header {@linkplain Text} used for the service
-		 */
-		public Text getHeader() {
-			return header;
 		}
 	}
 }

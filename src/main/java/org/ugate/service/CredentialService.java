@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.persistence.NoResultException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.ugate.service.dao.CredentialDao;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.Role;
 
 /**
@@ -53,14 +55,17 @@ public class CredentialService {
 	 *            the user's login ID
 	 * @param password
 	 *            the user's password
+	 * @param host
+	 *            the {@linkplain Host} that will be associated with the user
 	 * @param roles
 	 *            the {@linkplain Role}(s) that the user should have
 	 * @throws UnsupportedOperationException
 	 *             when using an OAuth 2.0 vendor
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void addUser(final String username, final String password, final Role... roles) 
+	public void addUser(final String username, final String password, final Host host, final Role... roles) 
 			throws UnsupportedOperationException {
+		credentialDao.persistEntity(host);
 		final Actor actor = new Actor();
 		actor.setLogin(username);
 		String pwdHash = generateHash(username, password);
@@ -109,7 +114,15 @@ public class CredentialService {
 				log.debug(String.format("No %1$s exists with a login of %2$s", username));
 			}
 		} catch (final Exception e) {
-			log.error(String.format("Unable to authenticate user %1$s", username), e);
+			if (e instanceof NoResultException || (e.getCause() != null && e.getCause() instanceof NoResultException)) {
+				if (log.isDebugEnabled()) {
+					log.debug(String.format("Cannot authenticate %1$s because they do not exist", username), e);
+				} else {
+					log.info(String.format("Cannot authenticate %1$s because they do not exist", username));
+				}
+			} else {
+				log.error(String.format("Unable to authenticate user %1$s", username), e);
+			}
 		}
 		return false;
 	}

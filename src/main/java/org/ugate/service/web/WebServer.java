@@ -1,5 +1,6 @@
 package org.ugate.service.web;
 
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -12,10 +13,12 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.util.security.Password;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.service.RoleType;
@@ -70,6 +73,16 @@ public class WebServer {
 
 			server = new Server();
 			// TODO : add SSL support
+			final SslContextFactory sslContextFactory = new SslContextFactory() {
+				@Override
+				protected KeyStore loadKeyStore() throws Exception {
+					// TODO Auto-generated method stub
+					return super.loadKeyStore();
+				}
+			};
+			final SslSelectChannelConnector sslConnector = new SslSelectChannelConnector(sslContextFactory);
+			
+			
 			final SelectChannelConnector defaultConnnector = new SelectChannelConnector();
 			defaultConnnector.setPort(getPortNumber());
 			server.setConnectors(new Connector[] { defaultConnnector });

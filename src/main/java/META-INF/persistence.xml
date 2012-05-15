@@ -12,10 +12,11 @@
 	<persistence-unit name="ugate" transaction-type="JTA">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
 		<jta-data-source>jdbc/ugateDS</jta-data-source>
-<!-- 		<non-jta-data-source>jdbc/UnmannagedugateDS</non-jta-data-source> -->
+		<class>org.ugate.service.entity.jpa.Role</class>
 		<class>org.ugate.service.entity.jpa.Message</class>
 		<class>org.ugate.service.entity.jpa.Actor</class>
-		<class>org.ugate.service.entity.jpa.Role</class>
+		<class>org.ugate.service.entity.jpa.Host</class>
+<!-- 		<non-jta-data-source>jdbc/UnmannagedugateDS</non-jta-data-source> -->
 		<!-- properties maintained in spring -->
 <!-- 		<properties> -->
 <!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/> -->
