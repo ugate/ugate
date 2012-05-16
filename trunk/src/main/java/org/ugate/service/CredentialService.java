@@ -65,8 +65,8 @@ public class CredentialService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void addUser(final String username, final String password, final Host host, final Role... roles) 
 			throws UnsupportedOperationException {
-		credentialDao.persistEntity(host);
 		final Actor actor = new Actor();
+		actor.setHost(host);
 		actor.setLogin(username);
 		String pwdHash = generateHash(username, password);
 		actor.setPwd(pwdHash);
@@ -212,12 +212,14 @@ public class CredentialService {
 		for (final byte b : bytes) {
 			int bi = 0xff & b;
 			int c = '0' + (bi / base) % base;
-			if (c > '9')
+			if (c > '9') {
 				c = 'a' + (c - '0' - 10);
+			}
 			buf.append((char) c);
 			c = '0' + bi % base;
-			if (c > '9')
+			if (c > '9') {
 				c = 'a' + (c - '0' - 10);
+			}
 			buf.append((char) c);
 		}
 		return buf.toString();
@@ -233,7 +235,7 @@ public class CredentialService {
 	 * @return the salted password
 	 */
 	public static final String getSaltedPassword(final String username, final String password) {
-		// Do not change the salt generation below or web use will be rendered unusable!
+		// Do not change the salt generation below or web digest use will be rendered unusable!
 		return username + ':' + SALT + ':' + password;
 	}
 }

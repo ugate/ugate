@@ -16,7 +16,7 @@ public class Actor implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="ACTOR_ID_GENERATOR", sequenceName="ACTOR_ID")
+	@SequenceGenerator(name="ACTOR_ID_GENERATOR", sequenceName="ACTOR_ID", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ACTOR_ID_GENERATOR")
 	@Column(unique=true, nullable=false)
 	private int id;
@@ -28,7 +28,7 @@ public class Actor implements Serializable {
 	private String pwd;
 	
 	//bi-directional many-to-one association to Host
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.PERSIST)
 	@JoinColumn(name="HOST_ID", nullable=false)
 	private Host host;
 

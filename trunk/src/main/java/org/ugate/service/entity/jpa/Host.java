@@ -2,6 +2,7 @@ package org.ugate.service.entity.jpa;
 
 import java.io.Serializable;
 import javax.persistence.*;
+
 import java.util.Set;
 
 
@@ -15,7 +16,8 @@ public class Host implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@SequenceGenerator(name="HOST_ID_GENERATOR", sequenceName="HOST_ID", allocationSize=1)
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="HOST_ID_GENERATOR")
 	@Column(unique=true, nullable=false)
 	private int id;
 
@@ -55,6 +57,19 @@ public class Host implements Serializable {
 	//bi-directional many-to-one association to Actor
 	@OneToMany(mappedBy="host")
 	private Set<Actor> actors;
+	
+	//bi-directional many-to-many association to Role
+    @ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+	@JoinTable(
+		name="HOST_MAIL_RECIPIENT"
+		, joinColumns={
+			@JoinColumn(name="HOST_ID", nullable=false)
+			}
+		, inverseJoinColumns={
+			@JoinColumn(name="MAIL_RECIPIENT_ID", nullable=false)
+			}
+		)
+	private Set<MailRecipient> mailRecipients;
 
     public Host() {
     }
@@ -161,6 +176,14 @@ public class Host implements Serializable {
 
 	public void setActors(Set<Actor> actors) {
 		this.actors = actors;
+	}
+
+	public Set<MailRecipient> getMailRecipients() {
+		return mailRecipients;
+	}
+
+	public void setMailRecipients(Set<MailRecipient> mailRecipients) {
+		this.mailRecipients = mailRecipients;
 	}
 	
 }
