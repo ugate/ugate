@@ -4,8 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
-import javax.security.sasl.AuthenticationException;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -48,6 +46,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import javax.security.sasl.AuthenticationException;
+
 import org.slf4j.Logger;
 import org.ugate.IGateKeeperListener;
 import org.ugate.RemoteSettings;
@@ -58,6 +58,7 @@ import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
+import org.ugate.service.HostType;
 import org.ugate.service.RoleType;
 import org.ugate.service.ServiceManager;
 import org.ugate.wireless.data.ImageCapture;
@@ -72,7 +73,7 @@ public class UGateGUI extends Application {
 	public static final double APPLICATION_WIDTH = 900d;
 	public static final double APPLICATION_HEIGHT = 800d;
 
-	private static final double TASKBAR_HEIGHT = 180d;
+	private static final double TASKBAR_HEIGHT = 130d;
 	private static final double TASKBAR_BUTTON_WIDTH = 100d;
 	private static final double TASKBAR_BUTTON_HEIGHT = 100d;
 
@@ -352,7 +353,9 @@ public class UGateGUI extends Application {
 									}
 								} else {
 									ServiceManager.IMPL.getCredentialService().addUser(
-											username.getText(), password.getText(), RoleType.ADMIN.newRole());
+											username.getText(), password.getText(), 
+											HostType.DEFAULT.getHost(), 
+											RoleType.ADMIN.newRole());
 								}
 								Platform.runLater(new Runnable() {
 									@Override
