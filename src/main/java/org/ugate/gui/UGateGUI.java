@@ -2,6 +2,7 @@ package org.ugate.gui;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.InputMismatchException;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -335,6 +336,8 @@ public class UGateGUI extends Application {
 		}
 		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel("app.dialog.username")).build();
 		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel("app.dialog.password")).build();
+		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
+				RS.rbLabel("app.dialog.password.verify")).build();
 		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel("close")).build() : null;
 		final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
 			@Override
@@ -344,17 +347,22 @@ public class UGateGUI extends Application {
 					protected Void call() throws Exception {
 						final boolean hasUsername = !username.getText().isEmpty();
 						final boolean hasPassword = !password.getText().isEmpty();
-						if (hasUsername && hasPassword) {
+						final boolean hasPasswordVerify = passwordVerify == null ? true : !passwordVerify.getText().isEmpty();
+						if (hasUsername && hasPassword && hasPasswordVerify) {
 							try {
 								if (isAuth) {
 									if (!ServiceManager.IMPL.getCredentialService().authenticate(
 											username.getText(), password.getText())) {
-										throw new AuthenticationException();
+										throw new AuthenticationException(RS.rbLabel("app.dialog.auth.error", 
+												username.getText()));
 									}
 								} else {
+									if (!password.getText().equals(passwordVerify.getText())) {
+										throw new InputMismatchException(RS.rbLabel("app.dialog.setup.error.password.mismatch"));
+									}
 									ServiceManager.IMPL.getCredentialService().addUser(
 											username.getText(), password.getText(), 
-											HostType.DEFAULT.getHost(), 
+											HostType.DEFAULT.newHost(), 
 											RoleType.ADMIN.newRole());
 								}
 								Platform.runLater(new Runnable() {
@@ -364,23 +372,27 @@ public class UGateGUI extends Application {
 									}
 								});
 							} catch (final Throwable t) {
-								final String errorMsg = RS.rbLabel(isAuth ? 
-										"app.dialog.auth.error" : "app.dialog.setup.error", username.getText());
-								if (!(t instanceof AuthenticationException)) {
+								String errorMsg;
+								if (t instanceof AuthenticationException || t instanceof InputMismatchException) {
+									errorMsg = t.getMessage();
+								} else {
+									errorMsg = RS.rbLabel(isAuth ? 
+											"app.dialog.auth.error" : "app.dialog.setup.error", username.getText());
 									log.warn(errorMsg, t);
 								}
 								throw new RuntimeException(errorMsg, t);
 							}
 						} else {
 							final String invalidFields = (!hasUsername ? username.getPromptText() : "") + ' ' +
-									(!hasPassword ? password.getPromptText() : "");
+									(!hasPassword ? password.getPromptText() : "") + 
+									(!hasPasswordVerify ? passwordVerify.getPromptText() : "");
 							throw new RuntimeException(RS.rbLabel("app.dialog.required", invalidFields));
 						}
 						return null;
 					}
 				};
 			}
-		}, closeBtn, username, password);
+		}, closeBtn, username, password, passwordVerify);
 		if (closeBtn != null) {
 			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override

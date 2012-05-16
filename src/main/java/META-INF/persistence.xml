@@ -16,6 +16,7 @@
 		<class>org.ugate.service.entity.jpa.Message</class>
 		<class>org.ugate.service.entity.jpa.Actor</class>
 		<class>org.ugate.service.entity.jpa.Host</class>
+		<class>org.ugate.service.entity.jpa.MailRecipient</class>
 <!-- 		<non-jta-data-source>jdbc/UnmannagedugateDS</non-jta-data-source> -->
 		<!-- properties maintained in spring -->
 <!-- 		<properties> -->

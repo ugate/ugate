@@ -1,29 +1,40 @@
 package org.ugate.service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.entity.jpa.MailRecipient;
 
 /**
  * {@linkplain Host} types
  */
 public enum HostType {
-	DEFAULT(new Host());
-	
-	private final Host host;
+	DEFAULT;
 	
 	/**
 	 * Constructor
-	 * 
-	 * @param host
 	 */
-	private HostType(final Host host) {
-		this.host = host;
+	private HostType() {
 	}
 	
 	/**
-	 * @return a new or existing {@linkplain Host} (depending upon the type)
+	 * @return a new {@linkplain Host} (depending upon the type some fields may
+	 *         be populated)
 	 */
-	public Host getHost() {
-		if (host != null) {
+	public Host newHost() {
+		final Host host = new Host();
+		if (this == DEFAULT) {
+			final Set<MailRecipient> mailRecipients = new HashSet<MailRecipient>();
+			final MailRecipient mr1 = new MailRecipient();
+			mr1.setEmail("user1@example.com");
+			mailRecipients.add(mr1);
+			final MailRecipient mr2 = new MailRecipient();
+			mr2.setEmail("user2@example.com");
+			mailRecipients.add(mr2);
+			final MailRecipient mr3 = new MailRecipient();
+			mr3.setEmail("user3@example.com");
+			mailRecipients.add(mr3);
 			host.setComAddress("7777");
 			host.setComBaud(19200);
 			host.setComPort("COM1");
@@ -32,9 +43,9 @@ public enum HostType {
 			host.setMailImapHost("imap.gmail.com");
 			host.setMailImapPort(993);
 			host.setMailUserName("myemail@gmail.com");
-			// TODO : host.setMailRecipients("user1@example.com", "user2@example.com", "user3@example.com");
-			return host;
+			host.setMailInboxName("Inbox");
+			host.setMailRecipients(mailRecipients);
 		}
-		return new Host();
+		return host;
 	}
 }
