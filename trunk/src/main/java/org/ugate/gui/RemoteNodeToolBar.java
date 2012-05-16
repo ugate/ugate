@@ -49,7 +49,7 @@ public class RemoteNodeToolBar extends ToolBar {
 	 */
 	public RemoteNodeToolBar(final ControlBar controlBar, final Orientation orientation) {
 		super();
-		getStyleClass().add("map-toolbar");
+		getStyleClass().add("dialog-base");
 		setOrientation(orientation);
 		this.controlBar = controlBar;
 		addGlobalNodeControls();

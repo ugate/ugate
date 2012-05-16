@@ -3,7 +3,7 @@ package org.ugate.service;
 import org.ugate.service.entity.jpa.Role;
 
 /**
- * Role types
+ * {@linkplain Role} types
  */
 public enum RoleType {
 	ADMIN;
