@@ -62,6 +62,7 @@ import org.ugate.resources.RS;
 import org.ugate.service.HostType;
 import org.ugate.service.RoleType;
 import org.ugate.service.ServiceManager;
+import org.ugate.service.entity.jpa.Actor;
 import org.ugate.wireless.data.ImageCapture;
 
 /**
@@ -88,6 +89,7 @@ public class UGateGUI extends Application {
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
 	private static StringBuffer initErrors;
+	private Actor authActor;
 
 	/**
 	 * Constructor
@@ -345,14 +347,16 @@ public class UGateGUI extends Application {
 				return new Task<Void>() {
 					@Override
 					protected Void call() throws Exception {
+						UGateGUI.this.authActor = null;
 						final boolean hasUsername = !username.getText().isEmpty();
 						final boolean hasPassword = !password.getText().isEmpty();
 						final boolean hasPasswordVerify = passwordVerify == null ? true : !passwordVerify.getText().isEmpty();
 						if (hasUsername && hasPassword && hasPasswordVerify) {
 							try {
 								if (isAuth) {
-									if (!ServiceManager.IMPL.getCredentialService().authenticate(
-											username.getText(), password.getText())) {
+									UGateGUI.this.authActor = ServiceManager.IMPL.getCredentialService().authenticate(
+											username.getText(), password.getText());
+									if (UGateGUI.this.authActor == null) {
 										throw new AuthenticationException(RS.rbLabel("app.dialog.auth.error", 
 												username.getText()));
 									}
@@ -360,10 +364,14 @@ public class UGateGUI extends Application {
 									if (!password.getText().equals(passwordVerify.getText())) {
 										throw new InputMismatchException(RS.rbLabel("app.dialog.setup.error.password.mismatch"));
 									}
-									ServiceManager.IMPL.getCredentialService().addUser(
-											username.getText(), password.getText(), 
-											HostType.DEFAULT.newHost(), 
-											RoleType.ADMIN.newRole());
+									UGateGUI.this.authActor = 
+											ServiceManager.IMPL.getCredentialService().addUser(
+													username.getText(), password.getText(), 
+													HostType.DEFAULT.newHost(), 
+													RoleType.ADMIN.newRole());
+								}
+								if (UGateGUI.this.authActor != null) {
+									ServiceManager.IMPL.startWebServer(UGateGUI.this.authActor.getHost());
 								}
 								Platform.runLater(new Runnable() {
 									@Override

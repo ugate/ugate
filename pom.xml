@@ -39,6 +39,7 @@
 		<ugate.atomikos.version>3.7.1</ugate.atomikos.version>
 		<ugate.spring.version>3.1.1.RELEASE</ugate.spring.version>
 		<ugate.cglib.version>2.2.2</ugate.cglib.version>
+		<ugate.bouncycastle.version>1.47</ugate.bouncycastle.version>
 		<ugate.junit.version>4.9</ugate.junit.version>
 		<ugate.plugin.compiler.version>2.4</ugate.plugin.compiler.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
@@ -478,12 +479,12 @@
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.47</version>
+			<version>${ugate.bouncycastle.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk15on</artifactId>
-			<version>1.47</version>
+			<version>${ugate.bouncycastle.version}</version>
 		</dependency>
 		<!-- Logging -->
 		<dependency>

@@ -3,6 +3,7 @@ package org.ugate.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.web.WebServer;
 
 /**
@@ -13,7 +14,6 @@ public enum ServiceManager {
 	IMPL;
 
 	private final Logger log = LoggerFactory.getLogger(ServiceManager.class);
-	private int webServerPortNumber = 443;
 	private ClassPathXmlApplicationContext appContext;
 	private WebServer webServer;
 	
@@ -24,14 +24,24 @@ public enum ServiceManager {
 	}
 	
 	/**
-	 * Opens all underlying managed services
+	 * Opens all underlying managed services (<b>excluding the web server- see
+	 * {@linkplain #startWebServer(Host)}</b>).
 	 */
 	public void open() {
+		open(null);
+	}
+	
+	/**
+	 * Opens all underlying managed services
+	 * 
+	 * @param host
+	 *            the {@linkplain Host} to open the services for
+	 */
+	public void open(final Host host) {
 		try {
 			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
 			appContext.start();
-			// TODO : get port number from DB
-			startWebServer();
+			startWebServer(host);
 		} catch (final Throwable t) {
 			log.error(String.format("Unable to initialize/start %1$s", 
 					ServiceManager.class.getSimpleName()), t);
@@ -59,10 +69,20 @@ public enum ServiceManager {
 	}
 	
 	/**
-	 * Starts a {@linkplain WebServer}. If it has already been started it will be stopped and restarted
+	 * Starts a {@linkplain WebServer}. If it has already been started it will
+	 * be stopped and restarted
+	 * 
+	 * @param host
+	 *            the {@linkplain host}
 	 */
-	public void startWebServer() {
-		webServer = WebServer.start(webServerPortNumber);
+	public void startWebServer(final Host host) {
+		if (host == null) {
+			return;
+		}
+		if (webServer != null) {
+			webServer.stop();
+		}
+		webServer = WebServer.start(host);
 	}
 	
 	/**
