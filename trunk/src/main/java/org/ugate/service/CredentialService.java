@@ -59,11 +59,10 @@ public class CredentialService {
 	 *            the {@linkplain Host} that will be associated with the user
 	 * @param roles
 	 *            the {@linkplain Role}(s) that the user should have
-	 * @throws UnsupportedOperationException
-	 *             when using an OAuth 2.0 vendor
+	 * @return the newly persisted {@linkplain Actor}
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void addUser(final String username, final String password, final Host host, final Role... roles) 
+	public Actor addUser(final String username, final String password, final Host host, final Role... roles) 
 			throws UnsupportedOperationException {
 		final Actor actor = new Actor();
 		actor.setHost(host);
@@ -72,6 +71,7 @@ public class CredentialService {
 		actor.setPwd(pwdHash);
 		actor.setRoles(new HashSet<Role>(Arrays.asList(roles)));
 		credentialDao.persistActor(actor);
+		return actor;
 	}
 	
 	/**
@@ -103,13 +103,16 @@ public class CredentialService {
 	 *            the user's login ID
 	 * @param password
 	 *            the user's password
-	 * @return true when authenticated
+	 * @return the authenticated {@linkplain Actor} (or <code>null</code> when
+	 *         authentication fails)
 	 */
-	public boolean authenticate(final String username, final String password) {
+	public Actor authenticate(final String username, final String password) {
 		try {
 			final Actor actor = credentialDao.getActor(username);
 			if (actor != null) {
-				return hasDigestMatch(username, actor.getPwd(), password);
+				if (hasDigestMatch(username, actor.getPwd(), password)) {
+					return actor;
+				}
 			} else if (log.isDebugEnabled()) {
 				log.debug(String.format("No %1$s exists with a login of %2$s", username));
 			}
@@ -124,7 +127,7 @@ public class CredentialService {
 				log.error(String.format("Unable to authenticate user %1$s", username), e);
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**

@@ -35,12 +35,12 @@ import org.ugate.UGateUtil;
 /**
  * SSL certificate holder
  */
-public class CertificateHolder {
+public class X509Manager {
 	
-	private static final Logger log = LoggerFactory.getLogger(CertificateHolder.class);
+	private static final Logger log = LoggerFactory.getLogger(X509Manager.class);
 	public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption"; //"SHA1withRSA"; // "SHA256WithRSAEncryption";
 	/**
-	 * The key size used by the {@linkplain CertificateHolder}. In 2030 expiry
+	 * The key size used by the {@linkplain X509Manager}. In 2030 expiry
 	 * of 2048 bits will occur. <a
 	 * href="http://www.zytrax.com/tech/survival/ssl.html#self">Self Signed
 	 * Certificates</a>
@@ -66,7 +66,7 @@ public class CertificateHolder {
 	 * @param keyStore
 	 *            the {@linkplain KeyStore}
 	 */
-	private CertificateHolder(final X509Certificate certificate, final KeyPair keyPair,
+	private X509Manager(final X509Certificate certificate, final KeyPair keyPair,
 			final KeyStore keyStore) {
 		this.certificate = certificate;
 		this.keyPair = keyPair;
@@ -74,7 +74,7 @@ public class CertificateHolder {
 	}
 	
 	/**
-	 * Creates a new {@linkplain CertificateHolder} for a self-signed X.509
+	 * Creates a new {@linkplain X509Manager} for a self-signed X.509
 	 * version 3 certificate
 	 * 
 	 * @param countryCode
@@ -92,7 +92,7 @@ public class CertificateHolder {
 	 * @param keyStorePassword
 	 *            the password for the {@linkplain KeyStore}
 	 */
-	public static CertificateHolder newSelfSignedCertificate(final String countryCode, final String organizationName, 
+	public static X509Manager newSelfSignedCertificate(final String countryCode, final String organizationName, 
 			final String localityName, final String state, final String emailAddress, final String commonName,
 			final String keyStorePassword) {
 		try {
@@ -164,8 +164,11 @@ public class CertificateHolder {
 			//ks.setCertificateEntry(organizationName, cert);
 			ks.setKeyEntry(organizationName, kp.getPrivate(), 
 					keyStorePassword.toCharArray(), new X509Certificate[] { cert });
+			// TODO : write the key store to host DB. load the key store if present 
+			// instead of creating it every time
+			//ks.store(stream, password);
 			
-			return new CertificateHolder(cert, kp, ks);
+			return new X509Manager(cert, kp, ks);
 		} catch (final Throwable t) {
 			log.error("Unable to generate a self signed certificate", t);
 			return null;
@@ -288,7 +291,7 @@ public class CertificateHolder {
 
 	public static void main(String[] args) {
 		try {
-			final CertificateHolder cert = newSelfSignedCertificate("AU", 
+			final X509Manager cert = newSelfSignedCertificate("AU", 
 					"The Legion of the Bouncy Castle", "Melbourne", 
 					"Victoria", "feedback-crypto@bouncycastle.org", 
 					"www.example.com", "testPassword");

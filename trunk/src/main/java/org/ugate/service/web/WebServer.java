@@ -21,6 +21,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.service.RoleType;
+import org.ugate.service.entity.jpa.Host;
 
 /**
  * Embedded web server
@@ -31,51 +32,28 @@ public class WebServer {
 	public static final String[] PROTOCOL_INCLUDE = new String[] {
 		"TLSv1", "TLSv1.1", "TLSv1.2"
 	};
-	public static final String[] PROTOCOL_EXCLUDE = new String[] {
-		"TLSv1", "TLSv1.1", "TLSv1.2"
-	};
-	public static final String[] CIPHER_SUITES_INCLUDE = new String[] { 
-		"TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-		"TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "PBEWithSHA1AndDES"
-	};
-	public static final String[] CIPHER_SUITES_EXCLUDE = new String[] { 
-		"SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA",
-		"SSL_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-		"SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_DES_CBC_SHA",
-		"SSL_DHE_RSA_WITH_DES_CBC_SHA", "SSL_DHE_DSS_WITH_DES_CBC_SHA",
-		"SSL_RSA_EXPORT_WITH_RC4_40_MD5", "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
-		"SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA", 
-		"SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA", "SSL_RSA_WITH_NULL_MD5",
-		"SSL_RSA_WITH_NULL_SHA", "SSL_DH_anon_WITH_RC4_128_MD5",
-		"SSL_DH_anon_WITH_3DES_EDE_CBC_SHA", "SSL_DH_anon_WITH_DES_CBC_SHA",
-		"SSL_DH_anon_EXPORT_WITH_RC4_40_MD5", 
-		"SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA",
-		"TLS_KRB5_WITH_RC4_128_MD5", "TLS_KRB5_WITH_3DES_EDE_CBC_MD5",
-		"TLS_KRB5_WITH_DES_CBC_MD5", "TLS_KRB5_EXPORT_WITH_RC4_40_MD5",
-		"TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5"
-	};
-	private final int portNumber;
+	private final Host host;
 	private Server server;
-	private CertificateHolder certHolder;
+	private X509Manager certHolder;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param portNumber
-	 *            the port number
+	 * @param host
+	 *            the {@linkplain Host}
 	 */
-	private WebServer(final int portNumber) {
-		this.portNumber = portNumber <= 0 ? 80 : portNumber;
+	private WebServer(final Host host) {
+		this.host = host;
 	}
 
 	/**
 	 * Starts the web server in a new thread
 	 * 
-	 * @param portNumber
-	 *            the port number to run the server on
+	 * @param host
+	 *            the {@linkplain Host}
 	 */
-	public static final WebServer start(final int portNumber) {
-		final WebServer webServer = new WebServer(portNumber);
+	public static final WebServer start(final Host host) {
+		final WebServer webServer = new WebServer(host);
 		final Thread webServerAgent = new Thread(Thread.currentThread()
 				.getThreadGroup(), new Runnable() {
 			@Override
@@ -102,7 +80,7 @@ public class WebServer {
 
 			server = new Server();
 			// TODO : clean up SSL support along with pulling certificate from DB (if present)
-			certHolder = CertificateHolder.newSelfSignedCertificate("US", "UGate", "New York", 
+			certHolder = X509Manager.newSelfSignedCertificate("US", "UGate", "New York", 
 					"New York", "certificate@example.org", "localhost", "testPassword");
 			if (log.isDebugEnabled()) {
 				certHolder.dumpLog();
@@ -112,12 +90,10 @@ public class WebServer {
 			sslCnxt.setKeyStore(certHolder.getKeyStore());
 			sslCnxt.setKeyStoreType(certHolder.getKeyStore().getType());
 			sslCnxt.setKeyStoreProvider(certHolder.getKeyStore().getProvider().getName());
-			//sslCnxt.setIncludeCipherSuites(CIPHER_SUITES_INCLUDE);
-			//sslCnxt.setExcludeCipherSuites(CIPHER_SUITES_EXCLUDE);
-			//sslCnxt.setIncludeProtocols(PROTOCOL_INCLUDE);
+			sslCnxt.setIncludeProtocols(PROTOCOL_INCLUDE);
 			sslCnxt.setTrustAll(false);
 			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
-			sslCnct.setPort(443);
+			sslCnct.setPort(getHost().getWebPort());
 			// Do not use an HTTP channel selector in addition to the SSL or else 
 			// requests will fail with "no cipher suites in common"
 //			final SslSelectChannelConnector sslCnct = new SslSelectChannelConnector(sslContextFactory);
@@ -227,9 +203,9 @@ public class WebServer {
 	}
 
 	/**
-	 * @return the port number of the web server
+	 * @return the {@linkplain Host} of the web server
 	 */
-	public int getPortNumber() {
-		return portNumber;
+	public Host getHost() {
+		return host;
 	}
 }

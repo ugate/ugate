@@ -45,6 +45,8 @@ public enum HostType {
 			host.setMailUserName("myemail@gmail.com");
 			host.setMailInboxName("Inbox");
 			host.setMailRecipients(mailRecipients);
+			host.setWebHost("localhost");
+			host.setWebPort(443);
 		}
 		return host;
 	}

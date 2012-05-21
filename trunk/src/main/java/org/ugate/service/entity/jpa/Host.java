@@ -53,6 +53,17 @@ public class Host implements Serializable {
 
 	@Column(name="USE_METRIC", nullable=false)
 	private boolean useMetric;
+	
+	@Column(name="WEB_HOST")
+	private String webHost;
+	
+	@Column(name="WEB_PORT")
+	private int webPort;
+	
+	@Lob
+	@Basic(fetch=FetchType.EAGER)
+	@Column(name="WEB_KEY_STORE")
+	private byte[] webKeyStore;
 
 	//bi-directional many-to-one association to Actor
 	@OneToMany(mappedBy="host")
@@ -184,6 +195,30 @@ public class Host implements Serializable {
 
 	public void setMailRecipients(Set<MailRecipient> mailRecipients) {
 		this.mailRecipients = mailRecipients;
+	}
+
+	public String getWebHost() {
+		return webHost;
+	}
+
+	public void setWebHost(String webHost) {
+		this.webHost = webHost;
+	}
+
+	public int getWebPort() {
+		return webPort;
+	}
+
+	public void setWebPort(int webPort) {
+		this.webPort = webPort;
+	}
+
+	public byte[] getWebKeyStore() {
+		return webKeyStore;
+	}
+
+	public void setWebKeyStore(byte[] webKeyStore) {
+		this.webKeyStore = webKeyStore;
 	}
 	
 }
