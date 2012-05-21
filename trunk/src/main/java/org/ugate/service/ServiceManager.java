@@ -13,7 +13,7 @@ public enum ServiceManager {
 	IMPL;
 
 	private final Logger log = LoggerFactory.getLogger(ServiceManager.class);
-	private int webServerPortNumber = 9080;
+	private int webServerPortNumber = 443;
 	private ClassPathXmlApplicationContext appContext;
 	private WebServer webServer;
 	

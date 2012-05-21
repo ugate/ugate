@@ -455,6 +455,11 @@
 <!-- 			<version>${ugate.jetty.version}</version> -->
 <!-- 		</dependency> -->
 		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-util</artifactId>
+			<version>${ugate.jetty.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.eclipse.jetty.aggregate</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<version>${ugate.jetty.version}</version>
