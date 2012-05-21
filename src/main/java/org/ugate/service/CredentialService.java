@@ -234,7 +234,7 @@ public class CredentialService {
 	 *            the password
 	 * @return the salted password
 	 */
-	public static final String getSaltedPassword(final String username, final String password) {
+	protected static final String getSaltedPassword(final String username, final String password) {
 		// Do not change the salt generation below or web digest use will be rendered unusable!
 		return username + ':' + SALT + ':' + password;
 	}
