@@ -30,6 +30,18 @@ public abstract class Dao {
 	public void persistEntity(final Object entity) {
 		getEntityManager().persist(entity);
 	}
+	
+	/**
+	 * Merges an {@linkplain Entity}
+	 * 
+	 * TODO : verify an actual entity is passed
+	 * 
+	 * @param entity
+	 *            the entity to persist
+	 */
+	public void mergeEntity(final Object entity) {
+		getEntityManager().merge(entity);
+	}
 
 	/**
 	 * @return the {@linkplain EntityManager}
