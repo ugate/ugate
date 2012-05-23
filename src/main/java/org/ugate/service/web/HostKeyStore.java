@@ -1,16 +1,19 @@
 package org.ugate.service.web;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import javax.net.ssl.SSLContext;
@@ -31,23 +34,25 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
+import org.ugate.resources.RS;
+import org.ugate.service.ServiceManager;
+import org.ugate.service.entity.jpa.Host;
 
 /**
- * SSL certificate holder
+ * Generated {@linkplain Host} {@linkplain KeyStore}
  */
-public class X509Manager {
+public class HostKeyStore {
 	
-	private static final Logger log = LoggerFactory.getLogger(X509Manager.class);
-	public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption"; //"SHA1withRSA"; // "SHA256WithRSAEncryption";
+	private static final Logger log = LoggerFactory.getLogger(HostKeyStore.class);
+	public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption"; //"SHA1withRSA";
 	/**
-	 * The key size used by the {@linkplain X509Manager}. In 2030 expiry
+	 * The key size used by the {@linkplain HostKeyStore}. In 2030 expiry
 	 * of 2048 bits will occur. <a
 	 * href="http://www.zytrax.com/tech/survival/ssl.html#self">Self Signed
 	 * Certificates</a>
 	 */
 	public static final int KEY_SIZE = 2048;
-	private final X509Certificate certificate;
-	private final KeyPair keyPair;
+	public static final String KEY_STORE_TYPE = "PKCS12";
 	private final KeyStore keyStore;
 	
 	static {
@@ -59,22 +64,78 @@ public class X509Manager {
 	/**
 	 * Constructor
 	 * 
-	 * @param certificate
-	 *            the {@linkplain X509Certificate}
-	 * @param keyPair
-	 *            the {@linkplain KeyPair}
 	 * @param keyStore
 	 *            the {@linkplain KeyStore}
 	 */
-	private X509Manager(final X509Certificate certificate, final KeyPair keyPair,
-			final KeyStore keyStore) {
-		this.certificate = certificate;
-		this.keyPair = keyPair;
+	private HostKeyStore(final KeyStore keyStore) {
 		this.keyStore = keyStore;
 	}
 	
 	/**
-	 * Creates a new {@linkplain X509Manager} for a self-signed X.509
+	 * Loads or creates a {@linkplain KeyStore}/{@linkplain HostKeyStore}.
+	 * 
+	 * @see #create(String, String, String, String, String, String, String)
+	 * @param host
+	 *            the {@linkplain Host} to use when loading or creating the
+	 *            {@linkplain HostKeyStore}
+	 * @param keyStorePassword
+	 *            the password to the {@linkplain KeyStore}
+	 * @return a new {@linkplain HostKeyStore}
+	 */
+	public static HostKeyStore loadOrCreate(final Host host, 
+			final String keyStorePassword) {
+		if (host.getWebKeyStore() != null) {
+			log.info("Loading host key store from host ID: " + host.getId());
+			try {
+				final KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE, 
+						BouncyCastleProvider.PROVIDER_NAME);
+				ks.load(new ByteArrayInputStream(host.getWebKeyStore()), 
+						keyStorePassword.toCharArray());
+				return new HostKeyStore(ks);
+			} catch (final Throwable t) {
+				log.warn(String.format("Unable load %1$s key store. Creating new %2$s", 
+						Host.class.getName(), HostKeyStore.class.getName()), t);
+			}
+		}
+		final HostKeyStore mgr = create(
+				Locale.getDefault().getCountry(), RS.rbLabel("app.id"), 
+				Locale.getDefault().getDisplayName(),
+				Locale.getDefault().getDisplayName(), 
+				host.getMailUserName(), host.getWebHost(),
+				keyStorePassword);
+		if (mgr != null) {
+			mgr.persistKeyStore(host, keyStorePassword);
+		}
+		return mgr;
+	}
+	
+	/**
+	 * Persists a new or existing {@linkplain Host} with
+	 * {@linkplain #getKeyStore()}
+	 * 
+	 * @param host
+	 *            the new {@linkplain Host}
+	 * @param keyStorePassword
+	 *            the password to the {@linkplain #getKeyStore()}
+	 * @return true when successful
+	 */
+	public boolean persistKeyStore(final Host host, final String keyStorePassword) {
+		try {
+			log.info("Persisting host key store for host ID: " + host.getId()); 
+			// persist the key store for future use
+			final ByteArrayOutputStream ksByteStream = new ByteArrayOutputStream();
+			getKeyStore().store(ksByteStream, keyStorePassword.toCharArray());
+			host.setWebKeyStore(ksByteStream.toByteArray());
+			ServiceManager.IMPL.getCredentialService().mergeHost(host);
+			return true;
+		} catch (final Throwable t) {
+			log.error("Unable to persist self signed certificate key store", t);
+			return false;
+		}
+	}
+	
+	/**
+	 * Creates a new {@linkplain HostKeyStore} for a self-signed X.509
 	 * version 3 certificate
 	 * 
 	 * @param countryCode
@@ -92,8 +153,10 @@ public class X509Manager {
 	 * @param keyStorePassword
 	 *            the password for the {@linkplain KeyStore}
 	 */
-	public static X509Manager newSelfSignedCertificate(final String countryCode, final String organizationName, 
-			final String localityName, final String state, final String emailAddress, final String commonName,
+	public static HostKeyStore create( 
+			final String countryCode, final String organizationName, 
+			final String localityName, final String state, 
+			final String emailAddress, final String commonName,
 			final String keyStorePassword) {
 		try {
 			if (log.isInfoEnabled()) {
@@ -158,17 +221,17 @@ public class X509Manager {
 			cert.checkValidity(new Date());
 
 			// build key store
-			final KeyStore ks = KeyStore.getInstance("PKCS12", BouncyCastleProvider.PROVIDER_NAME);
-			//ks.load(new ByteArrayInputStream(cert.getEncoded()), "testMe".toCharArray());
+			final KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE, 
+					BouncyCastleProvider.PROVIDER_NAME);
 			ks.load(null, null);
 			//ks.setCertificateEntry(organizationName, cert);
 			ks.setKeyEntry(organizationName, kp.getPrivate(), 
 					keyStorePassword.toCharArray(), new X509Certificate[] { cert });
-			// TODO : write the key store to host DB. load the key store if present 
-			// instead of creating it every time
-			//ks.store(stream, password);
-			
-			return new X509Manager(cert, kp, ks);
+
+			if (log.isDebugEnabled()) {
+				dumpLog(cert, kp.getPrivate());
+			}
+			return new HostKeyStore(ks);
 		} catch (final Throwable t) {
 			log.error("Unable to generate a self signed certificate", t);
 			return null;
@@ -207,15 +270,6 @@ public class X509Manager {
 		return r;
 	}
 	
-	public String getAlias() {
-		try {
-			return getKeyStore().getCertificateAlias(getCertificate());
-		} catch (final KeyStoreException e) {
-			log.warn("Unable to get certificate alias", e);
-			return null;
-		}
-	}
-	
 	public KeyStore getKeyStore() {
 		return keyStore;
 	}
@@ -227,9 +281,9 @@ public class X509Manager {
 	/**
 	 * Logs the {@linkplain #getCertificate()} and {@linkplain #getKeyPair()}
 	 */
-	public void dumpLog() {
+	protected static void dumpLog(final X509Certificate cert, final PrivateKey privateKey) {
 		try {
-			SSLContext context = SSLContext.getInstance("SSL");
+			SSLContext context = SSLContext.getInstance("SSL");// or "TLSv1"
 	        context.init(null, null, null);
 	        SSLParameters parameters = context.getDefaultSSLParameters();
         	UGateUtil.PLAIN_LOGGER.info("======================================================");
@@ -237,33 +291,25 @@ public class X509Manager {
 	        for(final String s : parameters.getCipherSuites()) {
 	        	UGateUtil.PLAIN_LOGGER.info(s);
 	        }
-	        SSLContext context2 = SSLContext.getInstance("TLSv1");
-	        context2.init(null, null, null);
-	        SSLParameters parameters2 = context2.getDefaultSSLParameters();
-        	UGateUtil.PLAIN_LOGGER.info("======================================================");
-        	UGateUtil.PLAIN_LOGGER.info("Supported Cipher Suites:");
-	        for(final String s : parameters2.getCipherSuites()) {
-	        	UGateUtil.PLAIN_LOGGER.info(s);
-	        }
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    UGateUtil.PLAIN_LOGGER.info("CERTIFICATE INFO");
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
-		    UGateUtil.PLAIN_LOGGER.info(getCertificate().toString());
+		    UGateUtil.PLAIN_LOGGER.info(cert.toString());
 	
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    UGateUtil.PLAIN_LOGGER.info("CERTIFICATE PEM (to store in a certificate.pem file)");
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    final PEMWriter pemWriter = new PEMWriter(new PrintWriter(System.out));
-		    pemWriter.writeObject(getCertificate());
+		    pemWriter.writeObject(cert);
 		    pemWriter.flush();
 	
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    UGateUtil.PLAIN_LOGGER.info("PRIVATE KEY PEM (to store in a private.pem file)");
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
-		    pemWriter.writeObject(getKeyPair().getPrivate());
+		    pemWriter.writeObject(privateKey);
 		    pemWriter.flush();
 		} catch (final Throwable t) {
-			log.warn("Unable to print " + this.toString(), t);
+			log.warn("Unable to dump certificate log", t);
 		}
 	}
 	
@@ -272,30 +318,15 @@ public class X509Manager {
 	 */
 	@Override
 	public String toString() {
-		return getCertificate().toString() + getKeyPair().toString();
-	}
-
-	/**
-	 * @return the {@linkplain X509Certificate}
-	 */
-	public X509Certificate getCertificate() {
-		return certificate;
-	}
-
-	/**
-	 * @return the {@linkplain KeyPair}
-	 */
-	public KeyPair getKeyPair() {
-		return keyPair;
+		return getKeyStore().toString();
 	}
 
 	public static void main(String[] args) {
 		try {
-			final X509Manager cert = newSelfSignedCertificate("AU", 
+			create("AU", 
 					"The Legion of the Bouncy Castle", "Melbourne", 
 					"Victoria", "feedback-crypto@bouncycastle.org", 
 					"www.example.com", "testPassword");
-			cert.dumpLog();
 		} catch (final Throwable t) {
 			t.printStackTrace();
 		}

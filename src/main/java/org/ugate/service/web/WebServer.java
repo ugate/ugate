@@ -34,7 +34,7 @@ public class WebServer {
 	};
 	private final Host host;
 	private Server server;
-	private X509Manager certHolder;
+	private HostKeyStore hostKeyStore;
 
 	/**
 	 * Constructor
@@ -79,17 +79,15 @@ public class WebServer {
 			// server = (Server) configuration.configure();
 
 			server = new Server();
-			// TODO : clean up SSL support along with pulling certificate from DB (if present)
-			certHolder = X509Manager.newSelfSignedCertificate("US", "UGate", "New York", 
-					"New York", "certificate@example.org", "localhost", "testPassword");
-			if (log.isDebugEnabled()) {
-				certHolder.dumpLog();
-			}
+			
+			// X.509 Setup
+			// TODO : Add password control to the key store
+			hostKeyStore = HostKeyStore.loadOrCreate(getHost(), "");
 			final SslContextFactory sslCnxt = new SslContextFactory();
-			//sslCnxt.setCertAlias(certHolder.getAlias());
-			sslCnxt.setKeyStore(certHolder.getKeyStore());
-			sslCnxt.setKeyStoreType(certHolder.getKeyStore().getType());
-			sslCnxt.setKeyStoreProvider(certHolder.getKeyStore().getProvider().getName());
+			//sslCnxt.setCertAlias(hostKeyStore.getAlias());
+			sslCnxt.setKeyStore(hostKeyStore.getKeyStore());
+			sslCnxt.setKeyStoreType(hostKeyStore.getKeyStore().getType());
+			sslCnxt.setKeyStoreProvider(hostKeyStore.getKeyStore().getProvider().getName());
 			sslCnxt.setIncludeProtocols(PROTOCOL_INCLUDE);
 			sslCnxt.setTrustAll(false);
 			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
@@ -196,7 +194,7 @@ public class WebServer {
 				server.stop();
 			}
 			server.destroy();
-			certHolder = null;
+			hostKeyStore = null;
 		} catch (final Exception e) {
 			log.error("Unable to shutdown", e);
 		}

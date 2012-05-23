@@ -129,6 +129,17 @@ public class CredentialService {
 		}
 		return null;
 	}
+	
+	/**
+	 * Merges the {@linkplain Host}
+	 * 
+	 * @param host
+	 *            the {@linkplain Host} to merge
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void mergeHost(final Host host) {
+		credentialDao.mergeEntity(host);
+	}
 
 	/**
 	 * Determines if two passwords match for a specified login ID
