@@ -3,6 +3,8 @@ package org.ugate.service.dao;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 
+import org.ugate.service.entity.Model;
+
 /**
  * Base DAO
  */
@@ -14,7 +16,7 @@ public abstract class Dao {
 	 * @param clazz the entity class
 	 * @return the total count
 	 */
-	protected long getTotalCount(final Class<?> clazz) {
+	protected long getTotalCount(final Class<? extends Model> clazz) {
 		return getEntityManager().createQuery(String.format("select count(x.id) from %1$s x", 
 				clazz.getSimpleName()), Long.class).getSingleResult();
 	}
@@ -22,24 +24,20 @@ public abstract class Dao {
 	/**
 	 * Persists an {@linkplain Entity}
 	 * 
-	 * TODO : verify an actual entity is passed
-	 * 
 	 * @param entity
 	 *            the entity to persist
 	 */
-	public void persistEntity(final Object entity) {
+	public void persistEntity(final Model entity) {
 		getEntityManager().persist(entity);
 	}
 	
 	/**
 	 * Merges an {@linkplain Entity}
 	 * 
-	 * TODO : verify an actual entity is passed
-	 * 
 	 * @param entity
 	 *            the entity to persist
 	 */
-	public void mergeEntity(final Object entity) {
+	public void mergeEntity(final Model entity) {
 		getEntityManager().merge(entity);
 	}
 

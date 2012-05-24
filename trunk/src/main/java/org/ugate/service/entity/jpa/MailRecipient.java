@@ -11,13 +11,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.ugate.service.entity.Model;
+
 /**
  * The persistent class for the ACTOR database table.
  * 
  */
 @Entity
 @Table(name="MAIL_RECIPIENT")
-public class MailRecipient {
+public class MailRecipient implements Model {
 	private static final long serialVersionUID = 1L;
 	
 	@Id

@@ -18,8 +18,13 @@
  */
 package org.ugate.service.entity.jpa;
 
-import java.util.*;
-import javax.persistence.*;
+import java.util.Date;
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+import org.ugate.service.entity.Model;
 
 
 /** 
@@ -29,8 +34,10 @@ import javax.persistence.*;
  * current time.
  */
 @Entity
-public class Message {
-    @Id
+public class Message implements Model {
+	private static final long serialVersionUID = 1L;
+
+	@Id
     private long id = System.currentTimeMillis();
 
     @Basic
