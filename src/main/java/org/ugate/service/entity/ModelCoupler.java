@@ -1,10 +1,6 @@
 package org.ugate.service.entity;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * {@linkplain Model} coupler used for pseudo binding
@@ -14,8 +10,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ModelCoupler<M extends Model, R> {
 
-	private static final Logger log = LoggerFactory.getLogger(ModelCoupler.class);
-	private final M model;
+	private M model;
 	private final String fieldName;
 	private Method fieldGetter;
 	private Method fieldSetter;
@@ -76,6 +71,15 @@ public class ModelCoupler<M extends Model, R> {
 	 */
 	public M getModel() {
 		return model;
+	}
+
+	/**
+	 * Sets a new model
+	 * 
+	 * @param model the model to set
+	 */
+	public void setModel(final M model) {
+		this.model = model;
 	}
 
 	/**

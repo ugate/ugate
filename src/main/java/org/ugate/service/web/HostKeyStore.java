@@ -84,7 +84,7 @@ public class HostKeyStore {
 	 */
 	public static HostKeyStore loadOrCreate(final Host host, 
 			final String keyStorePassword) {
-		if (host.getWebKeyStore() != null) {
+		if (host.getWebKeyStore() != null && host.getWebKeyStore().length > 0) {
 			log.info("Loading host key store from host ID: " + host.getId());
 			try {
 				final KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE, 

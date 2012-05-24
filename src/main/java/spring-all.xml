@@ -20,6 +20,16 @@
 <!-- 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/> -->
 <!-- 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/> -->
 <!-- 	</context:component-scan> -->
+	<bean id="dbProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="URL">jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</prop>
+				<prop key="user">sa</prop>
+				<prop key="password">sa</prop>
+			</props>
+		</property>
+	</bean>
 	<bean id="SettingsDao" class="org.ugate.service.dao.SettingsDao"
 		depends-on="entityManagerFactory" />
 	<bean id="SettingsService" class="org.ugate.service.SettingsService"
@@ -32,19 +42,13 @@
 	<!-- Atomikos JDBC data source configuration -->
 	<!-- =========================================================== -->
 	<bean id="dataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean"
-		destroy-method="close">
+		destroy-method="close" depends-on="dbProperties">
+		<property name="xaProperties" ref="dbProperties" />
 		<property name="minPoolSize" value="2" />
 		<property name="maxPoolSize" value="50" />
 		<property name="xaDataSourceClassName" value="org.h2.jdbcx.JdbcDataSource" />
 		<property name="UniqueResourceName" value="jdbc/ugateDS" />
 		<property name="testQuery" value="SELECT 1 and SELECT 1 FROM DUAL" />
-		<property name="xaProperties">
-			<props>
-				<prop key="URL">jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</prop>
-				<prop key="user">sa</prop>
-				<prop key="password">sa</prop>
-			</props>
-		</property>
 	</bean>
 	<!-- =========================================================== -->
 	<!-- Atomikos connection pool configuration -->
@@ -77,7 +81,7 @@
 	<!-- =========================================================== -->
 	<!-- JPA configuration -->
 	<!-- =========================================================== -->
-	<bean id="entityManagerFactory" 
+	<bean id="entityManagerFactory" depends-on="dataSource"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="persistenceUnitName" value="ugate" />
 		<property name="dataSource" ref="dataSource" />

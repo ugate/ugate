@@ -17,6 +17,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import org.ugate.service.entity.Model;
 
@@ -40,6 +43,7 @@ public class Host implements Model {
 	private String comAddress;
 
 	@Column(name="COM_BAUD")
+	@Digits(integer=6, fraction=0)
 	private int comBaud;
 
 	@Column(name="COM_PORT", length=50)
@@ -55,6 +59,7 @@ public class Host implements Model {
 	private String mailInboxName;
 
 	@Column(name="MAIL_PASSWORD", length=100)
+	@Size(min=8, max=30)
 	private String mailPassword;
 
 	@Column(name="MAIL_SMTP_HOST", length=100)
@@ -64,6 +69,7 @@ public class Host implements Model {
 	private int mailSmtpPort;
 
 	@Column(name="MAIL_USER_NAME", length=100)
+	@Pattern(regexp = "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[a-zA-Z]{2,4}$", message="Invalid email")
 	private String mailUserName;
 
 	@Column(name="USE_METRIC", nullable=false)

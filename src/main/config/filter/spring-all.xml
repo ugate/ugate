@@ -20,31 +20,41 @@
 <!-- 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/> -->
 <!-- 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/> -->
 <!-- 	</context:component-scan> -->
-	<bean id="SettingsDao" class="org.ugate.service.dao.SettingsDao"
+	<bean id="dbProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="URL">jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</prop>
+				<prop key="user">sa</prop>
+				<prop key="password">sa</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="dbUsername" class="String">
+		<constructor-arg value="${ugate.db.username}" />
+	</bean>
+	<bean id="dbPassword" class="String">
+		<constructor-arg value="${ugate.db.password}" />
+	</bean>
+	<bean id="SettingsDao" class="${ugate.dao.package}.SettingsDao"
 		depends-on="entityManagerFactory" />
-	<bean id="SettingsService" class="org.ugate.service.SettingsService"
+	<bean id="SettingsService" class="${ugate.db.package}.SettingsService"
 		depends-on="SettingsDao" />
-	<bean id="CredentialDao" class="org.ugate.service.dao.CredentialDao"
+	<bean id="CredentialDao" class="${ugate.dao.package}.CredentialDao"
 		depends-on="entityManagerFactory" />
-	<bean id="CredentialService" class="org.ugate.service.CredentialService"
+	<bean id="CredentialService" class="${ugate.db.package}.CredentialService"
 		depends-on="CredentialDao" />
 	<!-- =========================================================== -->
 	<!-- Atomikos JDBC data source configuration -->
 	<!-- =========================================================== -->
 	<bean id="dataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean"
-		destroy-method="close">
+		destroy-method="close" depends-on="dbProperties">
+		<property name="xaProperties" ref="dbProperties" />
 		<property name="minPoolSize" value="2" />
 		<property name="maxPoolSize" value="50" />
 		<property name="xaDataSourceClassName" value="${ugate.db.jta.ds.xa}" />
 		<property name="UniqueResourceName" value="${ugate.db.jta.ds.name}" />
 		<property name="testQuery" value="${ugate.db.test.query}" />
-		<property name="xaProperties">
-			<props>
-				<prop key="URL">${ugate.db.connection.url}</prop>
-				<prop key="user">${ugate.db.username}</prop>
-				<prop key="password">${ugate.db.password}</prop>
-			</props>
-		</property>
 	</bean>
 	<!-- =========================================================== -->
 	<!-- Atomikos connection pool configuration -->
@@ -62,7 +72,7 @@
 	<!-- =========================================================== -->
 	<!-- Atomikos JTA configuration -->
 	<!-- =========================================================== -->
-	<bean id="transactionManager"
+	<bean id="transactionManager" depends-on="dataSource"
 		class="org.springframework.transaction.jta.JtaTransactionManager">
 		<property name="transactionManager" ref="atomikosTransactionManager" />
 		<property name="userTransaction" ref="atomikosUserTransaction" />
