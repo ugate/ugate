@@ -1,5 +1,7 @@
 package org.ugate.service;
 
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -106,6 +108,13 @@ public enum ServiceManager {
 	 */
 	public CredentialService getCredentialService() {
 		return (CredentialService) appContext.getBean(CredentialService.class.getSimpleName());
+	}
+	
+	/**
+	 * @return the database {@linkplain Properties}
+	 */
+	public Properties getDbProperties() {
+		return (Properties) appContext.getBean("dbProperties");
 	}
 	
 	/**

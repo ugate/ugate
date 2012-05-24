@@ -66,6 +66,7 @@
 		<ugate.db.jta.ds.name>jdbc/${ugate.db.jta.ds}</ugate.db.jta.ds.name>
 		<ugate.db.jta.ds.name.unmanaged>jdbc/Unmannaged${ugate.db.jta.ds}</ugate.db.jta.ds.name.unmanaged>
 		<ugate.db.package>${project.groupId}.service</ugate.db.package>
+		<ugate.dao.package>${ugate.db.package}.dao</ugate.dao.package>
 		<ugate.web.package>${ugate.db.package}.web</ugate.web.package>
 		<ugate.db.entity.package>${ugate.db.package}.entity</ugate.db.entity.package>
 		<ugate.db.jpa.package>${ugate.db.entity.package}.jpa</ugate.db.jpa.package>
