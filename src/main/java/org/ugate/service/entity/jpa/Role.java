@@ -1,8 +1,17 @@
 package org.ugate.service.entity.jpa;
 
-import java.io.Serializable;
-import javax.persistence.*;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+import org.ugate.service.entity.Model;
 
 
 /**
@@ -11,7 +20,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name="ROLE")
-public class Role implements Serializable {
+public class Role implements Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
