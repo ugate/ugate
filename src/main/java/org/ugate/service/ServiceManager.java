@@ -1,11 +1,13 @@
 package org.ugate.service;
 
+import java.security.cert.X509Certificate;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.web.SignatureAlgorithm;
 import org.ugate.service.web.WebServer;
 
 /**
@@ -30,7 +32,7 @@ public enum ServiceManager {
 	 * {@linkplain #startWebServer(Host)}</b>).
 	 */
 	public void open() {
-		open(null);
+		open(null, null);
 	}
 	
 	/**
@@ -38,12 +40,15 @@ public enum ServiceManager {
 	 * 
 	 * @param host
 	 *            the {@linkplain Host} to open the services for
+	 * @param sa
+	 *            the {@linkplain SignatureAlgorithm} to use when the
+	 *            {@linkplain X509Certificate} needs to be created/signed
 	 */
-	public void open(final Host host) {
+	public void open(final Host host, final SignatureAlgorithm sa) {
 		try {
 			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
 			appContext.start();
-			startWebServer(host);
+			startWebServer(host, sa);
 		} catch (final Throwable t) {
 			log.error(String.format("Unable to initialize/start %1$s", 
 					ServiceManager.class.getSimpleName()), t);
@@ -76,15 +81,18 @@ public enum ServiceManager {
 	 * 
 	 * @param host
 	 *            the {@linkplain host}
+	 * @param sa
+	 *            the {@linkplain SignatureAlgorithm} to use when the
+	 *            {@linkplain X509Certificate} needs to be created/signed
 	 */
-	public void startWebServer(final Host host) {
+	public void startWebServer(final Host host, final SignatureAlgorithm sa) {
 		if (host == null) {
 			return;
 		}
 		if (webServer != null) {
 			webServer.stop();
 		}
-		webServer = WebServer.start(host);
+		webServer = WebServer.start(host, sa);
 	}
 	
 	/**
