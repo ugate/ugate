@@ -1,5 +1,6 @@
 package org.ugate.service.web;
 
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -12,7 +13,7 @@ import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
@@ -35,15 +36,21 @@ public class WebServer {
 	private final Host host;
 	private Server server;
 	private HostKeyStore hostKeyStore;
+	private final SignatureAlgorithm sa;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param host
 	 *            the {@linkplain Host}
+	 * @param sa
+	 *            the {@linkplain SignatureAlgorithm} to use when the
+	 *            {@linkplain X509Certificate} needs to be created/signed
+	 * @return the started {@linkplain WebServer}
 	 */
-	private WebServer(final Host host) {
+	private WebServer(final Host host, final SignatureAlgorithm sa) {
 		this.host = host;
+		this.sa = sa;
 	}
 
 	/**
@@ -51,9 +58,13 @@ public class WebServer {
 	 * 
 	 * @param host
 	 *            the {@linkplain Host}
+	 * @param sa
+	 *            the {@linkplain SignatureAlgorithm} to use when the
+	 *            {@linkplain X509Certificate} needs to be created/signed
+	 * @return the started {@linkplain WebServer}
 	 */
-	public static final WebServer start(final Host host) {
-		final WebServer webServer = new WebServer(host);
+	public static final WebServer start(final Host host, final SignatureAlgorithm sa) {
+		final WebServer webServer = new WebServer(host, sa);
 		final Thread webServerAgent = new Thread(Thread.currentThread()
 				.getThreadGroup(), new Runnable() {
 			@Override
@@ -82,7 +93,7 @@ public class WebServer {
 			
 			// X.509 Setup
 			// TODO : Add password control to the key store
-			hostKeyStore = HostKeyStore.loadOrCreate(getHost(), "");
+			hostKeyStore = HostKeyStore.loadOrCreate(getHost(), "", sa);
 			final SslContextFactory sslCnxt = new SslContextFactory();
 			//sslCnxt.setCertAlias(hostKeyStore.getAlias());
 			sslCnxt.setKeyStore(hostKeyStore.getKeyStore());
@@ -90,12 +101,12 @@ public class WebServer {
 			sslCnxt.setKeyStoreProvider(hostKeyStore.getKeyStore().getProvider().getName());
 			sslCnxt.setIncludeProtocols(PROTOCOL_INCLUDE);
 			sslCnxt.setTrustAll(false);
-			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
+			final SslSelectChannelConnector sslCnct = new SslSelectChannelConnector(sslCnxt);
 			sslCnct.setPort(getHost().getWebPort());
+//			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
+//			sslCnct.setPort(getHost().getWebPort());
 			// Do not use an HTTP channel selector in addition to the SSL or else 
 			// requests will fail with "no cipher suites in common"
-//			final SslSelectChannelConnector sslCnct = new SslSelectChannelConnector(sslContextFactory);
-//			sslCnct.setPort(443);
 //			final SelectChannelConnector httpCnct = new SelectChannelConnector();
 //			httpCnct.setPort(getPortNumber());
 			

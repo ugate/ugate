@@ -44,7 +44,6 @@ import org.ugate.service.entity.jpa.Host;
 public class HostKeyStore {
 	
 	private static final Logger log = LoggerFactory.getLogger(HostKeyStore.class);
-	public static final String SIGNING_ALGORITHM = "SHA256WithRSAEncryption"; //"SHA1withRSA";
 	/**
 	 * The key size used by the {@linkplain HostKeyStore}. In 2030 expiry
 	 * of 2048 bits will occur. <a
@@ -80,10 +79,13 @@ public class HostKeyStore {
 	 *            {@linkplain HostKeyStore}
 	 * @param keyStorePassword
 	 *            the password to the {@linkplain KeyStore}
+	 * @param sa
+	 *            the {@linkplain SignatureAlgorithm} to use when the
+	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return a new {@linkplain HostKeyStore}
 	 */
 	public static HostKeyStore loadOrCreate(final Host host, 
-			final String keyStorePassword) {
+			final String keyStorePassword, final SignatureAlgorithm sa) {
 		if (host.getWebKeyStore() != null && host.getWebKeyStore().length > 0) {
 			log.info("Loading host key store from host ID: " + host.getId());
 			try {
@@ -102,7 +104,7 @@ public class HostKeyStore {
 				Locale.getDefault().getDisplayName(),
 				Locale.getDefault().getDisplayName(), 
 				host.getMailUserName(), host.getWebHost(),
-				keyStorePassword);
+				keyStorePassword, sa);
 		if (mgr != null) {
 			mgr.persistKeyStore(host, keyStorePassword);
 		}
@@ -135,8 +137,8 @@ public class HostKeyStore {
 	}
 	
 	/**
-	 * Creates a new {@linkplain HostKeyStore} for a self-signed X.509
-	 * version 3 certificate
+	 * Creates a new {@linkplain HostKeyStore} for a self-signed X.509 version 3
+	 * certificate
 	 * 
 	 * @param countryCode
 	 *            two character country code of the issuer (i.e. AU, US, etc.)
@@ -152,12 +154,16 @@ public class HostKeyStore {
 	 *            the common name of the issuer (i.e. www.example.com)
 	 * @param keyStorePassword
 	 *            the password for the {@linkplain KeyStore}
+	 * @param sa
+	 *            the {@linkplain SignatureAlgorithm} to use to sign the
+	 *            {@linkplain X509Certificate}
+	 * @return the created {@linkplain HostKeyStore}
 	 */
 	public static HostKeyStore create( 
 			final String countryCode, final String organizationName, 
 			final String localityName, final String state, 
 			final String emailAddress, final String commonName,
-			final String keyStorePassword) {
+			final String keyStorePassword, final SignatureAlgorithm sa) {
 		try {
 			if (log.isInfoEnabled()) {
 				log.info(String.format("Creating self signed certificate for: country = %1$s, organization = %2$s," 
@@ -196,7 +202,7 @@ public class HostKeyStore {
 			builder.addRDN(BCStyle.CN, commonName);
 			
 			final ContentSigner sigGen = new JcaContentSignerBuilder(
-					SIGNING_ALGORITHM).setProvider(
+					sa.name()).setProvider(
 					BouncyCastleProvider.PROVIDER_NAME).build(kp.getPrivate());
 			// JcaX509v3CertificateBuilder parameters:
 			// issuer X500Name representing the issuer of this certificate.
@@ -326,7 +332,7 @@ public class HostKeyStore {
 			create("AU", 
 					"The Legion of the Bouncy Castle", "Melbourne", 
 					"Victoria", "feedback-crypto@bouncycastle.org", 
-					"www.example.com", "testPassword");
+					"www.example.com", "testPassword", SignatureAlgorithm.getDefault());
 		} catch (final Throwable t) {
 			t.printStackTrace();
 		}

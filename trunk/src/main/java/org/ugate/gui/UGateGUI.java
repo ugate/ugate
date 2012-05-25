@@ -63,6 +63,7 @@ import org.ugate.service.HostType;
 import org.ugate.service.RoleType;
 import org.ugate.service.ServiceManager;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.web.SignatureAlgorithm;
 import org.ugate.wireless.data.ImageCapture;
 
 /**
@@ -371,7 +372,8 @@ public class UGateGUI extends Application {
 													RoleType.ADMIN.newRole());
 								}
 								if (UGateGUI.this.authActor != null) {
-									ServiceManager.IMPL.startWebServer(UGateGUI.this.authActor.getHost());
+									ServiceManager.IMPL.startWebServer(UGateGUI.this.authActor.getHost(), 
+											SignatureAlgorithm.getDefault());
 								}
 								Platform.runLater(new Runnable() {
 									@Override
