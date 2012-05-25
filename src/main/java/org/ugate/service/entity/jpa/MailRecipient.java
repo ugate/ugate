@@ -19,7 +19,7 @@ import org.ugate.service.entity.Model;
  */
 @Entity
 @Table(name="MAIL_RECIPIENT")
-public class MailRecipient implements Model {
+public class MailRecipient extends Model {
 	private static final long serialVersionUID = 1L;
 	
 	@Id

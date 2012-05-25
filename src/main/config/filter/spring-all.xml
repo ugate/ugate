@@ -24,17 +24,11 @@
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="properties">
 			<props>
-				<prop key="URL">jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</prop>
-				<prop key="user">sa</prop>
-				<prop key="password">sa</prop>
+				<prop key="URL">${ugate.db.connection.url}</prop>
+				<prop key="user">${ugate.db.username}</prop>
+				<prop key="password">${ugate.db.password}</prop>
 			</props>
 		</property>
-	</bean>
-	<bean id="dbUsername" class="String">
-		<constructor-arg value="${ugate.db.username}" />
-	</bean>
-	<bean id="dbPassword" class="String">
-		<constructor-arg value="${ugate.db.password}" />
 	</bean>
 	<bean id="SettingsDao" class="${ugate.dao.package}.SettingsDao"
 		depends-on="entityManagerFactory" />
