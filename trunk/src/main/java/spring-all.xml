@@ -100,7 +100,7 @@
 				<!-- <entry key="openjpa.jdbc.UpdateManager" value="operation-order" /> -->
 				<entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
 				
-				<entry key="openjpa.jdbc.JDBCListeners" value="org.ugate.service.UGateJdbcListener"/>
+				<entry key="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/>
 				<entry key="openjpa.jdbc.DBDictionary"
 					value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" />
 				<entry key="openjpa.ConnectionFactoryMode" value="managed" />

@@ -21,7 +21,7 @@
 		<!-- properties maintained in spring -->
 <!-- 		<properties> -->
 <!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/> -->
-<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.UGateJdbcListener"/> -->
+<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/> -->
 <!-- 			<property name="openjpa.DynamicEnhancementAgent" value="false"/> -->
 <!-- 			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" /> -->
 <!-- 			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO, SQL=WARN"/> -->

@@ -1,4 +1,4 @@
-package org.ugate.service;
+package org.ugate.service.entity;
 
 import org.apache.openjpa.lib.jdbc.JDBCEvent;
 import org.apache.openjpa.lib.jdbc.JDBCListener;

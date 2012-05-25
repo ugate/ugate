@@ -70,7 +70,7 @@
 		<ugate.web.package>${ugate.db.package}.web</ugate.web.package>
 		<ugate.db.entity.package>${ugate.db.package}.entity</ugate.db.entity.package>
 		<ugate.db.jpa.package>${ugate.db.entity.package}.jpa</ugate.db.jpa.package>
-		<ugate.db.listeners>${ugate.db.package}.UGateJdbcListener</ugate.db.listeners>
+		<ugate.db.listeners>${ugate.db.entity.package}.UGateJdbcListener</ugate.db.listeners>
 		<ugate.main>${project.groupId}.gui.UGateGUI</ugate.main>
 		<ugate.preloader>${project.groupId}.gui.components.StartupPreloader</ugate.preloader>
 	</properties>

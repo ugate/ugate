@@ -34,7 +34,7 @@ import org.ugate.service.entity.Model;
  * current time.
  */
 @Entity
-public class Message implements Model {
+public class Message extends Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
