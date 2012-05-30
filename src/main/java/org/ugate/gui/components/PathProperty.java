@@ -1,14 +1,29 @@
 package org.ugate.gui.components;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import javafx.beans.property.ObjectPropertyBase;
 
 import javax.jms.IllegalStateException;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.ugate.service.entity.jpa.Actor;
 
 public class PathProperty<B, T> extends ObjectPropertyBase<T> {
@@ -31,12 +46,55 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 		super();
 		this.bean = bean;
 		this.fieldPath = fieldPath;
+		addBidirectionalBinding();
 		try {
 			this.propMethHandles = PropertyMethodHandles.build(getBean(), getName());
 		} catch (final Throwable t) {
 			throw new RuntimeException(String.format(
 					"Unable to instantiate expression %1$s on %2$s", 
 					getBean(), getName()), t);
+		}
+	}
+
+	protected void addBidirectionalBinding() {
+		final String packagePath = getBean().getClass().getPackage().getName().replaceAll("\\.", "/");
+		final String setterName = PropertyMethodHandles.buildMethodName("set",
+				"mailInboxName");//getPropMethHandles().getFieldName());
+		final InputStream is = getBean().getClass().getResourceAsStream(
+				getBean().getClass().getSimpleName() + ".class");
+		try {
+			final ClassReader cr = new ClassReader(is);
+			final ClassNode cn = new ClassNode();
+			cr.accept(cn, 0);
+			MethodNode mn;
+			for (final Object mno : cn.methods) {
+				mn = (MethodNode) mno;
+				if (mn.name.equals(setterName)) {
+					final InsnList setBeanValueLst = new InsnList();
+					setBeanValueLst.add(new LdcInsnNode(mn.name));
+					setBeanValueLst.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL,
+							packagePath, "set",
+							"(Ljava/lang/Object;)V"));
+//					Iterator<AbstractInsnNode> insnNodes = mn.instructions.iterator();
+//					while (insnNodes.hasNext()) {
+//						System.out.println(insnNodes.next().getOpcode());
+//					}
+					mn.instructions.insert(setBeanValueLst);
+				}
+			}
+			final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS
+					| ClassWriter.COMPUTE_FRAMES);
+			cn.accept(cw);
+			final File outDir = new File(getBean().getClass().getPackage().getName().replaceAll("\\.", "/"));
+			outDir.mkdirs();
+			final DataOutputStream dout = new DataOutputStream(new FileOutputStream(
+					new File(outDir, getBean().getClass().getSimpleName()
+							+ ".class")));
+			dout.write(cw.toByteArray());
+			dout.flush();
+			dout.close();
+		} catch (final Throwable t) {
+			new RuntimeException("Unable to bind from: " + getBean(), t);
 		}
 	}
 
@@ -76,12 +134,14 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 	
 	public static class PropertyMethodHandles {
 
+		private final String fieldName;
 		private final MethodHandle accessor;
 		private final MethodHandle setter;
 		private Object setterArgument;
 
 		protected PropertyMethodHandles(final Object target, final String fieldName,
 				final boolean insertSetterArgument) throws NoSuchMethodException {
+			this.fieldName = fieldName;
 			this.accessor = buildGetter(target, fieldName);
 			this.setter = buildSetter(getAccessor(), target, fieldName, insertSetterArgument);
 		}
@@ -112,13 +172,13 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 				final boolean insertSetterArgument) {
 			if (insertSetterArgument) {
 				try {
-					setSetterArgument(accessor.invoke());
+					this.setterArgument = accessor.invoke();
 				} catch (final Throwable t) {
-					setSetterArgument(null);
+					this.setterArgument = null;
 				}
 				if (getSetterArgument() == null) {
 					try {
-						setSetterArgument(accessor.type().returnType().newInstance());
+						this.setterArgument = accessor.type().returnType().newInstance();
 					} catch (final Exception e) {
 						throw new IllegalArgumentException(
 								String.format("Unable to build setter expression for %1$s using %2$s.", 
@@ -143,13 +203,6 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 						+ fieldName, t);
 			}
 		}
-		
-		protected static String buildMethodName(final String prefix, 
-				final String fieldName) {
-			return (fieldName.startsWith(prefix) ? fieldName : prefix + 
-				fieldName.substring(0, 1).toUpperCase() + 
-					fieldName.substring(1));
-		}
 
 		protected static MethodHandle buildAccessor(final Object target, 
 				final String fieldName, final String... fieldNamePrefix) {
@@ -170,6 +223,21 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 			}
 		}
 		
+		public static String buildMethodName(final String prefix, 
+				final String fieldName) {
+			return (fieldName.startsWith(prefix) ? fieldName : prefix + 
+				fieldName.substring(0, 1).toUpperCase() + 
+					fieldName.substring(1));
+		}
+		
+		/**
+		 * @return the name of the field for the
+		 *         {@linkplain PropertyMethodHandles}
+		 */
+		public String getFieldName() {
+			return fieldName;
+		}
+
 		/**
 		 * @return the getter
 		 */
@@ -184,12 +252,12 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 			return setter;
 		}
 
+		/**
+		 * @return the argument that will be used by the
+		 *         {@linkplain #getSetter()}
+		 */
 		public Object getSetterArgument() {
 			return setterArgument;
-		}
-
-		public void setSetterArgument(final Object setterArgument) {
-			this.setterArgument = setterArgument;
 		}
 	}
 }

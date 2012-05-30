@@ -391,6 +391,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
 			<version>${ugate.spring.version}</version>
+		</dependency>
+		<!-- cglib/spring 3.1.1 does not work with asm 4.0 -->
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm-tree</artifactId>
+			<version>3.3.1</version>
 		</dependency>	
 		<!-- cglib is required for some spring inections (may be replaced by java assist in spring 3.2) -->
 		<dependency>

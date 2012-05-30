@@ -8,7 +8,6 @@ import javax.servlet.DispatcherType;
 
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.authentication.ClientCertAuthenticator;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -171,7 +170,7 @@ public class WebServer {
 	protected void addAuthentication(final HandlerWrapper handler) {
 		final Constraint constraint = new Constraint();
 		constraint.setName(Constraint.__DIGEST_AUTH);
-		constraint.setRoles(RoleType.names());new ClientCertAuthenticator();
+		constraint.setRoles(RoleType.names());
 		constraint.setAuthenticate(true);
 
 		final ConstraintMapping cm = new ConstraintMapping();
