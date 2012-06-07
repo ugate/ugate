@@ -30,7 +30,7 @@ import org.ugate.service.entity.Model;
  */
 @Entity
 @Table(name="HOST")
-public class Host extends Model {
+public class Host implements Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id

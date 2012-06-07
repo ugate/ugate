@@ -20,7 +20,7 @@ import org.ugate.service.entity.Model;
  */
 @Entity
 @Table(name="ROLE")
-public class Role extends Model {
+public class Role implements Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
