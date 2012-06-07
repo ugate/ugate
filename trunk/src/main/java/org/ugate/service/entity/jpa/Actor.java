@@ -25,7 +25,7 @@ import org.ugate.service.entity.Model;
  */
 @Entity
 @Table(name="ACTOR")
-public class Actor extends Model {
+public class Actor implements Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
