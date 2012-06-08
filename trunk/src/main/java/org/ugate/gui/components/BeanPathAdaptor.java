@@ -1,15 +1,16 @@
 package org.ugate.gui.components;
 
-import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 
 /**
  * A {@linkplain Property} extension that allows a <b><code>.</code></b>
@@ -31,55 +32,96 @@ import javafx.collections.ObservableMap;
  * 
  * @param <B>
  *            the bean type
- * @param <T>
- *            the final field type found in the path for which the
- *            {@linkplain Property} is for
  */
-public class BeanPathAdaptor {
+public class BeanPathAdaptor<B> {
 
-	private static final ObservableMap<String, PathProperty<?, ?>> PPS = FXCollections.observableHashMap();
+	private final Map<String, PathProperty<Object, ?>> pathPropertiesMap;
+	private B bean;
+	
+	public BeanPathAdaptor(final B bean) {
+		pathPropertiesMap = new TreeMap<>();
+		setBean(bean);
+	}
 	
 	/**
-	 * Builds a {@linkplain PropertyMethodHandles} by traversing a supplied
-	 * target object accessor's return object (or the accessor's return type
-	 * class when the returned object is null in which case it will try to
-	 * instantiate the class using a no-argument constructor) until it
-	 * reaches the last field name in the expression that will be used for
-	 * the final field's {@linkplain PropertyMethodHandles}
+	 * Binds a {@linkplain Property} by traversing a supplied target object
+	 * accessor's return object (or the accessor's return type class when the
+	 * returned object is null in which case it will try to instantiate the
+	 * class using a no-argument constructor) until it reaches the last field
+	 * name in the expression that will be used for the final field's
+	 * {@linkplain Property}
 	 * 
-	 * @param initialTarget
-	 *            the initial target object that will be traversed
 	 * @param expString
-	 *            the <b><code>.</code></b> separated fields that will be
-	 *            traversed
-	 * @return the {@linkplain PropertyMethodHandles} for the last field in
-	 *         the expression string
+	 *            the <b><code>.</code></b> separated field paths relative to
+	 *            the {@linkplain #getBean()} that will be traversed
+	 * @param fieldType
+	 *            the field class type of the property
+	 * 
 	 * @throws NoSuchMethodException
-	 *             thrown when a field accessor or setter cannot be found
+	 *             thrown when a field accessor or setter cannot be found for any one of the fields in the path
 	 */
-	public <T> void bind(final Object initialTarget, 
-			final String expString, final Class<T> fieldType, final Property<T> property) throws NoSuchMethodException {
-		final String[] fieldNames = expString.split("\\.");
+	@SuppressWarnings("unchecked")
+	public <T> void bind(final String expString, final Class<T> fieldType, final Property<T> property) 
+					throws NoSuchMethodException {
+		final String lPath = expString.toLowerCase();
+		final String[] fieldNames = lPath.split("\\.");
 		String path = null;
-		PathProperty pp = null;
-		Object target = initialTarget;
+		PathProperty<Object, ?> pp = null;
+		PathProperty<Object, T> ppt = null;
+		Object target = getBean();
 		MethodHandle a = null;
 		MethodHandle s = null;
 		for (int i = 0; i < fieldNames.length; i++) {
-			path = expString.substring(0, expString.indexOf(fieldNames[i]) + fieldNames[i].length());
-			if (PPS.containsKey(path)) {
-				// TODO : update the path properties with new values contained in target path
+			path = lPath.substring(0, lPath.indexOf(fieldNames[i]) + fieldNames[i].length());
+			if (getPathPropertiesMap().containsKey(path)) {
+				if (i == (fieldNames.length - 1)) {
+					ppt = (PathProperty<Object, T>) getPathPropertiesMap().get(path);
+					ppt.setBean(target);
+					if (property != null) {
+						Bindings.bindBidirectional(ppt, property);
+					}
+				} else {
+					pp = getPathPropertiesMap().get(path);
+					pp.setBean(target);
+					target = pp.get();
+				}
+			} else {
+				try {
+					a = buildAccessorWithLikelyPrefixes(target, path);
+					s = buildSetter(a, target, fieldNames[i]);
+					if (i == (fieldNames.length - 1)) {
+						ppt = new PathProperty<>(target, fieldNames[i], fieldType, a, s,
+								false);
+						getPathPropertiesMap().put(path, ppt);
+						if (property != null) {
+							Bindings.bindBidirectional(ppt, property);
+						}
+					} else {
+						pp = new PathProperty<>(target, fieldNames[i], Object.class, a, s,
+								true);
+						getPathPropertiesMap().put(path, pp);
+						target = pp.get();
+					}
+				} catch (final Throwable t) {
+					throw new RuntimeException(String.format(
+							"Unable to instantiate expression %1$s on %2$s for %3$s", 
+							target, path, expString), t);
+				}
 			}
-			try {
-				a = buildAccessorWithLikelyPrefixes(target, path);
-				s = buildSetter(a, target, fieldNames[i], i < (fieldNames.length - 1));
-				pp = new PathProperty(target, fieldNames[i], null, a, s);
-				PPS.put(path, pp);
-				target = pp.getBean();
-			} catch (final Throwable t) {
-				throw new RuntimeException(String.format(
-						"Unable to instantiate expression %1$s on %2$s for %3$s", 
-						target, path, expString), t);
+		}
+		updateMap(path);
+	}
+	
+	protected void updateMap(final String excludePath) {
+		if (getPathPropertiesMap().isEmpty()) {
+			return;
+		}
+		final PathProperty<Object, ?> exPP = getPathPropertiesMap().get(excludePath);
+		String[] fieldNames = null;
+		String path, prevPath = null;
+		for (final Map.Entry<String, PathProperty<Object, ?>> entry : getPathPropertiesMap().entrySet()) {
+			if (excludePath == null || !excludePath.startsWith(entry.getKey())) {
+				// TODO : update mapped path property values
 			}
 		}
 	}
@@ -88,52 +130,58 @@ public class BeanPathAdaptor {
 	 * Builds a setter {@linkplain MethodHandle}
 	 * 
 	 * @param accessor
-	 *            the field's accesssor that will be used to set the
-	 *            setter's argument when the insert setter argument is set
-	 *            to true
+	 *            the field's accesssor that will be used as the parameter type
+	 *            for the setter
 	 * @param target
 	 *            the target object that the setter is for
 	 * @param fieldName
 	 *            the field name that the setter is for
-	 * @param insertSetterArgument
-	 *            true to insert the setter argument on the
-	 *            {@linkplain MethodHandle}
 	 * @return the setter {@linkplain MethodHandle}
 	 */
 	protected static MethodHandle buildSetter(final MethodHandle accessor, 
-			final Object target, final String fieldName, 
-			final boolean insertSetterArgument) {
-		Object sa = null;
-		if (insertSetterArgument) {
-			try {
-				sa = accessor.invoke();
-			} catch (final Throwable t) {
-				sa = null;
-			}
-			if (sa == null) {
-				try {
-					sa = accessor.type().returnType().newInstance();
-				} catch (final Exception e) {
-					throw new IllegalArgumentException(
-							String.format("Unable to build setter expression for %1$s using %2$s.", 
-									fieldName, accessor.type().returnType()));
-				}
-			}
-		}
+			final Object target, final String fieldName) {
 		try {
 			final MethodHandle mh1 = MethodHandles.lookup().findVirtual(target.getClass(), 
 					buildMethodName("set", fieldName), 
 					MethodType.methodType(void.class, 
 							accessor.type().returnType())).bindTo(target);
-			if (sa != null) {
-//				final MethodHandle mh2 = MethodHandles.insertArguments(mh1, 0, sa);
-				mh1.invoke(sa);
-			}
 			return mh1;
 		} catch (final Throwable t) {
 			throw new IllegalArgumentException("Unable to resolve setter "
 					+ fieldName, t);
 		}
+	}
+
+	/**
+	 * Gets an accessor's return target value obtained by calling the accessor's
+	 * {@linkplain MethodHandle#invoke(Object...)} method. When the value
+	 * returned is <code>null</code> an attempt will be made to instantiate it
+	 * using {@linkplain Class#newInstance()} on the accessor's
+	 * {@linkplain MethodType#returnType()} method.
+	 * 
+	 * @param accessor
+	 *            the accessor {@linkplain MethodHandle}
+	 * @param fieldName
+	 *            the accessor's field name
+	 * @return the accessor's return target value
+	 */
+	protected static Object buildAccessorReturnTargetValue(final MethodHandle accessor) {
+		Object targetValue = null;
+		try {
+			targetValue = accessor.invoke();
+		} catch (final Throwable t) {
+			targetValue = null;
+		}
+		if (targetValue == null) {
+			try {
+				targetValue = accessor.type().returnType().newInstance();
+			} catch (final Exception e) {
+				throw new IllegalArgumentException(
+						String.format("Unable to get accessor return instance for %1$s using %2$s.", 
+								accessor, accessor.type().returnType()));
+			}
+		}
+		return targetValue;
 	}
 
 	/**
@@ -206,6 +254,37 @@ public class BeanPathAdaptor {
 	}
 
 	/**
+	 * @return the cached {@linkplain Map} that contains the field path as the
+	 *         keys and the {@linkplain PathProperty} and the values
+	 */
+	protected Map<String, PathProperty<Object, ?>> getPathPropertiesMap() {
+		return pathPropertiesMap;
+	}
+
+	/**
+	 * @return the root bean of the {@linkplain BeanPathAdaptor}
+	 */
+	public B getBean() {
+		return bean;
+	}
+	
+	/**
+	 * Sets the root bean of the {@linkplain BeanPathAdaptor}. Any existing
+	 * properties will be updated with the values relative to the paths within
+	 * the bean.
+	 * 
+	 * @param bean
+	 *            the bean to set
+	 */
+	public void setBean(final B bean) {
+		if (bean == null) {
+			throw new NullPointerException();
+		}
+		this.bean = bean;
+		updateMap(null);
+	}
+
+	/**
 	 * A {@linkplain Property} extension that allows a <b><code>.</code></b>
 	 * separated field path to be traversed on a bean until the final field name is
 	 * found that will be bound to the property. For example, assume there is a
@@ -223,19 +302,20 @@ public class BeanPathAdaptor {
 	 * </code>
 	 * </p>
 	 * 
-	 * @param <B>
+	 * @param <BT>
 	 *            the bean type
 	 * @param <T>
 	 *            the final field type found in the path for which the
 	 *            {@linkplain Property} is for
 	 */
-	public class PathProperty<B, T> extends ObjectPropertyBase<T> {
+	public class PathProperty<BT, T> extends ObjectPropertyBase<T> {
 
+		private final boolean assumeValueFromAccessor;
 		private final String fieldName;
 		private final MethodHandle accessor;
 		private final MethodHandle setter;
-		private final Class<T> type;
-		private final B bean;
+		private final Class<T> fieldType;
+		private BT bean;
 
 		/**
 		 * Constructor
@@ -243,20 +323,53 @@ public class BeanPathAdaptor {
 		 * @param bean
 		 *            the bean that the path belongs to
 		 * @param fieldPath
-		 *            the path to the <b><code>.</code></b> separated fields that
-		 *            will be traversed on the bean until the final field is found
-		 *            (which the property is bound to)
-		 * @param type
+		 *            the path to the <b><code>.</code></b> separated fields
+		 *            that will be traversed on the bean until the final field
+		 *            is found (which the property is bound to)
+		 * @param fieldType
 		 *            the {@linkplain Class} that the final field is
+		 * @param assumeValueFromAccessor
+		 *            true when the a value should be set or instantiated using
+		 *            the {@linkplain #getAccessor()} return type
 		 */
-		protected PathProperty(final B bean, final String fieldName, final Class<T> type, final MethodHandle accessor, 
-				final MethodHandle setter) {
+		protected PathProperty(final BT bean, final String fieldName, final Class<T> fieldType, final MethodHandle accessor, 
+				final MethodHandle setter, final boolean assumeValueFromAccessor) {
 			super();
-			this.bean = bean;
 			this.fieldName = fieldName;
-			this.type = type;
+			this.fieldType = fieldType;
 			this.accessor = accessor;
 			this.setter = setter;
+			this.assumeValueFromAccessor = assumeValueFromAccessor;
+			setBean(bean);
+		}
+		
+		/**
+		 * Gets an accessor's return target value obtained by calling the
+		 * accessor's {@linkplain MethodHandle#invoke(Object...)} method. When
+		 * the value returned is <code>null</code> an attempt will be made to
+		 * instantiate it using {@linkplain Class#newInstance()} on the
+		 * accessor's {@linkplain MethodType#returnType()} method.
+		 * 
+		 * @return the accessor's return target value
+		 */
+		@SuppressWarnings("unchecked")
+		private T buildAccessorReturnTargetValue() {
+			T targetValue = null;
+			try {
+				targetValue = (T) getAccessor().invoke();
+			} catch (final Throwable t) {
+				targetValue = null;
+			}
+			if (targetValue == null) {
+				try {
+					targetValue = (T) getAccessor().type().returnType().newInstance();
+				} catch (final Exception e) {
+					throw new IllegalArgumentException(
+							String.format("Unable to get accessor return instance for %1$s using %2$s.", 
+									getAccessor(), getAccessor().type().returnType()));
+				}
+			}
+			return targetValue;
 		}
 
 		/**
@@ -265,6 +378,7 @@ public class BeanPathAdaptor {
 		@Override
 		public void set(final T v) {
 			try {
+//				final MethodHandle mh2 = MethodHandles.insertArguments(getSetter(), 0, value);
 				getSetter().invoke(v);
 				super.set(v);
 			} catch (final Throwable t) {
@@ -292,8 +406,26 @@ public class BeanPathAdaptor {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public B getBean() {
+		public BT getBean() {
 			return bean;
+		}
+		
+		/**
+		 * Sets a new bean for the path property
+		 * 
+		 * @param bean
+		 *            the bean to set
+		 */
+		public void setBean(final BT bean) {
+			if (getBean().equals(bean)) {
+				return;
+			}
+			getAccessor().bindTo(bean);
+			getSetter().bindTo(bean);
+			if (isAssumeValueFromAccessor()) {
+				set(buildAccessorReturnTargetValue());
+			}
+			this.bean = bean;
 		}
 
 		/**
@@ -303,13 +435,7 @@ public class BeanPathAdaptor {
 		public String getName() {
 			return fieldName;
 		}
-		
-		/**
-		 * @return the field type of the final path element
-		 */
-		public Class<T> getFieldType() {
-			return type;
-		}
+
 		/**
 		 * @return the name of the field for the
 		 *         {@linkplain PropertyMethodHandles}
@@ -330,6 +456,21 @@ public class BeanPathAdaptor {
 		 */
 		protected MethodHandle getSetter() {
 			return setter;
+		}
+
+		/**
+		 * @return true when the a value should be set or instantiated using the
+		 *         {@linkplain #getAccessor()} return type
+		 */
+		public boolean isAssumeValueFromAccessor() {
+			return assumeValueFromAccessor;
+		}
+
+		/**
+		 * @return the field type of the property value
+		 */
+		public Class<T> getFieldType() {
+			return fieldType;
 		}
 	}
 }
