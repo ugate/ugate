@@ -23,7 +23,7 @@
 			dependencies. Possible solutions: https://forums.oracle.com/forums/thread.jspa?threadID=2307062 -->
 		<ugate.javafx.jar.path>C:\java\fx\rt\lib\jfxrt.jar</ugate.javafx.jar.path>
 		<ugate.javafx.antjar.path>C:\java\fx\tools\ant-javafx.jar</ugate.javafx.antjar.path>
-		<ugate.javafx.version>2.0</ugate.javafx.version>
+		<ugate.javafx.version>2.1.0</ugate.javafx.version>
 		<!-- RXTX will be automatically installed in the appropriate Java directories 
 			(if not already installed). To run from within IDE ensure the RXTX ZIP archive 
 			is added to the projects source path (along with the other dependencies). -->
