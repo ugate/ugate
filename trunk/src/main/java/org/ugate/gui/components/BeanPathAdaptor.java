@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +54,7 @@ public class BeanPathAdaptor<B> {
 	 * @param expString
 	 *            the <b><code>.</code></b> separated field paths relative to
 	 *            the {@linkplain #getBean()} that will be traversed
-	 * @param fieldType
+	 * @param declaredFieldType
 	 *            the field class type of the property
 	 * 
 	 * @throws NoSuchMethodException
@@ -304,7 +306,7 @@ public class BeanPathAdaptor<B> {
 					Bindings.bindBidirectional((Property<T>) 
 							getFieldProperties().get(fieldNames[0]), property);
 				}
-			} else if (!isProperty && getFieldBeans().containsKey(fieldPath)) {
+			} else if (!isProperty && getFieldBeans().containsKey(fieldNames[0])) {
 				// progress to the next child field/bean in the path chain
 				final String nextFieldPath = fieldPath.substring(
 						fieldPath.indexOf(fieldNames[1]));
@@ -435,20 +437,31 @@ public class BeanPathAdaptor<B> {
 		/**
 		 * {@inheritDoc}
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public void set(final T v) {
 			try {
 				//final MethodHandle mh2 = MethodHandles.insertArguments(
-				//fieldHandle.getSetter(), 0, value);
-				// TODO : when an empty string is set on a non-string field a ClassCastExcpetion will
-				// be thrown- skip the entry
-				if (!(get() instanceof String) && v.toString().isEmpty()) {
-					return;
+				//fieldHandle.getSetter(), 0, v);
+				T val;
+				final boolean isStringType = fieldHandle.getFieldType().equals(
+						String.class);
+				if (v == null || (!isStringType && v.toString().isEmpty())) {
+					val = (T) FieldHandle.defaultValue(fieldHandle
+							.getFieldType());
+				} else if (isStringType
+						|| (v != null && v.getClass().isAssignableFrom(
+								fieldHandle.getFieldType()))) {
+					val = (T) fieldHandle.getFieldType().cast(v);
+				} else {
+					val = (T) FieldHandle.valueOf(get() != null ? get()
+							.getClass() : fieldHandle.getFieldType(), v
+							.toString());
 				}
-				fieldHandle.getSetter().invoke(v);
-				super.set(v);
+				super.set(val);
+				fieldHandle.getSetter().invoke(val);
 			} catch (final Throwable t) {
-				throw new RuntimeException("Unable to set value: " + v, t);
+				throw new IllegalArgumentException("Unable to set value: " + v, t);
 			}
 		};
 
@@ -500,17 +513,41 @@ public class BeanPathAdaptor<B> {
 	}
 	
 	protected static class FieldHandle<T, F> {
-		
+
+		private static final Map<Class<?>, MethodHandle> valueOfMap = new HashMap<>(1);
+		private static final Map<Class<?>, Object> NOBOX = new HashMap<>();
+		static {
+			NOBOX.put(Boolean.class, Boolean.FALSE);
+			NOBOX.put(boolean.class, false);
+			NOBOX.put(Byte.class, Byte.valueOf("0"));
+			NOBOX.put(byte.class, Byte.valueOf("0").byteValue());
+			NOBOX.put(Number.class, 0L);
+			NOBOX.put(Short.class, Short.valueOf("0"));
+			NOBOX.put(short.class, Short.valueOf("0").shortValue());
+			NOBOX.put(Character.class, Character.valueOf(' '));
+			NOBOX.put(char.class, ' ');
+			NOBOX.put(Integer.class, Integer.valueOf(0));
+			NOBOX.put(int.class, 0);
+			NOBOX.put(Long.class, Long.valueOf(0));
+		    NOBOX.put(long.class, 0L);
+		    NOBOX.put(Float.class, Float.valueOf(0F));
+		    NOBOX.put(float.class, 0F);
+		    NOBOX.put(Double.class, Double.valueOf(0D));
+		    NOBOX.put(double.class, 0D);
+		    NOBOX.put(BigInteger.class, BigInteger.valueOf(0L));
+		    NOBOX.put(BigDecimal.class, BigDecimal.valueOf(0D));
+		}
 		private final String fieldName;
 		private MethodHandle accessor;
 		private MethodHandle setter;
-		private final Class<F> fieldType;
+		private final Class<F> declaredFieldType;
 		private T target;
 
-		protected FieldHandle(final T target, final String fieldName, final Class<F> fieldType) {
+		protected FieldHandle(final T target, final String fieldName, 
+				final Class<F> declaredFieldType) {
 			super();
 			this.fieldName = fieldName;
-			this.fieldType = fieldType;
+			this.declaredFieldType = declaredFieldType;
 			this.target = target;
 			this.accessor = buildAccessorWithLikelyPrefixes(getTarget(), getFieldName());
 			this.setter = buildSetter(getAccessor(), getTarget(), getFieldName());
@@ -595,6 +632,88 @@ public class BeanPathAdaptor<B> {
 						+ fieldName, t);
 			}
 		}
+		
+		/**
+		 * Puts a <code>valueOf</code> {@linkplain MethodHandle} value using the
+		 * target class as a key
+		 * 
+		 * @param target
+		 *            the target object that the <code>valueOf</code> is for
+		 */
+		protected static void putValueOf(final Class<?> target) {
+			if (valueOfMap.containsKey(target)) {
+				return;
+			}
+			try {
+				final MethodHandle mh1 = MethodHandles.lookup().findStatic(
+						target, "valueOf",
+						MethodType.methodType(target, String.class));
+				valueOfMap.put(target, mh1);
+			} catch (final Throwable t) {
+				// class doesn't support it- do nothing
+			}
+		}
+
+		/**
+		 * Attempts to invoke a <code>valueOf</code> using the
+		 * {@linkplain #getDeclaredFieldType()} class
+		 * 
+		 * @param value
+		 *            the value to invoke the <code>valueOf</code> method on
+		 * @return the result (null if the operation fails)
+		 */
+		public F valueOf(final String value) {
+			return valueOf(getDeclaredFieldType(), value);
+		}
+		
+		/**
+		 * Attempts to invoke a <code>valueOf</code> using the
+		 * specified class
+		 * 
+		 * @param valueOfClass
+		 *            the class to attempt to invoke a <code>valueOf</code>
+		 *            method on
+		 * @param value
+		 *            the value to invoke the <code>valueOf</code> method on
+		 * @return the result (null if the operation fails)
+		 */
+		public static <VT> VT valueOf(final Class<VT> valueOfClass, 
+				final Object value) {
+			if (!valueOfMap.containsKey(valueOfClass)) {
+				putValueOf(valueOfClass);
+			}
+			if (valueOfMap.containsKey(valueOfClass)) {
+				try {
+					return (VT) valueOfMap.get(valueOfClass).invoke(value);
+				} catch (final Throwable t) {
+					throw new IllegalArgumentException(String.format(
+							"Unable to invoke valueOf on %1$s using %2$s", 
+							value, valueOfClass), t);
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * Gets a default value for the {@linkplain #getDeclaredFieldType()}
+		 * 
+		 * @return the default value
+		 */
+		public F defaultValue() {
+			return defaultValue(getDeclaredFieldType());
+		}
+
+		/**
+		 * Gets a default value for the specified class
+		 * 
+		 * @param clazz
+		 *            the class
+		 * @return the default value
+		 */
+		@SuppressWarnings("unchecked")
+		public static <VT> VT defaultValue(final Class<VT> clazz) {
+			return (VT) (NOBOX.containsKey(clazz) ? NOBOX.get(clazz) : null);
+		}
 
 		/**
 		 * Builds a method name using a prefix and a field name
@@ -636,8 +755,10 @@ public class BeanPathAdaptor<B> {
 		 * Gets an accessor's return target value obtained by calling the
 		 * accessor's {@linkplain MethodHandle#invoke(Object...)} method. When
 		 * the value returned is <code>null</code> an attempt will be made to
-		 * instantiate it using {@linkplain Class#newInstance()} on the
-		 * accessor's {@linkplain MethodType#returnType()} method.
+		 * instantiate it using either by using a default value from
+		 * {@linkplain #NOBOX} (for primatives) or
+		 * {@linkplain Class#newInstance()} on the accessor's
+		 * {@linkplain MethodType#returnType()} method.
 		 * 
 		 * @return the accessor's return target value
 		 */
@@ -651,7 +772,11 @@ public class BeanPathAdaptor<B> {
 			}
 			if (targetValue == null) {
 				try {
-					targetValue = (F) getAccessor().type().returnType().newInstance();
+					if (NOBOX.containsKey(getFieldType())) {
+						targetValue = (F) NOBOX.get(getFieldType());
+					} else {
+						targetValue = (F) getAccessor().type().returnType().newInstance();
+					}
 				} catch (final Exception e) {
 					throw new IllegalArgumentException(
 							String.format("Unable to get accessor return instance for %1$s using %2$s.", 
@@ -699,10 +824,18 @@ public class BeanPathAdaptor<B> {
 		}
 
 		/**
-		 * @return the field type of the property value
+		 * @return the declared field type of the property value
 		 */
-		public Class<F> getFieldType() {
-			return fieldType;
+		public Class<F> getDeclaredFieldType() {
+			return declaredFieldType;
+		}
+		
+		/**
+		 * @return the field type from {@linkplain #getAccessor()} of the
+		 *         property value
+		 */
+		public Class<?> getFieldType() {
+			return getAccessor().type().returnType();
 		}
 	}
 }
