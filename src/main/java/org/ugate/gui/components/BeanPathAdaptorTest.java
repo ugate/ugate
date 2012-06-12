@@ -94,8 +94,8 @@ public class BeanPathAdaptorTest extends Application {
 		});
 		VBox pojoBox = new VBox(10);
 		pojoBox.setPadding(new Insets(10, 10, 10, 10));
-		pojoBox.getChildren().addAll(new Label("Set person's name via POJO:"),
-				pojoNameTF, pojoNameBtn);
+		pojoBox.getChildren().addAll(new Label("Set person fields via POJO:"),
+				new Label("Name:"), pojoNameTF, pojoNameBtn);
 		
 		VBox beanBox = new VBox(10);
 		beanBox.getChildren().addAll(toolBar, beanPane);
@@ -201,7 +201,7 @@ public class BeanPathAdaptorTest extends Application {
 			    }
 			    private boolean matchTest(String text) {
 			    	return text.isEmpty() || (text.matches(restictTo) && 
-			    			getText().length() < maxChars);
+			    			(getText() == null || getText().length() < maxChars));
 			    }
 			};
 			tf.textProperty().addListener(new ChangeListener<String>() {
