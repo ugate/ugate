@@ -136,8 +136,11 @@ public class BeanPathAdaptor<B> {
 
 		/**
 		 * Creates a {@linkplain FieldBean}
+		 * 
 		 * @param parent
+		 *            the parent {@linkplain FieldBean} (should not be null)
 		 * @param fieldHandle
+		 *            the {@linkplain FieldHandle} (should not be null)
 		 */
 		protected FieldBean(final FieldBean<?, PT> parent, final FieldHandle<PT, BT> fieldHandle) {
 			this.parent = parent;
@@ -270,7 +273,7 @@ public class BeanPathAdaptor<B> {
 						FieldBean.class.getSimpleName());
 			}
 			fieldHandle.setTarget(bean);
-			setBean(fieldHandle.deriveValueFromAccessor());
+			setBean(fieldHandle.setDerivedValueFromAccessor());
 		}
 
 		/**
@@ -511,7 +514,17 @@ public class BeanPathAdaptor<B> {
 			return fieldHandle.getFieldName();
 		}
 	}
-	
+
+	/**
+	 * Field handle to {@linkplain FieldHandle#getAccessor()} and
+	 * {@linkplain FieldHandle#getSetter()} for a given
+	 * {@linkplain FieldHandle#getTarget()}.
+	 * 
+	 * @param <T>
+	 *            the {@linkplain FieldHandle#getTarget()} type
+	 * @param <F>
+	 *            the {@linkplain FieldHandle#getDeclaredFieldType()} type
+	 */
 	protected static class FieldHandle<T, F> {
 
 		private static final Map<Class<?>, MethodHandle> valueOfMap = new HashMap<>(1);
@@ -543,12 +556,34 @@ public class BeanPathAdaptor<B> {
 		private final Class<F> declaredFieldType;
 		private T target;
 
+		/**
+		 * Constructor
+		 * 
+		 * @param target
+		 *            the {@linkplain #getTarget()} for the
+		 *            {@linkplain MethodHandle}s
+		 * @param fieldName
+		 *            the field name defined in the {@linkplain #getTarget()}
+		 * @param declaredFieldType
+		 *            the declared field type for the
+		 *            {@linkplain #getFieldName()}
+		 */
 		protected FieldHandle(final T target, final String fieldName, 
 				final Class<F> declaredFieldType) {
 			super();
 			this.fieldName = fieldName;
 			this.declaredFieldType = declaredFieldType;
 			this.target = target;
+			updateMethodHandles();
+		}
+
+		/**
+		 * Updates the {@linkplain #getAccessor()} and {@linkplain #getSetter()}
+		 * using the current {@linkplain #getTarget()} and
+		 * {@linkplain #getFieldName()}. {@linkplain MethodHandle}s are
+		 * immutable so new ones are created.
+		 */
+		protected void updateMethodHandles() {
 			this.accessor = buildAccessorWithLikelyPrefixes(getTarget(), getFieldName());
 			this.setter = buildSetter(getAccessor(), getTarget(), getFieldName());
 		}
@@ -796,9 +831,8 @@ public class BeanPathAdaptor<B> {
 			if (getTarget().equals(target)) {
 				return;
 			}
-			this.accessor = getAccessor().bindTo(target);
-			this.setter = getSetter().bindTo(target);
 			this.target = target;
+			updateMethodHandles();
 		}
 		
 		public T getTarget() {
