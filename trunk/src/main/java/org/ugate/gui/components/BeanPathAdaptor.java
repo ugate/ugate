@@ -446,6 +446,9 @@ public class BeanPathAdaptor<B> {
 			try {
 				//final MethodHandle mh2 = MethodHandles.insertArguments(
 				//fieldHandle.getSetter(), 0, v);
+				if (v == fieldHandle.getAccessor().invoke()) {
+					return;
+				}
 				T val;
 				final boolean isStringType = fieldHandle.getFieldType().equals(
 						String.class);
@@ -461,8 +464,9 @@ public class BeanPathAdaptor<B> {
 							.getClass() : fieldHandle.getFieldType(), v
 							.toString());
 				}
-				super.set(val);
 				fieldHandle.getSetter().invoke(val);
+				// TODO : ClassCastException needs to be handled by overriding listener methods
+				fireValueChangedEvent();
 			} catch (final Throwable t) {
 				throw new IllegalArgumentException("Unable to set value: " + v, t);
 			}
@@ -474,14 +478,7 @@ public class BeanPathAdaptor<B> {
 		@Override
 		public T get() {
 			try {
-				// TODO : here we are lazily loading the property which will prevent any property listeners
-				// from receiving notice of a direct model field change until the next time the get method
-				// is called here
-				final T mprop = (T) fieldHandle.getAccessor().invoke();
-				if (super.get() == null || !super.get().equals(mprop)) {
-					super.set(mprop);
-				}
-				return super.get();
+				return (T) fieldHandle.getAccessor().invoke();
 			} catch (final Throwable t) {
 				throw new RuntimeException("Unable to get value", t);
 			}
