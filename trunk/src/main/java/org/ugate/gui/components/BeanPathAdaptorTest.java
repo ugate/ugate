@@ -37,14 +37,30 @@ public class BeanPathAdaptorTest extends Application {
 		"ME","MH","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH",
 		"OK","OR","PA","PR","PW","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI",
 		"WV","WY"};
-	private static final String P1_LABEL = "Person 1";
-	private static final String P2_LABEL = "Person 2";
+	private static final String P1_LABEL = "Person 1 (initially no data)";
+	private static final String P2_LABEL = "Person 2 (initially no data)";
+	private static final String P3_LABEL = "Person 3 (initially has data)";
 	private final Person person1 = new Person();
 	private final Person person2 = new Person();
+	private final Person person3 = new Person();
 	private final BeanPathAdaptor<Person> personPA = new BeanPathAdaptor<Person>(person1);
 	
 	public static void main(final String[] args) {
 		Application.launch(BeanPathAdaptorTest.class, args);
+	}
+	
+	public BeanPathAdaptorTest() {
+		super();
+		person3.setAge(50d);
+		person3.setName("Person 3");
+		Address addy = new Address();
+		Location loc = new Location();
+		loc.setCountry(1);
+		loc.setInternational(true);
+		loc.setState("KY");
+		addy.setStreet("123 Test Street");
+		addy.setLocation(loc);
+		person3.setAddress(addy);
 	}
 
 	@Override
@@ -54,13 +70,13 @@ public class BeanPathAdaptorTest extends Application {
 		pojoTA.setWrapText(true);
 		pojoTA.setEditable(false);
 		pBox = new ChoiceBox<>(FXCollections.observableArrayList(
-				P1_LABEL, P2_LABEL));
+				P1_LABEL, P2_LABEL, P3_LABEL));
 		pBox.getSelectionModel().select(0);
 		pBox.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
-				personPA.setBean(newValue == P1_LABEL ? person1 : person2);
+				personPA.setBean(newValue == P1_LABEL ? person1 : newValue == P2_LABEL ? person2 : person3);
 			}
 		});
 		pBox.autosize();
@@ -118,7 +134,7 @@ public class BeanPathAdaptorTest extends Application {
 			public void run() {
 				String dump = "";
 				for (BeanPathAdaptor<Person> p : ps) {
-					dump += "Person 1 {name=" + 
+					dump += "Person {name=" + 
 							p.getBean().getName() +
 							", age=" +
 							p.getBean().getAge() +
