@@ -37,9 +37,9 @@ public class BeanPathAdaptorTest extends Application {
 		"ME","MH","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH",
 		"OK","OR","PA","PR","PW","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI",
 		"WV","WY"};
-	private static final String P1_LABEL = "Person 1 (initially no data)";
+	private static final String P1_LABEL = "Person 1 (initially has data)";
 	private static final String P2_LABEL = "Person 2 (initially no data)";
-	private static final String P3_LABEL = "Person 3 (initially has data)";
+	private static final String P3_LABEL = "Person 3 (initially no data)";
 	private final Person person1 = new Person();
 	private final Person person2 = new Person();
 	private final Person person3 = new Person();
@@ -51,8 +51,8 @@ public class BeanPathAdaptorTest extends Application {
 	
 	public BeanPathAdaptorTest() {
 		super();
-		person3.setAge(50d);
-		person3.setName("Person 3");
+		person1.setAge(50d);
+		person1.setName("Person 1");
 		Address addy = new Address();
 		Location loc = new Location();
 		loc.setCountry(1);
@@ -60,7 +60,7 @@ public class BeanPathAdaptorTest extends Application {
 		loc.setState("KY");
 		addy.setStreet("123 Test Street");
 		addy.setLocation(loc);
-		person3.setAddress(addy);
+		person1.setAddress(addy);
 	}
 
 	@Override
