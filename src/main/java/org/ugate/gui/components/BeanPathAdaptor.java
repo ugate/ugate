@@ -8,64 +8,96 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 
 /**
- * A {@linkplain Property} extension that allows a <b><code>.</code></b>
- * separated field path to be traversed on a bean until the final field name is
- * found that will be bound to the property. For example, assume there is a
- * <code>Person</code> class that has a field for an <code>Address</code> class
- * which in turn has a field for a <code>city</code>.
+ * An adaptor that takes a POJO bean and internally and recursively
+ * binds/un-binds it's fields to other {@linkplain Property} components. It
+ * allows a <b><code>.</code></b> separated field path to be traversed on a bean
+ * until the final field name is found (last entry in the <b><code>.</code></b>
+ * separated field path). Each field will have a corresponding
+ * {@linkplain Property} that is automatically generated and reused in the
+ * binding process. Each {@linkplain Property} is bean-aware and will
+ * dynamically update it's values and bindings as different beans are set on the
+ * adaptor. Bean's set on the adaptor do not need to instantiate all the
+ * sub-beans in the path(s) provided as long as they contain a no-argument
+ * constructor they will be instantiated as path(s) are traversed.
+ * 
+ * <p>
+ * For example, assume there is a <code>Person</code> class that has a field for
+ * an <code>Address</code> class which in turn has a field for a
+ * <code>city</code>.
  * <p>
  * If the <code>city</code> field needs to be bound to a JavaFX control
  * {@linkplain Property} for UI updates/viewing it can be accomplished in the
  * following manner:
  * </p>
  * <p>
- * <code>Person person = new Person();<br/> 
- * PathProperty<Person, String> pp = new PathProperty<Person, String>(person, "address.city", String.class);<br/> 
- * Bindings.bindBidirectional(pp, myTextField.textProperty());<br/> 
+ * <code>TextField tf = new TextField();<br/>
+ * Person person = new Person();<br/>
+ * BeanPathAdaptor<Person> pbpa = new BeanPathAdaptor<Person>(person);<br/> 
+ * pbpa.bindBidirectional("address.city", tf.textProperty());<br/> 
  * </code>
  * </p>
+ * </p>
  * 
+ * @see #bindBidirectional(String, Property)
  * @param <B>
  *            the bean type
  */
 public class BeanPathAdaptor<B> {
 
 	private FieldBean<Void, B> root;
-	
+
+	/**
+	 * Constructor
+	 * 
+	 * @param bean
+	 *            the bean the {@linkplain BeanPathAdaptor} is for
+	 */
 	public BeanPathAdaptor(final B bean) {
 		setBean(bean);
 	}
 	
 	/**
-	 * Binds a {@linkplain Property} by traversing a supplied target object
-	 * accessor's return object (or the accessor's return type class when the
-	 * returned object is null in which case it will try to instantiate the
-	 * class using a no-argument constructor) until it reaches the last field
-	 * name in the expression that will be used for the final field's
-	 * {@linkplain Property}
+	 * Binds a {@linkplain Property} by traversing the bean's field tree
 	 * 
-	 * @param expString
+	 * @see FieldBean#bidirectionalBindOperation(String, Property, boolean)
+	 * @param fieldPath
 	 *            the <b><code>.</code></b> separated field paths relative to
 	 *            the {@linkplain #getBean()} that will be traversed
-	 * @param declaredFieldType
+	 * @param property the {@linkplain Property} to bind to
 	 *            the field class type of the property
-	 * 
-	 * @throws NoSuchMethodException
-	 *             thrown when a field accessor or setter cannot be found for any one of the fields in the path
 	 */
-	public <T> void bindBidirectional(final String expString, final Property<T> property) {
-		getRoot().bidirectionalBindOperation(expString, property, false);
+	public <T> void bindBidirectional(final String fieldPath, final Property<T> property) {
+		getRoot().bidirectionalBindOperation(fieldPath, property, false);
 	}
-	
-	public <T> void unBindBidirectional(final String expString, final Property<T> property) {
-		getRoot().bidirectionalBindOperation(expString, property, true);
+
+	/**
+	 * Unbinds a {@linkplain Property} by traversing the bean's field tree
+	 * 
+	 * @see FieldBean#bidirectionalBindOperation(String, Property, boolean)
+	 * @param fieldPath
+	 *            the <b><code>.</code></b> separated field paths relative to
+	 *            the {@linkplain #getBean()} that will be traversed
+	 * @param property the {@linkplain Property} to bind to
+	 *            the field class type of the property
+	 */
+	public <T> void unBindBidirectional(final String fieldPath, final Property<T> property) {
+		getRoot().bidirectionalBindOperation(fieldPath, property, true);
 	}
 
 	/**
@@ -102,34 +134,33 @@ public class BeanPathAdaptor<B> {
 	}
 
 	/**
-	 * A {@linkplain Property} extension that allows a <b><code>.</code></b>
-	 * separated field path to be traversed on a bean until the final field name is
-	 * found that will be bound to the property. For example, assume there is a
-	 * <code>Person</code> class that has a field for an <code>Address</code> class
-	 * which in turn has a field for a <code>city</code>.
-	 * <p>
-	 * If the <code>city</code> field needs to be bound to a JavaFX control
-	 * {@linkplain Property} for UI updates/viewing it can be accomplished in the
-	 * following manner:
-	 * </p>
-	 * <p>
-	 * <code>Person person = new Person();<br/> 
-	 * PathProperty<Person, String> pp = new PathProperty<Person, String>(person, "address.city", String.class);<br/> 
-	 * Bindings.bindBidirectional(pp, myTextField.textProperty());<br/> 
-	 * </code>
-	 * </p>
+	 * A POJO bean extension that allows binding based upon a <b><code>.</code>
+	 * </b> separated field path that will be traversed on a bean until the
+	 * final field name is found. Each bean may contain child
+	 * {@linkplain FieldBean}s when
+	 * {@linkplain #bidirectionalBindOperation(String, Property, boolean)} is
+	 * called with a direct descendant field that is a non-primitive type. Any
+	 * primitive types are added as a {@linkplain FieldProperty} reference to
+	 * the {@linkplain FieldBean}.
 	 * 
+	 * @see #bidirectionalBindOperation(String, Property, boolean)
+	 * @param <PT>
+	 *            the parent bean type
 	 * @param <BT>
 	 *            the bean type
-	 * @param <T>
-	 *            the final field type found in the path for which the
-	 *            {@linkplain Property} is for
 	 */
 	protected static class FieldBean<PT, BT> implements Serializable {
 
 		private static final long serialVersionUID = 7397535724568852021L;
 		private final Map<String, FieldBean<BT, ?>> fieldBeans = new HashMap<>();
-		private final Map<String, FieldProperty<BT, ?>> fieldProperties = new HashMap<>();
+		// TODO : Currently a field property can only be bound to one other
+		// property.
+		// To allow multiple property bindings to the same field property,
+		// change
+		// the fieldProperties key to use a combination of path + the bind class
+		// of
+		// each property that is being bound
+		private final Map<String, FieldProperty<BT>> fieldProperties = new HashMap<>();
 		private FieldHandle<PT, BT> fieldHandle;
 		private final FieldBean<?, PT> parent;
 		private BT bean;
@@ -221,7 +252,7 @@ public class BeanPathAdaptor<B> {
 		 * @param fieldProperty
 		 *            the {@linkplain FieldProperty} to add or update
 		 */
-		protected void addOrUpdateFieldProperty(final FieldProperty<BT, ?> fieldProperty) {
+		protected void addOrUpdateFieldProperty(final FieldProperty<BT> fieldProperty) {
 			if (getFieldProperties().containsKey(fieldProperty.getName())) {
 				getFieldProperties().get(fieldProperty.getName()).setTarget(fieldProperty.getBean());
 			} else {
@@ -252,7 +283,7 @@ public class BeanPathAdaptor<B> {
 			for (final Map.Entry<String, FieldBean<BT, ?>> fn : getFieldBeans().entrySet()) {
 				fn.getValue().setParentBean(getBean());
 			}
-			for (final Map.Entry<String, FieldProperty<BT, ?>> fp : getFieldProperties().entrySet()) {
+			for (final Map.Entry<String, FieldProperty<BT>> fp : getFieldProperties().entrySet()) {
 				fp.getValue().setTarget(getBean());
 			}
 		}
@@ -285,7 +316,10 @@ public class BeanPathAdaptor<B> {
 		 * bind and the {@linkplain FieldProperty} doesn't exist all relative
 		 * {@linkplain FieldBean}s in the path will be instantiated using a
 		 * no-argument constructor until the {@linkplain FieldProperty} is
-		 * created and bound to the supplied {@linkplain Property}.
+		 * created and bound to the supplied {@linkplain Property}. The process
+		 * is reciprocated until all path {@linkplain FieldBean} and
+		 * {@linkplain FieldProperty} attributes of the field path are
+		 * extinguished.
 		 * 
 		 * @see Bindings#bindBidirectional(Property, Property)
 		 * @see Bindings#unbindBidirectional(Property, Property)
@@ -318,8 +352,9 @@ public class BeanPathAdaptor<B> {
 			} else if (!unbind) {
 				// add a new bean/property chain
 				if (isProperty) {
-					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
-							getBean(), fieldNames[0], Object.class);
+					final FieldProperty<BT> childProp = new FieldProperty<>(
+							getBean(), fieldNames[0], Object.class, 
+							propertyValueClass(property));
 					addOrUpdateFieldProperty(childProp);
 					bidirectionalBindOperation(fieldNames[0], property, unbind);
 				} else {
@@ -334,6 +369,44 @@ public class BeanPathAdaptor<B> {
 					childBean.bidirectionalBindOperation(nextFieldPath, property, unbind);
 				}
 			}
+		}
+
+		/**
+		 * Provides the underlying value class for a given {@linkplain Property}
+		 * 
+		 * @param property
+		 *            the {@linkplain Property} to check
+		 * @return the value class of the {@linkplain Property}
+		 */
+		public static Class<?> propertyValueClass(final Property<?> property) {
+			Class<?> clazz = Object.class;
+			if (property != null) {
+				if (StringProperty.class.isAssignableFrom(property.getClass())) {
+					clazz = String.class;
+				} else if (IntegerProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = Integer.class;
+				} else if (BooleanProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = Boolean.class;
+				} else if (DoubleProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = Double.class;
+				} else if (FloatProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = Float.class;
+				} else if (LongProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = Long.class;
+				} else if (ListProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = List.class;
+				} else if (MapProperty.class.isAssignableFrom(property
+						.getClass())) {
+					clazz = Map.class;
+				}
+			}
+			return clazz;
 		}
 
 		/**
@@ -383,92 +456,72 @@ public class BeanPathAdaptor<B> {
 		 *         {@linkplain FieldBean} that are not {@linkplain FieldBean}s,
 		 *         but rather exist as a {@linkplain FieldProperty}
 		 */
-		protected Map<String, FieldProperty<BT, ?>> getFieldProperties() {
+		protected Map<String, FieldProperty<BT>> getFieldProperties() {
 			return fieldProperties;
 		}
 	}
 	
 	/**
-	 * A {@linkplain Property} extension that allows a <b><code>.</code></b>
-	 * separated field path to be traversed on a bean until the final field name is
-	 * found that will be bound to the property. For example, assume there is a
-	 * <code>Person</code> class that has a field for an <code>Address</code> class
-	 * which in turn has a field for a <code>city</code>.
-	 * <p>
-	 * If the <code>city</code> field needs to be bound to a JavaFX control
-	 * {@linkplain Property} for UI updates/viewing it can be accomplished in the
-	 * following manner:
-	 * </p>
-	 * <p>
-	 * <code>Person person = new Person();<br/> 
-	 * PathProperty<Person, String> pp = new PathProperty<Person, String>(person, "address.city", String.class);<br/> 
-	 * Bindings.bindBidirectional(pp, myTextField.textProperty());<br/> 
-	 * </code>
-	 * </p>
+	 * A {@linkplain Property} extension that uses a bean's getter/setter to
+	 * define the {@linkplain Property}'s value. <b>NOTE</b>: Unlike traditional
+	 * {@linkplain Property} components, {@linkplain FieldProperty} components
+	 * have a one-to-one relationship to their bound {@linkplain Property} class
+	 * types. Any additional bindings that have a different
+	 * {@linkplain FieldProperty#getBindClass()} should be made with a separate
+	 * {@linkplain FieldProperty} instance.
 	 * 
 	 * @param <BT>
 	 *            the bean type
-	 * @param <T>
-	 *            the final field type found in the path for which the
-	 *            {@linkplain Property} is for
 	 */
-	protected static class FieldProperty<BT, T> extends ObjectPropertyBase<T> {
+	protected static class FieldProperty<BT> extends ObjectPropertyBase<Object> {
 		
-		private final FieldHandle<BT, T> fieldHandle;
+		private final FieldHandle<BT, Object> fieldHandle;
+		private final Class<?> bindClass;
+		private boolean dirty;
 
 		/**
 		 * Constructor
 		 * 
 		 * @param bean
 		 *            the bean that the path belongs to
-		 * @param fieldPath
-		 *            the path to the <b><code>.</code></b> separated fields
-		 *            that will be traversed on the bean until the final field
-		 *            is found (which the property is bound to)
+		 * @param fieldName
+		 *            the name of the field within the bean
 		 * @param fieldType
-		 *            the {@linkplain Class} that the final field is
-		 * @param setDerivedValue
-		 *            true when the a value should be set or instantiated using
-		 *            the {@linkplain #getAccessor()} return value or a new instance of it's return type
+		 *            the {@linkplain Class} of the field
+		 * @param bindClass
+		 *            the class that is used to coerce to for any bound
+		 *            {@linkplain Property}
 		 */
-		protected FieldProperty(final BT bean, final String fieldName, final Class<T> fieldType) {
+		protected FieldProperty(final BT bean, final String fieldName,
+				final Class<Object> fieldType, final Class<?> bindClass) {
 			super();
-			this.fieldHandle = new FieldHandle<BT, T>(bean, fieldName, fieldType);
+			this.fieldHandle = new FieldHandle<BT, Object>(bean, fieldName,
+					fieldType);
+			this.bindClass = bindClass;
 			set(fieldHandle.deriveValueFromAccessor());
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
-		public void set(final T v) {
+		public void set(final Object v) {
 			try {
-				//final MethodHandle mh2 = MethodHandles.insertArguments(
-				//fieldHandle.getSetter(), 0, v);
-				if (v == fieldHandle.getAccessor().invoke()) {
+				// final MethodHandle mh2 = MethodHandles.insertArguments(
+				// fieldHandle.getSetter(), 0, v);
+				final Object cv = fieldHandle.getAccessor().invoke();
+				if (!dirty && v == cv) {
 					return;
 				}
-				T val;
-				final boolean isStringType = fieldHandle.getFieldType().equals(
-						String.class);
-				if (v == null || (!isStringType && v.toString().isEmpty())) {
-					val = (T) FieldHandle.defaultValue(fieldHandle
-							.getFieldType());
-				} else if (isStringType
-						|| (v != null && v.getClass().isAssignableFrom(
-								fieldHandle.getFieldType()))) {
-					val = (T) fieldHandle.getFieldType().cast(v);
-				} else {
-					val = (T) FieldHandle.valueOf(get() != null ? get()
-							.getClass() : fieldHandle.getFieldType(), v
-							.toString());
-				}
+				final Object val = coerce(v,
+						cv != null ? cv.getClass() : fieldHandle.getFieldType());
 				fieldHandle.getSetter().invoke(val);
-				// TODO : ClassCastException needs to be handled by overriding listener methods
+				invalidated();
 				fireValueChangedEvent();
+				dirty = false;
 			} catch (final Throwable t) {
-				throw new IllegalArgumentException("Unable to set value: " + v, t);
+				throw new IllegalArgumentException("Unable to set value: " + v,
+						t);
 			}
 		};
 
@@ -476,12 +529,39 @@ public class BeanPathAdaptor<B> {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public T get() {
+		public Object get() {
 			try {
-				return (T) fieldHandle.getAccessor().invoke();
+				final Object cv = fieldHandle.getAccessor().invoke();
+				return dirty ? coerce(cv, bindClass) : cv;
 			} catch (final Throwable t) {
 				throw new RuntimeException("Unable to get value", t);
 			}
+		}
+
+		/**
+		 * Attempts to coerce a value into the specified class
+		 * 
+		 * @param v
+		 *            the value to coerce
+		 * @param clazz
+		 *            the class to coerce to
+		 * @return the coerced value (null when value failed to be coerced)
+		 */
+		@SuppressWarnings("unchecked")
+		public <VT> VT coerce(final Object v, final Class<VT> clazz) {
+			VT val;
+			final boolean isStringType = fieldHandle.getFieldType().equals(
+					String.class);
+			if (v == null || (!isStringType && v.toString().isEmpty())) {
+				val = (VT) FieldHandle.defaultValue(fieldHandle.getFieldType());
+			} else if (isStringType
+					|| (v != null && v.getClass().isAssignableFrom(
+							fieldHandle.getFieldType()))) {
+				val = (VT) fieldHandle.getFieldType().cast(v);
+			} else {
+				val = FieldHandle.valueOf(clazz, v.toString());
+			}
+			return val;
 		}
 
 		/**
@@ -491,6 +571,7 @@ public class BeanPathAdaptor<B> {
 		 *            the target to bind to
 		 */
 		public void setTarget(final BT bean) {
+			dirty = true;
 			fieldHandle.setTarget(bean);
 			set(fieldHandle.deriveValueFromAccessor());
 		}
@@ -509,6 +590,14 @@ public class BeanPathAdaptor<B> {
 		@Override
 		public String getName() {
 			return fieldHandle.getFieldName();
+		}
+
+		/**
+		 * @return the class that is used to coerce to for any bound
+		 *         {@linkplain Property}
+		 */
+		public Class<?> getBindClass() {
+			return bindClass;
 		}
 	}
 
@@ -709,8 +798,12 @@ public class BeanPathAdaptor<B> {
 		 *            the value to invoke the <code>valueOf</code> method on
 		 * @return the result (null if the operation fails)
 		 */
+		@SuppressWarnings("unchecked")
 		public static <VT> VT valueOf(final Class<VT> valueOfClass, 
 				final Object value) {
+			if (value != null && String.class.isAssignableFrom(valueOfClass)) {
+				return (VT) value.toString();
+			}
 			if (!valueOfMap.containsKey(valueOfClass)) {
 				putValueOf(valueOfClass);
 			}
