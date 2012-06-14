@@ -160,7 +160,7 @@ public class BeanPathAdaptor<B> {
 		// the fieldProperties key to use a combination of path + the bind class
 		// of
 		// each property that is being bound
-		private final Map<String, FieldProperty<BT>> fieldProperties = new HashMap<>();
+		private final Map<String, FieldProperty<BT, ?>> fieldProperties = new HashMap<>();
 		private FieldHandle<PT, BT> fieldHandle;
 		private final FieldBean<?, PT> parent;
 		private BT bean;
@@ -252,11 +252,12 @@ public class BeanPathAdaptor<B> {
 		 * @param fieldProperty
 		 *            the {@linkplain FieldProperty} to add or update
 		 */
-		protected void addOrUpdateFieldProperty(final FieldProperty<BT> fieldProperty) {
-			if (getFieldProperties().containsKey(fieldProperty.getName())) {
-				getFieldProperties().get(fieldProperty.getName()).setTarget(fieldProperty.getBean());
+		protected void addOrUpdateFieldProperty(final FieldProperty<BT, ?> fieldProperty) {
+			final String pkey = fieldProperty.getName();
+			if (getFieldProperties().containsKey(pkey)) {
+				getFieldProperties().get(pkey).setTarget(fieldProperty.getBean());
 			} else {
-				getFieldProperties().put(fieldProperty.getName(), fieldProperty);
+				getFieldProperties().put(pkey, fieldProperty);
 			}
 		}
 
@@ -283,7 +284,7 @@ public class BeanPathAdaptor<B> {
 			for (final Map.Entry<String, FieldBean<BT, ?>> fn : getFieldBeans().entrySet()) {
 				fn.getValue().setParentBean(getBean());
 			}
-			for (final Map.Entry<String, FieldProperty<BT>> fp : getFieldProperties().entrySet()) {
+			for (final Map.Entry<String, FieldProperty<BT, ?>> fp : getFieldProperties().entrySet()) {
 				fp.getValue().setTarget(getBean());
 			}
 		}
@@ -331,42 +332,55 @@ public class BeanPathAdaptor<B> {
 		 *            true to unbind, false to bind
 		 */
 		@SuppressWarnings("unchecked")
-		public <T> void bidirectionalBindOperation(final String fieldPath, 
+		public <T> void bidirectionalBindOperation(final String fieldPath,
 				final Property<T> property, final boolean unbind) {
 			final String[] fieldNames = fieldPath.split("\\.");
 			final boolean isProperty = fieldNames.length == 1;
-			if (isProperty && getFieldProperties().containsKey(fieldNames[0])) {
+			final String pkey = isProperty ? fieldNames[0] : "";
+			if (isProperty && getFieldProperties().containsKey(pkey)) {
+				final FieldProperty<BT, ?> fp = getFieldProperties().get(pkey);
 				if (unbind) {
-					Bindings.unbindBidirectional((Property<T>) 
-							getFieldProperties().get(fieldNames[0]), property);
+					Bindings.unbindBidirectional((Property<T>) fp, property);
 				} else {
-					Bindings.bindBidirectional((Property<T>) 
-							getFieldProperties().get(fieldNames[0]), property);
+					// because of the inverse relationship of the bidirectional
+					// bind the initial value needs to be captured and reset as
+					// a dirty value or the bind operation will overwrite the
+					// initial value with the value of the passed property
+					final Object val = fp.get();
+					Bindings.bindBidirectional((Property<T>) fp, property);
+					if (val != null && !val.toString().isEmpty()) {
+						fp.setDirty(val);
+					}
 				}
-			} else if (!isProperty && getFieldBeans().containsKey(fieldNames[0])) {
+			} else if (!isProperty
+					&& getFieldBeans().containsKey(fieldNames[0])) {
 				// progress to the next child field/bean in the path chain
-				final String nextFieldPath = fieldPath.substring(
-						fieldPath.indexOf(fieldNames[1]));
+				final String nextFieldPath = fieldPath.substring(fieldPath
+						.indexOf(fieldNames[1]));
 				getFieldBeans().get(fieldNames[0]).bidirectionalBindOperation(
 						nextFieldPath, property, unbind);
 			} else if (!unbind) {
 				// add a new bean/property chain
 				if (isProperty) {
-					final FieldProperty<BT> childProp = new FieldProperty<>(
-							getBean(), fieldNames[0], Object.class, 
+					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
+							getBean(), fieldNames[0], Object.class,
 							propertyValueClass(property));
 					addOrUpdateFieldProperty(childProp);
 					bidirectionalBindOperation(fieldNames[0], property, unbind);
 				} else {
-					// create a handle to set the bean as a child of the current bean
-					// if the child bean exists on the bean it will remain unchanged
-					final FieldHandle<BT, Object> pfh = new FieldHandle<>(getBean(), 
-							fieldNames[0], Object.class);
-					final FieldBean<BT, ?> childBean = new FieldBean<>(this, pfh);
+					// create a handle to set the bean as a child of the current
+					// bean
+					// if the child bean exists on the bean it will remain
+					// unchanged
+					final FieldHandle<BT, Object> pfh = new FieldHandle<>(
+							getBean(), fieldNames[0], Object.class);
+					final FieldBean<BT, ?> childBean = new FieldBean<>(this,
+							pfh);
 					// progress to the next child field/bean in the path chain
-					final String nextFieldPath = fieldPath.substring(
-							fieldPath.indexOf(fieldNames[1]));
-					childBean.bidirectionalBindOperation(nextFieldPath, property, unbind);
+					final String nextFieldPath = fieldPath.substring(fieldPath
+							.indexOf(fieldNames[1]));
+					childBean.bidirectionalBindOperation(nextFieldPath,
+							property, unbind);
 				}
 			}
 		}
@@ -426,8 +440,9 @@ public class BeanPathAdaptor<B> {
 		 * @return true when the field exists
 		 */
 		public boolean hasField(final String fieldName) {
-			return getFieldBeans().containsKey(fieldName) || 
-					getFieldProperties().containsKey(fieldName);
+			return getFieldBeans().containsKey(fieldName)
+					|| getFieldProperties().containsKey(
+							getFieldProperties().get(fieldName));
 		}
 
 		/**
@@ -456,7 +471,7 @@ public class BeanPathAdaptor<B> {
 		 *         {@linkplain FieldBean} that are not {@linkplain FieldBean}s,
 		 *         but rather exist as a {@linkplain FieldProperty}
 		 */
-		protected Map<String, FieldProperty<BT>> getFieldProperties() {
+		protected Map<String, FieldProperty<BT, ?>> getFieldProperties() {
 			return fieldProperties;
 		}
 	}
@@ -472,12 +487,14 @@ public class BeanPathAdaptor<B> {
 	 * 
 	 * @param <BT>
 	 *            the bean type
+	 * @param <INVT>
+	 *            the inverse value type
 	 */
-	protected static class FieldProperty<BT> extends ObjectPropertyBase<Object> {
+	protected static class FieldProperty<BT, INVT> extends ObjectPropertyBase<Object> {
 		
 		private final FieldHandle<BT, Object> fieldHandle;
-		private final Class<?> bindClass;
-		private boolean dirty;
+		private final Class<INVT> bindClass;
+		private boolean isDirty;
 
 		/**
 		 * Constructor
@@ -493,12 +510,24 @@ public class BeanPathAdaptor<B> {
 		 *            {@linkplain Property}
 		 */
 		protected FieldProperty(final BT bean, final String fieldName,
-				final Class<Object> fieldType, final Class<?> bindClass) {
+				final Class<Object> fieldType, final Class<INVT> bindClass) {
 			super();
 			this.fieldHandle = new FieldHandle<BT, Object>(bean, fieldName,
 					fieldType);
 			this.bindClass = bindClass;
 			set(fieldHandle.deriveValueFromAccessor());
+		}
+
+		/**
+		 * Flags the {@linkplain Property} value as dirty and calls
+		 * {@linkplain #set(Object)}
+		 * 
+		 * @param v
+		 *            the value to set
+		 */
+		public void setDirty(final Object v) {
+			isDirty = true;
+			set(v);
 		}
 
 		/**
@@ -510,15 +539,15 @@ public class BeanPathAdaptor<B> {
 				// final MethodHandle mh2 = MethodHandles.insertArguments(
 				// fieldHandle.getSetter(), 0, v);
 				final Object cv = fieldHandle.getAccessor().invoke();
-				if (!dirty && v == cv) {
+				if (!isDirty && v == cv) {
 					return;
 				}
-				final Object val = coerce(v,
-						cv != null ? cv.getClass() : fieldHandle.getFieldType());
+				final Object val = coerce(v, cv != null ? cv.getClass()
+						: fieldHandle.getFieldType());
 				fieldHandle.getSetter().invoke(val);
 				invalidated();
 				fireValueChangedEvent();
-				dirty = false;
+				isDirty = false;
 			} catch (final Throwable t) {
 				throw new IllegalArgumentException("Unable to set value: " + v,
 						t);
@@ -532,7 +561,7 @@ public class BeanPathAdaptor<B> {
 		public Object get() {
 			try {
 				final Object cv = fieldHandle.getAccessor().invoke();
-				return dirty ? coerce(cv, bindClass) : cv;
+				return isDirty ? coerce(cv, bindClass) : cv;
 			} catch (final Throwable t) {
 				throw new RuntimeException("Unable to get value", t);
 			}
@@ -571,7 +600,7 @@ public class BeanPathAdaptor<B> {
 		 *            the target to bind to
 		 */
 		public void setTarget(final BT bean) {
-			dirty = true;
+			isDirty = true;
 			fieldHandle.setTarget(bean);
 			set(fieldHandle.deriveValueFromAccessor());
 		}
@@ -596,7 +625,7 @@ public class BeanPathAdaptor<B> {
 		 * @return the class that is used to coerce to for any bound
 		 *         {@linkplain Property}
 		 */
-		public Class<?> getBindClass() {
+		public Class<INVT> getBindClass() {
 			return bindClass;
 		}
 	}
@@ -613,28 +642,28 @@ public class BeanPathAdaptor<B> {
 	 */
 	protected static class FieldHandle<T, F> {
 
-		private static final Map<Class<?>, MethodHandle> valueOfMap = new HashMap<>(1);
-		private static final Map<Class<?>, Object> NOBOX = new HashMap<>();
+		private static final Map<Class<?>, MethodHandle> VALUE_OF_MAP = new HashMap<>(1);
+		private static final Map<Class<?>, Object> DFLTS = new HashMap<>();
 		static {
-			NOBOX.put(Boolean.class, Boolean.FALSE);
-			NOBOX.put(boolean.class, false);
-			NOBOX.put(Byte.class, Byte.valueOf("0"));
-			NOBOX.put(byte.class, Byte.valueOf("0").byteValue());
-			NOBOX.put(Number.class, 0L);
-			NOBOX.put(Short.class, Short.valueOf("0"));
-			NOBOX.put(short.class, Short.valueOf("0").shortValue());
-			NOBOX.put(Character.class, Character.valueOf(' '));
-			NOBOX.put(char.class, ' ');
-			NOBOX.put(Integer.class, Integer.valueOf(0));
-			NOBOX.put(int.class, 0);
-			NOBOX.put(Long.class, Long.valueOf(0));
-		    NOBOX.put(long.class, 0L);
-		    NOBOX.put(Float.class, Float.valueOf(0F));
-		    NOBOX.put(float.class, 0F);
-		    NOBOX.put(Double.class, Double.valueOf(0D));
-		    NOBOX.put(double.class, 0D);
-		    NOBOX.put(BigInteger.class, BigInteger.valueOf(0L));
-		    NOBOX.put(BigDecimal.class, BigDecimal.valueOf(0D));
+			DFLTS.put(Boolean.class, Boolean.FALSE);
+			DFLTS.put(boolean.class, false);
+			DFLTS.put(Byte.class, Byte.valueOf("0"));
+			DFLTS.put(byte.class, Byte.valueOf("0").byteValue());
+			DFLTS.put(Number.class, 0L);
+			DFLTS.put(Short.class, Short.valueOf("0"));
+			DFLTS.put(short.class, Short.valueOf("0").shortValue());
+			DFLTS.put(Character.class, Character.valueOf(' '));
+			DFLTS.put(char.class, ' ');
+			DFLTS.put(Integer.class, Integer.valueOf(0));
+			DFLTS.put(int.class, 0);
+			DFLTS.put(Long.class, Long.valueOf(0));
+		    DFLTS.put(long.class, 0L);
+		    DFLTS.put(Float.class, Float.valueOf(0F));
+		    DFLTS.put(float.class, 0F);
+		    DFLTS.put(Double.class, Double.valueOf(0D));
+		    DFLTS.put(double.class, 0D);
+		    DFLTS.put(BigInteger.class, BigInteger.valueOf(0L));
+		    DFLTS.put(BigDecimal.class, BigDecimal.valueOf(0D));
 		}
 		private final String fieldName;
 		private MethodHandle accessor;
@@ -762,14 +791,14 @@ public class BeanPathAdaptor<B> {
 		 *            the target object that the <code>valueOf</code> is for
 		 */
 		protected static void putValueOf(final Class<?> target) {
-			if (valueOfMap.containsKey(target)) {
+			if (VALUE_OF_MAP.containsKey(target)) {
 				return;
 			}
 			try {
 				final MethodHandle mh1 = MethodHandles.lookup().findStatic(
 						target, "valueOf",
 						MethodType.methodType(target, String.class));
-				valueOfMap.put(target, mh1);
+				VALUE_OF_MAP.put(target, mh1);
 			} catch (final Throwable t) {
 				// class doesn't support it- do nothing
 			}
@@ -804,12 +833,12 @@ public class BeanPathAdaptor<B> {
 			if (value != null && String.class.isAssignableFrom(valueOfClass)) {
 				return (VT) value.toString();
 			}
-			if (!valueOfMap.containsKey(valueOfClass)) {
+			if (!VALUE_OF_MAP.containsKey(valueOfClass)) {
 				putValueOf(valueOfClass);
 			}
-			if (valueOfMap.containsKey(valueOfClass)) {
+			if (VALUE_OF_MAP.containsKey(valueOfClass)) {
 				try {
-					return (VT) valueOfMap.get(valueOfClass).invoke(value);
+					return (VT) VALUE_OF_MAP.get(valueOfClass).invoke(value);
 				} catch (final Throwable t) {
 					throw new IllegalArgumentException(String.format(
 							"Unable to invoke valueOf on %1$s using %2$s", 
@@ -837,7 +866,7 @@ public class BeanPathAdaptor<B> {
 		 */
 		@SuppressWarnings("unchecked")
 		public static <VT> VT defaultValue(final Class<VT> clazz) {
-			return (VT) (NOBOX.containsKey(clazz) ? NOBOX.get(clazz) : null);
+			return (VT) (DFLTS.containsKey(clazz) ? DFLTS.get(clazz) : null);
 		}
 
 		/**
@@ -881,7 +910,7 @@ public class BeanPathAdaptor<B> {
 		 * accessor's {@linkplain MethodHandle#invoke(Object...)} method. When
 		 * the value returned is <code>null</code> an attempt will be made to
 		 * instantiate it using either by using a default value from
-		 * {@linkplain #NOBOX} (for primatives) or
+		 * {@linkplain #DFLTS} (for primatives) or
 		 * {@linkplain Class#newInstance()} on the accessor's
 		 * {@linkplain MethodType#returnType()} method.
 		 * 
@@ -897,8 +926,8 @@ public class BeanPathAdaptor<B> {
 			}
 			if (targetValue == null) {
 				try {
-					if (NOBOX.containsKey(getFieldType())) {
-						targetValue = (F) NOBOX.get(getFieldType());
+					if (DFLTS.containsKey(getFieldType())) {
+						targetValue = (F) DFLTS.get(getFieldType());
 					} else {
 						targetValue = (F) getAccessor().type().returnType().newInstance();
 					}

@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -21,7 +22,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -84,20 +84,25 @@ public class BeanPathAdaptorTest extends Application {
 		toolBar.getItems().add(pBox);
 		VBox personBox = new VBox(10);
 		personBox.setPadding(new Insets(10, 10, 10, 50));
-		FlowPane beanPane = new FlowPane();
-		personBox.getChildren().addAll(
-				new Text("Person POJO using auto-generated JavaFX properties:"), 
-				beanTF("name", 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("age", 100, Slider.class, null),
-				beanTF("address.street", 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("address.location.state", 2, ChoiceBox.class, 
-						"[a-zA-z]", STATES),
-				beanTF("address.location.country", 10, null, "[0-9]"),
-				beanTF("address.location.international", 0, 
-						CheckBox.class, null),
-				new Label("POJO Dump:"),
-				pojoTA);
-		beanPane.getChildren().addAll(personBox);
+		VBox beanPane = new VBox(10);
+		beanPane.setPadding(new Insets(10, 10, 10, 10));
+		final Text title = new Text("Person POJO using auto-generated JavaFX properties. " +
+				"Duplicate field controls exist to demo multiple control binding");
+		title.setWrappingWidth(400d);
+		final HBox ageBox1 = beanTF("age", 100, Slider.class, null);
+		personBox
+				.getChildren()
+				.addAll(
+						beanTF("name", 50, null, "[a-zA-z0-9\\s]*"),
+						ageBox1,
+						beanTF("address.street", 50, null, "[a-zA-z0-9\\s]*"),
+						beanTF("address.location.state", 2, ComboBox.class,
+								"[a-zA-z]", STATES),
+						beanTF("address.location.country", 10, null, "[0-9]"),
+						beanTF("address.location.international", 0,
+								CheckBox.class, null), new Label("POJO Dump:"),
+						pojoTA);
+		beanPane.getChildren().addAll(title, personBox);
 
 		final TextField pojoNameTF = new TextField();
 		Button pojoNameBtn = new Button("Set Person's Name");
@@ -110,7 +115,9 @@ public class BeanPathAdaptorTest extends Application {
 		});
 		VBox pojoBox = new VBox(10);
 		pojoBox.setPadding(new Insets(10, 10, 10, 10));
-		pojoBox.getChildren().addAll(new Label("Set person fields via POJO:"),
+		Label lbl = new Label("Set selected person's field data via POJO (unbound controls):");
+		lbl.setWrapText(true);
+		pojoBox.getChildren().addAll(lbl,
 				new Label("Name:"), pojoNameTF, pojoNameBtn);
 		
 		VBox beanBox = new VBox(10);
@@ -171,9 +178,11 @@ public class BeanPathAdaptorTest extends Application {
 			// POJO binding magic...
 			personPA.bindBidirectional(path, cb.selectedProperty());
 			ctrl = cb;
-		} else if (controlType == ChoiceBox.class) {
-			ChoiceBox<T> cb = new ChoiceBox<>(
+		} else if (controlType == ComboBox.class) {
+			ComboBox<T> cb = new ComboBox<>(
 					FXCollections.observableArrayList(choices));
+			cb.setPromptText("Select State");
+			cb.setPrefWidth(100d);
 			cb.valueProperty().addListener(new InvalidationListener() {
 				@Override
 				public void invalidated(Observable observable) {
