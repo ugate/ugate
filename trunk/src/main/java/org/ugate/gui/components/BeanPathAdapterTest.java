@@ -28,7 +28,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-public class BeanPathAdaptorTest extends Application {
+public class BeanPathAdapterTest extends Application {
 	
 	ChoiceBox<String> pBox;
 	TextArea pojoTA = new TextArea();
@@ -43,13 +43,13 @@ public class BeanPathAdaptorTest extends Application {
 	private final Person person1 = new Person();
 	private final Person person2 = new Person();
 	private final Person person3 = new Person();
-	private final BeanPathAdaptor<Person> personPA = new BeanPathAdaptor<Person>(person1);
+	private final BeanPathAdapter<Person> personPA = new BeanPathAdapter<>(person1);
 	
 	public static void main(final String[] args) {
-		Application.launch(BeanPathAdaptorTest.class, args);
+		Application.launch(BeanPathAdapterTest.class, args);
 	}
 	
-	public BeanPathAdaptorTest() {
+	public BeanPathAdapterTest() {
 		super();
 		person1.setAge(50d);
 		person1.setName("Person 1");
@@ -65,7 +65,7 @@ public class BeanPathAdaptorTest extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		primaryStage.setTitle(BeanPathAdaptor.class.getSimpleName() + " TEST");
+		primaryStage.setTitle(BeanPathAdapter.class.getSimpleName() + " TEST");
 		pojoTA.setFocusTraversable(false);
 		pojoTA.setWrapText(true);
 		pojoTA.setEditable(false);
@@ -138,12 +138,12 @@ public class BeanPathAdaptorTest extends Application {
 	}
 	
 	@SafeVarargs
-	public final void dumpPojo(final BeanPathAdaptor<Person>... ps) {
+	public final void dumpPojo(final BeanPathAdapter<Person>... ps) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
 				String dump = "";
-				for (BeanPathAdaptor<Person> p : ps) {
+				for (BeanPathAdapter<Person> p : ps) {
 					dump += "Person {name=" + 
 							p.getBean().getName() +
 							", age=" +

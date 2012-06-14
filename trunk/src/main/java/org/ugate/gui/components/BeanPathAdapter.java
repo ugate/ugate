@@ -49,7 +49,7 @@ import javafx.util.StringConverter;
  * <p>
  * <code>TextField tf = new TextField();<br/>
  * Person person = new Person();<br/>
- * BeanPathAdaptor<Person> pbpa = new BeanPathAdaptor<Person>(person);<br/> 
+ * BeanPathAdapter<Person> pbpa = new BeanPathAdapter<Person>(person);<br/> 
  * pbpa.bindBidirectional("address.city", tf.textProperty());<br/> 
  * </code>
  * </p>
@@ -59,7 +59,7 @@ import javafx.util.StringConverter;
  * @param <B>
  *            the bean type
  */
-public class BeanPathAdaptor<B> {
+public class BeanPathAdapter<B> {
 
 	private FieldBean<Void, B> root;
 
@@ -67,9 +67,9 @@ public class BeanPathAdaptor<B> {
 	 * Constructor
 	 * 
 	 * @param bean
-	 *            the bean the {@linkplain BeanPathAdaptor} is for
+	 *            the bean the {@linkplain BeanPathAdapter} is for
 	 */
-	public BeanPathAdaptor(final B bean) {
+	public BeanPathAdapter(final B bean) {
 		setBean(bean);
 	}
 	
@@ -102,14 +102,14 @@ public class BeanPathAdaptor<B> {
 	}
 
 	/**
-	 * @return the bean of the {@linkplain BeanPathAdaptor}
+	 * @return the bean of the {@linkplain BeanPathAdapter}
 	 */
 	public B getBean() {
 		return getRoot().getBean();
 	}
 	
 	/**
-	 * Sets the root bean of the {@linkplain BeanPathAdaptor}. Any existing
+	 * Sets the root bean of the {@linkplain BeanPathAdapter}. Any existing
 	 * properties will be updated with the values relative to the paths within
 	 * the bean.
 	 * 
