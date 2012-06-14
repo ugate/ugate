@@ -160,7 +160,7 @@ public class BeanPathAdaptor<B> {
 		// the fieldProperties key to use a combination of path + the bind class
 		// of
 		// each property that is being bound
-		private final Map<String, FieldProperty<BT, ?>> fieldProperties = new HashMap<>();
+		private final Map<String, FieldProperty<BT, ?, ?>> fieldProperties = new HashMap<>();
 		private FieldHandle<PT, BT> fieldHandle;
 		private final FieldBean<?, PT> parent;
 		private BT bean;
@@ -252,7 +252,7 @@ public class BeanPathAdaptor<B> {
 		 * @param fieldProperty
 		 *            the {@linkplain FieldProperty} to add or update
 		 */
-		protected void addOrUpdateFieldProperty(final FieldProperty<BT, ?> fieldProperty) {
+		protected void addOrUpdateFieldProperty(final FieldProperty<BT, ?, ?> fieldProperty) {
 			final String pkey = fieldProperty.getName();
 			if (getFieldProperties().containsKey(pkey)) {
 				getFieldProperties().get(pkey).setTarget(fieldProperty.getBean());
@@ -284,7 +284,7 @@ public class BeanPathAdaptor<B> {
 			for (final Map.Entry<String, FieldBean<BT, ?>> fn : getFieldBeans().entrySet()) {
 				fn.getValue().setParentBean(getBean());
 			}
-			for (final Map.Entry<String, FieldProperty<BT, ?>> fp : getFieldProperties().entrySet()) {
+			for (final Map.Entry<String, FieldProperty<BT, ?, ?>> fp : getFieldProperties().entrySet()) {
 				fp.getValue().setTarget(getBean());
 			}
 		}
@@ -338,7 +338,7 @@ public class BeanPathAdaptor<B> {
 			final boolean isProperty = fieldNames.length == 1;
 			final String pkey = isProperty ? fieldNames[0] : "";
 			if (isProperty && getFieldProperties().containsKey(pkey)) {
-				final FieldProperty<BT, ?> fp = getFieldProperties().get(pkey);
+				final FieldProperty<BT, ?, ?> fp = getFieldProperties().get(pkey);
 				if (unbind) {
 					Bindings.unbindBidirectional((Property<T>) fp, property);
 				} else {
@@ -362,7 +362,7 @@ public class BeanPathAdaptor<B> {
 			} else if (!unbind) {
 				// add a new bean/property chain
 				if (isProperty) {
-					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
+					final FieldProperty<BT, ?, ?> childProp = new FieldProperty<>(
 							getBean(), fieldNames[0], Object.class,
 							propertyValueClass(property));
 					addOrUpdateFieldProperty(childProp);
@@ -471,7 +471,7 @@ public class BeanPathAdaptor<B> {
 		 *         {@linkplain FieldBean} that are not {@linkplain FieldBean}s,
 		 *         but rather exist as a {@linkplain FieldProperty}
 		 */
-		protected Map<String, FieldProperty<BT, ?>> getFieldProperties() {
+		protected Map<String, FieldProperty<BT, ?, ?>> getFieldProperties() {
 			return fieldProperties;
 		}
 	}
@@ -487,12 +487,14 @@ public class BeanPathAdaptor<B> {
 	 * 
 	 * @param <BT>
 	 *            the bean type
+	 * @param <T>
+	 *            the field type
 	 * @param <INVT>
 	 *            the inverse value type
 	 */
-	protected static class FieldProperty<BT, INVT> extends ObjectPropertyBase<Object> {
+	protected static class FieldProperty<BT, T, INVT> extends ObjectPropertyBase<Object> {
 		
-		private final FieldHandle<BT, Object> fieldHandle;
+		private final FieldHandle<BT, T> fieldHandle;
 		private final Class<INVT> bindClass;
 		private boolean isDirty;
 
@@ -510,9 +512,9 @@ public class BeanPathAdaptor<B> {
 		 *            {@linkplain Property}
 		 */
 		protected FieldProperty(final BT bean, final String fieldName,
-				final Class<Object> fieldType, final Class<INVT> bindClass) {
+				final Class<T> fieldType, final Class<INVT> bindClass) {
 			super();
-			this.fieldHandle = new FieldHandle<BT, Object>(bean, fieldName,
+			this.fieldHandle = new FieldHandle<BT, T>(bean, fieldName,
 					fieldType);
 			this.bindClass = bindClass;
 			set(fieldHandle.deriveValueFromAccessor());
