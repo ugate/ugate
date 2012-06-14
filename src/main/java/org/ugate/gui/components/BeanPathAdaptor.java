@@ -22,6 +22,7 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
+import javafx.util.StringConverter;
 
 /**
  * An adaptor that takes a POJO bean and internally and recursively
@@ -153,14 +154,8 @@ public class BeanPathAdaptor<B> {
 
 		private static final long serialVersionUID = 7397535724568852021L;
 		private final Map<String, FieldBean<BT, ?>> fieldBeans = new HashMap<>();
-		// TODO : Currently a field property can only be bound to one other
-		// property.
-		// To allow multiple property bindings to the same field property,
-		// change
-		// the fieldProperties key to use a combination of path + the bind class
-		// of
-		// each property that is being bound
-		private final Map<String, FieldProperty<BT, ?, ?>> fieldProperties = new HashMap<>();
+		private final Map<String, FieldProperty<BT, ?>> fieldProperties = new HashMap<>();
+		private final Map<Class<?>, FieldStringConverter<?>> stringConverters = new HashMap<>();
 		private FieldHandle<PT, BT> fieldHandle;
 		private final FieldBean<?, PT> parent;
 		private BT bean;
@@ -252,7 +247,7 @@ public class BeanPathAdaptor<B> {
 		 * @param fieldProperty
 		 *            the {@linkplain FieldProperty} to add or update
 		 */
-		protected void addOrUpdateFieldProperty(final FieldProperty<BT, ?, ?> fieldProperty) {
+		protected void addOrUpdateFieldProperty(final FieldProperty<BT, ?> fieldProperty) {
 			final String pkey = fieldProperty.getName();
 			if (getFieldProperties().containsKey(pkey)) {
 				getFieldProperties().get(pkey).setTarget(fieldProperty.getBean());
@@ -284,7 +279,7 @@ public class BeanPathAdaptor<B> {
 			for (final Map.Entry<String, FieldBean<BT, ?>> fn : getFieldBeans().entrySet()) {
 				fn.getValue().setParentBean(getBean());
 			}
-			for (final Map.Entry<String, FieldProperty<BT, ?, ?>> fp : getFieldProperties().entrySet()) {
+			for (final Map.Entry<String, FieldProperty<BT, ?>> fp : getFieldProperties().entrySet()) {
 				fp.getValue().setTarget(getBean());
 			}
 		}
@@ -338,7 +333,7 @@ public class BeanPathAdaptor<B> {
 			final boolean isProperty = fieldNames.length == 1;
 			final String pkey = isProperty ? fieldNames[0] : "";
 			if (isProperty && getFieldProperties().containsKey(pkey)) {
-				final FieldProperty<BT, ?, ?> fp = getFieldProperties().get(pkey);
+				final FieldProperty<BT, ?> fp = getFieldProperties().get(pkey);
 				if (unbind) {
 					Bindings.unbindBidirectional((Property<T>) fp, property);
 				} else {
@@ -347,7 +342,9 @@ public class BeanPathAdaptor<B> {
 					// a dirty value or the bind operation will overwrite the
 					// initial value with the value of the passed property
 					final Object val = fp.get();
-					Bindings.bindBidirectional((Property<T>) fp, property);
+					Bindings.bindBidirectional((Property<String>) fp, property,
+							(StringConverter<T>) new FieldStringConverter<>(
+									propertyValueClass(property)));
 					if (val != null && !val.toString().isEmpty()) {
 						fp.setDirty(val);
 					}
@@ -362,9 +359,8 @@ public class BeanPathAdaptor<B> {
 			} else if (!unbind) {
 				// add a new bean/property chain
 				if (isProperty) {
-					final FieldProperty<BT, ?, ?> childProp = new FieldProperty<>(
-							getBean(), fieldNames[0], Object.class,
-							propertyValueClass(property));
+					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
+							getBean(), fieldNames[0], Object.class);
 					addOrUpdateFieldProperty(childProp);
 					bidirectionalBindOperation(fieldNames[0], property, unbind);
 				} else {
@@ -471,31 +467,116 @@ public class BeanPathAdaptor<B> {
 		 *         {@linkplain FieldBean} that are not {@linkplain FieldBean}s,
 		 *         but rather exist as a {@linkplain FieldProperty}
 		 */
-		protected Map<String, FieldProperty<BT, ?, ?>> getFieldProperties() {
+		protected Map<String, FieldProperty<BT, ?>> getFieldProperties() {
 			return fieldProperties;
+		}
+
+		/**
+		 * Gets/Creates (if not already created) a
+		 * {@linkplain FieldStringConverter}.
+		 * 
+		 * @param targetClass
+		 *            the target class of the {@linkplain FieldStringConverter}
+		 * @return the {@linkplain FieldStringConverter}
+		 */
+		@SuppressWarnings("unchecked")
+		public <FCT> FieldStringConverter<FCT> getFieldStringConverter(final Class<FCT> targetClass) {
+			if (stringConverters.containsKey(targetClass)) {
+				return (FieldStringConverter<FCT>) stringConverters.get(targetClass);
+			} else {
+				final FieldStringConverter<FCT> fsc = new FieldStringConverter<>(targetClass);
+				stringConverters.put(targetClass, fsc);
+				return fsc;
+			}
+		}
+	}
+
+	/**
+	 * Coercible {@linkplain StringConverter} that handles conversions between
+	 * strings and a target class when used in the binding process
+	 * {@linkplain Bindings#bindBidirectional(Property, Property, StringConverter)}
+	 * 
+	 * @see StringConverter
+	 * @param <T>
+	 *            the target class type that is used in the coercion of the
+	 *            string
+	 */
+	protected static class FieldStringConverter<T> extends StringConverter<T> {
+
+		private final Class<T> targetClass;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param targetClass
+		 *            the class that the {@linkplain FieldStringConverter} is
+		 *            targeting
+		 */
+		public FieldStringConverter(final Class<T> targetClass) {
+			this.targetClass = targetClass;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T fromString(final String string) {
+			return coerce(string, targetClass);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String toString(final T object) {
+			return object != null ? object.toString() : null;
+		}
+
+		/**
+		 * @return the target class that is used in the coercion of the string
+		 */
+		public Class<T> getTargetClass() {
+			return targetClass;
+		}
+
+		/**
+		 * Attempts to coerce a value into the specified class
+		 * 
+		 * @param v
+		 *            the value to coerce
+		 * @param targetClass
+		 *            the class to coerce to
+		 * @return the coerced value (null when value failed to be coerced)
+		 */
+		public static <VT> VT coerce(final Object v, final Class<VT> targetClass) {
+			VT val;
+			final boolean isStringType = targetClass.equals(
+					String.class);
+			if (v == null || (!isStringType && v.toString().isEmpty())) {
+				val = (VT) FieldHandle.defaultValue(targetClass);
+			} else if (isStringType
+					|| (v != null && v.getClass().isAssignableFrom(
+							targetClass))) {
+				val = (VT) targetClass.cast(v);
+			} else {
+				val = FieldHandle.valueOf(targetClass, v.toString());
+			}
+			return val;
 		}
 	}
 	
 	/**
 	 * A {@linkplain Property} extension that uses a bean's getter/setter to
-	 * define the {@linkplain Property}'s value. <b>NOTE</b>: Unlike traditional
-	 * {@linkplain Property} components, {@linkplain FieldProperty} components
-	 * have a one-to-one relationship to their bound {@linkplain Property} class
-	 * types. Any additional bindings that have a different
-	 * {@linkplain FieldProperty#getBindClass()} should be made with a separate
-	 * {@linkplain FieldProperty} instance.
+	 * define the {@linkplain Property}'s value.
 	 * 
 	 * @param <BT>
 	 *            the bean type
 	 * @param <T>
 	 *            the field type
-	 * @param <INVT>
-	 *            the inverse value type
 	 */
-	protected static class FieldProperty<BT, T, INVT> extends ObjectPropertyBase<Object> {
+	protected static class FieldProperty<BT, T> extends ObjectPropertyBase<String> {
 		
 		private final FieldHandle<BT, T> fieldHandle;
-		private final Class<INVT> bindClass;
 		private boolean isDirty;
 
 		/**
@@ -507,36 +588,37 @@ public class BeanPathAdaptor<B> {
 		 *            the name of the field within the bean
 		 * @param fieldType
 		 *            the {@linkplain Class} of the field
-		 * @param bindClass
-		 *            the class that is used to coerce to for any bound
-		 *            {@linkplain Property}
 		 */
 		protected FieldProperty(final BT bean, final String fieldName,
-				final Class<T> fieldType, final Class<INVT> bindClass) {
+				final Class<T> fieldType) {
 			super();
 			this.fieldHandle = new FieldHandle<BT, T>(bean, fieldName,
 					fieldType);
-			this.bindClass = bindClass;
-			set(fieldHandle.deriveValueFromAccessor());
+			setDerived();
+		}
+		
+		protected void setDerived() {
+			final T derived = fieldHandle.deriveValueFromAccessor();
+			set(derived != null ? derived.toString() : null);
 		}
 
 		/**
 		 * Flags the {@linkplain Property} value as dirty and calls
-		 * {@linkplain #set(Object)}
+		 * {@linkplain #set(String)}
 		 * 
 		 * @param v
 		 *            the value to set
 		 */
 		public void setDirty(final Object v) {
 			isDirty = true;
-			set(v);
+			set(v != null ? v.toString() : null);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void set(final Object v) {
+		public void set(final String v) {
 			try {
 				// final MethodHandle mh2 = MethodHandles.insertArguments(
 				// fieldHandle.getSetter(), 0, v);
@@ -544,7 +626,7 @@ public class BeanPathAdaptor<B> {
 				if (!isDirty && v == cv) {
 					return;
 				}
-				final Object val = coerce(v, cv != null ? cv.getClass()
+				final Object val = FieldStringConverter.coerce(v, cv != null ? cv.getClass()
 						: fieldHandle.getFieldType());
 				fieldHandle.getSetter().invoke(val);
 				invalidated();
@@ -560,39 +642,13 @@ public class BeanPathAdaptor<B> {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Object get() {
+		public String get() {
 			try {
 				final Object cv = fieldHandle.getAccessor().invoke();
-				return isDirty ? coerce(cv, bindClass) : cv;
+				return cv != null ? cv.toString() : null;
 			} catch (final Throwable t) {
 				throw new RuntimeException("Unable to get value", t);
 			}
-		}
-
-		/**
-		 * Attempts to coerce a value into the specified class
-		 * 
-		 * @param v
-		 *            the value to coerce
-		 * @param clazz
-		 *            the class to coerce to
-		 * @return the coerced value (null when value failed to be coerced)
-		 */
-		@SuppressWarnings("unchecked")
-		public <VT> VT coerce(final Object v, final Class<VT> clazz) {
-			VT val;
-			final boolean isStringType = fieldHandle.getFieldType().equals(
-					String.class);
-			if (v == null || (!isStringType && v.toString().isEmpty())) {
-				val = (VT) FieldHandle.defaultValue(fieldHandle.getFieldType());
-			} else if (isStringType
-					|| (v != null && v.getClass().isAssignableFrom(
-							fieldHandle.getFieldType()))) {
-				val = (VT) fieldHandle.getFieldType().cast(v);
-			} else {
-				val = FieldHandle.valueOf(clazz, v.toString());
-			}
-			return val;
 		}
 
 		/**
@@ -604,7 +660,7 @@ public class BeanPathAdaptor<B> {
 		public void setTarget(final BT bean) {
 			isDirty = true;
 			fieldHandle.setTarget(bean);
-			set(fieldHandle.deriveValueFromAccessor());
+			setDerived();
 		}
 
 		/**
@@ -621,14 +677,6 @@ public class BeanPathAdaptor<B> {
 		@Override
 		public String getName() {
 			return fieldHandle.getFieldName();
-		}
-
-		/**
-		 * @return the class that is used to coerce to for any bound
-		 *         {@linkplain Property}
-		 */
-		public Class<INVT> getBindClass() {
-			return bindClass;
 		}
 	}
 
