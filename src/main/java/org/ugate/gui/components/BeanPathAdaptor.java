@@ -548,7 +548,11 @@ public class BeanPathAdaptor<B> {
 		 *            the class to coerce to
 		 * @return the coerced value (null when value failed to be coerced)
 		 */
+		@SuppressWarnings("unchecked")
 		public static <VT> VT coerce(final Object v, final Class<VT> targetClass) {
+			if (targetClass == Object.class) {
+				return (VT) v;
+			}
 			VT val;
 			final boolean isStringType = targetClass.equals(
 					String.class);
