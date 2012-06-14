@@ -123,17 +123,17 @@ public class BeanPathAdaptorTest extends Application {
 		pojoBox.getChildren().addAll(lbl,
 				new Label("Name:"), pojoNameTF, pojoNameBtn);
 		
+		SplitPane pojoSplit = new SplitPane();
+		pojoSplit.getItems().addAll(beanPane, pojoBox);
 		VBox beanBox = new VBox(10);
-		beanBox.getChildren().addAll(toolBar, beanPane);
-		SplitPane root = new SplitPane();
-		root.getItems().addAll(beanBox, pojoBox);
+		beanBox.getChildren().addAll(toolBar, pojoSplit);
 		primaryStage.setOnShowing(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent event) {
 				dumpPojo(personPA);
 			}
 		});
-		primaryStage.setScene(new Scene(root));
+		primaryStage.setScene(new Scene(beanBox));
 		primaryStage.show();
 	}
 	
