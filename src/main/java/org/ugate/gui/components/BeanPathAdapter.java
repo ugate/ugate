@@ -25,7 +25,7 @@ import javafx.beans.property.StringProperty;
 import javafx.util.StringConverter;
 
 /**
- * An adaptor that takes a POJO bean and internally and recursively
+ * An adapter that takes a POJO bean and internally and recursively
  * binds/un-binds it's fields to other {@linkplain Property} components. It
  * allows a <b><code>.</code></b> separated field path to be traversed on a bean
  * until the final field name is found (last entry in the <b><code>.</code></b>
@@ -33,7 +33,7 @@ import javafx.util.StringConverter;
  * {@linkplain Property} that is automatically generated and reused in the
  * binding process. Each {@linkplain Property} is bean-aware and will
  * dynamically update it's values and bindings as different beans are set on the
- * adaptor. Bean's set on the adaptor do not need to instantiate all the
+ * adapter. Bean's set on the adapter do not need to instantiate all the
  * sub-beans in the path(s) provided as long as they contain a no-argument
  * constructor they will be instantiated as path(s) are traversed.
  * 
