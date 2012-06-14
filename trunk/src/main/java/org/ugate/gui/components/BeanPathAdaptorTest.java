@@ -90,11 +90,14 @@ public class BeanPathAdaptorTest extends Application {
 				"Duplicate field controls exist to demo multiple control binding");
 		title.setWrappingWidth(400d);
 		final HBox ageBox1 = beanTF("age", 100, Slider.class, null);
+		final HBox ageBox2 = beanTF("age", 100, null, "[0-9]");
+		// age has a bidirectional bind with the Person POJO's age, but to use two
 		personBox
 				.getChildren()
 				.addAll(
 						beanTF("name", 50, null, "[a-zA-z0-9\\s]*"),
 						ageBox1,
+						ageBox2,
 						beanTF("address.street", 50, null, "[a-zA-z0-9\\s]*"),
 						beanTF("address.location.state", 2, ComboBox.class,
 								"[a-zA-z]", STATES),
