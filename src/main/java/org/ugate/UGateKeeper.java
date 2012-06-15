@@ -53,18 +53,23 @@ public enum UGateKeeper {
 	
 	/**
 	 * Initializes the {@linkplain UGateKeeper}
+	 * 
+	 * @return true when a wireless initialization was required
 	 */
-	public void init() {
+	public boolean init() {
 		log.info("Iniitializing the gate keeper...");
 		final Path hostPropPath = RS.hostPropertiesFilePath();
 		final Path hostCpyFrmPropPath = RS.hostDefaultPropertiesPath();
 		log.info(String.format("Loading %1$s (copies from %2$s when not present)", hostPropPath, hostCpyFrmPropPath));
 		hostSettings = new StorageFile(hostPropPath, hostCpyFrmPropPath);
-		wirelessInit();
+		if (wirelessInit()) {
+			return true;
+		}
 		xbee = new XBee();
 		// test the serial ports
 		wirelessSerialPorts();
 		log.info("...iniitialized the gate keeper");
+		return false;
 	}
 	
 	/**
@@ -849,10 +854,12 @@ public enum UGateKeeper {
 	
 	/**
 	 * Performs the required wireless initialization
+	 * 
+	 * @return true when a wireless initialization was required
 	 */
-	private void wirelessInit() {
+	private boolean wirelessInit() {
 		// ensure that the needed RXTX is installed (if not install it)
-		RS.initComm();
+		final boolean commInitialized = RS.initComm();
 		// initialize all of the existing remote wireless node settings/preferences
 		int i = RemoteSettings.WIRELESS_ADDRESS_START_INDEX;
 		RemoteNode sfs = null;
@@ -862,6 +869,7 @@ public enum UGateKeeper {
 					i == RemoteSettings.WIRELESS_ADDRESS_START_INDEX ? RS.remoteDefaultPropertiesPath() : null);
 			i++;
 		} while (sfs != null);
+		return commInitialized;
 	}
 	
 	/**
