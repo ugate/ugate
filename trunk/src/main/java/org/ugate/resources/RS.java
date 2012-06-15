@@ -287,18 +287,25 @@ public class RS {
 	 * Fedora {@linkplain https://admin.fedoraproject.org/pkgdb/acls/name/rxtx?_csrf_token=f10460d886559c3a4e824f14b13302dff6cb1511}
 	 * </code> all should have RXTX already installed 
 	 * from the distributions</p>
+	 * 
+	 * @return true when RXTX was installed and the application needs to be restarted
 	 */
-	public static void initComm() {
+	public static boolean initComm() {
 		ManagementFactory.getRuntimeMXBean().getName();
 		try {
 			getSerialPorts();
+			return false;
 		} catch (final NoClassDefFoundError e) {
-			log.info("RXTX not installed... attempting to install", e);
+			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
+					e.getClass().getName()));
 			// ClassNotFoundException
-			//installComm();
+			installComm();
+			return true;
 		} catch (final UnsatisfiedLinkError e) {
-			log.info("RXTX not installed... attempting to install", e);
-			//installComm();
+			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
+					e.getClass().getName()));
+			installComm();
+			return true;
 		}
 	}
 	
@@ -306,15 +313,15 @@ public class RS {
 	 * Installs RXTX to the working JVM
 	 */
 	private static void installComm() {
-		if (!UGateUtil.isWindows() && !UGateUtil.isMac() && !UGateUtil.isLinux() && !UGateUtil.isSolaris()) {
-			log.error(String.format("RXTX Install: %1$s is not a supported operating system", 
-					UGateUtil.os()));
-			return;
-		}
 		Path tempZip = null;
 		FileSystem fs = null;
 		FileSystem zipFs = null;
 		try {
+			if (!UGateUtil.isWindows() && !UGateUtil.isMac() && !UGateUtil.isLinux() && !UGateUtil.isSolaris()) {
+				throw new UnsupportedOperationException(
+						String.format("RXTX Install: %1$s is not a supported operating system", 
+						UGateUtil.os()));
+			}
 			final String rxtxVersion = rbLabel("rxtx.version");
 			final String rxtxFileName = rbLabel("rxtx.file.name");
 			final String jvmPath = System.getProperties().getProperty("java.home");
@@ -322,9 +329,17 @@ public class RS {
 					rxtxVersion, rxtxFileName, jvmPath));
 			
 			// copy the ZIP to a temporary file and create a ZIP file system to install RXTX
-			fs = applicationFileSystem();
+			final Path appPath = new File(applicationUri()).toPath();
+			Path rxtxFilePath;
+			if (Files.isDirectory(appPath)) {
+				fs = FileSystems.getDefault();
+				rxtxFilePath = fs.getPath(appPath.toAbsolutePath().toString(), rxtxFileName);
+			} else {
+				fs = FileSystems.newFileSystem(appPath, null);;
+				rxtxFilePath = fs.getPath(rxtxFileName);
+			}
 			tempZip = Files.createTempFile(null, ".zip");
-			Files.copy(fs.getPath(rxtxFileName), tempZip, StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(rxtxFilePath, tempZip, StandardCopyOption.REPLACE_EXISTING);
 			zipFs = FileSystems.newFileSystem(tempZip.toAbsolutePath(), null);
 			final Path rxtxPath = zipFs.getPath("/");
 
@@ -394,24 +409,21 @@ public class RS {
 				}
 			});
 			Files.deleteIfExists(tempZip);
-			restartApplication();
+			//restartApplication();
 		} catch (final Throwable t) {
-			log.error("RXTX Install: Unable to install the required files needed for Serial/Parallel communications! " + 
-					"To install manually goto http://rxtx.qbang.org/wiki/index.php/Installation", t);
+			throw new IllegalStateException("RXTX Install: Unable to install the required files needed for " + 
+					"Serial/Parallel communications! To install manually goto " + 
+					"http://rxtx.qbang.org/wiki/index.php/Installation", t);
 		} finally {
 			closeFileSystem(fs);
 			closeFileSystem(zipFs);
 		}
 	}
-	static int cnt = 0;
 
 	/**
 	 * Restarts the application
 	 */
-	private static void restartApplication(final String... args) {
-		if (cnt > 0) {
-			return;
-		}
+	protected static void restartApplication(final String... args) {
 		// Sun property pointing the main class and its arguments. 
 		// Might not be defined on non Hotspot VM implementations.
 		final String mcmd = System.getProperty("sun.java.command");
@@ -451,7 +463,6 @@ public class RS {
 		try {
 			//final ProcessBuilder processBuilder
 			Runtime.getRuntime().exec(cmd.toString());
-			cnt++;
 		} catch (final IOException e) {
 			log.error(String.format("Unable to restart the application at entry point: %1$s", cmd.toString()), e);
 		}

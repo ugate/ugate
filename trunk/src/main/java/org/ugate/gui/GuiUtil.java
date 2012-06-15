@@ -194,54 +194,96 @@ public class GuiUtil {
 	 *            added to the bottom of the dialog.
 	 * @return the {@linkplain DialogService}
 	 */
-	public static DialogService dialog(final Stage parent, final String titleKey, final String headerKey, 
+	public static DialogService dialogService(final Stage parent, final String titleKey, final String headerKey, 
 			final String submitLabelKey, final double width, final double height, final Service<Void> submitService, 
 			final Node... children) {
-		final String headerText = headerKey != null ? RS.rbLabel(headerKey) : "";
 		final Stage window = new Stage();
-		final Text header = TextBuilder.create().text(headerText).styleClass(
-				"dialog-title").wrappingWidth(width / 1.2d).build();
-		final Text messageHeader = TextBuilder.create().styleClass(
-				"dialog-message").wrappingWidth(width / 1.2d).build();
-		final DialogService service = new DialogService(parent, window, messageHeader, submitService);
-		window.initModality(Modality.APPLICATION_MODAL);
-		window.initStyle(StageStyle.TRANSPARENT);
-		window.getIcons().add(RS.img(RS.IMG_LOGO_16));
-		if (titleKey != null) {
-			window.setTitle(RS.rbLabel(titleKey));
-		}
-		final VBox content = VBoxBuilder.create().styleClass("dialog").build();
-		content.setMaxSize(width, height);
-		window.setScene(new Scene(content, width, height, Color.TRANSPARENT));
-		window.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
 		final Button submitBtn = ButtonBuilder.create().text(RS.rbLabel(submitLabelKey == null ? "submit" : 
-				submitLabelKey)).defaultButton(true).onAction(new EventHandler<ActionEvent>() {
+			submitLabelKey)).defaultButton(true).onAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent actionEvent) {
 				submitService.restart();
 			}
 		}).build();
-		final FlowPane flowPane = new FlowPane();
-		flowPane.setAlignment(Pos.CENTER);
-		flowPane.setVgap(20d);
-		flowPane.setHgap(10d);
-		flowPane.setPrefWrapLength(width);
-		flowPane.getChildren().add(submitBtn);
-		content.getChildren().addAll(header, messageHeader);
-		if (children != null && children.length > 0) {
-			for (final Node node : children) {
-				if (node == null) {
-					continue;
-				}
-				if (node instanceof Button) {
-					flowPane.getChildren().add(node);
-				} else {
-					content.getChildren().add(node);
+		final Dialog dialog = new Dialog(parent, window, titleKey, headerKey, submitBtn, width, height, children);
+		return new DialogService(dialog, submitService);
+	}
+
+	/**
+	 * Dialog stage
+	 */
+	public static class Dialog {
+
+		private final Stage parent;
+		private final Stage stage;
+		private final Text header;
+		private final Text messageHeader;
+		private final VBox content;
+		
+		public Dialog(final Stage parent, final Stage stage, final String titleKey,
+				final String headerKey, final Button submitButton,
+				final double width, final double height, final Node... children) {
+			final String headerText = headerKey != null ? RS.rbLabel(headerKey)
+					: "";
+			header = TextBuilder.create().text(headerText)
+					.styleClass("dialog-title").wrappingWidth(width / 1.2d)
+					.build();
+			messageHeader = TextBuilder.create()
+					.styleClass("dialog-message").wrappingWidth(width / 1.2d)
+					.build();
+			this.parent = parent;
+			this.stage = stage;
+			if (parent != null) {
+				stage.initModality(Modality.APPLICATION_MODAL);
+			}
+			stage.initStyle(StageStyle.TRANSPARENT);
+			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
+			if (titleKey != null) {
+				stage.setTitle(RS.rbLabel(titleKey));
+			}
+			content = VBoxBuilder.create().styleClass("dialog")
+					.build();
+			content.setMaxSize(width, height);
+			stage.setScene(new Scene(content, width, height, Color.TRANSPARENT));
+			stage.getScene().getStylesheets().add(RS.path(RS.CSS_MAIN));
+			final FlowPane flowPane = new FlowPane();
+			flowPane.setAlignment(Pos.CENTER);
+			flowPane.setVgap(20d);
+			flowPane.setHgap(10d);
+			flowPane.setPrefWrapLength(width);
+			if (submitButton != null) {
+				flowPane.getChildren().add(submitButton);
+			}
+			content.getChildren().addAll(header, messageHeader);
+			if (children != null && children.length > 0) {
+				for (final Node node : children) {
+					if (node == null) {
+						continue;
+					}
+					if (node instanceof Button) {
+						flowPane.getChildren().add(node);
+					} else {
+						content.getChildren().add(node);
+					}
 				}
 			}
+			content.getChildren().addAll(flowPane);
 		}
-		content.getChildren().addAll(flowPane);
-		return service;
+		public Stage getParent() {
+			return parent;
+		}
+		public Stage getStage() {
+			return stage;
+		}
+		public Text getHeader() {
+			return header;
+		}
+		public Text getMessageHeader() {
+			return messageHeader;
+		}
+		public VBox getContent() {
+			return content;
+		}
 	}
 	
 	/**
@@ -341,8 +383,7 @@ public class GuiUtil {
 	 */
 	public static class DialogService extends Service<Void> {
 
-		private final Stage window;
-		private final Stage parent;
+		private final Dialog dialog;
 		private final Effect origEffect;
 		private final Service<Void> submitService;
 		
@@ -363,19 +404,18 @@ public class GuiUtil {
 		 *            {@linkplain DialogService} window {@linkplain Stage} will
 		 *            be hidden
 		 */
-		protected DialogService(final Stage parent, final Stage window, final Text messageHeader, final Service<Void> submitService) {
-			this.window = window;
-			this.parent = parent;
-			this.origEffect = hasParentSceneRoot() ? this.parent.getScene().getRoot().getEffect() : null;
+		protected DialogService(final Dialog dialog, final Service<Void> submitService) {
+			this.dialog = dialog;
+			this.origEffect = hasParentSceneRoot() ? dialog.getParent().getScene().getRoot().getEffect() : null;
 			this.submitService = submitService;
 			this.submitService.stateProperty().addListener(new ChangeListener<State>() {
 				@Override
 				public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 					if (submitService.getException() != null) {
 						// service indicated that an error occurred
-						messageHeader.setText(submitService.getException().getMessage());
+						dialog.getMessageHeader().setText(submitService.getException().getMessage());
 					} else if (newValue == State.SUCCEEDED) {
-						window.getScene().getRoot().setEffect(ColorAdjustBuilder.create().brightness(-0.5d).build());
+						dialog.getStage().getScene().getRoot().setEffect(ColorAdjustBuilder.create().brightness(-0.5d).build());
 						Platform.runLater(createHideTask());
 					}
 				}
@@ -387,7 +427,7 @@ public class GuiUtil {
 		 */
 		@Override
 		protected Task<Void> createTask() {
-			return window.isShowing() ? createHideTask() : createShowTask();
+			return dialog.getStage().isShowing() ? createHideTask() : createShowTask();
 		}
 		
 		/**
@@ -400,10 +440,11 @@ public class GuiUtil {
 					Platform.runLater(new Runnable() {
 						public void run() {
 							if (hasParentSceneRoot()) {
-								parent.getScene().getRoot().setEffect(ColorAdjustBuilder.create().brightness(-0.5d).build());
+								dialog.getParent().getScene().getRoot().setEffect(
+										ColorAdjustBuilder.create().brightness(-0.5d).build());
 							}
-							window.show();
-							window.centerOnScreen();
+							dialog.getStage().show();
+							dialog.getStage().centerOnScreen();
 						}
 					});
 					return null;
@@ -427,11 +468,11 @@ public class GuiUtil {
 			final Task<Void> closeTask = new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
-					window.hide();
+					dialog.getStage().hide();
 					if (hasParentSceneRoot()) {
-						parent.getScene().getRoot().setEffect(origEffect);
+						dialog.getParent().getScene().getRoot().setEffect(origEffect);
 					}
-					window.getScene().getRoot().setDisable(false);
+					dialog.getStage().getScene().getRoot().setDisable(false);
 					return null;
 				}
 			};
@@ -442,7 +483,8 @@ public class GuiUtil {
 		 * @return true when the parent {@linkplain Stage#getScene()} has a valid {@linkplain Scene#getRoot()}
 		 */
 		private boolean hasParentSceneRoot() {
-			return this.parent != null && this.parent.getScene() != null && this.parent.getScene().getRoot() != null;
+			return dialog.getParent() != null && dialog.getParent().getScene() != null && 
+					dialog.getParent().getScene().getRoot() != null;
 		}
 		
 		/**

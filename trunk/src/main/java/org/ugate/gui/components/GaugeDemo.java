@@ -1,19 +1,33 @@
 package org.ugate.gui.components;
 
+import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Orientation;
+import javafx.scene.Scene;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 import org.ugate.gui.components.Gauge.IndicatorType;
 
-public class GaugeDemo extends VBox {
+public class GaugeDemo extends Application {
 	
 	private Gauge activeIntensityAdjust;
-
-	public GaugeDemo() {
+	
+	public static void main(final String[] args) {
+		Application.launch(GaugeDemo.class, args);
+	}
+	
+	@Override
+	public void start(final Stage primaryStage) throws Exception {
+		primaryStage.setTitle(Gauge.class.getSimpleName() + " TEST");
+		
+		ToolBar root = new ToolBar();
+		root.setOrientation(Orientation.VERTICAL);
 		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 1d, 0.5d, 0, 0d, 180d, 10, 4);
 		//gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
@@ -52,7 +66,9 @@ public class GaugeDemo extends VBox {
 		final Gauge gauge6 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 250d, 310d, 10, 0);
 		row2.getChildren().addAll(gauge3, gauge6);
 		
-		getChildren().addAll(row1, row2);
+		root.getItems().addAll(row1, row2);
+		primaryStage.setScene(new Scene(root));
+		primaryStage.show();
 	}
 	
 	private Gauge createRegionKnob(final Color color, final double percentValue) {

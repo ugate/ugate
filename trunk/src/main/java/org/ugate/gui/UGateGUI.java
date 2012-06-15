@@ -7,6 +7,8 @@ import java.util.Random;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Preloader.ProgressNotification;
+import javafx.application.Preloader.StateChangeNotification;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
@@ -89,6 +91,7 @@ public class UGateGUI extends Application {
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
+	private static String initErrorTitleRsKey = "app.title.error";
 	private static StringBuffer initErrors;
 	private Actor authActor;
 
@@ -121,36 +124,47 @@ public class UGateGUI extends Application {
 	@Override
 	public void init() {
 		try {
+			notifyPreloader(new ProgressNotification(0.3d));
 			ServiceManager.IMPL.open();
 		} catch (final Throwable t) {
 			log.error("Unable to start services", t);
 			try {
-				initErrors = new StringBuffer();
-				initErrors.append(RS.rbLabel("app.service.init.error"));
-				initErrors.append('\n');
-				initErrors.append(t.getMessage());
-				initErrors.append('\n');
+				addInitError(RS.rbLabel("app.service.init.error"), t.getMessage());
 			} catch (final Throwable t2) {
 				log.error("Unable notify user that services failed to start", t2);
 			}
 		}
 		try {
 			log.debug("Iniitializing GUI...");
-			UGateKeeper.DEFAULT.init();
+			notifyPreloader(new ProgressNotification(0.7d));
+			if (UGateKeeper.DEFAULT.init()) {
+				initErrorTitleRsKey = "app.title.action.required";
+				addInitError(RS.rbLabel("app.service.com.restart.required"));
+			}
 			// Text.setFontSmoothingType(FontSmoothingType.LCD);
 		} catch (final Throwable t) {
 			log.error("Unable to initialize the GUI", t);
 			try {
-				if (initErrors == null) {
-					initErrors = new StringBuffer();
-				}
-				initErrors.append(RS.rbLabel("app.gatekeeper.init.error"));
-				initErrors.append('\n');
-				initErrors.append(t.getMessage());
-				initErrors.append('\n');
+				addInitError(RS.rbLabel("app.gatekeeper.init.error"), t.getMessage());
 			} catch (final Throwable t2) {
 				log.error("Unable notify user that the gate keeper failed to start", t2);
 			}
+		}
+	}
+
+	/**
+	 * Adds initialization error message(s)
+	 * 
+	 * @param messages
+	 *            the message(s) to add
+	 */
+	private void addInitError(final String... messages) {
+		if (initErrors == null) {
+			initErrors = new StringBuffer();
+		}
+		for (final String msg : messages) {
+			initErrors.append(msg);
+			initErrors.append('\n');
 		}
 	}
 
@@ -165,7 +179,8 @@ public class UGateGUI extends Application {
 			if (initErrors != null && initErrors.length() > 0) {
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
-				final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", "app.title.error", "close", 550d, 300d, new Service<Void>() {
+				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, "app.title", initErrorTitleRsKey, 
+						"close", 550d, 300d, new Service<Void>() {
 					@Override
 					protected Task<Void> createTask() {
 						return new Task<Void>() {
@@ -178,6 +193,8 @@ public class UGateGUI extends Application {
 					}
 				}, errorDetails);
 				dialogService.start();
+				notifyPreloader(new StateChangeNotification(
+						StateChangeNotification.Type.BEFORE_START));
 			} else {
 				// start the main GUI
 				mainStageStart(stage);
@@ -196,6 +213,7 @@ public class UGateGUI extends Application {
 	 * @param stage the primary {@linkplain Stage}
 	 */
 	protected void mainStageStart(final Stage stage) {
+		notifyPreloader(new ProgressNotification(0.9d));
 		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 		stage.setTitle(RS.rbLabel("app.title"));
 
@@ -342,7 +360,7 @@ public class UGateGUI extends Application {
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
 				RS.rbLabel("app.dialog.password.verify")).build();
 		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel("close")).build() : null;
-		final GuiUtil.DialogService dialogService = GuiUtil.dialog(stage, "app.title", dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, "app.title", dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
@@ -412,6 +430,8 @@ public class UGateGUI extends Application {
 			});	
 		}
 		dialogService.start();
+		notifyPreloader(new StateChangeNotification(
+				StateChangeNotification.Type.BEFORE_START));
 	}
 
 	/**

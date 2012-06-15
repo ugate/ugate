@@ -343,7 +343,7 @@ public class BeanPathAdapter<B> {
 					// initial value with the value of the passed property
 					final Object val = fp.get();
 					Bindings.bindBidirectional((Property<String>) fp, property,
-							(StringConverter<T>) new FieldStringConverter<>(
+							(StringConverter<T>) getFieldStringConverter(
 									propertyValueClass(property)));
 					if (val != null && !val.toString().isEmpty()) {
 						fp.setDirty(val);
