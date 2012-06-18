@@ -13,11 +13,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import org.ugate.ISettings;
 import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.resources.RS;
+import org.ugate.service.IModelType;
 
 /**
  * A {@linkplain Label} followed by a 7-segment {@linkplain Digits} readout (padded using the format value) with
@@ -199,7 +199,7 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param offColor the color of the off digits
 	 * @param orientation the orientation of the control
 	 */
-	public UGateGaugePreferenceView(final ISettings settingsKeyInteger, final ISettings settingsKeyFraction, 
+	public UGateGaugePreferenceView(final IModelType settingsKeyInteger, final IModelType settingsKeyFraction, 
 			final Integer nodeIndex, final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, 
 			final int numberOfMajorTickMarks, final int numOfMinorTickMarksPerMajorTick, final Font tickValueFont,
@@ -272,8 +272,8 @@ public class UGateGaugePreferenceView extends VBox {
 	 * @param settingsKeyFraction the settings key used to sync the controls decimal portion of the value to
 	 * @param newValue the new value to set
 	 */
-	protected void setPreferenceValue(final ISettings settingsKeyInteger, 
-			final ISettings settingsKeyFraction, final Integer nodeIndex, final String newValue) {
+	protected void setPreferenceValue(final IModelType settingsKeyInteger, 
+			final IModelType settingsKeyFraction, final Integer nodeIndex, final String newValue) {
 		if (settingsKeyFraction != null) {
 			final double value = Double.parseDouble(newValue);
 			final int feet = (int) value;

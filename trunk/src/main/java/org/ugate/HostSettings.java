@@ -1,9 +1,11 @@
 package org.ugate;
 
+import org.ugate.service.IModelType;
+
 /**
  * Settings related to the global host computer that will span all nodes across the device network
  */
-public enum HostSettings implements ISettings {
+public enum HostSettings implements IModelType {
 	USE_METRIC("metric.on"),
 	WIRELESS_ADDRESS_HOST("wireless.address.host"),
 	WIRELESS_COM_PORT("wireless.com.port"),

@@ -14,6 +14,7 @@ import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
+import org.ugate.service.IModelType;
 import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.RxTxRemoteSettingsData;
 
@@ -89,7 +90,7 @@ public enum UGateKeeper {
 	 * @param index the index of the settings (if applicable)
 	 * @return true when the key exists
 	 */
-	public boolean settingsHasKey(final ISettings key, final Integer index) {
+	public boolean settingsHasKey(final IModelType key, final Integer index) {
 		if (key instanceof RemoteSettings) {
 			if (!remoteNodes.containsKey(index)) {
 				return false;
@@ -104,11 +105,11 @@ public enum UGateKeeper {
 	/**
 	 * Sets a key/value settings
 	 * 
-	 * @param key the {@linkplain ISettings}
-	 * @param index the index of the {@linkplain ISettings} (if applicable)
+	 * @param key the {@linkplain IModelType}
+	 * @param index the index of the {@linkplain IModelType} (if applicable)
 	 * @param value the value
 	 */
-	public void settingsSet(final ISettings key, final Integer index, final String value) {
+	public void settingsSet(final IModelType key, final Integer index, final String value) {
 		final String oldValue = settingsGet(key, index);
 		if (!value.equals(oldValue)) {
 			if (key instanceof RemoteSettings) {
@@ -117,7 +118,7 @@ public enum UGateKeeper {
 				hostSettings.set(key.getKey(), value);
 			} else {
 				throw new UnsupportedOperationException(String.format("Unhandled %1$s implementation for %2$s", 
-						ISettings.class.getSimpleName(), key));
+						IModelType.class.getSimpleName(), key));
 			}
 			notifyListeners(new UGateKeeperEvent<String>(this, UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL, false, null,
 					key, null, oldValue, value));
@@ -131,7 +132,7 @@ public enum UGateKeeper {
 	 * @param index the index of the settings (if applicable)
 	 * @return the settings value
 	 */
-	public String settingsGet(final ISettings key, final Integer index) {
+	public String settingsGet(final IModelType key, final Integer index) {
 		if (!settingsHasKey(key, index)) {
 			return null;
 		}
@@ -146,7 +147,7 @@ public enum UGateKeeper {
 	 * @param delimiter the delimiter used to split the value
 	 * @return the settings values
 	 */
-	public List<String> settingsGet(final ISettings key, final Integer index, final String delimiter) {
+	public List<String> settingsGet(final IModelType key, final Integer index, final String delimiter) {
 		if (!settingsHasKey(key, index)) {
 			return null;
 		}

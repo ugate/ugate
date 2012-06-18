@@ -15,10 +15,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
-import org.ugate.ISettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
+import org.ugate.service.IModelType;
 
 /**
  * Toggle switch view that shows an image as an indicator as to what is being toggled on/off.
@@ -29,7 +29,7 @@ import org.ugate.resources.RS;
 public class UGateToggleSwitchPreferenceView extends HBox {
 	
 	public static final int TOGGLE_ITEM_START_INDEX = 0;
-	public final ISettings key;
+	public final IModelType key;
 	public final Integer nodeIndex;
 	private final List<ToggleItem> toggleItems;
 	private final IntegerProperty preferenceValueProperty;
@@ -44,7 +44,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param onImageFileName the file name of the image shown when the toggled on
 	 * @param offImageFileName the file name of the image shown when the toggled off
 	 */
-	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final String onImageFileName, 
+	public UGateToggleSwitchPreferenceView(final IModelType key, final Integer nodeIndex, final String onImageFileName, 
 			final String offImageFileName) {
 		this(key, nodeIndex, onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
 				RS.rbLabel("toggleswitch.off"));
@@ -60,7 +60,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param onText the text to show when on
 	 * @param offText the text to show when off
 	 */
-	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final String onImageFileName, 
+	public UGateToggleSwitchPreferenceView(final IModelType key, final Integer nodeIndex, final String onImageFileName, 
 			final String offImageFileName, final String onText, final String offText) {
 		this(key, nodeIndex, new ToggleItem(onImageFileName, offImageFileName, null, null, 
 				onText, offText, false, true));
@@ -73,7 +73,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	 * @param nodeIndex the settings index
 	 * @param toggleItems the toggle items
 	 */
-	public UGateToggleSwitchPreferenceView(final ISettings key, final Integer nodeIndex, final ToggleItem... toggleItems) {
+	public UGateToggleSwitchPreferenceView(final IModelType key, final Integer nodeIndex, final ToggleItem... toggleItems) {
 		this.key = key;
 		this.nodeIndex = nodeIndex;
 		setSpacing(5d);

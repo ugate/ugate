@@ -58,10 +58,11 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
+import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
-import org.ugate.service.HostType;
+import org.ugate.service.ActorType;
 import org.ugate.service.RoleType;
 import org.ugate.service.ServiceManager;
 import org.ugate.service.entity.jpa.Actor;
@@ -93,13 +94,14 @@ public class UGateGUI extends Application {
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
 	private static String initErrorTitleRsKey = "app.title.error";
 	private static StringBuffer initErrors;
-	private Actor authActor;
+	private final BeanPathAdapter<Actor> actorPA;
 
 	/**
 	 * Constructor
 	 */
 	public UGateGUI() {
 		// TextAreaAppender.setTextArea(loggingView);
+		actorPA = new BeanPathAdapter<Actor>(new Actor());
 	}
 
 	/**
@@ -217,7 +219,7 @@ public class UGateGUI extends Application {
 		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 		stage.setTitle(RS.rbLabel("app.title"));
 
-		controlBar = new ControlBar(stage);
+		controlBar = new ControlBar(stage, actorPA);
 		final BorderPane content = new BorderPane();
 		content.setId("main-content");
 		content.setEffect(new InnerShadow());
@@ -364,18 +366,18 @@ public class UGateGUI extends Application {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
+					private Actor actor;
 					@Override
 					protected Void call() throws Exception {
-						UGateGUI.this.authActor = null;
 						final boolean hasUsername = !username.getText().isEmpty();
 						final boolean hasPassword = !password.getText().isEmpty();
 						final boolean hasPasswordVerify = passwordVerify == null ? true : !passwordVerify.getText().isEmpty();
 						if (hasUsername && hasPassword && hasPasswordVerify) {
 							try {
 								if (isAuth) {
-									UGateGUI.this.authActor = ServiceManager.IMPL.getCredentialService().authenticate(
+									actor = ServiceManager.IMPL.getCredentialService().authenticate(
 											username.getText(), password.getText());
-									if (UGateGUI.this.authActor == null) {
+									if (actor == null) {
 										throw new AuthenticationException(RS.rbLabel("app.dialog.auth.error", 
 												username.getText()));
 									}
@@ -383,20 +385,20 @@ public class UGateGUI extends Application {
 									if (!password.getText().equals(passwordVerify.getText())) {
 										throw new InputMismatchException(RS.rbLabel("app.dialog.setup.error.password.mismatch"));
 									}
-									UGateGUI.this.authActor = 
+									actor = 
 											ServiceManager.IMPL.getCredentialService().addUser(
 													username.getText(), password.getText(), 
-													HostType.DEFAULT.newHost(), 
+													ActorType.newDefaultHost(), 
 													RoleType.ADMIN.newRole());
+									if (actor == null) {
+										throw new IllegalArgumentException("Unable to add user " + username.getText());
+									}
 								}
-								if (UGateGUI.this.authActor != null) {
-									ServiceManager.IMPL.startWebServer(UGateGUI.this.authActor.getHost(), 
-											SignatureAlgorithm.getDefault());
-								}
+								ServiceManager.IMPL.startWebServer(actor.getHost(), SignatureAlgorithm.getDefault());
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {
-										showApplication(stage);
+										showApplication(stage, actor);
 									}
 								});
 							} catch (final Throwable t) {
@@ -438,11 +440,22 @@ public class UGateGUI extends Application {
 	 * Shows the primary {@linkplain Stage} and shows the {@linkplain SystemTray}
 	 * 
 	 * @param stage the primary {@linkplain Stage}
+	 * @param authActor the authorized {@linkplain Actor}
 	 */
-	protected void showApplication(final Stage stage) {
+	protected void showApplication(final Stage stage, final Actor authActor) {
 		log.info("Showing GUI");
+		if (authActor == null) {
+			throw new IllegalArgumentException(
+					"Cannot show application without an authenticated user");
+		}
 		stage.show();
 		SystemTray.initSystemTray(stage);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				actorPA.setBean(authActor);
+			}
+		});
 	}
 
 	/**

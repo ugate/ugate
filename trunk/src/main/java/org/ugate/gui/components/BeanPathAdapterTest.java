@@ -1,5 +1,7 @@
 package org.ugate.gui.components;
 
+import java.util.Set;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -16,6 +18,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
@@ -55,6 +58,7 @@ public class BeanPathAdapterTest extends Application {
 		super();
 		person1.setAge(50d);
 		person1.setName("Person 1");
+		person1.setPassword("secret");
 		Address addy = new Address();
 		Location loc = new Location();
 		loc.setCountry(1);
@@ -93,18 +97,17 @@ public class BeanPathAdapterTest extends Application {
 				"Person POJO using auto-generated JavaFX properties. "
 						+ "Duplicate field controls exist to demo multiple control binding");
 		title.setWrappingWidth(400d);
-		final HBox ageBox1 = beanTF("age", 100, Slider.class, null);
-		final HBox ageBox2 = beanTF("age", 100, null, "[0-9]");
-		// age has a bidirectional bind with the Person POJO's age, but to use
-		// two
 		personBox.getChildren().addAll(
 				beanTF("name", 50, null, "[a-zA-z0-9\\s]*"),
-				ageBox1,
-				ageBox2,
+				beanTF("age", 100, Slider.class, null),
+				beanTF("age", 100, null, "[0-9]"),
+				beanTF("password", 100, PasswordField.class, "[a-zA-z0-9]"),
 				beanTF("address.street", 50, null, "[a-zA-z0-9\\s]*"),
 				beanTF("address.location.state", 2, ComboBox.class, "[a-zA-z]",
 						STATES),
 				beanTF("address.location.country", 10, null, "[0-9]"),
+				beanTF("address.location.country", 2, ComboBox.class, "[0-9]",
+						new Integer[] { 0, 1, 2, 3 }),
 				beanTF("address.location.international", 0, CheckBox.class,
 						null), new Label("POJO Dump:"), pojoTA);
 		beanPane.getChildren().addAll(title, personBox);
@@ -154,6 +157,8 @@ public class BeanPathAdapterTest extends Application {
 							+ p.getBean().getName()
 							+ ", age="
 							+ p.getBean().getAge()
+							+ ", password="
+							+ p.getBean().getPassword()
 							+ ", address.street="
 							+ p.getBean().getAddress().getStreet()
 							+ ", address.location.state="
@@ -170,9 +175,10 @@ public class BeanPathAdapterTest extends Application {
 		});
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> HBox beanTF(String path, final int maxChars,
 			Class<? extends Control> controlType, final String restictTo,
-			@SuppressWarnings("unchecked") T... choices) {
+			T... choices) {
 		HBox box = new HBox();
 		Control ctrl;
 		if (controlType == CheckBox.class) {
@@ -199,8 +205,11 @@ public class BeanPathAdapterTest extends Application {
 					dumpPojo(personPA);
 				}
 			});
-			// POJO binding magic...
-			personPA.bindBidirectional(path, cb.valueProperty());
+			// POJO binding magic (due to erasure of T in
+			// ObjectProperty<T> of cb.valueProperty() we need
+			// to also pass in the choice class
+			personPA.bindBidirectional(path, cb.valueProperty(),
+					(Class<T>) choices[0].getClass());
 			ctrl = cb;
 		} else if (controlType == Slider.class) {
 			Slider sl = new Slider();
@@ -220,8 +229,8 @@ public class BeanPathAdapterTest extends Application {
 			// POJO binding magic...
 			personPA.bindBidirectional(path, sl.valueProperty());
 			ctrl = sl;
-		} else {
-			final TextField tf = new TextField() {
+		} else if (controlType == PasswordField.class) {
+			final PasswordField tf = new PasswordField() {
 				@Override
 				public void replaceText(int start, int end, String text) {
 					if (matchTest(text)) {
@@ -253,6 +262,60 @@ public class BeanPathAdapterTest extends Application {
 			// POJO binding magic...
 			personPA.bindBidirectional(path, tf.textProperty());
 			ctrl = tf;
+		} else {
+			final TextField tf = controlType == PasswordField.class ? new PasswordField() {
+				@Override
+				public void replaceText(int start, int end, String text) {
+					if (matchTest(text)) {
+						super.replaceText(start, end, text);
+					}
+				}
+
+				@Override
+				public void replaceSelection(String text) {
+					if (matchTest(text)) {
+						super.replaceSelection(text);
+					}
+				}
+
+				private boolean matchTest(String text) {
+					return text.isEmpty()
+							|| (text.matches(restictTo) && (getText() == null || getText()
+									.length() < maxChars));
+				}
+			}
+					: new TextField() {
+						@Override
+						public void replaceText(int start, int end, String text) {
+							if (matchTest(text)) {
+								super.replaceText(start, end, text);
+							}
+						}
+
+						@Override
+						public void replaceSelection(String text) {
+							if (matchTest(text)) {
+								super.replaceSelection(text);
+							}
+						}
+
+						private boolean matchTest(String text) {
+							return text.isEmpty()
+									|| (text.matches(restictTo) && (getText() == null || getText()
+											.length() < maxChars));
+						}
+					};
+			tf.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(
+						ObservableValue<? extends String> observable,
+						String oldValue, String newValue) {
+					dumpPojo(personPA);
+				}
+			});
+			// POJO binding magic...
+			personPA.bindBidirectional(path, tf.textProperty());
+			ctrl = tf;
 		}
 		box.getChildren().addAll(new Label(path + " = "), ctrl);
 		return box;
@@ -268,8 +331,10 @@ public class BeanPathAdapterTest extends Application {
 
 	public static class Person {
 		private String name;
+		private String password;
 		private Address address;
 		private double age;
+		private Set<Hobby> hobbies;
 
 		public String getName() {
 			return name;
@@ -277,6 +342,14 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public String getPassword() {
+			return password;
+		}
+
+		public void setPassword(String password) {
+			this.password = password;
 		}
 
 		public Address getAddress() {
@@ -293,6 +366,14 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setAge(double age) {
 			this.age = age;
+		}
+
+		public Set<Hobby> getHobbies() {
+			return hobbies;
+		}
+
+		public void setHobbies(Set<Hobby> hobbies) {
+			this.hobbies = hobbies;
 		}
 	}
 
@@ -347,4 +428,25 @@ public class BeanPathAdapterTest extends Application {
 		}
 	}
 
+	public static class Hobby {
+		private String name;
+		private String description;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+	}
 }

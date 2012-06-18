@@ -28,7 +28,7 @@ public class StatusView extends VBox {
 	public final Color colorOff;
 	public final double radius;
 	public final Group statusIcon;
-	protected final ControlBar controlBar;
+	protected final ControlBar cb;
 	private Boolean on;
 	private Timeline blinkTimeline;
 
@@ -80,7 +80,7 @@ public class StatusView extends VBox {
 	protected StatusView(final ControlBar controlBar, final boolean addIcon, final double spacing,
 			final Color colorNotSet, final Color colorOn, final Color colorOff, final double radius) {
 		super(spacing);
-		this.controlBar = controlBar;
+		this.cb = controlBar;
 		this.colorNotSet = colorNotSet != null ? colorNotSet : COLOR_NOT_SET;
 		this.colorOn = colorOn != null ? colorOn : COLOR_ON;
 		this.colorOff = colorOff != null ? colorOff : COLOR_OFF;

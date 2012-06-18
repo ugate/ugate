@@ -18,6 +18,7 @@
 		<class>org.ugate.service.entity.jpa.Role</class>
 		<class>org.ugate.service.entity.jpa.Host</class>
 		<class>org.ugate.service.entity.jpa.MailRecipient</class>
+		<class>org.ugate.service.entity.jpa.RemoteNode</class>
 		<!-- properties maintained in spring -->
 <!-- 		<properties> -->
 <!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/> -->

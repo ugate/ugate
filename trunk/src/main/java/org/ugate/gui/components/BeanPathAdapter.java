@@ -6,10 +6,13 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -72,7 +75,31 @@ public class BeanPathAdapter<B> {
 	public BeanPathAdapter(final B bean) {
 		setBean(bean);
 	}
-	
+
+	/**
+	 * @see #bindBidirectional(String, Property, Class)
+	 */
+	public void bindBidirectional(final String fieldPath,
+			final BooleanProperty property) {
+		bindBidirectional(fieldPath, property, Boolean.class);
+	}
+
+	/**
+	 * @see #bindBidirectional(String, Property, Class)
+	 */
+	public void bindBidirectional(final String fieldPath,
+			final StringProperty property) {
+		bindBidirectional(fieldPath, property, String.class);
+	}
+
+	/**
+	 * @see #bindBidirectional(String, Property, Class)
+	 */
+	public void bindBidirectional(final String fieldPath,
+			final Property<Number> property) {
+		bindBidirectional(fieldPath, property, null);
+	}
+
 	/**
 	 * Binds a {@linkplain Property} by traversing the bean's field tree
 	 * 
@@ -80,11 +107,27 @@ public class BeanPathAdapter<B> {
 	 * @param fieldPath
 	 *            the <b><code>.</code></b> separated field paths relative to
 	 *            the {@linkplain #getBean()} that will be traversed
-	 * @param property the {@linkplain Property} to bind to
-	 *            the field class type of the property
+	 * @param property
+	 *            the {@linkplain Property} to bind to the field class type of
+	 *            the property
+	 * @param propertyType
+	 *            the class type of the {@linkplain Property} value
 	 */
-	public <T> void bindBidirectional(final String fieldPath, final Property<T> property) {
-		getRoot().bidirectionalBindOperation(fieldPath, property, false);
+	@SuppressWarnings("unchecked")
+	public <T> void bindBidirectional(final String fieldPath,
+			final Property<T> property, final Class<T> propertyType) {
+		Class<T> clazz = propertyType != null ? propertyType : 
+			propertyValueClass(property);
+		if (clazz == null && property.getValue() != null) {
+			clazz = (Class<T>) property.getValue().getClass();
+		}
+		if (clazz == null || clazz == Object.class) {
+			throw new UnsupportedOperationException(String.format(
+					"Unable to determine property value class for %1$s " + 
+					"and declared type %2$s", property, propertyType));
+		}
+		getRoot().bidirectionalBindOperation(fieldPath, property, clazz,
+				false);
 	}
 
 	/**
@@ -98,7 +141,7 @@ public class BeanPathAdapter<B> {
 	 *            the field class type of the property
 	 */
 	public <T> void unBindBidirectional(final String fieldPath, final Property<T> property) {
-		getRoot().bidirectionalBindOperation(fieldPath, property, true);
+		getRoot().bidirectionalBindOperation(fieldPath, property, null, true);
 	}
 
 	/**
@@ -132,6 +175,47 @@ public class BeanPathAdapter<B> {
 	 */
 	protected final FieldBean<Void, B> getRoot() {
 		return this.root;
+	}
+
+	/**
+	 * Provides the underlying value class for a given {@linkplain Property}
+	 * 
+	 * @param property
+	 *            the {@linkplain Property} to check
+	 * @return the value class of the {@linkplain Property}
+	 */
+	@SuppressWarnings("unchecked")
+	protected static <T> Class<T> propertyValueClass(final Property<T> property) {
+		Class<T> clazz = null;
+		if (property != null) {
+			if (StringProperty.class.isAssignableFrom(property.getClass())) {
+				clazz = (Class<T>) String.class;
+			} else if (IntegerProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) Integer.class;
+			} else if (BooleanProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) Boolean.class;
+			} else if (DoubleProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) Double.class;
+			} else if (FloatProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) Float.class;
+			} else if (LongProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) Long.class;
+			} else if (ListProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) List.class;
+			} else if (MapProperty.class.isAssignableFrom(property
+					.getClass())) {
+				clazz = (Class<T>) Map.class;
+			} else {
+				clazz = (Class<T>) Object.class;
+			}
+		}
+		return clazz;
 	}
 
 	/**
@@ -323,12 +407,16 @@ public class BeanPathAdapter<B> {
 		 *            the <code>.</code> separated field names
 		 * @param property
 		 *            the {@linkplain Property} to bind/unbind
+		 * @param propertyValueClass
+		 *            the class of the {@linkplain Property} value type (only
+		 *            needed when binding)
 		 * @param unbind
 		 *            true to unbind, false to bind
 		 */
 		@SuppressWarnings("unchecked")
 		public <T> void bidirectionalBindOperation(final String fieldPath,
-				final Property<T> property, final boolean unbind) {
+				final Property<T> property, final Class<T> propertyValueClass,
+				final boolean unbind) {
 			final String[] fieldNames = fieldPath.split("\\.");
 			final boolean isProperty = fieldNames.length == 1;
 			final String pkey = isProperty ? fieldNames[0] : "";
@@ -341,10 +429,10 @@ public class BeanPathAdapter<B> {
 					// bind the initial value needs to be captured and reset as
 					// a dirty value or the bind operation will overwrite the
 					// initial value with the value of the passed property
-					final Object val = fp.get();
+					final Object val = fp.getDirty();
 					Bindings.bindBidirectional((Property<String>) fp, property,
 							(StringConverter<T>) getFieldStringConverter(
-									propertyValueClass(property)));
+									propertyValueClass));
 					if (val != null && !val.toString().isEmpty()) {
 						fp.setDirty(val);
 					}
@@ -355,14 +443,15 @@ public class BeanPathAdapter<B> {
 				final String nextFieldPath = fieldPath.substring(fieldPath
 						.indexOf(fieldNames[1]));
 				getFieldBeans().get(fieldNames[0]).bidirectionalBindOperation(
-						nextFieldPath, property, unbind);
+						nextFieldPath, property, propertyValueClass, unbind);
 			} else if (!unbind) {
 				// add a new bean/property chain
 				if (isProperty) {
 					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
 							getBean(), fieldNames[0], Object.class);
 					addOrUpdateFieldProperty(childProp);
-					bidirectionalBindOperation(fieldNames[0], property, unbind);
+					bidirectionalBindOperation(fieldNames[0], property, 
+							propertyValueClass, unbind);
 				} else {
 					// create a handle to set the bean as a child of the current
 					// bean
@@ -376,47 +465,9 @@ public class BeanPathAdapter<B> {
 					final String nextFieldPath = fieldPath.substring(fieldPath
 							.indexOf(fieldNames[1]));
 					childBean.bidirectionalBindOperation(nextFieldPath,
-							property, unbind);
+							property, propertyValueClass, unbind);
 				}
 			}
-		}
-
-		/**
-		 * Provides the underlying value class for a given {@linkplain Property}
-		 * 
-		 * @param property
-		 *            the {@linkplain Property} to check
-		 * @return the value class of the {@linkplain Property}
-		 */
-		public static Class<?> propertyValueClass(final Property<?> property) {
-			Class<?> clazz = Object.class;
-			if (property != null) {
-				if (StringProperty.class.isAssignableFrom(property.getClass())) {
-					clazz = String.class;
-				} else if (IntegerProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = Integer.class;
-				} else if (BooleanProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = Boolean.class;
-				} else if (DoubleProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = Double.class;
-				} else if (FloatProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = Float.class;
-				} else if (LongProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = Long.class;
-				} else if (ListProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = List.class;
-				} else if (MapProperty.class.isAssignableFrom(property
-						.getClass())) {
-					clazz = Map.class;
-				}
-			}
-			return clazz;
 		}
 
 		/**
@@ -648,10 +699,21 @@ public class BeanPathAdapter<B> {
 		@Override
 		public String get() {
 			try {
-				final Object cv = fieldHandle.getAccessor().invoke();
-				return cv != null ? cv.toString() : null;
+				final Object dv = getDirty();
+				return dv != null ? dv.toString() : null;
 			} catch (final Throwable t) {
 				throw new RuntimeException("Unable to get value", t);
+			}
+		}
+
+		/**
+		 * @return the dirty value before conversion takes place
+		 */
+		public Object getDirty() {
+			try {
+				return fieldHandle.getAccessor().invoke();
+			} catch (final Throwable t) {
+				throw new RuntimeException("Unable to get dirty value", t);
 			}
 		}
 
@@ -983,7 +1045,16 @@ public class BeanPathAdapter<B> {
 					if (DFLTS.containsKey(getFieldType())) {
 						targetValue = (F) DFLTS.get(getFieldType());
 					} else {
-						targetValue = (F) getAccessor().type().returnType().newInstance();
+						final Class<F> clazz = (Class<F>) getAccessor().type().returnType();
+						if (List.class.isAssignableFrom(clazz)) {
+							targetValue = (F) new ArrayList<>();
+						} else if (Set.class.isAssignableFrom(clazz)) {
+							targetValue = (F) new HashSet<>();
+						} else if (Map.class.isAssignableFrom(clazz)) {
+							targetValue = (F) new HashMap<>();
+						} else {
+							targetValue = clazz.newInstance();
+						}
 					}
 				} catch (final Exception e) {
 					throw new IllegalArgumentException(
