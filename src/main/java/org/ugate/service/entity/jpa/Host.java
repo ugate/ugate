@@ -102,6 +102,10 @@ public class Host implements Model {
 			}
 		)
 	private Set<MailRecipient> mailRecipients;
+    
+	//bi-directional many-to-one association to RemoteNode
+	@OneToMany(mappedBy="host")
+	private Set<RemoteNode> remoteNodes;
 
     public Host() {
     }
@@ -240,6 +244,14 @@ public class Host implements Model {
 
 	public void setWebKeyStore(byte[] webKeyStore) {
 		this.webKeyStore = webKeyStore;
+	}
+
+	public Set<RemoteNode> getRemoteNodes() {
+		return remoteNodes;
+	}
+
+	public void setRemoteNodes(Set<RemoteNode> remoteNodes) {
+		this.remoteNodes = remoteNodes;
 	}
 	
 }

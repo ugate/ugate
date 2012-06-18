@@ -2,6 +2,8 @@ package org.ugate.gui;
 
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
@@ -36,16 +38,20 @@ import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
+import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
 import org.ugate.resources.RS;
+import org.ugate.service.ActorType;
+import org.ugate.service.entity.jpa.Actor;
 import org.ugate.wireless.data.RxTxSensorReadings;
 
 /**
  * Main menu control bar
  */
 public class ControlBar extends ToolBar {
-	
+
+	private final BeanPathAdapter<Actor> actorPA;
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
 	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
@@ -59,8 +65,9 @@ public class ControlBar extends ToolBar {
 
 	private final Stage stage;
 
-	public ControlBar(final Stage stage) {
+	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA) {
 		this.stage = stage;
+		this.actorPA = actorPA;
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		helpTextDropShadow.setRadius(50d);
@@ -387,6 +394,65 @@ public class ControlBar extends ToolBar {
 	 */
 	public ReadOnlyObjectProperty<RxTxSensorReadings> sensorReadingsProperty() {
 		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
+	}
+	
+	/**
+	 * @return the actor {@linkplain BeanPathAdapter}
+	 */
+	public BeanPathAdapter<Actor> getActorPA() {
+		return actorPA;
+	}
+
+	/**
+	 * Shortcut to {@linkplain BeanPathAdapter#getBean()} for the
+	 * {@linkplain #getActorPA()}
+	 * 
+	 * @return the {@linkplain Actor}
+	 */
+	public Actor getActor() {
+		return getActorPA().getBean();
+	}
+
+	/**
+	 * @see #bindTo(ActorType, Property, Class)
+	 */
+	public void bindBidirectional(final ActorType actorType, 
+			final BooleanProperty property) {
+		bindTo(actorType, property, Boolean.class);
+	}
+
+	/**
+	 * @see #bindTo(ActorType, Property, Class)
+	 */
+	public void bindTo(final ActorType actorType, 
+			final StringProperty property) {
+		bindTo(actorType, property, String.class);
+	}
+
+	/**
+	 * @see #bindTo(ActorType, Property, Class)
+	 */
+	public void bindTo(final ActorType actorType,
+			final Property<Number> property) {
+		bindTo(actorType, property, null);
+	}
+
+	/**
+	 * Shortcut to
+	 * {@linkplain BeanPathAdapter#bindBidirectional(String, Property, Class)}
+	 * for the {@linkplain #getActorPA()}
+	 * 
+	 * @param actorType
+	 *            the {@linkplain ActorType} that contains the field path key
+	 * @param property
+	 *            the {@linkplain Property}
+	 * @param propertyValueType
+	 *            the class type of the {@linkplain Property#getValue()}
+	 */
+	public <T> void bindTo(final ActorType actorType, final Property<T> property,
+			final Class<T> propertyValueType) {
+		getActorPA().bindBidirectional(actorType.getKey(), property,
+				propertyValueType);
 	}
 	
 	/**

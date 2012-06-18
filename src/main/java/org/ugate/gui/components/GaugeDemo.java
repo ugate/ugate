@@ -31,8 +31,8 @@ public class GaugeDemo extends Application {
 		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 1d, 0.5d, 0, 0d, 180d, 10, 4);
 		//gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
-		gauge.snapToTicksProperty.set(true);
-		gauge.setCache(false);
+		//gauge.snapToTicksProperty.set(true);
+		//gauge.setCache(false);
 		final Gauge gaugeRegion1 = createRegionKnob(Color.GREEN, 
 				gauge.intensityIndicatorRegionsProperty.getValue().getColor1SpanPercentage());
 		final Gauge gaugeRegion2 = createRegionKnob(Color.GOLD,
@@ -75,7 +75,7 @@ public class GaugeDemo extends Application {
 		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4, -1, 0, null, 
 				Font.font("Verdina", 7d));
 		gaugeRegion.indicatorFillProperty.set(color);
-		//gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
+		gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
 		//gaugeRegion.majorTickMarkFillProperty.set(Color.TRANSPARENT);
 		//gaugeRegion.minorTickMarkFillProperty.set(Color.TRANSPARENT);
 		gaugeRegion.intensityIndicatorRegionsProperty.set(new Gauge.IntensityIndicatorRegions(50d, 30d, 20d, 

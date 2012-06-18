@@ -2,10 +2,12 @@ package org.ugate;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.ugate.service.IModelType;
+
 /**
  * Settings related to an individual node device located in a remote location
  */
-public enum RemoteSettings implements ISettings {
+public enum RemoteSettings implements IModelType {
 	SOUNDS_ON("sounds.on", false),
 	CAM_IMG_CAPTURE_RETRY_CNT("cam.img.capture.retries", false),
 	WIRELESS_ADDRESS_NODE("wireless.address.node", false),

@@ -1,12 +1,9 @@
 package org.ugate.gui;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -15,24 +12,22 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.HostSettings;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
-import org.ugate.UGateUtil;
-import org.ugate.gui.components.UGateChoiceBox;
-import org.ugate.gui.components.UGateTextFieldPreferenceView;
+import org.ugate.gui.components.UGateComboBox;
+import org.ugate.gui.components.UGateTextView;
 import org.ugate.resources.RS;
+import org.ugate.service.ActorType;
+import org.ugate.service.ServiceManager;
+import org.ugate.service.entity.jpa.Actor;
 
-/**
- * Wireless connection GUI responsible for connecting to the wireless service
- */
 public class WirelessHostConnectionView extends StatusView {
 	
 	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
-	public final UGateChoiceBox<String> port;
-	public final UGateChoiceBox<Integer> baud;
-	public final UGateTextFieldPreferenceView hostAddress;
+	public final UGateComboBox<String> port;
+	public final UGateComboBox<Integer> baud;
+	public final UGateTextView<Actor> hostAddress;
 	public final Button connect;
 
 	/**
@@ -43,14 +38,10 @@ public class WirelessHostConnectionView extends StatusView {
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
 		
-		port = new UGateChoiceBox<String>(RS.rbLabel("wireless.port"), new String[]{});
-		controlBar.addHelpTextTrigger(port, RS.rbLabel("wireless.port.desc"));
-		configComPorts();
-	    baud = new UGateChoiceBox<Integer>(RS.rbLabel("wireless.speed"), new Integer[]{});
-	    controlBar.addHelpTextTrigger(baud, RS.rbLabel("wireless.speed.desc"));
-	    configBaudRates();
-	    hostAddress = new UGateTextFieldPreferenceView(HostSettings.WIRELESS_ADDRESS_HOST, null,
-				UGateTextFieldPreferenceView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
+		port = createComPortBox();
+	    baud = createBaudRateBox();
+	    hostAddress = new UGateTextView<Actor>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
+				UGateTextView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
 	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel("wireless.host.desc"));
 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
@@ -112,69 +103,40 @@ public class WirelessHostConnectionView extends StatusView {
 	}
 	
 	/**
-	 * Configures the COM ports
+	 * @return {@linkplain ActorType#HOST_COM_PORT} {@linkplain UGateComboBox}
 	 */
-	public void configComPorts() {
+	public UGateComboBox<String> createComPortBox() {
 		log.debug("Loading available serial ports");
-		port.choice.getItems().addAll(UGateKeeper.DEFAULT.wirelessSerialPorts());
-		final String xbeeComPort = UGateKeeper.DEFAULT.settingsGet(HostSettings.WIRELESS_COM_PORT, null);
-		final boolean hasItem = xbeeComPort != null && xbeeComPort.length() > 0 && port.choice.getItems().contains(xbeeComPort);
-		if (hasItem) {
-			port.choice.getSelectionModel().select(xbeeComPort);
-		}
-		port.choice.selectionModelProperty().addListener(new ChangeListener<SingleSelectionModel<String>>() {
-			@Override
-			public void changed(final ObservableValue<? extends SingleSelectionModel<String>> observable, 
-					final SingleSelectionModel<String> oldValue, final SingleSelectionModel<String> newValue) {
-				UGateKeeper.DEFAULT.settingsSet(HostSettings.WIRELESS_COM_PORT, null, newValue.getSelectedItem());
-			}
-		});
-		if (!hasItem && !port.choice.getItems().isEmpty()) {
-			port.choice.getSelectionModel().select(0);
-		}
-		port.choice.autosize();
+		final UGateComboBox<String> port = new UGateComboBox<>(RS.rbLabel("wireless.port"), 
+				UGateKeeper.DEFAULT.wirelessSerialPorts());
+		cb.addHelpTextTrigger(port, RS.rbLabel("wireless.port.desc"));
+		cb.bindTo(ActorType.HOST_COM_PORT, port.getComboBox().valueProperty(),
+				String.class);
+		return port;
 	}
 	
 	/**
-	 * Configures the Baud rates
+	 * @return {@linkplain ActorType#HOST_BAUD_RATE} {@linkplain UGateComboBox}
 	 */
-	public void configBaudRates() {
+	public UGateComboBox<Integer> createBaudRateBox() {
 		log.debug("Loading available baud rates");
-		baud.choice.getItems().addAll(UGateUtil.XBEE_BAUD_RATES);
-		final String xbeeBaudRateStr = UGateKeeper.DEFAULT.settingsGet(HostSettings.WIRELESS_BAUD_RATE, null);
-		boolean hasItem = xbeeBaudRateStr != null && xbeeBaudRateStr.length() > 0;
-		if (hasItem) {
-			final Integer xbeeBaudRate = Integer.parseInt(xbeeBaudRateStr);
-			if (baud.choice.getItems().contains(xbeeBaudRate)) {
-				baud.choice.getSelectionModel().select(xbeeBaudRate);
-			} else {
-				hasItem = false;
-			}
-		}
-		port.choice.selectionModelProperty().addListener(new ChangeListener<SingleSelectionModel<String>>() {
-			@Override
-			public void changed(final ObservableValue<? extends SingleSelectionModel<String>> observable, 
-					final SingleSelectionModel<String> oldValue, final SingleSelectionModel<String> newValue) {
-				UGateKeeper.DEFAULT.settingsSet(HostSettings.WIRELESS_BAUD_RATE, null, newValue.getSelectedItem());
-			}
-		});
-		if (!hasItem && !baud.choice.getItems().isEmpty()) {
-			baud.choice.getSelectionModel().select(0);
-		}
-		baud.choice.autosize();
+	    final UGateComboBox<Integer> baud = new UGateComboBox<>(
+	    		RS.rbLabel("wireless.speed"), ActorType.HOST_BAUD_RATES);
+	    cb.addHelpTextTrigger(baud, RS.rbLabel("wireless.speed.desc"));
+		cb.bindTo(ActorType.HOST_BAUD_RATE, baud.getComboBox().valueProperty(),
+				Integer.class);
+		return baud;
 	}
 	
 	/**
 	 * Establishes a wireless connection using the internal parameters.
 	 */
 	public void connect() {
-		if (!port.choice.getSelectionModel().isEmpty() && port.choice.getSelectionModel().getSelectedItem() != null && 
-				!baud.choice.getSelectionModel().isEmpty() && baud.choice.getSelectionModel().getSelectedItem() != null) {
-			UGateKeeper.DEFAULT.settingsSet(HostSettings.WIRELESS_ADDRESS_HOST, 
-					UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-					hostAddress.getValue().toString());
-			controlBar.createWirelessConnectionService(port.choice.getSelectionModel().getSelectedItem(), 
-					baud.choice.getSelectionModel().getSelectedItem()).start();
+		if (!cb.getActor().getHost().getComAddress().isEmpty() && 
+				cb.getActor().getHost().getComBaud() > 0) {
+			ServiceManager.IMPL.getCredentialService().mergeHost(cb.getActor().getHost());
+			cb.createWirelessConnectionService(cb.getActor().getHost().getComAddress(), 
+					cb.getActor().getHost().getComBaud()).start();
 		}
 	}
 }
