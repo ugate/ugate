@@ -23,7 +23,7 @@ import org.ugate.service.IModelType;
 /**
  * Wrapper for label and text/password/text area/numeric stepper controls
  */
-public class UGateTextView<T> extends VBox {
+public class UGateCtrlView<T> extends VBox {
 
 	public final Label label;
 	private final TextField textField;
@@ -55,7 +55,7 @@ public class UGateTextView<T> extends VBox {
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	public UGateTextView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final String toolTip) {
 		this(beanPathAdapter, modelKey, type, null, null, null, null,
@@ -80,7 +80,7 @@ public class UGateTextView<T> extends VBox {
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	public UGateTextView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final Number width, final Number height,
 			final String toolTip) {
@@ -108,7 +108,7 @@ public class UGateTextView<T> extends VBox {
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	public UGateTextView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final String numericStepperFormat,
 			final Color numericStepperColor, final Number minValue,
 			final Number maxValue, final String labelText, final String toolTip) {
@@ -144,7 +144,7 @@ public class UGateTextView<T> extends VBox {
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	protected UGateTextView(final BeanPathAdapter<T> beanPathAdapter,
+	protected UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final Type type,
 			final String numericStepperFormat, final Color numericStepperColor,
 			final Number minValue, final Number maxValue,

@@ -289,31 +289,32 @@ public class HostKeyStore {
 	 */
 	protected static void dumpLog(final X509Certificate cert, final PrivateKey privateKey) {
 		try {
-			SSLContext context = SSLContext.getInstance("SSL");// or "TLSv1"
+			final SSLContext context = SSLContext.getInstance("SSL");// or "TLSv1"
 	        context.init(null, null, null);
 	        SSLParameters parameters = context.getDefaultSSLParameters();
         	UGateUtil.PLAIN_LOGGER.info("======================================================");
         	UGateUtil.PLAIN_LOGGER.info("Supported Cipher Suites:");
-	        for(final String s : parameters.getCipherSuites()) {
-	        	UGateUtil.PLAIN_LOGGER.info(s);
-	        }
+			for (final String s : parameters.getCipherSuites()) {
+				UGateUtil.PLAIN_LOGGER.info(s);
+			}
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    UGateUtil.PLAIN_LOGGER.info("CERTIFICATE INFO");
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    UGateUtil.PLAIN_LOGGER.info(cert.toString());
-	
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
 		    UGateUtil.PLAIN_LOGGER.info("CERTIFICATE PEM (to store in a certificate.pem file)");
 		    UGateUtil.PLAIN_LOGGER.info("======================================================");
-		    final PEMWriter pemWriter = new PEMWriter(new PrintWriter(System.out));
-		    pemWriter.writeObject(cert);
-		    pemWriter.flush();
-	
-		    UGateUtil.PLAIN_LOGGER.info("======================================================");
-		    UGateUtil.PLAIN_LOGGER.info("PRIVATE KEY PEM (to store in a private.pem file)");
-		    UGateUtil.PLAIN_LOGGER.info("======================================================");
-		    pemWriter.writeObject(privateKey);
-		    pemWriter.flush();
+		    try (final PEMWriter pemWriter = new PEMWriter(new PrintWriter(System.out))) {
+			    pemWriter.writeObject(cert);
+			    pemWriter.flush();
+			    UGateUtil.PLAIN_LOGGER.info("======================================================");
+			    UGateUtil.PLAIN_LOGGER.info("PRIVATE KEY PEM (to store in a private.pem file)");
+			    UGateUtil.PLAIN_LOGGER.info("======================================================");
+			    pemWriter.writeObject(privateKey);
+			    pemWriter.flush();
+		    } catch (final Throwable t) {
+		    	log.warn("Unable to dump certificate private PEM", t);
+		    }
 		} catch (final Throwable t) {
 			log.warn("Unable to dump certificate log", t);
 		}

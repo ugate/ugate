@@ -16,7 +16,7 @@ import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.gui.components.UGateComboBox;
-import org.ugate.gui.components.UGateTextView;
+import org.ugate.gui.components.UGateCtrlView;
 import org.ugate.resources.RS;
 import org.ugate.service.ActorType;
 import org.ugate.service.ServiceManager;
@@ -27,7 +27,7 @@ public class WirelessHostConnectionView extends StatusView {
 	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
 	public final UGateComboBox<String> port;
 	public final UGateComboBox<Integer> baud;
-	public final UGateTextView<Actor> hostAddress;
+	public final UGateCtrlView<Actor> hostAddress;
 	public final Button connect;
 
 	/**
@@ -40,8 +40,8 @@ public class WirelessHostConnectionView extends StatusView {
 		
 		port = createComPortBox();
 	    baud = createBaudRateBox();
-	    hostAddress = new UGateTextView<Actor>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
-				UGateTextView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
+	    hostAddress = new UGateCtrlView<Actor>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
+				UGateCtrlView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
 	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel("wireless.host.desc"));
 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {

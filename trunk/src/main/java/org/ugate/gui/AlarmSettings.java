@@ -10,17 +10,19 @@ import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.gui.components.UGateGaugePreferenceView;
-import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateToggleSwitchView;
 import org.ugate.resources.RS;
+import org.ugate.service.RemoteNodeType;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * Sensor/Gate control view
  */
 public class AlarmSettings extends ControlPane {
 
-	private UGateToggleSwitchPreferenceView soundsToggleSwitch;
-	private UGateToggleSwitchPreferenceView emailToggleSwitch;
-	private UGateToggleSwitchPreferenceView imgResToggleSwitch;
+	private UGateToggleSwitchView<RemoteNode> soundsToggleSwitch;
+	private UGateToggleSwitchView<RemoteNode> emailToggleSwitch;
+	private UGateToggleSwitchView<RemoteNode> imgResToggleSwitch;
 	
 	/**
 	 * Constructor
@@ -38,18 +40,19 @@ public class AlarmSettings extends ControlPane {
 		final Label emailLabel = createLabel("mail.alarm.notify");
 		final Label imgResLabel = createLabel("cam.resolution");
 
-		soundsToggleSwitch = new UGateToggleSwitchPreferenceView(
-				RemoteSettings.SOUNDS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+		soundsToggleSwitch = new UGateToggleSwitchView<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_SOUNDS_ON,
 				RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
 		controlBar.addHelpTextTrigger(soundsToggleSwitch, RS.rbLabel("service.command.sounds.toggle"));
-		emailToggleSwitch = new UGateToggleSwitchPreferenceView(RemoteSettings.MAIL_ALARM_ON, 
-				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+		emailToggleSwitch = new UGateToggleSwitchView<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.MAIL_ALERT_ON,
 				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
 		controlBar.addHelpTextTrigger(emailToggleSwitch, RS.rbLabel("mail.alarm.notify.desc"));
-		imgResToggleSwitch = new UGateToggleSwitchPreferenceView(
-				RemoteSettings.CAM_RES, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA, 
-				RS.rbLabel("cam.resolution.vga"), RS.rbLabel("cam.resolution.qvga"));
+		imgResToggleSwitch = new UGateToggleSwitchView<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_RESOLUTION,
+				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA,
+				RS.rbLabel("cam.resolution.vga"),
+				RS.rbLabel("cam.resolution.qvga"));
 		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
 		controlBar.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel("cam.resolution.desc"));
 	   

@@ -13,7 +13,7 @@
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
 		<jta-data-source>jdbc/ugateDS</jta-data-source>
 <!-- 		<non-jta-data-source>jdbc/UnmannagedugateDS</non-jta-data-source> -->
-		<class>org.ugate.service.entity.jpa.Message</class>
+		<class>org.ugate.service.entity.jpa.AppInfo</class>
 		<class>org.ugate.service.entity.jpa.Actor</class>
 		<class>org.ugate.service.entity.jpa.Role</class>
 		<class>org.ugate.service.entity.jpa.Host</class>

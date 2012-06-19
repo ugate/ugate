@@ -32,23 +32,23 @@ public enum ServiceManager {
 	 * {@linkplain #startWebServer(Host)}</b>).
 	 */
 	public void open() {
-		open(null, null);
+		open(0, null);
 	}
 	
 	/**
 	 * Opens all underlying managed services
 	 * 
 	 * @param host
-	 *            the {@linkplain Host} to open the services for
+	 *            the {@linkplain Host#getId()} to open the services for
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 */
-	public void open(final Host host, final SignatureAlgorithm sa) {
+	public void open(final int hostId, final SignatureAlgorithm sa) {
 		try {
 			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
 			appContext.start();
-			startWebServer(host, sa);
+			startWebServer(hostId, sa);
 		} catch (final Throwable t) {
 			log.error(String.format("Unable to initialize/start %1$s", 
 					ServiceManager.class.getSimpleName()), t);
@@ -80,19 +80,19 @@ public enum ServiceManager {
 	 * be stopped and restarted
 	 * 
 	 * @param host
-	 *            the {@linkplain host}
+	 *            the {@linkplain Host#getId()}
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 */
-	public void startWebServer(final Host host, final SignatureAlgorithm sa) {
-		if (host == null) {
+	public void startWebServer(final int hostId, final SignatureAlgorithm sa) {
+		if (hostId <= 0) {
 			return;
 		}
 		if (webServer != null) {
 			webServer.stop();
 		}
-		webServer = WebServer.start(host, sa);
+		webServer = WebServer.start(hostId, sa);
 	}
 	
 	/**
@@ -105,10 +105,10 @@ public enum ServiceManager {
 	}
 	
 	/**
-	 * @return the {@linkplain SettingsService}
+	 * @return the {@linkplain RemoteNodeService}
 	 */
-	public SettingsService getSettingsService() {
-		return (SettingsService) appContext.getBean(SettingsService.class.getSimpleName());
+	public RemoteNodeService getRemoteNodeService() {
+		return (RemoteNodeService) appContext.getBean(RemoteNodeService.class.getSimpleName());
 	}
 	
 	/**

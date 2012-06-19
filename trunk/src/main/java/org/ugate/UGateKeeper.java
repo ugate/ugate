@@ -14,6 +14,7 @@ import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
+import org.ugate.service.ActorType;
 import org.ugate.service.IModelType;
 import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.RxTxRemoteSettingsData;
@@ -96,7 +97,7 @@ public enum UGateKeeper {
 				return false;
 			}
 			return remoteNodes.get(index).settings.hasKey(key.getKey());
-		} else if (key instanceof HostSettings) {
+		} else if (key instanceof ActorType) {
 			return hostSettings.hasKey(key.getKey());
 		}
 		return false;
@@ -114,7 +115,7 @@ public enum UGateKeeper {
 		if (!value.equals(oldValue)) {
 			if (key instanceof RemoteSettings) {
 				remoteNodes.get(index).settings.set(key.getKey(), value);
-			} else if (key instanceof HostSettings) {
+			} else if (key instanceof ActorType) {
 				hostSettings.set(key.getKey(), value);
 			} else {
 				throw new UnsupportedOperationException(String.format("Unhandled %1$s implementation for %2$s", 
@@ -224,13 +225,13 @@ public enum UGateKeeper {
 		}
 		String msg;
 		UGateKeeperEvent<Void> event;
-		final String smtpHost = settingsGet(HostSettings.MAIL_SMTP_HOST, null);
-		final String smtpPort = settingsGet(HostSettings.MAIL_SMTP_PORT, null);
-		final String imapHost = settingsGet(HostSettings.MAIL_IMAP_HOST, null);
-		final String imapPort = settingsGet(HostSettings.MAIL_IMAP_PORT, null);
-		final String username = settingsGet(HostSettings.MAIL_USERNAME, null);
-		final String password = settingsGet(HostSettings.MAIL_PASSWORD, null);
-		final String mainFolderName = settingsGet(HostSettings.MAIL_INBOX_NAME, null);
+		final String smtpHost = settingsGet(ActorType.MAIL_SMTP_HOST, null);
+		final String smtpPort = settingsGet(ActorType.MAIL_SMTP_PORT, null);
+		final String imapHost = settingsGet(ActorType.MAIL_IMAP_HOST, null);
+		final String imapPort = settingsGet(ActorType.MAIL_IMAP_PORT, null);
+		final String username = settingsGet(ActorType.MAIL_USERNAME, null);
+		final String password = settingsGet(ActorType.MAIL_PASSWORD, null);
+		final String mainFolderName = settingsGet(ActorType.MAIL_INBOX_NAME, null);
 		try {
 			msg = RS.rbLabel("mail.connecting");
 			log.info(msg);

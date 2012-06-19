@@ -21,6 +21,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.service.RoleType;
+import org.ugate.service.ServiceManager;
 import org.ugate.service.entity.jpa.Host;
 
 /**
@@ -32,7 +33,7 @@ public class WebServer {
 	public static final String[] PROTOCOL_INCLUDE = new String[] {
 		"TLSv1", "TLSv1.1", "TLSv1.2"
 	};
-	private final Host host;
+	private final int hostId;
 	private Server server;
 	private HostKeyStore hostKeyStore;
 	private final SignatureAlgorithm sa;
@@ -41,14 +42,14 @@ public class WebServer {
 	 * Constructor
 	 * 
 	 * @param host
-	 *            the {@linkplain Host}
+	 *            the {@linkplain Host#getId()}
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return the started {@linkplain WebServer}
 	 */
-	private WebServer(final Host host, final SignatureAlgorithm sa) {
-		this.host = host;
+	private WebServer(final int hostId, final SignatureAlgorithm sa) {
+		this.hostId = hostId;
 		this.sa = sa;
 	}
 
@@ -56,14 +57,14 @@ public class WebServer {
 	 * Starts the web server in a new thread
 	 * 
 	 * @param host
-	 *            the {@linkplain Host}
+	 *            the {@linkplain Host#getId()}
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return the started {@linkplain WebServer}
 	 */
-	public static final WebServer start(final Host host, final SignatureAlgorithm sa) {
-		final WebServer webServer = new WebServer(host, sa);
+	public static final WebServer start(final int hostId, final SignatureAlgorithm sa) {
+		final WebServer webServer = new WebServer(hostId, sa);
 		final Thread webServerAgent = new Thread(Thread.currentThread()
 				.getThreadGroup(), new Runnable() {
 			@Override
@@ -87,12 +88,14 @@ public class WebServer {
 			// final XmlConfiguration configuration = new
 			// XmlConfiguration(serverXml.getInputStream());
 			// server = (Server) configuration.configure();
-
+			final Host host = ServiceManager.IMPL.getCredentialService()
+					.getHostById(getHostId());
+			
 			server = new Server();
 			
 			// X.509 Setup
 			// TODO : Add password control to the key store
-			hostKeyStore = HostKeyStore.loadOrCreate(getHost(), "", sa);
+			hostKeyStore = HostKeyStore.loadOrCreate(host, "", sa);
 			final SslContextFactory sslCnxt = new SslContextFactory();
 			//sslCnxt.setCertAlias(hostKeyStore.getAlias());
 			sslCnxt.setKeyStore(hostKeyStore.getKeyStore());
@@ -101,7 +104,7 @@ public class WebServer {
 			sslCnxt.setIncludeProtocols(PROTOCOL_INCLUDE);
 			sslCnxt.setTrustAll(false);
 			final SslSelectChannelConnector sslCnct = new SslSelectChannelConnector(sslCnxt);
-			sslCnct.setPort(getHost().getWebPort());
+			sslCnct.setPort(host.getWebPort());
 //			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
 //			sslCnct.setPort(getHost().getWebPort());
 			// Do not use an HTTP channel selector in addition to the SSL or else 
@@ -211,9 +214,9 @@ public class WebServer {
 	}
 
 	/**
-	 * @return the {@linkplain Host} of the web server
+	 * @return the {@linkplain Host#getId()} of the web server
 	 */
-	public Host getHost() {
-		return host;
+	public int getHostId() {
+		return hostId;
 	}
 }

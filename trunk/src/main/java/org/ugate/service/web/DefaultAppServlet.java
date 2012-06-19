@@ -10,9 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.UGateUtil;
-import org.ugate.service.ServiceManager;
-import org.ugate.service.entity.jpa.Message;
 
 /**
  * {@linkplain DefaultServlet} for root context calls
@@ -34,16 +31,16 @@ public class DefaultAppServlet extends DefaultServlet {
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		try {
 			response.getWriter().println("<h1>RESULTS</h1>");
-			
-	        final Message msg = new Message("Hello Persistence! " + System.currentTimeMillis());
-	        ServiceManager.IMPL.getSettingsService().saveMessage(msg);
-	        log.info("NEW Message ID: " + msg.getId());
-	        // Go through each of the entities and print out each of their
-	        // messages, as well as the date on which it was created 
-	        for (Message m : ServiceManager.IMPL.getSettingsService().getAllMessages()) { // (List<Message>) q.getResultList()) {
-	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')');
-	            response.getWriter().println("<h3>" + m.getMessage() + " (created on: " + m.getCreated() + ')' + "</h3>");
-	        }
+			// TODO : Implement web GUI
+//	        final Message msg = new Message("Hello Persistence! " + System.currentTimeMillis());
+//	        ServiceManager.IMPL.getRemoteNodeService().saveMessage(msg);
+//	        log.info("NEW Message ID: " + msg.getId());
+//	        // Go through each of the entities and print out each of their
+//	        // messages, as well as the date on which it was created 
+//	        for (Message m : ServiceManager.IMPL.getRemoteNodeService().getAllMessages()) { // (List<Message>) q.getResultList()) {
+//	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')');
+//	            response.getWriter().println("<h3>" + m.getMessage() + " (created on: " + m.getCreated() + ')' + "</h3>");
+//	        }
 	        response.setStatus(HttpServletResponse.SC_OK);
 		} catch (final Throwable t) {
 			log.error("JPA error: ", t);
