@@ -3,6 +3,7 @@ package org.ugate.service;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.ugate.service.dao.CredentialDao;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.Role;
 
@@ -26,21 +28,56 @@ import org.ugate.service.entity.jpa.Role;
 @Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
 public class CredentialService {
 
-	private static final Logger log = LoggerFactory.getLogger(CredentialService.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(CredentialService.class);
 	// TODO : Until browsers support SHA-256 http://tools.ietf.org/html/rfc5843 we have to use MD5
-	private static final String ALGORITHM = "MD5"; //"SHA-256";
+	private static final String ALGORITHM = "MD5"; // "SHA-256";
 	public static final String SALT = "Authorization";
 
 	@Resource
 	private CredentialDao credentialDao;
-	
+
+	/**
+	 * Checks if an {@linkplain AppInfo} exists and creates one if the
+	 * {@linkplain AppInfo#getVersion()} is not found
+	 * 
+	 * @param version
+	 *            the {@linkplain AppInfo#getVersion()}
+	 * @return true when an {@linkplain AppInfo} with the supplied
+	 *         {@linkplain AppInfo#getVersion()} was not found and had to be
+	 *         added
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public boolean addAppInfoIfNeeded(final String version) {
+		AppInfo appInfo = credentialDao.getAppInfo(version);
+		if (appInfo == null) {
+			appInfo = new AppInfo();
+			appInfo.setVersion(version);
+			appInfo.setCreatedDate(new Date());
+			addAppInfo(appInfo);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Adds an {@linkplain AppInfo}
+	 * 
+	 * @param appInfo
+	 *            the {@linkplain AppInfo} to add
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	protected void addAppInfo(final AppInfo appInfo) {
+		credentialDao.persistEntity(appInfo);
+	}
+
 	/**
 	 * @return a {@linkplain List} of all {@linkplain Actor}s
 	 */
 	public List<Actor> getAllActors() {
-        return credentialDao.getAllActors();
+		return credentialDao.getAllActors();
 	}
-	
+
 	/**
 	 * @return the total number of {@linkplain Actor}s
 	 */
@@ -62,7 +99,8 @@ public class CredentialService {
 	 * @return the newly persisted {@linkplain Actor}
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public Actor addUser(final String username, final String password, final Host host, final Role... roles) 
+	public Actor addUser(final String username, final String password,
+			final Host host, final Role... roles)
 			throws UnsupportedOperationException {
 		final Actor actor = new Actor();
 		actor.setHost(host);
@@ -70,10 +108,10 @@ public class CredentialService {
 		String pwdHash = generateHash(username, password);
 		actor.setPwd(pwdHash);
 		actor.setRoles(new HashSet<Role>(Arrays.asList(roles)));
-		credentialDao.persistActor(actor);
+		credentialDao.persistEntity(actor);
 		return actor;
 	}
-	
+
 	/**
 	 * Gets an {@linkplain Actor} by login ID
 	 * 
@@ -114,22 +152,52 @@ public class CredentialService {
 					return actor;
 				}
 			} else if (log.isDebugEnabled()) {
-				log.debug(String.format("No %1$s exists with a login of %2$s", username));
+				log.debug(String.format("No %1$s exists with a login of %2$s",
+						username));
 			}
 		} catch (final Exception e) {
-			if (e instanceof NoResultException || (e.getCause() != null && e.getCause() instanceof NoResultException)) {
+			if (e instanceof NoResultException
+					|| (e.getCause() != null && e.getCause() instanceof NoResultException)) {
 				if (log.isDebugEnabled()) {
-					log.debug(String.format("Cannot authenticate %1$s because they do not exist", username), e);
+					log.debug(
+							String.format(
+									"Cannot authenticate %1$s because they do not exist",
+									username), e);
 				} else {
-					log.info(String.format("Cannot authenticate %1$s because they do not exist", username));
+					log.info(String
+							.format("Cannot authenticate %1$s because they do not exist",
+									username));
 				}
 			} else {
-				log.error(String.format("Unable to authenticate user %1$s", username), e);
+				log.error(String.format("Unable to authenticate user %1$s",
+						username), e);
 			}
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Gets a {@linkplain Actor} by {@linkplain Actor#getId()}
+	 * 
+	 * @param id
+	 *            the {@linkplain Actor#getId()} of the {@linkplain Actor}
+	 * @return the {@linkplain Actor} (or null when not found
+	 */
+	public Actor getActorById(final int id) {
+		return credentialDao.findEntityById(Actor.class, id);
+	}
+
+	/**
+	 * Gets a {@linkplain Host} by {@linkplain Host#getId()}
+	 * 
+	 * @param id
+	 *            the {@linkplain Host#getId()} of the {@linkplain Host}
+	 * @return the {@linkplain Host} (or null when not found
+	 */
+	public Host getHostById(final int id) {
+		return credentialDao.findEntityById(Host.class, id);
+	}
+
 	/**
 	 * Merges the {@linkplain Host}
 	 * 
@@ -152,12 +220,13 @@ public class CredentialService {
 	 *            the un-hashed password to compare to
 	 * @return true when the passwords match
 	 */
-	public static boolean hasDigestMatch(final String username, final String hashedPassword, final String rawPassword) {
+	public static boolean hasDigestMatch(final String username,
+			final String hashedPassword, final String rawPassword) {
 		final byte[] digest1 = getBytes(hashedPassword);
 		final byte[] digest2 = getBytes(generateHash(username, rawPassword));
 		return MessageDigest.isEqual(digest2, digest1);
 	}
-	
+
 	/**
 	 * @see #digestBytes(String, String)
 	 * 
@@ -167,7 +236,8 @@ public class CredentialService {
 	 *            the password
 	 * @return the digested user name and password
 	 */
-	protected static String generateHash(final String username, final String password) {
+	protected static String generateHash(final String username,
+			final String password) {
 		try {
 			return toString(digestBytes(username, password), 16);
 		} catch (final Exception e) {
@@ -175,7 +245,7 @@ public class CredentialService {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Digests the bytes of a user name and password
 	 * 
@@ -185,7 +255,8 @@ public class CredentialService {
 	 *            the password
 	 * @return the digested user name and password bytes
 	 */
-	protected static byte[] digestBytes(final String username, final String password) {
+	protected static byte[] digestBytes(final String username,
+			final String password) {
 		try {
 			MessageDigest sha = MessageDigest.getInstance(ALGORITHM);
 			sha.update(getBytes(getSaltedPassword(username, password)));
@@ -211,7 +282,7 @@ public class CredentialService {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Converts bytes into a {@linkplain String}
 	 * 
@@ -238,7 +309,7 @@ public class CredentialService {
 		}
 		return buf.toString();
 	}
-	
+
 	/**
 	 * Gets a salted password
 	 * 
@@ -248,8 +319,10 @@ public class CredentialService {
 	 *            the password
 	 * @return the salted password
 	 */
-	protected static final String getSaltedPassword(final String username, final String password) {
-		// Do not change the salt generation below or web digest use will be rendered unusable!
+	protected static final String getSaltedPassword(final String username,
+			final String password) {
+		// Do not change the salt generation below or web digest use will be
+		// rendered unusable!
 		return username + ':' + SALT + ':' + password;
 	}
 }

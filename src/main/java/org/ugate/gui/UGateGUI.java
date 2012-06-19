@@ -63,9 +63,11 @@ import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
 import org.ugate.service.ActorType;
+import org.ugate.service.RemoteNodeType;
 import org.ugate.service.RoleType;
 import org.ugate.service.ServiceManager;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.web.SignatureAlgorithm;
 import org.ugate.wireless.data.ImageCapture;
 
@@ -95,13 +97,15 @@ public class UGateGUI extends Application {
 	private static String initErrorTitleRsKey = "app.title.error";
 	private static StringBuffer initErrors;
 	private final BeanPathAdapter<Actor> actorPA;
+	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 
 	/**
 	 * Constructor
 	 */
 	public UGateGUI() {
 		// TextAreaAppender.setTextArea(loggingView);
-		actorPA = new BeanPathAdapter<Actor>(new Actor());
+		actorPA = new BeanPathAdapter<Actor>(ActorType.newDefaultActor());
+		remoteNodePA = new BeanPathAdapter<RemoteNode>(RemoteNodeType.newDefaultRemoteNode());
 	}
 
 	/**
@@ -219,7 +223,7 @@ public class UGateGUI extends Application {
 		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
 		stage.setTitle(RS.rbLabel("app.title"));
 
-		controlBar = new ControlBar(stage, actorPA);
+		controlBar = new ControlBar(stage, actorPA, remoteNodePA);
 		final BorderPane content = new BorderPane();
 		content.setId("main-content");
 		content.setEffect(new InnerShadow());
@@ -347,6 +351,10 @@ public class UGateGUI extends Application {
 	 * @param stage the primary {@linkplain Stage}
 	 */
 	protected void afterStart(final Stage stage) {
+		final String appVersion = RS.rbLabel("app.version");
+		if (ServiceManager.IMPL.getCredentialService().addAppInfoIfNeeded(RS.rbLabel("app.version"))) {
+			log.info("Persisted new application information for version " + appVersion);
+		}
 		// if there are no users then the user needs to be prompted for a username/password
 		final boolean isAuth = ServiceManager.IMPL.getCredentialService().getActorCount() > 0;
 		String dialogHeaderKey;
@@ -394,7 +402,7 @@ public class UGateGUI extends Application {
 										throw new IllegalArgumentException("Unable to add user " + username.getText());
 									}
 								}
-								ServiceManager.IMPL.startWebServer(actor.getHost(), SignatureAlgorithm.getDefault());
+								ServiceManager.IMPL.startWebServer(actor.getHost().getId(), SignatureAlgorithm.getDefault());
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {

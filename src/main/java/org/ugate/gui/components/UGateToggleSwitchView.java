@@ -15,78 +15,90 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 
-import org.ugate.UGateKeeper;
 import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
 import org.ugate.service.IModelType;
 
 /**
- * Toggle switch view that shows an image as an indicator as to what is being toggled on/off.
- * When turned on/off the preference will be automatically updated in the application preferences.
+ * Toggle switch view that shows an image as an indicator as to what is being
+ * toggled on/off. When turned on/off the {@linkplain #valueProperty()} will be
+ * automatically updated with an value of zero = off, and a binary equivalent
+ * value when on. The on value depends on how may {@linkplain ToggleItem}s are
+ * used.
  * 
  * @see ToggleSwitch
  */
-public class UGateToggleSwitchPreferenceView extends HBox {
+public class UGateToggleSwitchView<T> extends HBox {
 	
 	public static final int TOGGLE_ITEM_START_INDEX = 0;
-	public final IModelType key;
-	public final Integer nodeIndex;
 	private final List<ToggleItem> toggleItems;
-	private final IntegerProperty preferenceValueProperty;
+	private final IntegerProperty valueProperty;
 	private boolean toggleItemsNeedSelectionUpdates = true;
-	private boolean settingsNeedsUpdate = true;
 	
 	/**
-	 * Creates a toggle switch preference view
+	 * Constructor
 	 * 
-	 * @param key the settings key for getting/saving the settings option as it's selected
-	 * @param nodeIndex the settings index
-	 * @param onImageFileName the file name of the image shown when the toggled on
-	 * @param offImageFileName the file name of the image shown when the toggled off
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
+	 * @param key
+	 *            the {@linkplain IModelType#getKey()} for getting/saving the settings option as
+	 *            it's selected
+	 * @param onImageFileName
+	 *            the file name of the image shown when the toggled on
+	 * @param offImageFileName
+	 *            the file name of the image shown when the toggled off
 	 */
-	public UGateToggleSwitchPreferenceView(final IModelType key, final Integer nodeIndex, final String onImageFileName, 
-			final String offImageFileName) {
-		this(key, nodeIndex, onImageFileName, offImageFileName, RS.rbLabel("toggleswitch.on"), 
-				RS.rbLabel("toggleswitch.off"));
+	public UGateToggleSwitchView(final BeanPathAdapter<T> beanPathAdapter,
+			final IModelType<T> modelKey, 
+			final String onImageFileName, final String offImageFileName) {
+		this(beanPathAdapter, modelKey, onImageFileName, offImageFileName, RS
+				.rbLabel("toggleswitch.on"), RS.rbLabel("toggleswitch.off"));
 	}
 	
 	/**
-	 * Creates a single toggle switch preference view
+	 * Constructor
 	 * 
-	 * @param key the settings key for getting/saving the settings option as it's selected
-	 * @param nodeIndex the settings index
-	 * @param onImageFileName the file name of the image shown when the toggled on
-	 * @param offImageFileName the file name of the image shown when the toggled off
-	 * @param onText the text to show when on
-	 * @param offText the text to show when off
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
+	 * @param key
+	 *            the {@linkplain IModelType#getKey()} for getting/saving the
+	 *            settings option as it's selected
+	 * @param onImageFileName
+	 *            the file name of the image shown when the toggled on
+	 * @param offImageFileName
+	 *            the file name of the image shown when the toggled off
+	 * @param onText
+	 *            the text to show when on
+	 * @param offText
+	 *            the text to show when off
 	 */
-	public UGateToggleSwitchPreferenceView(final IModelType key, final Integer nodeIndex, final String onImageFileName, 
+	public UGateToggleSwitchView(final BeanPathAdapter<T> beanPathAdapter,
+			final IModelType<T> modelKey, final String onImageFileName, 
 			final String offImageFileName, final String onText, final String offText) {
-		this(key, nodeIndex, new ToggleItem(onImageFileName, offImageFileName, null, null, 
+		this(beanPathAdapter, modelKey, new ToggleItem(onImageFileName, offImageFileName, null, null, 
 				onText, offText, false, true));
 	}
 	
 	/**
-	 * Creates a toggle switch preference view using the supplied toggle items
+	 * Constructor
 	 * 
-	 * @param key the settings key for getting/saving the settings option as it's selected
-	 * @param nodeIndex the settings index
-	 * @param toggleItems the toggle items
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
+	 * @param key
+	 *            the {@linkplain IModelType#getKey()} for getting/saving the
+	 *            settings option as it's selected
+	 * @param toggleItems
+	 *            the toggle items
 	 */
-	public UGateToggleSwitchPreferenceView(final IModelType key, final Integer nodeIndex, final ToggleItem... toggleItems) {
-		this.key = key;
-		this.nodeIndex = nodeIndex;
+	public UGateToggleSwitchView(final BeanPathAdapter<T> beanPathAdapter,
+			final IModelType<T> modelKey, final ToggleItem... toggleItems) {
 		setSpacing(5d);
 		setAlignment(Pos.BOTTOM_LEFT);
-		this.preferenceValueProperty = new SimpleIntegerProperty(0) {
+		this.valueProperty = new SimpleIntegerProperty(0) {
 			@Override
 			public final void set(final int v) {
-				if (v >= 0 && v <= getMaxPreferenceValue() && v != get()) {
+				if (v >= 0 && v <= getMaxValue() && v != get()) {
 					super.set(v);
-					if (settingsNeedsUpdate) {
-						UGateKeeper.DEFAULT.settingsSet(UGateToggleSwitchPreferenceView.this.key, 
-								UGateToggleSwitchPreferenceView.this.nodeIndex, String.valueOf(v));
-					}
 					if (toggleItemsNeedSelectionUpdates) {
 						updateToggleItems();
 					}
@@ -95,7 +107,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 		};
 
 		// add the toggle items
-		this.toggleItems = new ArrayList<UGateToggleSwitchPreferenceView.ToggleItem>(toggleItems.length);
+		this.toggleItems = new ArrayList<UGateToggleSwitchView.ToggleItem>(toggleItems.length);
 		for (final ToggleItem item : toggleItems) {
 			this.toggleItems.add(item);
 			item.toggleSwitch.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -103,7 +115,7 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 				public void changed(ObservableValue<? extends Boolean> observable,
 						Boolean oldValue, Boolean newValue) {
 					//item.toggleSwitchImageView.setImage(newValue ? item.imgOn : item.imgOff);
-					setPreferenceValueNoSelectionUpdate(compositePreferenceValue(item, newValue));
+					setValueNoSelectionUpdate(compositeBinaryValue(item, newValue));
 				}
 			});
 			getChildren().add(item.toggleSwitchImageView);
@@ -111,31 +123,30 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 				getChildren().add(item.toggleSwitch);
 			}
 		}
-		
-		// set the initial preference value
-		final String prefStrValue = UGateKeeper.DEFAULT.settingsGet(this.key, this.nodeIndex);
-		int initialPrefValue = prefStrValue != null && prefStrValue.length() > 0 ? Integer.valueOf(prefStrValue) : 0;
-		setPreferenceValueNoPreferenceUpdate(Math.min(initialPrefValue, getMaxPreferenceValue()));
+		beanPathAdapter.bindBidirectional(modelKey.getKey(), valueProperty());
 	}
 	
 	/**
-	 * Converts the all of the toggle items selection states from a boolean to binary value 
-	 * and returns the integer value of the collective binary state of the controls.
+	 * Converts the all of the toggle items selection states from a boolean to
+	 * binary value and returns the integer value of the collective binary state
+	 * of the controls.
 	 * 
-	 * @param changingItem the item that has a changing value
-	 * @param newValue the new value of the changing item
+	 * @param changingItem
+	 *            the item that has a changing value
+	 * @param newValue
+	 *            the new value of the changing item
 	 * @return the composite value
 	 */
-	protected int compositePreferenceValue(final ToggleItem changingItem, final boolean newValue) {
-		final StringBuffer prefValue = new StringBuffer("");
+	protected int compositeBinaryValue(final ToggleItem changingItem, final boolean newValue) {
+		final StringBuffer valueStr = new StringBuffer("");
 		for (final ToggleItem itemX : toggleItems) {
 			if (itemX == changingItem) {
-				prefValue.append(newValue ? '1' : '0');
+				valueStr.append(newValue ? '1' : '0');
 			} else {
-				prefValue.append(itemX.toggleSwitch.selectedProperty().get() ? '1' : '0');
+				valueStr.append(itemX.toggleSwitch.selectedProperty().get() ? '1' : '0');
 			}
 		}
-		return prefValue.length() > 0 ? Integer.parseInt(prefValue.toString(), 2) : 0;
+		return valueStr.length() > 0 ? Integer.parseInt(valueStr.toString(), 2) : 0;
 	}
 	
 	/**
@@ -146,33 +157,36 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	}
 	
 	/**
-	 * Updates the toggle items selected property based upon the current preference value
+	 * Updates the toggle items selected property based upon the current
+	 * {@linkplain UGateToggleSwitchView} value
 	 */
 	protected final void updateToggleItems() {
-		final String prefValue = Integer.toBinaryString(getPreferenceValue());
+		final String val = Integer.toBinaryString(getValue());
 		int i = 0;
 		for (final ToggleItem item : toggleItems) {
-			item.toggleSwitch.selectedProperty().set(prefValue.length() > i ? prefValue.charAt(i) == '1' : false);
+			item.toggleSwitch.selectedProperty().set(val.length() > i ? val.charAt(i) == '1' : false);
 			i++;
 		}
 	}
 	
 	/**
-	 * Gets the maximum allowed preference value for a given item count (zero is always the minimum)
+	 * Gets the maximum allowed {@linkplain UGateToggleSwitchView} value for a
+	 * given item count (zero is always the minimum)
 	 * 
-	 * @param numItems the number of items
-	 * @return the maximum allowed preference value
+	 * @param numItems
+	 *            the number of items
+	 * @return the maximum allowed {@linkplain UGateToggleSwitchView} value
 	 */
-	private int getMaxPreferenceValue(final int numItems) {
+	private int getMaxValue(final int numItems) {
 		int max = (int) Math.pow(numItems, 2);
 		return max <= 1 ? max : max - 2;
 	}
 	
 	/**
-	 * @return the maximum allowed preference value
+	 * @return the maximum allowed {@linkplain UGateToggleSwitchView} value
 	 */
-	public int getMaxPreferenceValue() {
-		return getMaxPreferenceValue(toggleItems.size());
+	public int getMaxValue() {
+		return getMaxValue(toggleItems.size());
 	}
 	
 	/**
@@ -183,24 +197,26 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	}
 	
 	/**
-	 * @return the preference value property
+	 * @return the {@linkplain UGateToggleSwitchView#getValue()} property
 	 */
-	public IntegerProperty getPreferenceValueProperty() {
-		return preferenceValueProperty;
+	public IntegerProperty valueProperty() {
+		return valueProperty;
 	}
 	
 	/**
-	 * Sets the preference value (must be greater than or equal to zero and less than or 
-	 * equal to {@linkplain #getMaxPreferenceValue()}
+	 * Sets the {@linkplain UGateToggleSwitchView} value (must be greater than
+	 * or equal to zero and less than or equal to
+	 * {@linkplain #getMaxValue()}
 	 * 
-	 * @param preferenceValue the preference value to set
+	 * @param value
+	 *            the {@linkplain UGateToggleSwitchView} value to set
 	 */
-	public void setPreferenceValue(final int preferenceValue) {
-		getPreferenceValueProperty().set(preferenceValue);
+	public void setValue(final int value) {
+		valueProperty().set(value);
 		for (final ToggleItem itemX : toggleItems) {
-			if ((itemX.imgNone != null && preferenceValue == 0) || (itemX.imgAll != null && 
-					preferenceValue == maxSelectionValue())) {
-				itemX.toggleSwitchImageView.setImage(preferenceValue == 0 ? itemX.imgNone : itemX.imgAll);
+			if ((itemX.imgNone != null && value == 0) || (itemX.imgAll != null && 
+					value == maxSelectionValue())) {
+				itemX.toggleSwitchImageView.setImage(value == 0 ? itemX.imgNone : itemX.imgAll);
 			} else {
 				itemX.toggleSwitchImageView.setImage(itemX.toggleSwitch.selectedProperty().get() ? 
 						itemX.imgOn : itemX.imgOff);
@@ -209,36 +225,25 @@ public class UGateToggleSwitchPreferenceView extends HBox {
 	}
 	
 	/**
-	 * Sets the preference value (must be greater than or equal to zero and less than or 
-	 * equal to {@linkplain #getMaxPreferenceValue()} without a need to update the toggle
+	 * Sets the {@linkplain UGateToggleSwitchView} value (must be greater than
+	 * or equal to zero and less than or equal to
+	 * {@linkplain #getMaxValue()} without a need to update the toggle
 	 * items
 	 * 
-	 * @param preferenceValue the preference value to set
+	 * @param value
+	 *            the {@linkplain UGateToggleSwitchView} value to set
 	 */
-	protected void setPreferenceValueNoSelectionUpdate(final int preferenceValue) {
+	protected void setValueNoSelectionUpdate(final int value) {
 		toggleItemsNeedSelectionUpdates = false;
-		setPreferenceValue(preferenceValue);
+		setValue(value);
 		toggleItemsNeedSelectionUpdates = true;
 	}
 	
 	/**
-	 * Sets the preference value (must be greater than or equal to zero and less than or 
-	 * equal to {@linkplain #getMaxPreferenceValue()} without a need to update the preference
-	 * (typically only used to initialize the preference value)
-	 * 
-	 * @param preferenceValue the preference value to set
+	 * @return the {@linkplain UGateToggleSwitchView} value
 	 */
-	protected void setPreferenceValueNoPreferenceUpdate(final int preferenceValue) {
-		settingsNeedsUpdate = false;
-		setPreferenceValue(preferenceValue);
-		settingsNeedsUpdate = true;
-	}
-	
-	/**
-	 * @return the preference value
-	 */
-	public int getPreferenceValue() {
-		return getPreferenceValueProperty().get();
+	public int getValue() {
+		return valueProperty().get();
 	}
 	
 	/**

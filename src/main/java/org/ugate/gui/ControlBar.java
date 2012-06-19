@@ -34,16 +34,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
-import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.Digits;
-import org.ugate.gui.components.UGateToggleSwitchPreferenceView;
+import org.ugate.gui.components.UGateToggleSwitchView;
 import org.ugate.resources.RS;
 import org.ugate.service.ActorType;
+import org.ugate.service.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxSensorReadings;
 
 /**
@@ -52,6 +53,7 @@ import org.ugate.wireless.data.RxTxSensorReadings;
 public class ControlBar extends ToolBar {
 
 	private final BeanPathAdapter<Actor> actorPA;
+	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
 	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
@@ -65,9 +67,11 @@ public class ControlBar extends ToolBar {
 
 	private final Stage stage;
 
-	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA) {
+	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA, 
+			final BeanPathAdapter<RemoteNode> remoteNodePA) {
 		this.stage = stage;
 		this.actorPA = actorPA;
+		this.remoteNodePA = remoteNodePA;
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		helpTextDropShadow.setRadius(50d);
@@ -161,15 +165,15 @@ public class ControlBar extends ToolBar {
 		
 		
 		// add the multi-alarm trip state
-		final UGateToggleSwitchPreferenceView multiAlarmToggleSwitch = new UGateToggleSwitchPreferenceView(
-				RemoteSettings.MULTI_ALARM_TRIP_STATE, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_SONAR_ALARM_MULTI, 
+		final UGateToggleSwitchView<RemoteNode> multiAlarmToggleSwitch = new UGateToggleSwitchView<>(
+				getRemoteNodePA(),RemoteNodeType.MULTI_ALARM_TRIP_STATE, 
+				new UGateToggleSwitchView.ToggleItem(RS.IMG_SONAR_ALARM_MULTI, 
 						RS.IMG_SONAR_ALARM_OFF, RS.IMG_SONAR_ALARM_ANY, null, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_PIR_ALARM_MULTI, 
+				new UGateToggleSwitchView.ToggleItem(RS.IMG_PIR_ALARM_MULTI, 
 						RS.IMG_PIR_ALARM_OFF, RS.IMG_PIR_ALARM_ANY, null, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_MICROWAVE_ALARM_MULTI,
+				new UGateToggleSwitchView.ToggleItem(RS.IMG_MICROWAVE_ALARM_MULTI,
 						RS.IMG_MICROWAVE_ALARM_OFF, RS.IMG_MICROWAVE_ALARM_ANY, null, false),
-				new UGateToggleSwitchPreferenceView.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
+				new UGateToggleSwitchView.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
 						RS.IMG_LASER_ALARM_OFF, RS.IMG_LASER_ALARM_ANY, null, false));
 		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				false, multiAlarmToggleSwitch);
@@ -395,9 +399,26 @@ public class ControlBar extends ToolBar {
 	public ReadOnlyObjectProperty<RxTxSensorReadings> sensorReadingsProperty() {
 		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
 	}
+
+	/**
+	 * @return the {@linkplain RemoteNode} {@linkplain BeanPathAdapter}
+	 */
+	public BeanPathAdapter<RemoteNode> getRemoteNodePA() {
+		return remoteNodePA;
+	}
 	
 	/**
-	 * @return the actor {@linkplain BeanPathAdapter}
+	 * Shortcut to {@linkplain BeanPathAdapter#getBean()} for the
+	 * {@linkplain #getRemoteNodePA()}
+	 * 
+	 * @return the {@linkplain RemoteNode}
+	 */
+	public RemoteNode getRemoteNode() {
+		return getRemoteNodePA().getBean();
+	}
+
+	/**
+	 * @return the {@linkplain Actor} {@linkplain BeanPathAdapter}
 	 */
 	public BeanPathAdapter<Actor> getActorPA() {
 		return actorPA;

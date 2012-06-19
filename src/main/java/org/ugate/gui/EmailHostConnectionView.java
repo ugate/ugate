@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
-import org.ugate.gui.components.UGateTextView;
+import org.ugate.gui.components.UGateCtrlView;
 import org.ugate.resources.RS;
 import org.ugate.service.ActorType;
 import org.ugate.service.ServiceManager;
@@ -27,56 +27,56 @@ public class EmailHostConnectionView extends StatusView {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(EmailHostConnectionView.class);
-	public final UGateTextView<Actor> smtpHost;
-	public final UGateTextView<Actor> smtpPort;
-	public final UGateTextView<Actor> imapHost;
-	public final UGateTextView<Actor> imapPort;
-	public final UGateTextView<Actor> username;
-	public final UGateTextView<Actor> password;
-	public final UGateTextView<Actor> inboxFolder;
-	public final UGateTextView<Actor> recipients;
+	public final UGateCtrlView<Actor> smtpHost;
+	public final UGateCtrlView<Actor> smtpPort;
+	public final UGateCtrlView<Actor> imapHost;
+	public final UGateCtrlView<Actor> imapPort;
+	public final UGateCtrlView<Actor> username;
+	public final UGateCtrlView<Actor> password;
+	public final UGateCtrlView<Actor> inboxFolder;
+	public final UGateCtrlView<Actor> recipients;
 	public final Button connect;
 
 	public EmailHostConnectionView(final ControlBar controlBar) {
 		super(controlBar, false, 20);
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
-		smtpHost = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_SMTP_HOST, UGateTextView.Type.TYPE_TEXT,
+		smtpHost = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_SMTP_HOST, UGateCtrlView.Type.TYPE_TEXT,
 				RS.rbLabel("mail.smtp.host"), null);
 		controlBar.addHelpTextTrigger(smtpHost,
 				RS.rbLabel("mail.smtp.host.desc"));
-		smtpPort = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_SMTP_PORT, UGateTextView.Type.TYPE_TEXT,
+		smtpPort = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_SMTP_PORT, UGateCtrlView.Type.TYPE_TEXT,
 				RS.rbLabel("mail.smtp.port"), null);
 		controlBar.addHelpTextTrigger(smtpPort,
 				RS.rbLabel("mail.smtp.port.desc"));
-		imapHost = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_IMAP_HOST, UGateTextView.Type.TYPE_TEXT,
+		imapHost = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_IMAP_HOST, UGateCtrlView.Type.TYPE_TEXT,
 				RS.rbLabel("mail.imap.host"), null);
 		controlBar.addHelpTextTrigger(imapHost,
 				RS.rbLabel("mail.imap.host.desc"));
-		imapPort = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_IMAP_PORT, UGateTextView.Type.TYPE_TEXT,
+		imapPort = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_IMAP_PORT, UGateCtrlView.Type.TYPE_TEXT,
 				RS.rbLabel("mail.imap.port"), null);
 		controlBar.addHelpTextTrigger(imapPort,
 				RS.rbLabel("mail.imap.port.desc"));
-		username = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_USERNAME, UGateTextView.Type.TYPE_TEXT,
+		username = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_USERNAME, UGateCtrlView.Type.TYPE_TEXT,
 				RS.rbLabel("mail.username"), null);
 		controlBar.addHelpTextTrigger(username,
 				RS.rbLabel("mail.username.desc"));
-		password = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_PASSWORD, UGateTextView.Type.TYPE_PASSWORD,
+		password = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_PASSWORD, UGateCtrlView.Type.TYPE_PASSWORD,
 				RS.rbLabel("mail.password"), null);
 		controlBar.addHelpTextTrigger(password,
 				RS.rbLabel("mail.password.desc"));
-		inboxFolder = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_INBOX_NAME, UGateTextView.Type.TYPE_TEXT,
+		inboxFolder = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_INBOX_NAME, UGateCtrlView.Type.TYPE_TEXT,
 				RS.rbLabel("mail.folder"), null);
 		controlBar.addHelpTextTrigger(inboxFolder,
 				RS.rbLabel("mail.folder.desc"));
-		recipients = new UGateTextView<Actor>(controlBar.getActorPA(),
-				ActorType.MAIL_RECIPIENTS, UGateTextView.Type.TYPE_TEXT_AREA,
+		recipients = new UGateCtrlView<Actor>(controlBar.getActorPA(),
+				ActorType.MAIL_RECIPIENTS, UGateCtrlView.Type.TYPE_TEXT_AREA,
 				RS.rbLabel("mail.alarm.notify.emails"), null, 5, "");
 		controlBar.addHelpTextTrigger(recipients,
 				RS.rbLabel("mail.alarm.notify.emails.desc"));

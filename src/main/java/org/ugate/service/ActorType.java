@@ -74,6 +74,14 @@ public enum ActorType implements IModelType<Actor> {
 	}
 
 	/**
+	 * @return a new default {@linkplain Actor}
+	 */
+	public static Actor newDefaultActor() {
+		final Actor actor = new Actor();
+		return actor;
+	}
+
+	/**
 	 * @return a new default {@linkplain Host}
 	 */
 	public static Host newDefaultHost() {

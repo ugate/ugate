@@ -13,7 +13,7 @@
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
 		<jta-data-source>${ugate.db.jta.ds.name}</jta-data-source>
 <!-- 		<non-jta-data-source>${ugate.db.jta.ds.name.unmanaged}</non-jta-data-source> -->
-		<class>${ugate.db.jpa.package}.Message</class>
+		<class>${ugate.db.jpa.package}.AppInfo</class>
 		<class>${ugate.db.jpa.package}.Actor</class>
 		<class>${ugate.db.jpa.package}.Role</class>
 		<class>${ugate.db.jpa.package}.Host</class>

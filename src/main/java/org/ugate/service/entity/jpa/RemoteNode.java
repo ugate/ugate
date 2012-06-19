@@ -1,7 +1,20 @@
 package org.ugate.service.entity.jpa;
 
-import java.io.Serializable;
-import javax.persistence.*;
+import java.util.Date;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.validation.constraints.Max;
+
+import org.ugate.service.entity.Model;
 
 
 /**
@@ -10,7 +23,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name="REMOTE_NODE")
-public class RemoteNode implements Serializable {
+public class RemoteNode implements Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -18,6 +31,10 @@ public class RemoteNode implements Serializable {
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="REMOTE_NODE_ID_GENERATOR")
 	@Column(unique=true, nullable=false)
 	private int id;
+
+	@Basic
+	@Column(name="CREATED_DATE", nullable=false)
+	private Date createdDate;
 
 	@Column(nullable=false, length=100)
 	private String address;
@@ -55,8 +72,8 @@ public class RemoteNode implements Serializable {
 	@Column(name="CAM_PIR_TRIP_ANGLE_TILT", nullable=false)
 	private int camPirTripAngleTilt;
 
-	@Column(name="CAM_RES", nullable=false)
-	private int camRes;
+	@Column(name="CAM_RESOLUTION", nullable=false)
+	private int camResolution;
 
 	@Column(name="CAM_SONAR_TRIP_ANGLE_PAN", nullable=false)
 	private int camSonarTripAnglePan;
@@ -66,12 +83,17 @@ public class RemoteNode implements Serializable {
 
 	@Column(name="CAM_SONAR_TRIP_ANGLE_TILT", nullable=false)
 	private int camSonarTripAngleTilt;
+	
+	@Column(name="CAM_IMG_CAPTURE_RETRY_CNT", nullable=false)
+	private int camImgCaptureRetryCnt;
 
+	@Max(value=1)
 	@Column(name="DEVICE_SOUNDS_ON", nullable=false)
-	private boolean deviceSoundsOn;
+	private int deviceSoundsOn;
 
+	@Max(value=1)
 	@Column(name="GATE_ACCESS_ON", nullable=false)
-	private boolean gateAccessOn;
+	private int gateAccessOn;
 
 	@Column(name="LASER_ANGLE_PAN", nullable=false)
 	private int laserAnglePan;
@@ -88,8 +110,9 @@ public class RemoteNode implements Serializable {
 	@Column(name="LASER_DISTANCE_THRES_INCHES", nullable=false)
 	private int laserDistanceThresInches;
 
+	@Max(value=1)
 	@Column(name="MAIL_ALERT_ON", nullable=false)
-	private boolean mailAlertOn;
+	private int mailAlertOn;
 
 	@Column(name="MULTI_ALARM_TRIP_STATE", nullable=false)
 	private int multiAlarmTripState;
@@ -130,8 +153,9 @@ public class RemoteNode implements Serializable {
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_3", nullable=false)
 	private int universalRemoteAccessCode3;
 
+	@Max(value=1)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_ON", nullable=false)
-	private boolean universalRemoteAccessOn;
+	private int universalRemoteAccessOn;
 
 	@Column(name="WORKING_DIR", nullable=false, length=100)
 	private String workingDir;
@@ -150,6 +174,14 @@ public class RemoteNode implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 
 	public String getAddress() {
@@ -248,12 +280,12 @@ public class RemoteNode implements Serializable {
 		this.camPirTripAngleTilt = camPirTripAngleTilt;
 	}
 
-	public int getCamRes() {
-		return this.camRes;
+	public int getCamResolution() {
+		return this.camResolution;
 	}
 
-	public void setCamRes(int camRes) {
-		this.camRes = camRes;
+	public void setCamResolution(int camResolution) {
+		this.camResolution = camResolution;
 	}
 
 	public int getCamSonarTripAnglePan() {
@@ -280,19 +312,27 @@ public class RemoteNode implements Serializable {
 		this.camSonarTripAngleTilt = camSonarTripAngleTilt;
 	}
 
-	public boolean getDeviceSoundsOn() {
+	public int getCamImgCaptureRetryCnt() {
+		return camImgCaptureRetryCnt;
+	}
+
+	public void setCamImgCaptureRetryCnt(int camImgCaptureRetryCnt) {
+		this.camImgCaptureRetryCnt = camImgCaptureRetryCnt;
+	}
+
+	public int getDeviceSoundsOn() {
 		return this.deviceSoundsOn;
 	}
 
-	public void setDeviceSoundsOn(boolean deviceSoundsOn) {
+	public void setDeviceSoundsOn(int deviceSoundsOn) {
 		this.deviceSoundsOn = deviceSoundsOn;
 	}
 
-	public boolean getGateAccessOn() {
+	public int getGateAccessOn() {
 		return this.gateAccessOn;
 	}
 
-	public void setGateAccessOn(boolean gateAccessOn) {
+	public void setGateAccessOn(int gateAccessOn) {
 		this.gateAccessOn = gateAccessOn;
 	}
 
@@ -336,11 +376,11 @@ public class RemoteNode implements Serializable {
 		this.laserDistanceThresInches = laserDistanceThresInches;
 	}
 
-	public boolean getMailAlertOn() {
+	public int getMailAlertOn() {
 		return this.mailAlertOn;
 	}
 
-	public void setMailAlertOn(boolean mailAlertOn) {
+	public void setMailAlertOn(int mailAlertOn) {
 		this.mailAlertOn = mailAlertOn;
 	}
 
@@ -448,11 +488,11 @@ public class RemoteNode implements Serializable {
 		this.universalRemoteAccessCode3 = universalRemoteAccessCode3;
 	}
 
-	public boolean getUniversalRemoteAccessOn() {
+	public int getUniversalRemoteAccessOn() {
 		return this.universalRemoteAccessOn;
 	}
 
-	public void setUniversalRemoteAccessOn(boolean universalRemoteAccessOn) {
+	public void setUniversalRemoteAccessOn(int universalRemoteAccessOn) {
 		this.universalRemoteAccessOn = universalRemoteAccessOn;
 	}
 

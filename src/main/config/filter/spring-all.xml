@@ -30,10 +30,10 @@
 			</props>
 		</property>
 	</bean>
-	<bean id="SettingsDao" class="${ugate.dao.package}.SettingsDao"
+	<bean id="RemoteNodeDao" class="${ugate.dao.package}.RemoteNodeDao"
 		depends-on="entityManagerFactory" />
-	<bean id="SettingsService" class="${ugate.db.package}.SettingsService"
-		depends-on="SettingsDao" />
+	<bean id="RemoteNodeService" class="${ugate.db.package}.RemoteNodeService"
+		depends-on="RemoteNodeDao" />
 	<bean id="CredentialDao" class="${ugate.dao.package}.CredentialDao"
 		depends-on="entityManagerFactory" />
 	<bean id="CredentialService" class="${ugate.db.package}.CredentialService"

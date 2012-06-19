@@ -42,6 +42,19 @@ public abstract class Dao {
 	}
 
 	/**
+	 * Finds a model by ID
+	 * 
+	 * @param modelClass
+	 *            the {@linkplain Model} class
+	 * @param entityId
+	 *            the {@linkplain Model} ID
+	 * @return the {@linkplain Model}
+	 */
+	public <T, M extends Model> M findEntityById(final Class<M> modelClass, final T entityId) {
+		return getEntityManager().find(modelClass, entityId);
+	}
+
+	/**
 	 * @return the {@linkplain EntityManager}
 	 */
 	protected abstract EntityManager getEntityManager();
