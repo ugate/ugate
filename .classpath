@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="libs/org/rxtx/rxtx/2.1.7"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/com/rapplogic/xbee-api/0.9/xbee-api-0.9.jar"/>
 	<classpathentry kind="lib" path="C:/java/fx/rt/lib/jfxrt.jar">
 		<attributes>
@@ -38,5 +37,10 @@
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/bouncycastle/bcprov-jdk15on/1.47/bcprov-jdk15on-1.47.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/bouncycastle/bcpkix-jdk15on/1.47/bcpkix-jdk15on-1.47.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/rxtx/rxtx/2.1.7/rxtx-2.1.7.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
