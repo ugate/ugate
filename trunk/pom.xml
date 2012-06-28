@@ -364,12 +364,13 @@
 <!-- 			<artifactId>mysql-connector-java</artifactId> -->
 <!-- 			<version>${ugate.db.version}</version> -->
 <!-- 		</dependency> -->
-		<!-- JTA -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>javax.transaction</groupId> -->
-<!-- 			<artifactId>jta</artifactId> -->
-<!-- 			<version>${ugate.jta.version}</version> -->
-<!-- 		</dependency> -->
+<!-- 		JTA -->
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>jta</artifactId>
+			<version>${ugate.jta.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.atomikos</groupId>
 			<artifactId>atomikos-util</artifactId>

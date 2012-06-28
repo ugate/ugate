@@ -343,15 +343,20 @@ public class RS {
 			zipFs = FileSystems.newFileSystem(tempZip.toAbsolutePath(), null);
 			final Path rxtxPath = zipFs.getPath("/");
 
+			// TODO : verify Mac x64/Linux x64 works using embedded files... see http://blog.iharder.net/2009/08/18/rxtx-java-6-and-librxtxserial-jnilib-on-intel-mac-os-x/
+			final String winArch = "Windows" + (System.getProperties().getProperty("os.arch") != "x86" ? "-x64" : "");
+			final String linuxArch = "Linux" + (System.getProperties().getProperty("os.arch") != "x86" ? "-x64" : "");
+			final String macArch = "Mac_OS_X" + (System.getProperties().getProperty("os.arch") != "x86" ? "-x64" : "");
+
 			// install files
 			Files.walkFileTree(rxtxPath, new java.nio.file.SimpleFileVisitor<Path>() {
 				/** {@inheritDoc} */
 				@Override
 				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
 					try {
-						if ((!UGateUtil.isWindows() && dir.toAbsolutePath().toString().contains("Windows")) || 
-								(!UGateUtil.isMac() && dir.toAbsolutePath().toString().contains("Mac_OS_X")) || 
-								(!UGateUtil.isLinux() && dir.toAbsolutePath().toString().contains("Linux")) || 
+						if ((!UGateUtil.isWindows() && dir.toAbsolutePath().toString().contains(winArch)) || 
+								(!UGateUtil.isMac() && dir.toAbsolutePath().toString().contains(macArch)) || 
+								(!UGateUtil.isLinux() && dir.toAbsolutePath().toString().contains(linuxArch)) || 
 								(!UGateUtil.isSolaris() && dir.toAbsolutePath().toString().contains("Solaris"))) {
 							return FileVisitResult.SKIP_SUBTREE;
 						}
