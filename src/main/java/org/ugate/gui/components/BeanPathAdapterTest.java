@@ -18,6 +18,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
@@ -211,6 +213,21 @@ public class BeanPathAdapterTest extends Application {
 			personPA.bindBidirectional(path, cb.valueProperty(),
 					(Class<T>) choices[0].getClass());
 			ctrl = cb;
+		} else if (controlType == ListView.class) {
+			ListView<T> lv = new ListView<>(
+					FXCollections.observableArrayList(choices));
+			lv.selectionModelProperty().addListener(
+					new ChangeListener<MultipleSelectionModel<T>>() {
+				@Override
+				public void changed(
+						ObservableValue<? extends MultipleSelectionModel<T>> observable,
+						MultipleSelectionModel<T> oldValue,
+						MultipleSelectionModel<T> newValue) {
+					dumpPojo(personPA);
+				}
+			});
+			personPA.bindBidirectional(path, lv.itemsProperty(),
+					(Class<T>) choices[0].getClass());
 		} else if (controlType == Slider.class) {
 			Slider sl = new Slider();
 			sl.setShowTickLabels(true);
