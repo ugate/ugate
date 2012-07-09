@@ -25,6 +25,11 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SelectionModel;
 import javafx.util.StringConverter;
 
 /**
@@ -100,6 +105,23 @@ public class BeanPathAdapter<B> {
 		bindBidirectional(fieldPath, property, null);
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T, SM extends MultipleSelectionModel<T>> void 
+		bindBidirectional(final String fieldPath, 
+				final Property<SM> property, 
+				final Class<T> propertyType, 
+				final SelectionMode selectionMode) {
+		getRoot().bidirectionalBindOperation(fieldPath, property, 
+				(Class<SM>) property.getValue().getClass(), propertyType,
+				false);
+	}
+	
+//	public <T, V> void bindBidirectional(final String fieldPath, 
+//			final Property<ObservableList<T>> property, 
+//			final Class<T> propertyType, final Class<V> fieldType) {
+//		
+//	}
+
 	/**
 	 * Binds a {@linkplain Property} by traversing the bean's field tree
 	 * 
@@ -127,7 +149,7 @@ public class BeanPathAdapter<B> {
 					"and declared type %2$s", property, propertyType));
 		}
 		getRoot().bidirectionalBindOperation(fieldPath, property, clazz,
-				false);
+				null, false);
 	}
 
 	/**
@@ -141,7 +163,7 @@ public class BeanPathAdapter<B> {
 	 *            the field class type of the property
 	 */
 	public <T> void unBindBidirectional(final String fieldPath, final Property<T> property) {
-		getRoot().bidirectionalBindOperation(fieldPath, property, null, true);
+		getRoot().bidirectionalBindOperation(fieldPath, property, null, null, true);
 	}
 
 	/**
@@ -416,7 +438,7 @@ public class BeanPathAdapter<B> {
 		@SuppressWarnings("unchecked")
 		public <T> void bidirectionalBindOperation(final String fieldPath,
 				final Property<T> property, final Class<T> propertyValueClass,
-				final boolean unbind) {
+				final Class<?> selectionModelValueType, final boolean unbind) {
 			final String[] fieldNames = fieldPath.split("\\.");
 			final boolean isProperty = fieldNames.length == 1;
 			final String pkey = isProperty ? fieldNames[0] : "";
@@ -432,7 +454,7 @@ public class BeanPathAdapter<B> {
 					final Object val = fp.getDirty();
 					Bindings.bindBidirectional((Property<String>) fp, property,
 							(StringConverter<T>) getFieldStringConverter(
-									propertyValueClass));
+									propertyValueClass, selectionModelValueType));
 					if (val != null && !val.toString().isEmpty()) {
 						fp.setDirty(val);
 					}
@@ -443,7 +465,8 @@ public class BeanPathAdapter<B> {
 				final String nextFieldPath = fieldPath.substring(fieldPath
 						.indexOf(fieldNames[1]));
 				getFieldBeans().get(fieldNames[0]).bidirectionalBindOperation(
-						nextFieldPath, property, propertyValueClass, unbind);
+						nextFieldPath, property, propertyValueClass, 
+						selectionModelValueType, unbind);
 			} else if (!unbind) {
 				// add a new bean/property chain
 				if (isProperty) {
@@ -451,7 +474,7 @@ public class BeanPathAdapter<B> {
 							getBean(), fieldNames[0], Object.class);
 					addOrUpdateFieldProperty(childProp);
 					bidirectionalBindOperation(fieldNames[0], property, 
-							propertyValueClass, unbind);
+							propertyValueClass, selectionModelValueType, unbind);
 				} else {
 					// create a handle to set the bean as a child of the current
 					// bean
@@ -465,7 +488,8 @@ public class BeanPathAdapter<B> {
 					final String nextFieldPath = fieldPath.substring(fieldPath
 							.indexOf(fieldNames[1]));
 					childBean.bidirectionalBindOperation(nextFieldPath,
-							property, propertyValueClass, unbind);
+							property, propertyValueClass, selectionModelValueType, 
+							unbind);
 				}
 			}
 		}
@@ -531,11 +555,21 @@ public class BeanPathAdapter<B> {
 		 * @return the {@linkplain FieldStringConverter}
 		 */
 		@SuppressWarnings("unchecked")
-		public <FCT> FieldStringConverter<FCT> getFieldStringConverter(final Class<FCT> targetClass) {
+		public <FCT, SMT> FieldStringConverter<FCT> getFieldStringConverter(
+				final Class<FCT> targetClass, final Class<SMT> selectionModelType) {
+			if (SelectionModel.class.isAssignableFrom(targetClass)) {
+				if (selectionModelType == null) {
+					throw new IllegalArgumentException(
+							"Selection model property must have a defined type");
+				}
+				return new FieldStringConverter<FCT>(targetClass, selectionModelType);
+			}
 			if (stringConverters.containsKey(targetClass)) {
-				return (FieldStringConverter<FCT>) stringConverters.get(targetClass);
+				return (FieldStringConverter<FCT>) 
+							stringConverters.get(targetClass);
 			} else {
-				final FieldStringConverter<FCT> fsc = new FieldStringConverter<>(targetClass);
+				final FieldStringConverter<FCT> fsc = 
+						new FieldStringConverter<>(targetClass);
 				stringConverters.put(targetClass, fsc);
 				return fsc;
 			}
@@ -555,6 +589,7 @@ public class BeanPathAdapter<B> {
 	protected static class FieldStringConverter<T> extends StringConverter<T> {
 
 		private final Class<T> targetClass;
+		private final Class<?> smClass;
 
 		/**
 		 * Constructor
@@ -565,6 +600,20 @@ public class BeanPathAdapter<B> {
 		 */
 		public FieldStringConverter(final Class<T> targetClass) {
 			this.targetClass = targetClass;
+			this.smClass = null;
+		}
+		
+		/**
+		 * Constructor
+		 * 
+		 * @param targetClass
+		 *            the class that the {@linkplain FieldStringConverter} is
+		 *            targeting
+		 */
+		public FieldStringConverter(final Class<T> targetClass,
+				final Class<?> smClass) {
+			this.targetClass = targetClass;
+			this.smClass = smClass;
 		}
 
 		/**
@@ -580,7 +629,14 @@ public class BeanPathAdapter<B> {
 		 */
 		@Override
 		public String toString(final T object) {
-			return object != null ? object.toString() : null;
+			String cv = null;
+			if (object != null && SelectionModel.class.isAssignableFrom(object.getClass())) {
+				cv = ((SelectionModel<?>) object).getSelectedItem() != null ? 
+						((SelectionModel<?>) object).getSelectedItem().toString() : null;
+			} else if (object != null) {
+				cv = object.toString();
+			}
+			return cv;
 		}
 
 		/**
