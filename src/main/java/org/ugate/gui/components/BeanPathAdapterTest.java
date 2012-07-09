@@ -1,5 +1,6 @@
 package org.ugate.gui.components;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import javafx.application.Application;
@@ -9,6 +10,7 @@ import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -21,6 +23,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
@@ -111,7 +115,9 @@ public class BeanPathAdapterTest extends Application {
 				beanTF("address.location.country", 2, ComboBox.class, "[0-9]",
 						new Integer[] { 0, 1, 2, 3 }),
 				beanTF("address.location.international", 0, CheckBox.class,
-						null), new Label("POJO Dump:"), pojoTA);
+						null),
+				beanTF("hobbies", 0, ListView.class,
+						null, "One", "Two", "Three"));
 		beanPane.getChildren().addAll(title, personBox);
 
 		final TextField pojoNameTF = new TextField();
@@ -132,7 +138,7 @@ public class BeanPathAdapterTest extends Application {
 				+ "maybe a JavaFX life-cycle listener would work?):");
 		lbl.setWrappingWidth(300d);
 		pojoBox.getChildren().addAll(lbl, new Label("Name:"), pojoNameTF,
-				pojoNameBtn);
+				pojoNameBtn, new Label("POJO Dump:"), pojoTA);
 
 		SplitPane pojoSplit = new SplitPane();
 		pojoSplit.getItems().addAll(beanPane, pojoBox);
@@ -170,7 +176,10 @@ public class BeanPathAdapterTest extends Application {
 									.getCountry()
 							+ ", address.location.international="
 							+ p.getBean().getAddress().getLocation()
-									.isInternational() + "}\n";
+									.isInternational() + ", hobbies="
+							+ (p.getBean().getHobbies() == null ? "" : 
+								Arrays.toString(
+									p.getBean().getHobbies().toArray())) + "}\n";
 				}
 				pojoTA.setText(dump);
 			}
@@ -226,8 +235,21 @@ public class BeanPathAdapterTest extends Application {
 					dumpPojo(personPA);
 				}
 			});
-			personPA.bindBidirectional(path, lv.itemsProperty(),
+			lv.setMaxHeight(100d);
+			lv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+			lv.itemsProperty().addListener(new ChangeListener<ObservableList<?>>() {
+				@Override
+				public void changed(
+						ObservableValue<? extends ObservableList<?>> observable,
+						ObservableList<?> oldValue, ObservableList<?> newValue) {
+					dumpPojo(personPA);
+				}
+			});
+			personPA.bindBidirectional(path, lv.getSelectionModel().selectedItemProperty(),
 					(Class<T>) choices[0].getClass());
+//			personPA.bindBidirectional(path, lv.itemsProperty(),
+//					(Class<T>) choices[0].getClass());
+			ctrl = lv;
 		} else if (controlType == Slider.class) {
 			Slider sl = new Slider();
 			sl.setShowTickLabels(true);
