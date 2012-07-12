@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -25,10 +26,10 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SelectionModel;
 import javafx.util.StringConverter;
 
@@ -105,22 +106,92 @@ public class BeanPathAdapter<B> {
 		bindBidirectional(fieldPath, property, null);
 	}
 
+	/**
+	 * Binds a {@linkplain ObservableList} by traversing the bean's field tree
+	 * 
+	 * @param fieldPath
+	 *            the <b><code>.</code></b> separated field paths relative to
+	 *            the {@linkplain #getBean()} that will be traversed
+	 * @param list
+	 *            the {@linkplain ObservableList} to bind to the field class
+	 *            type of the property
+	 * @param listValueType
+	 *            the class type of the {@linkplain ObservableList} value
+	 */
 	@SuppressWarnings("unchecked")
-	public <T, SM extends MultipleSelectionModel<T>> void 
-		bindBidirectional(final String fieldPath, 
-				final Property<SM> property, 
-				final Class<T> propertyType, 
-				final SelectionMode selectionMode) {
-		getRoot().bidirectionalBindOperation(fieldPath, property, 
-				(Class<SM>) property.getValue().getClass(), propertyType,
+	public <E> void bindContentBidirectional(final String fieldPath,
+			final ObservableList<E> list, final Class<E> listValueType) {
+		Class<E> clazz = listValueType;
+		if (clazz == null && !list.isEmpty()) {
+			final E sample = list.iterator().next();
+			clazz = sample != null ? (Class<E>) sample.getClass() : null;
+		}
+		if (clazz == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Unable to determine value class for %1$s " + 
+					"and declared type %2$s", list, listValueType));
+		}
+		getRoot().bidirectionalBindOperation(fieldPath, list, listValueType,
 				false);
 	}
-	
-//	public <T, V> void bindBidirectional(final String fieldPath, 
-//			final Property<ObservableList<T>> property, 
-//			final Class<T> propertyType, final Class<V> fieldType) {
-//		
-//	}
+
+	/**
+	 * Binds a {@linkplain ObservableSet} by traversing the bean's field tree
+	 * 
+	 * @param fieldPath
+	 *            the <b><code>.</code></b> separated field paths relative to
+	 *            the {@linkplain #getBean()} that will be traversed
+	 * @param set
+	 *            the {@linkplain ObservableSet} to bind to the field class type
+	 *            of the property
+	 * @param setValueType
+	 *            the class type of the {@linkplain ObservableSet} value
+	 */
+	@SuppressWarnings("unchecked")
+	public <E> void bindContentBidirectional(final String fieldPath,
+			final ObservableSet<E> set, final Class<E> setValueType) {
+		Class<E> clazz = setValueType;
+		if (clazz == null && !set.isEmpty()) {
+			final E sample = set.iterator().next();
+			clazz = sample != null ? (Class<E>) sample.getClass() : null;
+		}
+		if (clazz == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Unable to determine value class for %1$s " + 
+					"and declared type %2$s", set, setValueType));
+		}
+		getRoot().bidirectionalBindOperation(fieldPath, set, setValueType,
+				false);
+	}
+
+	/**
+	 * Binds a {@linkplain ObservableMap} by traversing the bean's field tree
+	 * 
+	 * @param fieldPath
+	 *            the <b><code>.</code></b> separated field paths relative to
+	 *            the {@linkplain #getBean()} that will be traversed
+	 * @param map
+	 *            the {@linkplain ObservableMap} to bind to the field class type
+	 *            of the property
+	 * @param mapValueType
+	 *            the class type of the {@linkplain ObservableMap} value
+	 */
+	@SuppressWarnings("unchecked")
+	public <K, V> void bindContentBidirectional(final String fieldPath,
+			final ObservableMap<K, V> map, final Class<V> mapValueType) {
+		Class<V> clazz = mapValueType;
+		if (clazz == null && !map.isEmpty()) {
+			final V sample = map.values().iterator().next();
+			clazz = sample != null ? (Class<V>) sample.getClass() : null;
+		}
+		if (clazz == null) {
+			throw new UnsupportedOperationException(String.format(
+					"Unable to determine value class for %1$s " + 
+					"and declared type %2$s", map, mapValueType));
+		}
+		getRoot().bidirectionalBindOperation(fieldPath, map, mapValueType,
+				false);
+	}
 
 	/**
 	 * Binds a {@linkplain Property} by traversing the bean's field tree
@@ -149,7 +220,7 @@ public class BeanPathAdapter<B> {
 					"and declared type %2$s", property, propertyType));
 		}
 		getRoot().bidirectionalBindOperation(fieldPath, property, clazz,
-				null, false);
+				false);
 	}
 
 	/**
@@ -163,7 +234,7 @@ public class BeanPathAdapter<B> {
 	 *            the field class type of the property
 	 */
 	public <T> void unBindBidirectional(final String fieldPath, final Property<T> property) {
-		getRoot().bidirectionalBindOperation(fieldPath, property, null, null, true);
+		getRoot().bidirectionalBindOperation(fieldPath, property, null, true);
 	}
 
 	/**
@@ -410,6 +481,46 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
+		 * {@linkplain #bidirectionalBindOperation(FieldProperty, Observable, Class, boolean)}
+		 */
+		public <T> void bidirectionalBindOperation(final String fieldPath,
+				final Property<T> property, final Class<T> propertyValueClass,
+				final boolean unbind) {
+			bidirectionalBindOperation(fieldPath, (Observable) property,
+					propertyValueClass, unbind);
+		}
+
+		/**
+		 * {@linkplain #bidirectionalBindOperation(FieldProperty, Observable, Class, boolean)}
+		 */
+		public <T> void bidirectionalBindOperation(final String fieldPath,
+				final ObservableList<T> observableList,
+				final Class<T> listValueClass, final boolean unbind) {
+			bidirectionalBindOperation(fieldPath, (Observable) observableList,
+					listValueClass, unbind);
+		}
+
+		/**
+		 * {@linkplain #bidirectionalBindOperation(FieldProperty, Observable, Class, boolean)}
+		 */
+		public <T> void bidirectionalBindOperation(final String fieldPath,
+				final ObservableSet<T> observableSet,
+				final Class<T> setValueClass, final boolean unbind) {
+			bidirectionalBindOperation(fieldPath, (Observable) observableSet,
+					setValueClass, unbind);
+		}
+
+		/**
+		 * {@linkplain #bidirectionalBindOperation(FieldProperty, Observable, Class, boolean)}
+		 */
+		public <K, V> void bidirectionalBindOperation(final String fieldPath,
+				final ObservableMap<K, V> observableMap,
+				final Class<V> mapValueClass, final boolean unbind) {
+			bidirectionalBindOperation(fieldPath, (Observable) observableMap,
+					mapValueClass, unbind);
+		}
+
+		/**
 		 * Binds/Unbinds a {@linkplain FieldProperty} based upon the supplied
 		 * <b><code>.</code></b> separated path to the field by traversing the
 		 * matching children of the {@linkplain FieldBean} until the
@@ -427,54 +538,41 @@ public class BeanPathAdapter<B> {
 		 * @see Bindings#unbindBidirectional(Property, Property)
 		 * @param fieldPath
 		 *            the <code>.</code> separated field names
-		 * @param property
-		 *            the {@linkplain Property} to bind/unbind
+		 * @param observable
+		 *            the {@linkplain Property}, {@linkplain ObservableList},
+		 *            {@linkplain ObservableSet}, or {@linkplain ObservableMap}
+		 *            to bind/unbind
 		 * @param propertyValueClass
 		 *            the class of the {@linkplain Property} value type (only
 		 *            needed when binding)
 		 * @param unbind
 		 *            true to unbind, false to bind
 		 */
-		@SuppressWarnings("unchecked")
-		public <T> void bidirectionalBindOperation(final String fieldPath,
-				final Property<T> property, final Class<T> propertyValueClass,
-				final Class<?> selectionModelValueType, final boolean unbind) {
+		protected <T> void bidirectionalBindOperation(final String fieldPath,
+				final Observable observable, final Class<T> propertyValueClass,
+				final boolean unbind) {
 			final String[] fieldNames = fieldPath.split("\\.");
-			final boolean isProperty = fieldNames.length == 1;
-			final String pkey = isProperty ? fieldNames[0] : "";
-			if (isProperty && getFieldProperties().containsKey(pkey)) {
+			final boolean isField = fieldNames.length == 1;
+			final String pkey = isField ? fieldNames[0] : "";
+			if (isField && getFieldProperties().containsKey(pkey)) {
 				final FieldProperty<BT, ?> fp = getFieldProperties().get(pkey);
-				if (unbind) {
-					Bindings.unbindBidirectional((Property<T>) fp, property);
-				} else {
-					// because of the inverse relationship of the bidirectional
-					// bind the initial value needs to be captured and reset as
-					// a dirty value or the bind operation will overwrite the
-					// initial value with the value of the passed property
-					final Object val = fp.getDirty();
-					Bindings.bindBidirectional((Property<String>) fp, property,
-							(StringConverter<T>) getFieldStringConverter(
-									propertyValueClass, selectionModelValueType));
-					if (val != null && !val.toString().isEmpty()) {
-						fp.setDirty(val);
-					}
-				}
-			} else if (!isProperty
+				bidirectionalBindOperation(fp, observable, propertyValueClass, unbind);
+			} else if (!isField
 					&& getFieldBeans().containsKey(fieldNames[0])) {
 				// progress to the next child field/bean in the path chain
 				final String nextFieldPath = fieldPath.substring(fieldPath
 						.indexOf(fieldNames[1]));
 				getFieldBeans().get(fieldNames[0]).bidirectionalBindOperation(
-						nextFieldPath, property, propertyValueClass, 
-						selectionModelValueType, unbind);
+						nextFieldPath, observable, propertyValueClass, 
+						unbind);
 			} else if (!unbind) {
 				// add a new bean/property chain
-				if (isProperty) {
+				if (isField) {
 					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
 							getBean(), fieldNames[0], Object.class);
 					addOrUpdateFieldProperty(childProp);
-					bidirectionalBindOperation(fieldNames[0], property, 
-							propertyValueClass, selectionModelValueType, unbind);
+					bidirectionalBindOperation(fieldNames[0], observable, 
+							propertyValueClass, unbind);
 				} else {
 					// create a handle to set the bean as a child of the current
 					// bean
@@ -488,9 +586,71 @@ public class BeanPathAdapter<B> {
 					final String nextFieldPath = fieldPath.substring(fieldPath
 							.indexOf(fieldNames[1]));
 					childBean.bidirectionalBindOperation(nextFieldPath,
-							property, propertyValueClass, selectionModelValueType, 
-							unbind);
+							observable, propertyValueClass, unbind);
 				}
+			}
+		}
+
+		//
+		@SuppressWarnings("unchecked")
+		protected <T> void bidirectionalBindOperation(
+				final FieldProperty<BT, ?> fp, final Observable observable,
+				final Class<T> observableValueClass, final boolean unbind) {
+			// because of the inverse relationship of the bidirectional
+			// bind the initial value needs to be captured and reset as
+			// a dirty value or the bind operation will overwrite the
+			// initial value with the value of the passed property
+			final Object val = !unbind ? fp.getDirty() : null;
+			if (Property.class.isAssignableFrom(observable.getClass())) {
+				if (unbind) {
+					Bindings.unbindBidirectional((Property<T>) fp,
+							(Property<T>) observable);
+				} else {
+					Bindings.bindBidirectional(
+							(Property<String>) fp,
+							(Property<T>) observable,
+							(StringConverter<T>) getFieldStringConverter(
+									observableValueClass));
+				}
+			} else if (fp.isList()) {
+				if (unbind) {
+					Bindings.unbindBidirectional(fp.getObservableList(),
+							observable);
+				} else {
+					Bindings.bindContentBidirectional(
+							(ObservableList<T>) fp.getObservableList(),
+							(ObservableList<T>) observable);
+				}
+			} else if (fp.isSet()) {
+				if (unbind) {
+					Bindings.unbindBidirectional(fp.getObservableSet(),
+							observable);
+				} else {
+					Bindings.bindContentBidirectional(
+							(ObservableSet<T>) fp.getObservableSet(),
+							(ObservableSet<T>) observable);
+				}
+			} else if (fp.isMap()) {
+				if (unbind) {
+					Bindings.unbindBidirectional(fp.getObservableMap(),
+							observable);
+				} else {
+					Bindings.bindContentBidirectional(
+							(ObservableMap<Object, T>) fp.getObservableMap(),
+							(ObservableMap<Object, T>) observable);
+				}
+			} else {
+				throw new IllegalArgumentException(String.format(
+						"%1$s must be a %2$s or a %3$s, %4$s, or %5$s",
+						Observable.class.getName(), Property.class.getName(),
+						ObservableList.class.getName(),
+						ObservableSet.class.getName(),
+						ObservableMap.class.getName()));
+			}
+			// reset initial dirty value
+			if (!unbind && val != null && !val.toString().isEmpty()
+					&& !val.equals(fp.getDirty())) {
+				fp.setDirty(val);
 			}
 		}
 
@@ -556,14 +716,7 @@ public class BeanPathAdapter<B> {
 		 */
 		@SuppressWarnings("unchecked")
 		public <FCT, SMT> FieldStringConverter<FCT> getFieldStringConverter(
-				final Class<FCT> targetClass, final Class<SMT> selectionModelType) {
-			if (SelectionModel.class.isAssignableFrom(targetClass)) {
-				if (selectionModelType == null) {
-					throw new IllegalArgumentException(
-							"Selection model property must have a defined type");
-				}
-				return new FieldStringConverter<FCT>(targetClass, selectionModelType);
-			}
+				final Class<FCT> targetClass) {
 			if (stringConverters.containsKey(targetClass)) {
 				return (FieldStringConverter<FCT>) 
 							stringConverters.get(targetClass);
@@ -589,7 +742,6 @@ public class BeanPathAdapter<B> {
 	protected static class FieldStringConverter<T> extends StringConverter<T> {
 
 		private final Class<T> targetClass;
-		private final Class<?> smClass;
 
 		/**
 		 * Constructor
@@ -600,20 +752,6 @@ public class BeanPathAdapter<B> {
 		 */
 		public FieldStringConverter(final Class<T> targetClass) {
 			this.targetClass = targetClass;
-			this.smClass = null;
-		}
-		
-		/**
-		 * Constructor
-		 * 
-		 * @param targetClass
-		 *            the class that the {@linkplain FieldStringConverter} is
-		 *            targeting
-		 */
-		public FieldStringConverter(final Class<T> targetClass,
-				final Class<?> smClass) {
-			this.targetClass = targetClass;
-			this.smClass = smClass;
 		}
 
 		/**
@@ -689,6 +827,12 @@ public class BeanPathAdapter<B> {
 		
 		private final FieldHandle<BT, T> fieldHandle;
 		private boolean isDirty;
+		private ObservableList<?> observableList;
+		private ObservableSet<?> observableSet;
+		private ObservableMap<?, ?> observableMap;
+		private boolean isList;
+		private boolean isSet;
+		private boolean isMap;
 
 		/**
 		 * Constructor
@@ -707,7 +851,10 @@ public class BeanPathAdapter<B> {
 					fieldType);
 			setDerived();
 		}
-		
+
+		/**
+		 * Sets the {@link FieldHandle#deriveValueFromAccessor()} value
+		 */
 		protected void setDerived() {
 			final T derived = fieldHandle.deriveValueFromAccessor();
 			set(derived != null ? derived.toString() : null);
@@ -740,6 +887,7 @@ public class BeanPathAdapter<B> {
 				final Object val = FieldStringConverter.coerce(v, cv != null ? cv.getClass()
 						: fieldHandle.getFieldType());
 				fieldHandle.getSetter().invoke(val);
+				updateObservableCollection();
 				invalidated();
 				fireValueChangedEvent();
 				isDirty = false;
@@ -748,6 +896,46 @@ public class BeanPathAdapter<B> {
 						t);
 			}
 		};
+
+		/**
+		 * Updates the {@linkplain Observable} when applicable
+		 * 
+		 * @throws Throwable
+		 *             thrown when {@linkplain FieldHandle#getSetter()} cannot
+		 *             be invoked or the {@linkplain #getDirty()} cannot be cast
+		 *             to {@linkplain FieldHandle#getFieldType()}
+		 */
+		protected void updateObservableCollection() throws Throwable {
+			super.invalidated();
+			if (List.class.isAssignableFrom(this.fieldHandle.getFieldType())) {
+				this.isList = true;
+				this.isSet = this.isMap = false;
+				List<?> val = (List<?>) getDirty();
+				if (val == null) {
+					val = new ArrayList<>();
+					fieldHandle.getSetter().invoke(val);
+				}
+				this.observableList = FXCollections.observableArrayList(val);
+			} else if (Set.class.isAssignableFrom(this.fieldHandle.getFieldType())) {
+				this.isSet = true;
+				this.isList = this.isMap = false;
+				Set<?> val = (Set<?>) getDirty();
+				if (val == null) {
+					val = new HashSet<>();
+					fieldHandle.getSetter().invoke(val);
+				}
+				this.observableSet = FXCollections.observableSet(val);
+			} else if (Map.class.isAssignableFrom(this.fieldHandle.getFieldType())) {
+				this.isMap = true;
+				this.isSet = this.isList = false;
+				Map<?, ?> val = (Map<?, ?>) getDirty();
+				if (val == null) {
+					val = new HashMap<>();
+					fieldHandle.getSetter().invoke(val);
+				}
+				this.observableMap = FXCollections.observableMap(val);
+			}
+		}
 
 		/**
 		 * {@inheritDoc}
@@ -799,6 +987,68 @@ public class BeanPathAdapter<B> {
 		@Override
 		public String getName() {
 			return fieldHandle.getFieldName();
+		}
+
+		/**
+		 * @return the {@linkplain FieldHandle#getFieldType()}
+		 */
+		@SuppressWarnings("unchecked")
+		public Class<T> getFieldType() {
+			return (Class<T>) fieldHandle.getFieldType();
+		}
+
+		/**
+		 * @return the {@linkplain ObservableList} of the underlying
+		 *         {@linkplain FieldProperty} when it's
+		 *         {@linkplain FieldHandle#getFieldType()} is a
+		 *         {@linkplain List}
+		 */
+		public ObservableList<?> getObservableList() {
+			return observableList;
+		}
+
+		/**
+		 * @return the {@linkplain ObservableSet} of the underlying
+		 *         {@linkplain FieldProperty} when it's
+		 *         {@linkplain FieldHandle#getFieldType()} is a
+		 *         {@linkplain Set}
+		 */
+		public ObservableSet<?> getObservableSet() {
+			return observableSet;
+		}
+
+		/**
+		 * @return the {@linkplain ObservableMap} of the underlying
+		 *         {@linkplain FieldProperty} when it's
+		 *         {@linkplain FieldHandle#getFieldType()} is a
+		 *         {@linkplain Map}
+		 */
+		public ObservableMap<?, ?> getObservableMap() {
+			return observableMap;
+		}
+
+		/**
+		 * @return true when the {@linkplain FieldProperty} is for a
+		 *         {@linkplain ObservableList}
+		 */
+		public boolean isList() {
+			return isList;
+		}
+
+		/**
+		 * @return true when the {@linkplain FieldProperty} is for a
+		 *         {@linkplain ObservableSet}
+		 */
+		public boolean isSet() {
+			return isSet;
+		}
+
+		/**
+		 * @return true when the {@linkplain FieldProperty} is for a
+		 *         {@linkplain ObservableMap}
+		 */
+		public boolean isMap() {
+			return isMap;
 		}
 	}
 
