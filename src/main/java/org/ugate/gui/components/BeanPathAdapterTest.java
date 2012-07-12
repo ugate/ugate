@@ -24,7 +24,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
@@ -245,7 +244,8 @@ public class BeanPathAdapterTest extends Application {
 					dumpPojo(personPA);
 				}
 			});
-			personPA.bindBidirectional(path, lv.getSelectionModel().selectedItemProperty(),
+			personPA.bindContentBidirectional(path, 
+					lv.getSelectionModel().getSelectedItems(),
 					(Class<T>) choices[0].getClass());
 //			personPA.bindBidirectional(path, lv.itemsProperty(),
 //					(Class<T>) choices[0].getClass());
