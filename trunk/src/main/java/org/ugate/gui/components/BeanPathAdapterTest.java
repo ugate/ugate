@@ -1,6 +1,7 @@
 package org.ugate.gui.components;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import javafx.application.Application;
@@ -10,6 +11,7 @@ import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -52,6 +54,9 @@ public class BeanPathAdapterTest extends Application {
 	private final Person person1 = new Person();
 	private final Person person2 = new Person();
 	private final Person person3 = new Person();
+	private final Hobby hobby1 = new Hobby();
+	private final Hobby hobby2 = new Hobby();
+	private final Hobby hobby3 = new Hobby();
 	private final BeanPathAdapter<Person> personPA = new BeanPathAdapter<>(
 			person1);
 
@@ -72,6 +77,10 @@ public class BeanPathAdapterTest extends Application {
 		addy.setStreet("123 Test Street");
 		addy.setLocation(loc);
 		person1.setAddress(addy);
+		person1.setHobbies(new HashSet<Hobby>());
+		person1.getHobbies().add(hobby1);
+		person1.getHobbies().add(hobby2);
+		person1.getHobbies().add(hobby3);
 	}
 
 	@Override
@@ -103,20 +112,22 @@ public class BeanPathAdapterTest extends Application {
 						+ "Duplicate field controls exist to demo multiple control binding");
 		title.setWrappingWidth(400d);
 		personBox.getChildren().addAll(
-				beanTF("name", 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("age", 100, Slider.class, null),
-				beanTF("age", 100, null, "[0-9]"),
-				beanTF("password", 100, PasswordField.class, "[a-zA-z0-9]"),
-				beanTF("address.street", 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("address.location.state", 2, ComboBox.class, "[a-zA-z]",
+				beanTF("name", null, 50, null, "[a-zA-z0-9\\s]*"),
+				beanTF("age", null, 100, Slider.class, null),
+				beanTF("age", null, 100, null, "[0-9]"),
+				beanTF("password", null, 100, PasswordField.class, "[a-zA-z0-9]"),
+				beanTF("address.street", null, 50, null, "[a-zA-z0-9\\s]*"),
+				beanTF("address.location.state", null, 2, ComboBox.class, "[a-zA-z]",
 						STATES),
-				beanTF("address.location.country", 10, null, "[0-9]"),
-				beanTF("address.location.country", 2, ComboBox.class, "[0-9]",
+				beanTF("address.location.country", null, 10, null, "[0-9]"),
+				beanTF("address.location.country", null, 2, ComboBox.class, "[0-9]",
 						new Integer[] { 0, 1, 2, 3 }),
-				beanTF("address.location.international", 0, CheckBox.class,
+				beanTF("address.location.international", null, 0, CheckBox.class,
 						null),
-				beanTF("hobbies", 0, ListView.class,
-						null, "One", "Two", "Three"));
+				beanTF("nickNames", null, 0, ListView.class, null, "nick1", "nick2",
+						"nick3"),
+				beanTF("hobbies", "name", 0, ListView.class, null, hobby1, hobby2,
+						hobby3));
 		beanPane.getChildren().addAll(title, personBox);
 
 		final TextField pojoNameTF = new TextField();
@@ -175,10 +186,15 @@ public class BeanPathAdapterTest extends Application {
 									.getCountry()
 							+ ", address.location.international="
 							+ p.getBean().getAddress().getLocation()
-									.isInternational() + ", hobbies="
-							+ (p.getBean().getHobbies() == null ? "" : 
-								Arrays.toString(
-									p.getBean().getHobbies().toArray())) + "}\n";
+									.isInternational()
+							+ ", nickNames="
+							+ (p.getBean().getNickNames() == null ? "" : Arrays
+									.toString(p.getBean().getNickNames()
+											.toArray())) + "}"
+							+ ", hobbies="
+							+ (p.getBean().getHobbies() == null ? "" : Arrays
+									.toString(p.getBean().getHobbies()
+											.toArray())) + "}\n";
 				}
 				pojoTA.setText(dump);
 			}
@@ -186,7 +202,7 @@ public class BeanPathAdapterTest extends Application {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> HBox beanTF(String path, final int maxChars,
+	public <T> HBox beanTF(String path, String itemPath, final int maxChars,
 			Class<? extends Control> controlType, final String restictTo,
 			T... choices) {
 		HBox box = new HBox();
@@ -224,31 +240,30 @@ public class BeanPathAdapterTest extends Application {
 		} else if (controlType == ListView.class) {
 			ListView<T> lv = new ListView<>(
 					FXCollections.observableArrayList(choices));
-			lv.selectionModelProperty().addListener(
-					new ChangeListener<MultipleSelectionModel<T>>() {
-				@Override
-				public void changed(
-						ObservableValue<? extends MultipleSelectionModel<T>> observable,
-						MultipleSelectionModel<T> oldValue,
-						MultipleSelectionModel<T> newValue) {
-					dumpPojo(personPA);
-				}
-			});
+			lv.getSelectionModel().getSelectedItems().addListener(
+				new ListChangeListener<T>() {
+					@Override
+					public void onChanged(
+							ListChangeListener.Change<? extends T> paramChange) {
+						dumpPojo(personPA);
+					}
+				});
 			lv.setMaxHeight(100d);
 			lv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-			lv.itemsProperty().addListener(new ChangeListener<ObservableList<?>>() {
-				@Override
-				public void changed(
-						ObservableValue<? extends ObservableList<?>> observable,
-						ObservableList<?> oldValue, ObservableList<?> newValue) {
-					dumpPojo(personPA);
-				}
-			});
-			personPA.bindContentBidirectional(path, 
-					lv.getSelectionModel().getSelectedItems(),
-					(Class<T>) choices[0].getClass());
-//			personPA.bindBidirectional(path, lv.itemsProperty(),
-//					(Class<T>) choices[0].getClass());
+			lv.itemsProperty().addListener(
+					new ChangeListener<ObservableList<?>>() {
+						@Override
+						public void changed(
+								ObservableValue<? extends ObservableList<?>> observable,
+								ObservableList<?> oldValue,
+								ObservableList<?> newValue) {
+							dumpPojo(personPA);
+						}
+					});
+			personPA.bindContentBidirectional(path, itemPath, lv.getSelectionModel()
+					.getSelectedItems(), (Class<T>) choices[0].getClass());
+			// personPA.bindBidirectional(path, lv.itemsProperty(),
+			// (Class<T>) choices[0].getClass());
 			ctrl = lv;
 		} else if (controlType == Slider.class) {
 			Slider sl = new Slider();
@@ -373,6 +388,7 @@ public class BeanPathAdapterTest extends Application {
 		private String password;
 		private Address address;
 		private double age;
+		private Set<String> nickNames;
 		private Set<Hobby> hobbies;
 
 		public String getName() {
@@ -405,6 +421,14 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setAge(double age) {
 			this.age = age;
+		}
+
+		public Set<String> getNickNames() {
+			return nickNames;
+		}
+
+		public void setNickNames(Set<String> nickNames) {
+			this.nickNames = nickNames;
 		}
 
 		public Set<Hobby> getHobbies() {
