@@ -23,7 +23,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Slider;
@@ -112,22 +111,25 @@ public class BeanPathAdapterTest extends Application {
 						+ "Duplicate field controls exist to demo multiple control binding");
 		title.setWrappingWidth(400d);
 		personBox.getChildren().addAll(
-				beanTF("name", null, 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("age", null, 100, Slider.class, null),
-				beanTF("age", null, 100, null, "[0-9]"),
-				beanTF("password", null, 100, PasswordField.class, "[a-zA-z0-9]"),
-				beanTF("address.street", null, 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("address.location.state", null, 2, ComboBox.class, "[a-zA-z]",
-						STATES),
-				beanTF("address.location.country", null, 10, null, "[0-9]"),
-				beanTF("address.location.country", null, 2, ComboBox.class, "[0-9]",
-						new Integer[] { 0, 1, 2, 3 }),
-				beanTF("address.location.international", null, 0, CheckBox.class,
-						null),
-				beanTF("nickNames", null, 0, ListView.class, null, "nick1", "nick2",
-						"nick3"),
-				beanTF("hobbies", "name", 0, ListView.class, null, hobby1, hobby2,
-						hobby3));
+				beanTF("name", null, null, 50, null, "[a-zA-z0-9\\s]*"),
+				beanTF("age", null, null, 100, Slider.class, null),
+				beanTF("age", null, null, 100, null, "[0-9]"),
+				beanTF("password", null, null, 100, PasswordField.class,
+						"[a-zA-z0-9]"),
+				beanTF("address.street", null, null, 50, null,
+						"[a-zA-z0-9\\s]*"),
+				beanTF("address.location.state", null, null, 2, ComboBox.class,
+						"[a-zA-z]", STATES),
+				beanTF("address.location.country", null, null, 10, null,
+						"[0-9]"),
+				beanTF("address.location.country", null, null, 2,
+						ComboBox.class, "[0-9]", new Integer[] { 0, 1, 2, 3 }),
+				beanTF("address.location.international", null, null, 0,
+						CheckBox.class, null),
+				beanTF("nickNames", null, String.class, 0, ListView.class,
+						null, "nick1", "nick2", "nick3"),
+				beanTF("hobbies", "name", Hobby.class, 0, ListView.class, null,
+						hobby1));
 		beanPane.getChildren().addAll(title, personBox);
 
 		final TextField pojoNameTF = new TextField();
@@ -202,7 +204,8 @@ public class BeanPathAdapterTest extends Application {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> HBox beanTF(String path, String itemPath, final int maxChars,
+	public <T> HBox beanTF(String path, String itemPath,
+			final Class<?> itemType, final int maxChars,
 			Class<? extends Control> controlType, final String restictTo,
 			T... choices) {
 		HBox box = new HBox();
@@ -260,8 +263,9 @@ public class BeanPathAdapterTest extends Application {
 							dumpPojo(personPA);
 						}
 					});
-			personPA.bindContentBidirectional(path, itemPath, lv.getSelectionModel()
-					.getSelectedItems(), (Class<T>) choices[0].getClass());
+			personPA.bindContentBidirectional(path, itemPath, itemType, 
+					lv.getItems(), //lv.getSelectionModel().getSelectedItems(),
+					(Class<T>) choices[0].getClass());
 			// personPA.bindBidirectional(path, lv.itemsProperty(),
 			// (Class<T>) choices[0].getClass());
 			ctrl = lv;
