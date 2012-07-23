@@ -1061,32 +1061,22 @@ public class BeanPathAdapter<B> {
 		 *             {@linkplain #getDirty()} cannot be transformed using the
 		 *             {@linkplain #collectionType}
 		 */
-		@SuppressWarnings("unchecked")
 		private void updateObservableCollection() throws Throwable {
 			if (isList()) {
 				List<?> val = (List<?>) getDirty();
 				if (val == null) {
 					val = new ArrayList<>();
 					fieldHandle.getSetter().invoke(val);
-				} else if (this.collectionObservable.get() instanceof ObservableList) {
-					((ObservableList<Object>) this.collectionObservable.get()).clear();
-					((ObservableList<Object>) this.collectionObservable.get()).addAll(val);
-				} else if (this.collectionObservable.get() instanceof ObservableSet) {
-					((ObservableSet<Object>) this.collectionObservable.get()).addAll(val);
 				}
+				updateObservableCollectionValue(val);
 				addRemoveCollectionListener(true);
 			} else if (isSet()) {
 				Set<?> val = (Set<?>) getDirty();
 				if (val == null) {
 					val = new HashSet<>();
 					fieldHandle.getSetter().invoke(val);
-				} else if (this.collectionObservable.get() instanceof ObservableSet) {
-					((ObservableSet<Object>) this.collectionObservable.get()).clear();
-					((ObservableSet<Object>) this.collectionObservable.get()).addAll(val);
-				} else if (this.collectionObservable.get() instanceof ObservableList) {
-					((ObservableList<Object>) this.collectionObservable.get()).clear();
-					((ObservableList<Object>) this.collectionObservable.get()).addAll(val);
 				}
+				updateObservableCollectionValue(val);
 				addRemoveCollectionListener(true);
 			} else if (isMap()) {
 				Map<?, ?> val = (Map<?, ?>) getDirty();
@@ -1094,7 +1084,107 @@ public class BeanPathAdapter<B> {
 					val = new HashMap<>();
 					fieldHandle.getSetter().invoke(val);
 				}
+				updateObservableCollectionValue(val);
 				addRemoveCollectionListener(true);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private void updateObservableCollectionValue(final Object val) {
+			boolean needsCycle = hasCollectionItemPath();
+			if (this.collectionObservable.get() instanceof ObservableList) {
+				final ObservableList<Object> oc = (ObservableList<Object>) 
+						this.collectionObservable.get();
+				oc.clear();
+				if (needsCycle) {
+					Object ritem;
+					int i = -1;
+					if (Collection.class.isAssignableFrom(val.getClass())) {
+						for (final Object item : (Collection<?>) val) {
+							ritem = updateCollectionValue(++i, item);
+							oc.add(i, ritem);
+						}
+					} else if (Map.class.isAssignableFrom(val.getClass())) {
+						for (final Object item : ((Map<?, ?>) val).values()) {
+							ritem = updateCollectionValue(++i, item);
+							oc.add(i, ritem);
+						}
+					}
+				} else {
+					oc.addAll(val);
+				}
+			} else if (this.collectionObservable.get() instanceof ObservableSet) {
+				final ObservableSet<Object> oc = (ObservableSet<Object>) 
+						this.collectionObservable.get();
+				oc.clear();
+				if (!needsCycle && Collection.class.isAssignableFrom(val.getClass())) {
+					oc.addAll((Collection<?>) val);
+				} else {
+					Object ritem;
+					int i = -1;
+					if (Collection.class.isAssignableFrom(val.getClass())) {
+						for (final Object item : (Collection<?>) val) {
+							ritem = updateCollectionValue(++i, item);
+							oc.add(ritem);
+						}
+					} else if (Map.class.isAssignableFrom(val.getClass())) {
+						for (final Object item : ((Map<?, ?>) val).values()) {
+							ritem = updateCollectionValue(++i, item);
+							oc.add(ritem);
+						}
+					}
+				}
+			} else if (this.collectionObservable.get() instanceof ObservableMap) {
+				final ObservableMap<Object, Object> oc = (ObservableMap<Object, Object>) 
+						this.collectionObservable.get();
+				oc.clear();
+				if (!needsCycle && Map.class.isAssignableFrom(val.getClass())) {
+					oc.putAll((Map<?, ?>) val);
+				} else {
+					Object ritem;
+					int i = -1;
+					if (Collection.class.isAssignableFrom(val.getClass())) {
+						for (final Object item : (Collection<?>) val) {
+							ritem = updateCollectionValue(++i, item);
+							oc.put(i, ritem);
+						}
+					} else if (Map.class.isAssignableFrom(val.getClass())) {
+						for (final Object item : ((Map<?, ?>) val).values()) {
+							ritem = updateCollectionValue(++i, item);
+							oc.put(i, ritem);
+						}
+					}
+				}
+			}
+		}
+
+		protected Object updateCollectionValue(final int index,
+				final Object value) {
+			try {
+				if (collectionItemPath == null || collectionItemPath.isEmpty()) {
+					return null;
+				}
+				FieldProperty<Object, ?> fp;
+				if (collectionProperties.containsKey(index)) {
+					fp = collectionProperties.get(index);
+				} else {
+					final FieldBean<Void, Object> fb = new FieldBean<Void, Object>(
+							null, value != null ? value
+									: collectionType.newInstance(), null);
+					fb.bidirectionalOperation(collectionItemPath, Object.class,
+							null, this.collectionObservable.get(), null,
+							FieldBeanOperation.NOBIND);
+					final String[] cip = collectionItemPath.split("\\.");
+					fp = fb.getFieldProperties().get(cip[cip.length - 1]);
+					collectionProperties.put(index, fp);
+				}
+				return fp.getDirty();
+			} catch (final IllegalAccessException e) {
+				throw new IllegalStateException("Unable to instantiate " + 
+						collectionType.getName(), e);
+			} catch (final InstantiationException e) {
+				throw new IllegalStateException("Unable to instantiate " + 
+						collectionType.getName(), e);
 			}
 		}
 
@@ -1219,38 +1309,6 @@ public class BeanPathAdapter<B> {
 //						}
 					}
 				}
-			}
-		}
-
-		protected Object updateCollectionValue(final int index,
-				final Object value) {
-			try {
-				if (collectionItemPath == null || collectionItemPath.isEmpty()) {
-					return null;
-				}
-				FieldProperty<Object, ?> fp;
-				if (collectionProperties.containsKey(index)) {
-					fp = collectionProperties.get(index);
-				} else {
-					final FieldBean<Void, Object> fb = new FieldBean<Void, Object>(
-							null, collectionType.newInstance(), null);
-					fb.bidirectionalOperation(collectionItemPath, Object.class,
-							"", this.collectionObservable.get(), null,
-							FieldBeanOperation.NOBIND);
-					final String[] cip = collectionItemPath.split("\\.");
-					fp = fb.getFieldProperties().get(cip[cip.length - 1]);
-					collectionProperties.put(index, fp);
-				}
-				if (value != null) {
-					fp.setDirty(value);
-				}
-				return fp.getDirty();
-			} catch (final IllegalAccessException e) {
-				throw new IllegalStateException("Unable to instantiate " + 
-						collectionType.getName(), e);
-			} catch (final InstantiationException e) {
-				throw new IllegalStateException("Unable to instantiate " + 
-						collectionType.getName(), e);
 			}
 		}
 
