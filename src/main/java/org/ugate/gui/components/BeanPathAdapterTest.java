@@ -76,6 +76,9 @@ public class BeanPathAdapterTest extends Application {
 		addy.setStreet("123 Test Street");
 		addy.setLocation(loc);
 		person1.setAddress(addy);
+		hobby1.setName("Hobby 1");
+		hobby2.setName("Hobby 2");
+		hobby3.setName("Hobby 3");
 		person1.setHobbies(new HashSet<Hobby>());
 		person1.getHobbies().add(hobby1);
 		person1.getHobbies().add(hobby2);
