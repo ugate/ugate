@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.ugate.resources.RS;
 
 /**
- * {@linkplain Filter} to wrap common output for {@linkplain Servlet}s
+ * {@linkplain Filter} to wrap common output for {@linkplain Servlet}s. <a
+ * href="http://wiki.eclipse.org/Jetty/Feature/Servlets_Bundled_with_Jetty"
+ * >Complete list of bundled Filters</a>
  */
 @WebFilter
 public class GlobalFilter implements Filter {

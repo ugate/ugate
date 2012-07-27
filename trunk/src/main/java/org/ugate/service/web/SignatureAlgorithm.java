@@ -8,9 +8,9 @@ import java.security.cert.X509Certificate;
  * recognize {@linkplain X509Certificate}s signed using some of the algorithms.
  * </p>
  * <p>
- * For example, IE 8 does not recognize {@linkplain #SHA256WithRSAEncryption}
- * while FireFox 12.0 does. While {@linkplain #SHA1withRSA} is recognized in all
- * modern browser versions.
+ * For example, some versions of IE 8 will not recognize
+ * {@linkplain #SHA256WithRSAEncryption} while FireFox does. While
+ * {@linkplain #SHA1withRSA} is recognized in all modern browser versions.
  * </p>
  */
 public enum SignatureAlgorithm {
