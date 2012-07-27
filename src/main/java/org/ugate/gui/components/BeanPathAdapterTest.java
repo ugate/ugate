@@ -1,7 +1,8 @@
 package org.ugate.gui.components;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javafx.application.Application;
@@ -25,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
@@ -53,9 +55,29 @@ public class BeanPathAdapterTest extends Application {
 	private final Person person1 = new Person();
 	private final Person person2 = new Person();
 	private final Person person3 = new Person();
-	private final Hobby hobby1 = new Hobby();
-	private final Hobby hobby2 = new Hobby();
-	private final Hobby hobby3 = new Hobby();
+	private final String shouldNeverAppear = "SHOULD NOT APPEAR";
+	private static final Hobby HOBBY_OVERWRITE = new Hobby();
+	private static final Hobby HOBBY1 = new Hobby();
+	private static final Hobby HOBBY2 = new Hobby();
+	private static final Hobby HOBBY3 = new Hobby();
+	private static final Set<Hobby> HOBBY_ALL = new LinkedHashSet<>(3);
+	static {
+		HOBBY1.setName("Hobby 1");
+		HOBBY2.setName("Hobby 2");
+		HOBBY3.setName("Hobby 3");
+		HOBBY_ALL.add(HOBBY1);
+		HOBBY_ALL.add(HOBBY2);
+		HOBBY_ALL.add(HOBBY3);
+	}
+	private static final String LANG1 = "Language 1";
+	private static final String LANG2 = "Language 2";
+	private static final String LANG3 = "Language 3";
+	private static final Set<String> LANG_ALL = new LinkedHashSet<>(3);
+	static {
+		LANG_ALL.add(LANG1);
+		LANG_ALL.add(LANG2);
+		LANG_ALL.add(LANG3);
+	}
 	private final BeanPathAdapter<Person> personPA = new BeanPathAdapter<>(
 			person1);
 
@@ -65,6 +87,7 @@ public class BeanPathAdapterTest extends Application {
 
 	public BeanPathAdapterTest() {
 		super();
+		HOBBY_OVERWRITE.setName(shouldNeverAppear);
 		person1.setAge(50d);
 		person1.setName("Person 1");
 		person1.setPassword("secret");
@@ -76,13 +99,18 @@ public class BeanPathAdapterTest extends Application {
 		addy.setStreet("123 Test Street");
 		addy.setLocation(loc);
 		person1.setAddress(addy);
-		hobby1.setName("Hobby 1");
-		hobby2.setName("Hobby 2");
-		hobby3.setName("Hobby 3");
-		person1.setHobbies(new HashSet<Hobby>());
-		person1.getHobbies().add(hobby1);
-		person1.getHobbies().add(hobby2);
-		person1.getHobbies().add(hobby3);
+		// demo uses allLanguages property of person to demo available nick name
+		// items
+		person1.setAllLanguages(LANG_ALL);
+		// demo uses languages property of person to demo nick name selections
+		person1.setLanguages(new LinkedHashSet<String>());
+		person1.getLanguages().add(LANG3);
+		// demo uses allHobbies property of person to demo available hobby items
+		person1.setAllHobbies(HOBBY_ALL);
+		// demo uses hobbies property of person to demo hobby selections
+		person1.setHobbies(new LinkedHashSet<Hobby>());
+		person1.getHobbies().add(HOBBY1);
+		person1.getHobbies().add(HOBBY2);
 	}
 
 	@Override
@@ -113,26 +141,26 @@ public class BeanPathAdapterTest extends Application {
 				"Person POJO using auto-generated JavaFX properties. "
 						+ "Duplicate field controls exist to demo multiple control binding");
 		title.setWrappingWidth(400d);
+		HBox hobbyBox = beanTF("allHobbies", "hobbies", "name", Hobby.class, 0,
+				ListView.class, null, HOBBY_OVERWRITE);
+		HBox langBox = beanTF("allLanguages", "languages", null, String.class,
+				0, ListView.class, null, shouldNeverAppear);
 		personBox.getChildren().addAll(
-				beanTF("name", null, null, 50, null, "[a-zA-z0-9\\s]*"),
-				beanTF("age", null, null, 100, Slider.class, null),
-				beanTF("age", null, null, 100, null, "[0-9]"),
-				beanTF("password", null, null, 100, PasswordField.class,
+				beanTF("name", null, null, null, 50, null, "[a-zA-z0-9\\s]*"),
+				beanTF("age", null, null, null, 100, Slider.class, null),
+				beanTF("age", null, null, null, 100, null, "[0-9]"),
+				beanTF("password", null, null, null, 100, PasswordField.class,
 						"[a-zA-z0-9]"),
-				beanTF("address.street", null, null, 50, null,
+				beanTF("address.street", null, null, null, 50, null,
 						"[a-zA-z0-9\\s]*"),
-				beanTF("address.location.state", null, null, 2, ComboBox.class,
-						"[a-zA-z]", STATES),
-				beanTF("address.location.country", null, null, 10, null,
+				beanTF("address.location.state", null, null, null, 2,
+						ComboBox.class, "[a-zA-z]", STATES),
+				beanTF("address.location.country", null, null, null, 10, null,
 						"[0-9]"),
-				beanTF("address.location.country", null, null, 2,
+				beanTF("address.location.country", null, null, null, 2,
 						ComboBox.class, "[0-9]", new Integer[] { 0, 1, 2, 3 }),
-				beanTF("address.location.international", null, null, 0,
-						CheckBox.class, null),
-				beanTF("nickNames", null, String.class, 0, ListView.class,
-						null, "nick1", "nick2", "nick3"),
-				beanTF("hobbies", "name", Hobby.class, 0, ListView.class, null,
-						hobby1));
+				beanTF("address.location.international", null, null, null, 0,
+						CheckBox.class, null), langBox, hobbyBox);
 		beanPane.getChildren().addAll(title, personBox);
 
 		final TextField pojoNameTF = new TextField();
@@ -153,7 +181,10 @@ public class BeanPathAdapterTest extends Application {
 				+ "maybe a JavaFX life-cycle listener would work?):");
 		lbl.setWrappingWidth(300d);
 		pojoBox.getChildren().addAll(lbl, new Label("Name:"), pojoNameTF,
-				pojoNameBtn, new Label("POJO Dump:"), pojoTA);
+				pojoNameBtn, new Separator(),
+				updateListView(langBox, "Language"),
+				updateListView(hobbyBox, "Hobby"), new Separator(),
+				new Label("POJO Dump:"), pojoTA);
 
 		SplitPane pojoSplit = new SplitPane();
 		pojoSplit.getItems().addAll(beanPane, pojoBox);
@@ -167,6 +198,43 @@ public class BeanPathAdapterTest extends Application {
 		});
 		primaryStage.setScene(new Scene(beanBox));
 		primaryStage.show();
+	}
+
+	public VBox updateListView(HBox langBox, String label) {
+		@SuppressWarnings("unchecked")
+		final ListView<String> listView = (ListView<String>) langBox
+				.getChildren().get(1);
+		final TextField addTF = new TextField();
+		addTF.setPromptText(label + " to add");
+		Button addBtn = new Button("Add " + label);
+		addBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if (addTF.getText().isEmpty()) {
+					return;
+				}
+				listView.getItems().add(addTF.getText());
+				dumpPojo(personPA);
+			}
+		});
+		Button remBtn = new Button("Remove Selected " + label + "(s)");
+		remBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				// need to extract an array because the selected items
+				// observable list will be updated as the list items are removed
+				Object[] sels = listView.getSelectionModel().getSelectedItems()
+						.toArray();
+				for (Object sel : sels) {
+					listView.getItems().remove(sel);
+				}
+			}
+		});
+		HBox btnBox = new HBox();
+		btnBox.getChildren().addAll(addBtn, remBtn);
+		VBox box = new VBox();
+		box.getChildren().addAll(addTF, btnBox);
+		return box;
 	}
 
 	@SafeVarargs
@@ -191,23 +259,41 @@ public class BeanPathAdapterTest extends Application {
 									.getCountry()
 							+ ", address.location.international="
 							+ p.getBean().getAddress().getLocation()
-									.isInternational()
-							+ ", nickNames="
-							+ (p.getBean().getNickNames() == null ? "" : Arrays
-									.toString(p.getBean().getNickNames()
-											.toArray())) + "}"
+									.isInternational() + ", allLanguages="
+							+ dumpPrimCollection(p.getBean().getAllLanguages())
+							+ ", languages="
+							+ dumpPrimCollection(p.getBean().getLanguages())
+							+ ", allHobbies="
+							+ dumpHobbyNames(p.getBean().getAllHobbies())
 							+ ", hobbies="
-							+ (p.getBean().getHobbies() == null ? "" : Arrays
-									.toString(p.getBean().getHobbies()
-											.toArray())) + "}\n";
+							+ dumpHobbyNames(p.getBean().getHobbies()) + "}\n";
 				}
 				pojoTA.setText(dump);
 			}
 		});
 	}
 
+	public String dumpPrimCollection(Collection<?> col) {
+		if (col == null) {
+			return "[]";
+		}
+		return Arrays.toString(col.toArray());
+	}
+
+	public String dumpHobbyNames(Collection<Hobby> hobbies) {
+		if (hobbies == null) {
+			return "[]";
+		}
+		String s = "[";
+		for (Hobby h : hobbies) {
+			s += '{' + Hobby.class.getSimpleName() + ": name=" + h.getName()
+					+ '}';
+		}
+		return s += "]";
+	}
+
 	@SuppressWarnings("unchecked")
-	public <T> HBox beanTF(String path, String itemPath,
+	public <T> HBox beanTF(String path, String selectionPath, String itemPath,
 			final Class<?> itemType, final int maxChars,
 			Class<? extends Control> controlType, final String restictTo,
 			T... choices) {
@@ -239,21 +325,21 @@ public class BeanPathAdapterTest extends Application {
 			});
 			// POJO binding magic (due to erasure of T in
 			// ObjectProperty<T> of cb.valueProperty() we need
-			// to also pass in the choice class
+			// to also pass in the choice class)
 			personPA.bindBidirectional(path, cb.valueProperty(),
 					(Class<T>) choices[0].getClass());
 			ctrl = cb;
 		} else if (controlType == ListView.class) {
 			ListView<T> lv = new ListView<>(
 					FXCollections.observableArrayList(choices));
-			lv.getSelectionModel().getSelectedItems().addListener(
-				new ListChangeListener<T>() {
-					@Override
-					public void onChanged(
-							ListChangeListener.Change<? extends T> paramChange) {
-						dumpPojo(personPA);
-					}
-				});
+			lv.getSelectionModel().getSelectedItems()
+					.addListener(new ListChangeListener<T>() {
+						@Override
+						public void onChanged(
+								ListChangeListener.Change<? extends T> paramChange) {
+							dumpPojo(personPA);
+						}
+					});
 			lv.setMaxHeight(100d);
 			lv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 			lv.itemsProperty().addListener(
@@ -266,9 +352,23 @@ public class BeanPathAdapterTest extends Application {
 							dumpPojo(personPA);
 						}
 					});
-			personPA.bindContentBidirectional(path, itemPath, itemType, 
-					lv.getItems(), //lv.getSelectionModel().getSelectedItems(),
-					(Class<T>) choices[0].getClass());
+			// POJO binding magic (due to erasure of T in
+			// ObservableList<T> of lv.getItems() we need
+			// to also pass in the choice class)
+			personPA.bindContentBidirectional(path, itemPath, itemType,
+					lv.getItems(), (Class<T>) choices[0].getClass(), null);
+			if (selectionPath != null && !selectionPath.isEmpty()) {
+				// POJO binding magic (due to erasure of T in
+				// ReadOnlyUnbackedObservableList<T> of
+				// lv.getSelectionModel().getSelectedItems() we need
+				// to also pass in the choice class as well as the
+				// SelectionModel<T> of lv.getSelectionModel() so that updates
+				// to the ReadOnlyUnbackedObservableList<T> can be updated)
+				personPA.bindContentBidirectional(selectionPath, itemPath,
+						itemType, lv.getSelectionModel().getSelectedItems(),
+						(Class<T>) choices[0].getClass(),
+						lv.getSelectionModel());
+			}
 			// personPA.bindBidirectional(path, lv.itemsProperty(),
 			// (Class<T>) choices[0].getClass());
 			ctrl = lv;
@@ -378,7 +478,13 @@ public class BeanPathAdapterTest extends Application {
 			personPA.bindBidirectional(path, tf.textProperty());
 			ctrl = tf;
 		}
-		box.getChildren().addAll(new Label(path + " = "), ctrl);
+		box.getChildren()
+				.addAll(new Label(
+						path
+								+ (selectionPath != null
+										&& !selectionPath.isEmpty() ? " (items) = \n"
+										+ selectionPath + " (selected) = "
+										: " = ")), ctrl);
 		return box;
 	}
 
@@ -395,8 +501,10 @@ public class BeanPathAdapterTest extends Application {
 		private String password;
 		private Address address;
 		private double age;
-		private Set<String> nickNames;
+		private Set<String> languages;
 		private Set<Hobby> hobbies;
+		private Set<String> allLanguages;
+		private Set<Hobby> allHobbies;
 
 		public String getName() {
 			return name;
@@ -430,12 +538,12 @@ public class BeanPathAdapterTest extends Application {
 			this.age = age;
 		}
 
-		public Set<String> getNickNames() {
-			return nickNames;
+		public Set<String> getLanguages() {
+			return languages;
 		}
 
-		public void setNickNames(Set<String> nickNames) {
-			this.nickNames = nickNames;
+		public void setLanguages(Set<String> languages) {
+			this.languages = languages;
 		}
 
 		public Set<Hobby> getHobbies() {
@@ -444,6 +552,22 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setHobbies(Set<Hobby> hobbies) {
 			this.hobbies = hobbies;
+		}
+
+		public Set<String> getAllLanguages() {
+			return allLanguages;
+		}
+
+		public void setAllLanguages(Set<String> allLanguages) {
+			this.allLanguages = allLanguages;
+		}
+
+		public Set<Hobby> getAllHobbies() {
+			return allHobbies;
+		}
+
+		public void setAllHobbies(Set<Hobby> allHobbies) {
+			this.allHobbies = allHobbies;
 		}
 	}
 

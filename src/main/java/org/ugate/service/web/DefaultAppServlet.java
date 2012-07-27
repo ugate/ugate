@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@linkplain DefaultServlet} for root context calls
+ * {@linkplain DefaultServlet} for root context calls. <a
+ * href="http://wiki.eclipse.org/Jetty/Feature/Servlets_Bundled_with_Jetty"
+ * >Complete list of bundled Servlets</a>
  */
 @WebServlet
 public class DefaultAppServlet extends DefaultServlet {

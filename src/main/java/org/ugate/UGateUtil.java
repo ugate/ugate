@@ -45,7 +45,11 @@ public class UGateUtil {
 	}
 	
 	/**
-	 * @param clazz the {@linkplain Class} to get the logger for
+	 * Abstraction to isolate {@linkplain LoggerFactory} errors from
+	 * {@code static} initializations
+	 * 
+	 * @param clazz
+	 *            the {@linkplain Class} to get the logger for
 	 * @return exception safe logger generator
 	 */
 	public static final Logger getLogger(final Class<?> clazz) {
