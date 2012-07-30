@@ -332,6 +332,8 @@ public class BeanPathAdapterTest extends Application {
 		} else if (controlType == ListView.class) {
 			ListView<T> lv = new ListView<>(
 					FXCollections.observableArrayList(choices));
+			lv.setEditable(true);
+			//lv.setCellFactory()
 			lv.getSelectionModel().getSelectedItems()
 					.addListener(new ListChangeListener<T>() {
 						@Override

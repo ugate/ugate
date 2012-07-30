@@ -957,7 +957,6 @@ public class BeanPathAdapter<B> {
 		private final String collectionItemPath;
 		private final WeakReference<Observable> collectionObservable;
 		private final Class<?> collectionType;
-		private final Map<Integer, FieldBean<Void, Object>> collectionItemBeans;
 		private final SelectionModel<Object> collectionSelectionModel;
 
 		/**
@@ -987,7 +986,6 @@ public class BeanPathAdapter<B> {
 			super();
 			this.fieldHandle = new FieldHandle<BT, T>(bean, fieldName,
 					declaredFieldType);
-			this.collectionItemBeans = new HashMap<>(0);
 			this.collectionObservable = new WeakReference<Observable>(
 					collectionObservable);
 			this.collectionItemPath = collectionItemPath;
@@ -1071,7 +1069,6 @@ public class BeanPathAdapter<B> {
 		 *             operation
 		 */
 		protected final void postSet() throws Throwable {
-			collectionItemBeans.clear();
 			updateObservableCollection();
 			invalidated();
 			fireValueChangedEvent();
@@ -1145,7 +1142,8 @@ public class BeanPathAdapter<B> {
 				// TODO : Use a more elegant technique to synchronize the
 				// observable
 				// and the bean collections that doesn't require clearing and
-				// resetting them. May also want to associate "selection" items
+				// resetting them (see commented onChange methods from revision
+				// 204). May also want to associate "selection" items
 				// with the related "items" they are referencing so the
 				// "selection" items are the same instances of the "items" they
 				// are
@@ -1376,26 +1374,18 @@ public class BeanPathAdapter<B> {
 			}
 			FieldBean<Void, Object> fb;
 			FieldProperty<Object, ?> fp;
-			if (collectionItemBeans.containsKey(key)) {
-				fb = collectionItemBeans.get(key);
-				if (itemBeanValue != null) {
-					fb.setBean(itemBeanValue);
-				}
-			} else {
-				try {
-					fb = new FieldBean<Void, Object>(null,
-							itemBeanValue == null ? collectionType
-									.newInstance() : itemBeanValue, null);
-				} catch (InstantiationException | IllegalAccessException e) {
-					throw new UnsupportedOperationException(String.format(
-							"Cannot create collection item bean using %1$s",
-							collectionType), e);
-				}
-				fb.bidirectionalOperation(collectionItemPath, Object.class,
-						null, null, null, collectionSelectionModel,
-						FieldBeanOperation.CREATE);
-				collectionItemBeans.put(key, fb);
+			try {
+				fb = new FieldBean<Void, Object>(null,
+						itemBeanValue == null ? collectionType
+								.newInstance() : itemBeanValue, null);
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new UnsupportedOperationException(String.format(
+						"Cannot create collection item bean using %1$s",
+						collectionType), e);
 			}
+			fb.bidirectionalOperation(collectionItemPath, Object.class,
+					null, null, null, collectionSelectionModel,
+					FieldBeanOperation.CREATE);
 			fp = extractCollectionItemFieldProperty(fb);
 			if (itemBeanPropertyValue != null) {
 				fp.setDirty(itemBeanPropertyValue);
@@ -1490,8 +1480,6 @@ public class BeanPathAdapter<B> {
 		public final void onChanged(
 				MapChangeListener.Change<? extends Object, ? extends Object> change) {
 			syncCollectionValues(getDirty(), true);
-			// onChange(change.wasRemoved(), change.wasAdded(),
-			// change.getValueAdded(), change.getValueRemoved());
 		}
 
 		/**
@@ -1501,8 +1489,6 @@ public class BeanPathAdapter<B> {
 		public final void onChanged(
 				SetChangeListener.Change<? extends Object> change) {
 			syncCollectionValues(getDirty(), true);
-			// onChange(change.wasRemoved(), change.wasAdded(),
-			// change.getElementAdded(), change.getElementRemoved());
 		}
 
 		/**
@@ -1512,140 +1498,6 @@ public class BeanPathAdapter<B> {
 		public final void onChanged(
 				ListChangeListener.Change<? extends Object> change) {
 			syncCollectionValues(getDirty(), true);
-			// while (change.next()) {
-			// final int af = change.wasAdded() ? change.getFrom() : -1;
-			// final int at = change.wasAdded() ? change.getTo() : af;
-			// final int rf = change.wasRemoved() ? change.getFrom() : -1;
-			// final int rt = change.wasRemoved() ? change.getFrom() : rf;
-			// onChanged(change.wasPermutated(), change.wasRemoved(),
-			// change.wasAdded(), af, at,
-			// change.getAddedSubList() != null ? change
-			// .getAddedSubList().toArray() : null, rf, rt,
-			// change.getRemoved() != null ? change.getRemoved()
-			// .toArray() : null);
-			// }
-		}
-
-		/**
-		 * Single item collection change
-		 * 
-		 * @param wasRemoved
-		 *            true when a removal occurred
-		 * @param wasAdded
-		 *            true when an add occurred
-		 * @param added
-		 *            the added item
-		 * @param removed
-		 *            the removed item
-		 */
-		protected void onChange(final boolean wasRemoved,
-				final boolean wasAdded, final Object added, final Object removed) {
-			if (wasRemoved || wasAdded) {
-				int ri = -1, ai = -1;
-				FieldProperty<Object, ?> fp;
-				for (final Map.Entry<Integer, FieldBean<Void, Object>> fbe : collectionItemBeans
-						.entrySet()) {
-					// field value equality is the only way to determine the
-					// original index of the observable set
-					if (wasRemoved
-							&& ((fp = extractCollectionItemFieldProperty(fbe
-									.getValue())).get() == removed || fp
-									.getDirty() == removed)) {
-						ri = fbe.getKey();
-					}
-					if (wasAdded
-							&& ((fp = extractCollectionItemFieldProperty(fbe
-									.getValue())).get() == added || fp
-									.getDirty() == added)) {
-						ai = fbe.getKey();
-					}
-					if ((!wasRemoved || (wasRemoved && ri >= 0))
-							&& (!wasAdded || (wasAdded && ai >= 0))) {
-						break;
-					}
-				}
-				if (ri >= 0 || ai >= 0) {
-					onChanged(false, wasRemoved, wasAdded, ai, ai,
-							added != null ? new Object[] { added } : null, ri,
-							ri, removed != null ? new Object[] { removed }
-									: null);
-				}
-			}
-		}
-
-		/**
-		 * Generic change handler for the {@linkplain FieldProperty} collection
-		 * that will sync the underlying bean with the {@linkplain Observable}
-		 * collection being monitored
-		 * 
-		 * @param wasPermutated
-		 *            indicates if the change was only a permutation
-		 * @param wasRemoved
-		 *            indicates if the change was a removal
-		 * @param wasAdded
-		 *            indicates if the change was an addition
-		 * @param addedFrom
-		 *            the beginning index of the item(s) added
-		 * @param addedTo
-		 *            the end index of the item(s) added
-		 * @param added
-		 *            the added item(s)
-		 * @param removedFrom
-		 *            the beginning index of the item(s) removed
-		 * @param removedTo
-		 *            the end index of the item(s) removed
-		 * @param removed
-		 *            the removed item(s)
-		 */
-		private void onChanged(final boolean wasPermutated,
-				final boolean wasRemoved, final boolean wasAdded,
-				final int addedFrom, final int addedTo, final Object[] added,
-				final int removedFrom, final int removedTo,
-				final Object[] removed) {
-			if (wasPermutated || wasRemoved || wasAdded) {
-				final Object dirty = getDirty();
-				boolean isMap = Map.class.isAssignableFrom(dirty.getClass());
-				@SuppressWarnings("unchecked")
-				final Collection<Object> col = Collection.class
-						.isAssignableFrom(dirty.getClass()) ? (Collection<Object>) dirty
-						: null;
-				@SuppressWarnings("unchecked")
-				final Map<Object, Object> map = col == null && isMap ? (Map<Object, Object>) dirty
-						: new HashMap<>(0);
-				final int size = col != null ? col.size() : map.size();
-				if (wasRemoved && removedFrom >= 0) {
-					int i = removedFrom;
-					for (final Object item : removed) {
-						if (collectionItemBeans.containsKey(i)) {
-							collectionItemBeans.remove(i);
-						}
-						if (i < size) {
-							if (!isMap) {
-								col.remove(item);
-							} else {
-								map.remove(i);
-							}
-						}
-						i++;
-					}
-				}
-				if (wasAdded && addedFrom >= 0) {
-					int i = addedFrom;
-					Object fpv;
-					for (final Object item : added) {
-						fpv = updateCollectionItemBean(i, null, item);
-						fpv = fpv == null ? item : fpv;
-						if (fpv != null) {
-							if (!isMap) {
-								col.add(fpv);
-							} else if (isMap) {
-								map.put(i, fpv);
-							}
-						}
-						i++;
-					}
-				}
-			}
 		}
 
 		/**
