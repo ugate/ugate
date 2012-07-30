@@ -28,11 +28,11 @@ import org.ugate.wireless.data.RxTxSensorReadings;
 public class AccessSettings extends ControlPane {
 
 	private UGateToggleSwitchView<RemoteNode> universalRemoteAccessToggleSwitch;
-	private UGateCtrlView<RemoteNode> remoteAddress;
-	private UGateCtrlView<RemoteNode> workingDir;
-	private UGateCtrlView<RemoteNode> accessKey1;
-	private UGateCtrlView<RemoteNode> accessKey2;
-	private UGateCtrlView<RemoteNode> accessKey3;
+	private UGateCtrlView<RemoteNode, Void> remoteAddress;
+	private UGateCtrlView<RemoteNode, Void> workingDir;
+	private UGateCtrlView<RemoteNode, Void> accessKey1;
+	private UGateCtrlView<RemoteNode, Void> accessKey2;
+	private UGateCtrlView<RemoteNode, Void> accessKey3;
 	private UGateToggleSwitchView<RemoteNode> gateToggleSwitchView;
 
 	/**

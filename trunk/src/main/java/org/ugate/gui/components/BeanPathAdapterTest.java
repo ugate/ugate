@@ -110,7 +110,7 @@ public class BeanPathAdapterTest extends Application {
 		// demo uses hobbies property of person to demo hobby selections
 		person1.setHobbies(new LinkedHashSet<Hobby>());
 		person1.getHobbies().add(HOBBY1);
-		person1.getHobbies().add(HOBBY2);
+		person1.getHobbies().add(HOBBY3);
 	}
 
 	@Override
