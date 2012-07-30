@@ -27,7 +27,7 @@ public class WirelessHostConnectionView extends StatusView {
 	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
 	public final UGateComboBox<String> port;
 	public final UGateComboBox<Integer> baud;
-	public final UGateCtrlView<Actor> hostAddress;
+	public final UGateCtrlView<Actor, Void> hostAddress;
 	public final Button connect;
 
 	/**
@@ -40,7 +40,7 @@ public class WirelessHostConnectionView extends StatusView {
 		
 		port = createComPortBox();
 	    baud = createBaudRateBox();
-	    hostAddress = new UGateCtrlView<Actor>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
+	    hostAddress = new UGateCtrlView<>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
 				UGateCtrlView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
 	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel("wireless.host.desc"));
 

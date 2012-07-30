@@ -32,10 +32,10 @@ public class PositionSettings extends ControlPane {
 	public static final int MIN_SENSOR_INDEX = 1;
 	public static final int MAX_SENSOR_INDEX = 4;
 	private final AtomicBoolean NUMERIC_STEPPER_CHANGING = new AtomicBoolean(false);
-	private UGateCtrlView<RemoteNode> sonarAnglePriority;
-	private UGateCtrlView<RemoteNode> pirAnglePriority;
-	private UGateCtrlView<RemoteNode> mwAnglePriority;
-	private UGateCtrlView<RemoteNode> laserAnglePriority;
+	private UGateCtrlView<RemoteNode, Void> sonarAnglePriority;
+	private UGateCtrlView<RemoteNode, Void> pirAnglePriority;
+	private UGateCtrlView<RemoteNode, Void> mwAnglePriority;
+	private UGateCtrlView<RemoteNode, Void> laserAnglePriority;
 	
 	/**
 	 * Constructor
@@ -254,7 +254,7 @@ public class PositionSettings extends ControlPane {
 	 * 
 	 * @param control the control to listen for priority number changes
 	 */
-	protected void addPriorityValueListener(final UGateCtrlView<RemoteNode> control) {
+	protected void addPriorityValueListener(final UGateCtrlView<RemoteNode, Void> control) {
 		control.valueProperty().addListener(new ChangeListener<Object>() {
 			@Override
 			public void changed(final ObservableValue<? extends Object> observable, 
@@ -265,7 +265,7 @@ public class PositionSettings extends ControlPane {
 					return;
 				}
 				// swap old value 
-		        final List<UGateCtrlView<RemoteNode>> a = Arrays.asList(sonarAnglePriority, pirAnglePriority, 
+		        final List<UGateCtrlView<RemoteNode, Void>> a = Arrays.asList(sonarAnglePriority, pirAnglePriority, 
 		        		mwAnglePriority, laserAnglePriority);
 		        final List<Integer> b = Arrays.asList(control == sonarAnglePriority ? null : 
 		        	(Integer) sonarAnglePriority.getValue(),
