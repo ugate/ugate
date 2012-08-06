@@ -29,14 +29,12 @@ import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
-import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionModel;
 import javafx.util.StringConverter;
 
@@ -1166,19 +1164,12 @@ public class BeanPathAdapter<B> {
 		 *             {@linkplain #collectionType}
 		 */
 		private void populateObservableCollection() throws Throwable {
-			int i = -1;
-			boolean useObservable = false;
 			if (isList() || isSet()) {
 				addRemoveCollectionListener(false);
 				Collection<?> items = (Collection<?>) getDirty();
 				if (items == null) {
 					items = new LinkedHashSet<>();
 					fieldHandle.getSetter().invoke(items);
-				} else if (!items.isEmpty()) {
-//					useObservable = true;
-//					for (final Object item : items) {
-//						updateCollectionItemBean(++i, item, null);
-//					}
 				}
 				syncCollectionValues(items, false);
 			} else if (isMap()) {
@@ -1187,30 +1178,11 @@ public class BeanPathAdapter<B> {
 				if (items == null) {
 					items = new HashMap<>();
 					fieldHandle.getSetter().invoke(items);
-				} else if (!items.isEmpty()) {
-//					useObservable = true;
-//					for (final Map.Entry<?, ?> item : items.entrySet()) {
-//						updateCollectionItemBean(++i, item.getValue(), null);
-//					}
 				}
 				syncCollectionValues(items, false);
 			} else {
 				return;
 			}
-//			if (useObservable) {
-//				i = -1;
-//				if (this.collectionObservable.get() instanceof Collection) {
-//					Collection<?> items = (Collection<?>) this.collectionObservable.get();
-//					for (final Object item : items) {
-//						updateCollectionItemBean(++i, item, null);
-//					}
-//				} else if (this.collectionObservable.get() instanceof Map) {
-//					Map<?, ?> items = (Map<?, ?>) this.collectionObservable.get();
-//					for (final Map.Entry<?, ?> item : items.entrySet()) {
-//						updateCollectionItemBean(++i, item, null);
-//					}
-//				}
-//			}
 			addRemoveCollectionListener(true);
 		}
 
@@ -1240,7 +1212,7 @@ public class BeanPathAdapter<B> {
 				// TODO : Use a more elegant technique to synchronize the
 				// observable
 				// and the bean collections that doesn't require clearing and
-				// resetting them (see commented onChange methods from revision
+				// resetting them? (see commented onChange methods from revision
 				// 204)
 				FieldProperty<?, ?> fp;
 				Object fpv;
@@ -1258,11 +1230,13 @@ public class BeanPathAdapter<B> {
 					if (Collection.class.isAssignableFrom(values.getClass())) {
 						if (toField) {
 							final Collection<Object> col = (Collection<Object>) values;
-							col.clear();
+							final List<Object> nc = new ArrayList<>();
 							for (final Object item : oc) {
 								fpv = updateCollectionItemProperty(++i, item);
-								col.add(fpv);
+								nc.add(fpv);
 							}
+							col.clear();
+							col.addAll(nc);
 						} else {
 							for (final Object item : (Collection<?>) values) {
 								fp = updateCollectionItemBean(++i, item, null);
@@ -1287,12 +1261,14 @@ public class BeanPathAdapter<B> {
 						}
 					} else if (Map.class.isAssignableFrom(values.getClass())) {
 						if (toField) {
-							final Map<Integer, Object> map = (Map<Integer, Object>) values;
-							map.clear();
+							final Map<Object, Object> map = (Map<Object, Object>) values;
+							final Map<Object, Object> nc = new HashMap<>();
 							for (final Object item : oc) {
 								fpv = updateCollectionItemProperty(++i, item);
-								map.put(i, fpv);
+								nc.put(i, fpv);
 							}
+							map.clear();
+							map.putAll(nc);
 						} else {
 							for (final Object item : ((Map<?, ?>) values)
 									.values()) {
@@ -1326,13 +1302,15 @@ public class BeanPathAdapter<B> {
 					if (Collection.class.isAssignableFrom(values.getClass())) {
 						if (toField) {
 							final Collection<Object> col = (Collection<Object>) values;
-							col.clear();
+							final List<Object> nc = new ArrayList<>();
 							for (final Map.Entry<Object, Object> item : oc
 									.entrySet()) {
 								fpv = updateCollectionItemProperty(++i,
 										item.getValue());
-								col.add(fpv);
+								nc.add(fpv);
 							}
+							col.clear();
+							col.addAll(nc);
 						} else {
 							for (final Object item : (Collection<?>) values) {
 								fp = updateCollectionItemBean(++i, item, null);
@@ -1355,13 +1333,15 @@ public class BeanPathAdapter<B> {
 					} else if (Map.class.isAssignableFrom(values.getClass())) {
 						final Map<Object, Object> map = (Map<Object, Object>) values;
 						if (toField) {
-							map.clear();
+							final Map<Object, Object> nc = new HashMap<>();
 							for (final Map.Entry<Object, Object> item : oc
 									.entrySet()) {
 								fpv = updateCollectionItemProperty(++i,
 										item.getValue());
-								map.put(i, fpv);
+								nc.put(i, fpv);
 							}
+							map.clear();
+							map.putAll(nc);
 						} else {
 							for (final Map.Entry<Object, Object> item : map
 									.entrySet()) {
@@ -1391,7 +1371,8 @@ public class BeanPathAdapter<B> {
 
 		/**
 		 * Creates/Updates a collection item value of the
-		 * {@linkplain FieldProperty}
+		 * {@linkplain FieldProperty} for the
+		 * {@linkplain #getCollectionItemPath()}
 		 * 
 		 * @param index
 		 *            the index of the collection item to update
@@ -1413,12 +1394,8 @@ public class BeanPathAdapter<B> {
 				final int index, final Object itemBeanValue,
 				final Object itemBeanPropertyValue) {
 			try {
-				// TODO : May want to associate "selection" items
-				// with the related "items" they are referencing so the
-				// "selection" items are the same instances of the "items" they
-				// are
-				// referencing (currently they are separate instances, but with
-				// the same values)?
+				// simple collection items that do not have a path do not
+				// require an update
 				if (collectionItemPath == null || collectionItemPath.isEmpty()) {
 					return null;
 				} else if (itemBeanValue == null
@@ -1426,46 +1403,27 @@ public class BeanPathAdapter<B> {
 					throw new NullPointerException(
 							"Both itemBeanValue and itemBeanPropertyValue cannot be null");
 				}
+				// TODO : Prevent unneeded instantiation of beans when checking
+				// for existing references 
 				Object value = itemBeanPropertyValue;
 				Object bean = itemBeanValue == null ? collectionType
 						.newInstance() : itemBeanValue;
-//				if (vhc != null) {
-//					if (itemMaster != null) {
-//						Object im = itemMaster.getDirty();
-//						int i = -1;
-//						FieldProperty<?, ?> imfp;
-//						if (Collection.class.isAssignableFrom(im.getClass())) {
-//							for (final Object ib : (Collection<?>) im) {
-//								imfp = itemMaster.updateCollectionItemBean(++i, ib, null);
-//								
-//								//if (imfp.getBean().equals(obj))
-//							}
-//						} else if (Map.class.isAssignableFrom(im.getClass())) {
-//							
-//						}
-//					} else if (collectionHash.containsKey(vhc)) {
-//						bean = collectionHash.get(vhc);
-//					} else {
-//						if (bean == null) {
-//							bean = collectionType.newInstance();
-//						}
-//						collectionHash.put(vhc, bean);
-//					}
-//				}
-				FieldProperty<?, ?> fp = getCollectionFieldProperty(bean);
+				FieldProperty<?, ?> fp = genCollectionFieldProperty(bean);
 				if (value != null) {
 					fp.setDirty(value);
 				} else {
 					value = fp.getDirty();
 				}
 				if (itemBeanPropertyValue != null) {
-					// ensure that any selection values come from the item master 
+					// ensure that any selection values come from the item
+					// master and any updates to an existing bean return a field
+					// property of the same bean reference/target
 					Object im = itemMaster != null ? itemMaster.getDirty()
 							: getDirty();
 					FieldProperty<?, ?> imfp;
 					if (Collection.class.isAssignableFrom(im.getClass())) {
 						for (final Object ib : (Collection<?>) im) {
-							imfp = getCollectionFieldProperty(ib);
+							imfp = genCollectionFieldProperty(ib);
 							if (imfp.getDirty() == value) {
 								return imfp;
 							}
@@ -1473,7 +1431,7 @@ public class BeanPathAdapter<B> {
 					} else if (Map.class.isAssignableFrom(im.getClass())) {
 						for (final Map.Entry<?, ?> ib : ((Map<?, ?>) im)
 								.entrySet()) {
-							imfp = getCollectionFieldProperty(ib.getValue());
+							imfp = genCollectionFieldProperty(ib.getValue());
 							if (imfp.getDirty() == value) {
 								return imfp;
 							}
@@ -1488,7 +1446,19 @@ public class BeanPathAdapter<B> {
 			}
 		}
 
-		protected FieldProperty<?, ?> getCollectionFieldProperty(final Object bean) {
+		/**
+		 * Generates a {@linkplain FieldProperty} for a
+		 * {@linkplain #getCollectionItemPath()} (and
+		 * {@linkplain #getCollectionSelectionModel()} when applicable)
+		 * 
+		 * @see FieldBean#performOperation(String, ObservableList, Class,
+		 *      String, Class, SelectionModel, FieldProperty,
+		 *      FieldBeanOperation)
+		 * @param bean
+		 *            the bean to generate a {@linkplain FieldProperty}
+		 * @return the generated {@linkplain FieldProperty}
+		 */
+		protected FieldProperty<?, ?> genCollectionFieldProperty(final Object bean) {
 			FieldBean<Void, Object> fb;
 			FieldProperty<?, ?> fp;
 			fb = new FieldBean<>(null, bean, null);
@@ -1751,6 +1721,16 @@ public class BeanPathAdapter<B> {
 		 */
 		public String getCollectionItemPath() {
 			return this.collectionItemPath;
+		}
+
+		/**
+		 * @return a {@linkplain SelectionModel} for the
+		 *         {@linkplain FieldProperty} when the field references a
+		 *         collection/map for item selection or {@code null} when not a
+		 *         selection {@linkplain FieldProperty}
+		 */
+		public SelectionModel<Object> getCollectionSelectionModel() {
+			return collectionSelectionModel;
 		}
 
 		/**
