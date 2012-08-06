@@ -4,9 +4,12 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
+import org.ugate.gui.components.FunctionButton;
 import org.ugate.gui.components.UGateCtrlView;
 import org.ugate.resources.RS;
 import org.ugate.service.ActorType;
@@ -29,14 +33,15 @@ public class EmailHostConnectionView extends StatusView {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(EmailHostConnectionView.class);
-	public final UGateCtrlView<Actor, Void> smtpHost;
-	public final UGateCtrlView<Actor, Void> smtpPort;
-	public final UGateCtrlView<Actor, Void> imapHost;
-	public final UGateCtrlView<Actor, Void> imapPort;
-	public final UGateCtrlView<Actor, Void> username;
-	public final UGateCtrlView<Actor, Void> password;
-	public final UGateCtrlView<Actor, Void> inboxFolder;
-	public final UGateCtrlView<Actor, MailRecipient> recipients;
+	public final UGateCtrlView<Actor, Void, Void> smtpHost;
+	public final UGateCtrlView<Actor, Void, Void> smtpPort;
+	public final UGateCtrlView<Actor, Void, Void> imapHost;
+	public final UGateCtrlView<Actor, Void, Void> imapPort;
+	public final UGateCtrlView<Actor, Void, Void> username;
+	public final UGateCtrlView<Actor, Void, Void> password;
+	public final UGateCtrlView<Actor, Void, Void> inboxFolder;
+	public final TextField recipient;
+	public final UGateCtrlView<Actor, MailRecipient, String> recipients;
 	public final Button connect;
 
 	public EmailHostConnectionView(final ControlBar controlBar) {
@@ -77,10 +82,45 @@ public class EmailHostConnectionView extends StatusView {
 				RS.rbLabel("mail.folder"), null);
 		controlBar.addHelpTextTrigger(inboxFolder,
 				RS.rbLabel("mail.folder.desc"));
+		recipient = new TextField();
+		HBox.setHgrow(recipient, Priority.ALWAYS);
+		recipient.setPromptText(RS.rbLabel("mail.alarm.notify.emails.add.desc"));
+		final FunctionButton recipientAdd = new FunctionButton(FunctionButton.Function.ADD, 
+				new Runnable() {
+					@Override
+					public void run() {
+						if (recipient.getText().isEmpty()) {
+							return;
+						}
+						recipients.getListView().getItems().add(recipient.getText());
+						ServiceManager.IMPL.getCredentialService().mergeHost(
+								cb.getActor().getHost());
+					}
+				});
+		controlBar.addHelpTextTrigger(recipientAdd,
+				RS.rbLabel("mail.alarm.notify.emails.add"));
+		final FunctionButton recipientRem = new FunctionButton(FunctionButton.Function.REMOVE, 
+				new Runnable() {
+					@Override
+					public void run() {
+						if (recipients.getListView().getSelectionModel()
+								.getSelectedItems().isEmpty()) {
+							return;
+						}
+						recipients.getListView().getItems().removeAll(
+								recipients.getListView().getSelectionModel().getSelectedItems());
+						ServiceManager.IMPL.getCredentialService().mergeHost(
+								cb.getActor().getHost());
+					}
+				});
+		controlBar.addHelpTextTrigger(recipientRem,
+				RS.rbLabel("mail.alarm.notify.emails.remove"));
+		final HBox recipientFuncBox = new HBox(5);
+		recipientFuncBox.getChildren().addAll(recipient, recipientAdd, recipientRem);
 		recipients = new UGateCtrlView<>(controlBar.getActorPA(),
 				ActorType.MAIL_RECIPIENTS, MailRecipientType.EMAIL,
 				MailRecipient.class, RS.rbLabel("mail.alarm.notify.emails"),
-				null, 100d, "", new MailRecipient[] {});
+				null, 100d, "", new String[] {}, String.class);
 		controlBar.addHelpTextTrigger(recipients,
 				RS.rbLabel("mail.alarm.notify.emails.desc"));
 
@@ -150,6 +190,7 @@ public class EmailHostConnectionView extends StatusView {
 		connectionGrid.add(password, 1, 2);
 		connectionGrid.add(inboxFolder, 0, 3, 2, 1);
 		connectionGrid.add(recipients, 0, 4, 2, 1);
+		connectionGrid.add(recipientFuncBox, 0, 5, 2, 1);
 
 		grid.add(toggleView, 0, 0);
 		grid.add(connectionGrid, 1, 0);

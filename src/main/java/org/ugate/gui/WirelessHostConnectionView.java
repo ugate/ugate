@@ -27,7 +27,7 @@ public class WirelessHostConnectionView extends StatusView {
 	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
 	public final UGateComboBox<String> port;
 	public final UGateComboBox<Integer> baud;
-	public final UGateCtrlView<Actor, Void> hostAddress;
+	public final UGateCtrlView<Actor, Void, Void> hostAddress;
 	public final Button connect;
 
 	/**

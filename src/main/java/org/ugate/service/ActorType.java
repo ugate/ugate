@@ -1,7 +1,6 @@
 package org.ugate.service;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
@@ -86,7 +85,7 @@ public enum ActorType implements IModelType<Actor> {
 	 */
 	public static Host newDefaultHost() {
 		final Host host = new Host();
-		final Set<MailRecipient> mailRecipients = new HashSet<MailRecipient>();
+		final LinkedHashSet<MailRecipient> mailRecipients = new LinkedHashSet<>();
 		final MailRecipient mr1 = new MailRecipient();
 		mr1.setEmail("user1@example.com");
 		mailRecipients.add(mr1);

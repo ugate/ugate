@@ -1,5 +1,6 @@
 package org.ugate.service.entity.jpa;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.persistence.Basic;
@@ -15,6 +16,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
@@ -101,7 +103,8 @@ public class Host implements Model {
 			@JoinColumn(name="MAIL_RECIPIENT_ID", nullable=false)
 			}
 		)
-	private Set<MailRecipient> mailRecipients;
+    @OrderBy("email")
+	private LinkedHashSet<MailRecipient> mailRecipients;
     
 	//bi-directional many-to-one association to RemoteNode
 	@OneToMany(mappedBy="host")
@@ -214,11 +217,11 @@ public class Host implements Model {
 		this.actors = actors;
 	}
 
-	public Set<MailRecipient> getMailRecipients() {
+	public LinkedHashSet<MailRecipient> getMailRecipients() {
 		return mailRecipients;
 	}
 
-	public void setMailRecipients(Set<MailRecipient> mailRecipients) {
+	public void setMailRecipients(LinkedHashSet<MailRecipient> mailRecipients) {
 		this.mailRecipients = mailRecipients;
 	}
 

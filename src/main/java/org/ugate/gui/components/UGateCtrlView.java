@@ -24,16 +24,26 @@ import org.ugate.gui.GuiUtil;
 import org.ugate.service.IModelType;
 
 /**
- * Wrapper for label and text/password/text area/numeric stepper controls
+ * Wrapper for a {@linkplain Label} and {@linkplain TextField},
+ * {@linkplain PasswordField}, {@linkplain TextArea}, or numeric stepper
+ * {@linkplain Digits}
+ * 
+ * @param <T>
+ *            the bean {@linkplain IModelType}
+ * @param <IT>
+ *            the item {@linkplain IModelType} for the items of the bean (if
+ *            used)
+ * @param <IVT>
+ *            the item type used in the {@linkplain ListView} (if used)
  */
-public class UGateCtrlView<T, IT> extends VBox {
+public class UGateCtrlView<T, IT, IVT> extends VBox {
 
 	public final Label label;
 	private final TextField textField;
 	private final TextArea textArea;
 	private final PasswordField passwordField;
 	private final Digits numericStepperDigits;
-	private final ListView<IT> listView;
+	private final ListView<IVT> listView;
 	public final Type type;
 	private final ReadOnlyObjectWrapper<Object> valuePropertyWrapper = new ReadOnlyObjectWrapper<Object>();
 	protected static final double NUMERIC_STEPPER_WIDTH = 30d;
@@ -64,7 +74,7 @@ public class UGateCtrlView<T, IT> extends VBox {
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final String toolTip) {
 		this(beanPathAdapter, modelKey, null, null, type, null, null, null,
-				null, labelText, null, null, toolTip, null);
+				null, labelText, null, null, toolTip, null, null);
 	}
 
 	/**
@@ -90,7 +100,7 @@ public class UGateCtrlView<T, IT> extends VBox {
 			final String labelText, final Number width, final Number height,
 			final String toolTip) {
 		this(beanPathAdapter, modelKey, null, null, type, null, null, null,
-				null, labelText, width, height, toolTip, null);
+				null, labelText, width, height, toolTip, null, null);
 	}
 
 	/**
@@ -119,7 +129,7 @@ public class UGateCtrlView<T, IT> extends VBox {
 			final Number maxValue, final String labelText, final String toolTip) {
 		this(beanPathAdapter, modelKey, null, null, Type.TYPE_NUMERIC_STEPPER,
 				numericStepperFormat, numericStepperColor, minValue, maxValue,
-				labelText, null, null, toolTip, null);
+				labelText, null, null, toolTip, null, null);
 	}
 
 	/**
@@ -131,9 +141,10 @@ public class UGateCtrlView<T, IT> extends VBox {
 	 *            the {@linkplain IModelType} for the data of the control
 	 * @param modelItemKey
 	 *            the {@linkplain IModelType} for each item within the
-	 *            collection/map of the data used for the control
+	 *            collection/map
 	 * @param modelItemClassType
-	 *            the {@linkplain Class} type of the {@linkplain IModelType}
+	 *            the {@linkplain Class} type of the object that represents the
+	 *            {@linkplain IModelType}
 	 * @param labelText
 	 *            the label text
 	 * @param width
@@ -147,15 +158,18 @@ public class UGateCtrlView<T, IT> extends VBox {
 	 * @param items
 	 *            the items added to
 	 *            {@linkplain ListView#setItems(ObservableList)}
+	 * @param itemValueType
+	 *            the type of items in the
+	 *            {@linkplain ListView#getItems()}
 	 */
 	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final IModelType<IT> modelItemKey,
 			final Class<IT> modelItemClassType, final String labelText,
 			final Number width, final Number height, final String toolTip,
-			final IT[] items) {
+			final IVT[] items, final Class<IVT> itemValueType) {
 		this(beanPathAdapter, modelKey, modelItemKey, modelItemClassType,
 				Type.TYPE_LIST_VIEW, null, null, null, null, labelText, width,
-				height, toolTip, items);
+				height, toolTip, items, itemValueType);
 	}
 
 	/**
@@ -167,9 +181,10 @@ public class UGateCtrlView<T, IT> extends VBox {
 	 *            the {@linkplain IModelType} for the data of the control
 	 * @param modelItemKey
 	 *            the {@linkplain IModelType} for each item within the
-	 *            collection/map of the data used for the control
+	 *            collection/map
 	 * @param modelItemClassType
-	 *            the {@linkplain Class} type of the {@linkplain IModelType}
+	 *            the {@linkplain Class} type of the object that represents the
+	 *            {@linkplain IModelType}
 	 * @param type
 	 *            the {@linkplain UGateCtrlView.Type}
 	 * @param numericStepperFormat
@@ -194,15 +209,18 @@ public class UGateCtrlView<T, IT> extends VBox {
 	 * @param items
 	 *            the items added to
 	 *            {@linkplain ListView#setItems(ObservableList)}
+	 * @param itemValueType
+	 *            the type of items in the
+	 *            {@linkplain ListView#getItems()}
 	 */
 	protected UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
-			final IModelType<T> modelKey,
-			final IModelType<IT> modelItemKey,
+			final IModelType<T> modelKey, final IModelType<IT> modelItemKey,
 			final Class<IT> modelItemClassType, final Type type,
 			final String numericStepperFormat, final Color numericStepperColor,
 			final Number minValue, final Number maxValue,
 			final String labelText, final Number width, final Number height,
-			final String toolTip, final IT[] items) {
+			final String toolTip, final IVT[] items,
+			final Class<IVT> itemValueType) {
 		super();
 		this.beanPathAdapter = beanPathAdapter;
 		this.modelKey = modelKey;
@@ -299,7 +317,7 @@ public class UGateCtrlView<T, IT> extends VBox {
 					.getKey(),
 					this.modelItemKey != null ? this.modelItemKey.getKey()
 							: null, modelItemClassType, listView.getItems(),
-					modelItemClassType, null);
+					itemValueType, null, null);
 		} else {
 			textArea = null;
 			passwordField = null;
@@ -472,7 +490,7 @@ public class UGateCtrlView<T, IT> extends VBox {
 		} else if (type == Type.TYPE_NUMERIC_STEPPER) {
 			setNumericStepperValue(value);
 		} else if (type == Type.TYPE_LIST_VIEW) {
-			listView.setItems((ObservableList<IT>) value);
+			listView.setItems((ObservableList<IVT>) value);
 			valuePropertyWrapper.set(listView.getItems());
 		} else {
 			textField.setText(value == null ? "" : value.toString());
@@ -542,6 +560,12 @@ public class UGateCtrlView<T, IT> extends VBox {
 		return numericStepperDigits;
 	}
 
+	/**
+	 * @return the listView
+	 */
+	public ListView<IVT> getListView() {
+		return listView;
+	}
 	/**
 	 * The type of text control
 	 */
