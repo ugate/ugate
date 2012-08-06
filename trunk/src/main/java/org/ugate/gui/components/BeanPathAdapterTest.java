@@ -63,8 +63,11 @@ public class BeanPathAdapterTest extends Application {
 	private static final Set<Hobby> HOBBY_ALL = new LinkedHashSet<>(3);
 	static {
 		HOBBY1.setName("Hobby 1");
+		HOBBY1.setDescription("Hobby Desc 1");
 		HOBBY2.setName("Hobby 2");
+		HOBBY2.setDescription("Hobby Desc 2");
 		HOBBY3.setName("Hobby 3");
+		HOBBY3.setDescription("Hobby Desc 3");
 		HOBBY_ALL.add(HOBBY1);
 		HOBBY_ALL.add(HOBBY2);
 		HOBBY_ALL.add(HOBBY3);
@@ -287,7 +290,8 @@ public class BeanPathAdapterTest extends Application {
 		String s = "[";
 		for (Hobby h : hobbies) {
 			s += '{' + Hobby.class.getSimpleName() + ": name=" + h.getName()
-					+ '}';
+					+ ", desc=" + h.getDescription() + ", hashCode="
+					+ h.hashCode() + '}';
 		}
 		return s += "]";
 	}
@@ -333,7 +337,7 @@ public class BeanPathAdapterTest extends Application {
 			ListView<T> lv = new ListView<>(
 					FXCollections.observableArrayList(choices));
 			lv.setEditable(true);
-			//lv.setCellFactory()
+			// lv.setCellFactory()
 			lv.getSelectionModel().getSelectedItems()
 					.addListener(new ListChangeListener<T>() {
 						@Override
@@ -358,7 +362,7 @@ public class BeanPathAdapterTest extends Application {
 			// ObservableList<T> of lv.getItems() we need
 			// to also pass in the choice class)
 			personPA.bindContentBidirectional(path, itemPath, itemType,
-					lv.getItems(), (Class<T>) choices[0].getClass(), null);
+					lv.getItems(), (Class<T>) choices[0].getClass(), null, null);
 			if (selectionPath != null && !selectionPath.isEmpty()) {
 				// POJO binding magic (due to erasure of T in
 				// ReadOnlyUnbackedObservableList<T> of
@@ -369,7 +373,7 @@ public class BeanPathAdapterTest extends Application {
 				personPA.bindContentBidirectional(selectionPath, itemPath,
 						itemType, lv.getSelectionModel().getSelectedItems(),
 						(Class<T>) choices[0].getClass(),
-						lv.getSelectionModel());
+						lv.getSelectionModel(), path);
 			}
 			// personPA.bindBidirectional(path, lv.itemsProperty(),
 			// (Class<T>) choices[0].getClass());
