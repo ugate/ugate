@@ -8,7 +8,7 @@
 			<attribute name="javadoc_location" value="file:/C:/java/fx/docs/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/openjpa/openjpa-all/2.2.0/openjpa-all-2.2.0.jar" sourcepath="C:/java/maven/repository/org/apache/openjpa/openjpa-kernel/2.2.0/openjpa-kernel-2.2.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/openjpa/openjpa-all/2.2.0/openjpa-all-2.2.0.jar" sourcepath="C:/java/maven/repository/org/apache/openjpa/openjpa-all/2.2.0/openjpa-all-2.2.0-sources.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/slf4j/log4j-over-slf4j/1.6.4/log4j-over-slf4j-1.6.4.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/ch/qos/logback/logback-classic/0.9.30/logback-classic-0.9.30.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/ch/qos/logback/logback-core/0.9.30/logback-core-0.9.30.jar"/>

@@ -1,5 +1,7 @@
 package org.ugate.gui;
 
+import java.util.Arrays;
+
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -92,9 +94,18 @@ public class EmailHostConnectionView extends StatusView {
 						if (recipient.getText().isEmpty()) {
 							return;
 						}
-						recipients.getListView().getItems().add(recipient.getText());
-						ServiceManager.IMPL.getCredentialService().mergeHost(
-								cb.getActor().getHost());
+						final String raddy = recipient.getText();
+						recipients.getListView().getItems().add(raddy);
+						try {
+							ServiceManager.IMPL.getCredentialService().mergeHost(
+									cb.getActor().getHost());
+						} catch (final Throwable t) {
+							log.info(String.format(
+									"Unable to add mail recipient \"%1$s\" in host with ID = %2$s",
+									raddy, cb.getActor().getHost().getId()), t);
+							controlBar.setHelpText(RS.rbLabel("mail.alarm.notify.emails.add.failed"));
+							recipients.getListView().getItems().remove(raddy);
+						}
 					}
 				});
 		controlBar.addHelpTextTrigger(recipientAdd,
@@ -107,10 +118,24 @@ public class EmailHostConnectionView extends StatusView {
 								.getSelectedItems().isEmpty()) {
 							return;
 						}
-						recipients.getListView().getItems().removeAll(
-								recipients.getListView().getSelectionModel().getSelectedItems());
-						ServiceManager.IMPL.getCredentialService().mergeHost(
-								cb.getActor().getHost());
+						final MailRecipient[] ms = cb.getActor().getHost()
+								.getMailRecipients()
+								.toArray(new MailRecipient[] {});
+						final java.util.List<String> rmaddys = recipients.getListView()
+								.getSelectionModel().getSelectedItems().subList(0, recipients.getListView()
+										.getSelectionModel().getSelectedItems().size());
+						recipients.getListView().getItems().removeAll(rmaddys);
+						try {
+							ServiceManager.IMPL.getCredentialService().mergeHost(
+									cb.getActor().getHost());
+						} catch (final Throwable t) {
+							log.info(String.format(
+									"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
+									rmaddys, cb.getActor().getHost().getId()), t);
+							controlBar.setHelpText(RS.rbLabel("mail.alarm.notify.emails.add.failed"));
+							cb.getActor().getHost().getMailRecipients().clear();
+							cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));
+						}
 					}
 				});
 		controlBar.addHelpTextTrigger(recipientRem,

@@ -19,10 +19,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.ugate.service.entity.Email;
 import org.ugate.service.entity.Model;
 
 
@@ -45,7 +46,7 @@ public class Host implements Model {
 	private String comAddress;
 
 	@Column(name="COM_BAUD")
-	@Digits(integer=6, fraction=0)
+	@Digits(integer=6, fraction=0, message="valid.com.digits")
 	private int comBaud;
 
 	@Column(name="COM_PORT", length=50)
@@ -61,7 +62,7 @@ public class Host implements Model {
 	private String mailInboxName;
 
 	@Column(name="MAIL_PASSWORD", length=100)
-	@Size(min=8, max=30)
+	@Size(min=8, max=30, message="valid.password.length")
 	private String mailPassword;
 
 	@Column(name="MAIL_SMTP_HOST", length=100)
@@ -70,8 +71,8 @@ public class Host implements Model {
 	@Column(name="MAIL_SMTP_PORT")
 	private int mailSmtpPort;
 
+	@Email
 	@Column(name="MAIL_USER_NAME", length=100)
-	@Pattern(regexp = "^[\\w\\-]([\\.\\w])+[\\w]+@([\\w\\-]+\\.)+[a-zA-Z]{2,4}$", message="Invalid email")
 	private String mailUserName;
 
 	@Column(name="USE_METRIC", nullable=false)
@@ -93,7 +94,7 @@ public class Host implements Model {
 	private Set<Actor> actors;
 	
 	//bi-directional many-to-many association to Role
-    @ManyToMany(fetch=FetchType.EAGER, cascade={CascadeType.ALL})
+    @ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinTable(
 		name="HOST_MAIL_RECIPIENT"
 		, joinColumns={
@@ -101,6 +102,9 @@ public class Host implements Model {
 			}
 		, inverseJoinColumns={
 			@JoinColumn(name="MAIL_RECIPIENT_ID", nullable=false)
+			}
+		, uniqueConstraints={
+			@UniqueConstraint(columnNames = {"HOST_ID", "MAIL_RECIPIENT_ID"})
 			}
 		)
     @OrderBy("email")

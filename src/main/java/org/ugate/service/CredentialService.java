@@ -199,6 +199,17 @@ public class CredentialService {
 	}
 
 	/**
+	 * Merges the {@linkplain Actor}
+	 * 
+	 * @param actor
+	 *            the {@linkplain Actor} to merge
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void mergeActor(final Actor actor) {
+		credentialDao.mergeEntity(actor);
+	}
+	
+	/**
 	 * Merges the {@linkplain Host}
 	 * 
 	 * @param host
