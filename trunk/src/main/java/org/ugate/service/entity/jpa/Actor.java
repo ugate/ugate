@@ -41,7 +41,7 @@ public class Actor implements Model {
 	private String pwd;
 	
 	//bi-directional many-to-one association to Host
-    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.PERSIST)
+    @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name="HOST_ID", nullable=false)
 	private Host host;
 
