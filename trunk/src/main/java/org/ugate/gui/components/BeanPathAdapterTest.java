@@ -16,6 +16,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -119,6 +120,17 @@ public class BeanPathAdapterTest extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle(BeanPathAdapter.class.getSimpleName() + " TEST");
+		primaryStage.setOnShowing(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) {
+				dumpPojo(personPA);
+			}
+		});
+		primaryStage.setScene(new Scene(createRoot()));
+		primaryStage.show();
+	}
+
+	public Parent createRoot() {
 		pojoTA.setFocusTraversable(false);
 		pojoTA.setWrapText(true);
 		pojoTA.setEditable(false);
@@ -193,14 +205,7 @@ public class BeanPathAdapterTest extends Application {
 		pojoSplit.getItems().addAll(beanPane, pojoBox);
 		VBox beanBox = new VBox(10);
 		beanBox.getChildren().addAll(toolBar, pojoSplit);
-		primaryStage.setOnShowing(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent event) {
-				dumpPojo(personPA);
-			}
-		});
-		primaryStage.setScene(new Scene(beanBox));
-		primaryStage.show();
+		return beanBox;
 	}
 
 	public VBox updateListView(HBox langBox, String label) {

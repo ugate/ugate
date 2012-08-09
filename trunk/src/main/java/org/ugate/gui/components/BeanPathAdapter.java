@@ -51,23 +51,186 @@ import javafx.util.StringConverter;
  * sub-beans in the path(s) provided as long as they contain a no-argument
  * constructor they will be instantiated as path(s) are traversed.
  * 
- * <p>
- * For example, assume there is a <code>Person</code> class that has a field for
- * an <code>Address</code> class which in turn has a field for a
- * <code>city</code>.
- * <p>
- * If the <code>city</code> field needs to be bound to a JavaFX control
- * {@linkplain Property} for UI updates/viewing it can be accomplished in the
- * following manner:
- * </p>
- * <p>
- * <code>TextField tf = new TextField();<br/>
- * Person person = new Person();<br/>
- * BeanPathAdapter<Person> pbpa = new BeanPathAdapter<Person>(person);<br/> 
- * pbpa.bindBidirectional("address.city", tf.textProperty());<br/> 
- * </code>
- * </p>
- * </p>
+ * <h3>Examples:</h3>
+ * <ol>
+ * <li>
+ * <b>Binding bean fields to multiple JavaFX control properties of different
+ * types:</b>
+ * 
+ * <pre>
+ * // Assuming &quot;age&quot; is a double field in person we can bind it to a
+ * // Slider#valueProperty() of type double, but we can also bind it
+ * // to a TextField#valueProperty() of type String.
+ * Person person = new Person();
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * Slider sl = new Slider();
+ * TextField tf = new TextField();
+ * personPA.bindBidirectional(&quot;age&quot;, sl.valueProperty());
+ * personPA.bindBidirectional(&quot;age&quot;, tf.valueProperty());
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding beans within beans:</b>
+ * 
+ * <pre>
+ * // Binding a bean (Person) field called &quot;address&quot; that contains another
+ * // bean (Address) that also contains a field called &quot;location&quot; with a
+ * // bean (Location) field of &quot;state&quot; (the chain can be virtually endless
+ * // with all beans being instantiated along the way when null).
+ * Person person = new Person();
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * TextField tf = new TextField();
+ * personPA.bindBidirectional(&quot;address.location.state&quot;, tf.valueProperty());
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding collections/maps fields to/from observable collections/maps (i.e.
+ * items in a JavaFX control):</b>
+ * 
+ * <pre>
+ * // Assuming &quot;allLanguages&quot; is a collection/map field in person we can
+ * // bind it to a JavaFX observable collection/map
+ * Person person = new Person();
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * ListView&lt;String&gt; lv = new ListView&lt;&gt;();
+ * personPA.bindContentBidirectional(&quot;allLanguages&quot;, null, String.class,
+ * 		lv.getItems(), String.class, null, null);
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding collections/maps fields to/from observable collections/maps
+ * selections (i.e. selections in a JavaFX control):</b>
+ * 
+ * <pre>
+ * // Assuming &quot;languages&quot; is a collection/map field in person we can
+ * // bind it to a JavaFX observable collection/map selections
+ * Person person = new Person();
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * ListView&lt;String&gt; lv = new ListView&lt;&gt;();
+ * personPA.bindContentBidirectional(&quot;languages&quot;, null, String.class, lv
+ * 		.getSelectionModel().getSelectedItems(), String.class, lv
+ * 		.getSelectionModel(), null);
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding collection/map fields to/from observable collections/maps
+ * selections using an items from another observable collection/map as a
+ * reference (i.e. selections in a JavaFX control that contain the same
+ * instances as what are in the items being selected from):</b>
+ * 
+ * <pre>
+ * // Assuming &quot;languages&quot; and &quot;allLanguages&quot; are a collection/map
+ * // fields in person we can bind &quot;languages&quot; to selections made from
+ * // the items in &quot;allLanguages&quot; to a JavaFX observable collection/map
+ * // selection Person person = new Person();
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * ListView&lt;String&gt; lv = new ListView&lt;&gt;();
+ * personPA.bindContentBidirectional(&quot;languages&quot;, null, String.class, lv
+ * 		.getSelectionModel().getSelectedItems(), String.class, lv
+ * 		.getSelectionModel(), &quot;allLanguages&quot;);
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding complex bean collection/map fields to/from observable
+ * collections/maps selections and items (i.e. selections in a JavaFX control
+ * that contain the same bean instances as what are in the items being
+ * selected):</b>
+ * 
+ * <pre>
+ * // Assuming "hobbies" and
+ * "allHobbies" are a collection/map // fields in person and each element within
+ * them contain an // instance of Hobby that has it's own field called "name" //
+ * we can bind "allHobbies" and "hobbies" to the Hobby "name"s // for each Hobby
+ * in the items/selections (respectively) to/from // a ListView wich will only
+ * contain the String name of each Hobby // as it's items and selections Person
+ * person = new Person(); BeanPathAdapter<Person> personPA = new
+ * BeanPathAdapter<>(person); ListView<String> lv = new ListView<>(); 
+ * // bind items 
+ * personPA.bindContentBidirectional("allHobbies", "name", Hobby.class,
+ * 		lv.getItems(), String.class, null, null);
+ * // bind selections that reference the same instances within the items
+ * personPA.bindContentBidirectional("languages", "name", Hobby.class,
+ * 		lv.getSelectionModel().getSelectedItems(), String.class,
+ * 		lv.getSelectionModel(), "allHobbiess");
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding bean collection/map fields to/from multiple JavaFX control
+ * observable collections/maps of the same type (via bean collection/map):</b>
+ * 
+ * <pre>
+ * Person person = new Person();
+ * Hobby hobby1 = new Hobby();
+ * hobby1.setName(&quot;Hobby 1&quot;);
+ * Hobby hobby2 = new Hobby();
+ * hobby2.setName(&quot;Hobby 2&quot;);
+ * person.setAllHobbies(new LinkedHashSet&lt;Hobby&gt;());
+ * person.getAllHobbies().add(hobby1);
+ * person.getAllHobbies().add(hobby2);
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * ListView&lt;String&gt; lv = new ListView&lt;&gt;();
+ * personPA.bindContentBidirectional(&quot;allHobbies&quot;, &quot;name&quot;, Hobby.class,
+ * 		lv.getItems(), String.class, null, null);
+ * ListView&lt;String&gt; lv2 = new ListView&lt;&gt;();
+ * personPA.bindContentBidirectional(&quot;allHobbies&quot;, &quot;name&quot;, Hobby.class,
+ * 		lv2.getItems(), String.class, null, null);
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Binding bean collection/map fields to/from multiple JavaFX control
+ * observable collections/maps of the same type (via JavaFX control observable
+ * collection/map):</b>
+ * 
+ * <pre>
+ * // When the bean collection/map field is empty/null and it is
+ * // bound to a non-empty observable collection/map, the values
+ * // of the observable are used to instantiate each item bean
+ * // and set the item value (Hobby#setName in this case)
+ * Person person = new Person();
+ * final ObservableList&lt;String&gt; oc = FXCollections.observableArrayList(&quot;Hobby 1&quot;,
+ * 		&quot;Hobby 2&quot;, &quot;Hobby 3&quot;);
+ * BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * ListView&lt;String&gt; lv = new ListView&lt;&gt;(oc);
+ * personPA.bindContentBidirectional(&quot;allHobbies&quot;, &quot;name&quot;, Hobby.class,
+ * 		lv.getItems(), String.class, null, null);
+ * ListView&lt;String&gt; lv2 = new ListView&lt;&gt;(); // &lt;-- notice that oc is not passed
+ * personPA.bindContentBidirectional(&quot;allHobbies&quot;, &quot;name&quot;, Hobby.class,
+ * 		lv2.getItems(), String.class, null, null);
+ * </pre>
+ * 
+ * </li>
+ * <li>
+ * <b>Switching beans:</b>
+ * 
+ * <pre>
+ * // Assuming &quot;age&quot; is a double field in person...
+ * final Person person1 = new Person();
+ * person1.setAge(1D);
+ * final Person person2 = new Person();
+ * person2.setAge(2D);
+ * final BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person1);
+ * TextField tf = new TextField();
+ * personPA.bindBidirectional(&quot;age&quot;, tf.valueProperty());
+ * Button btn = new Button(&quot;Toggle People&quot;);
+ * btn.setOnMouseClicked(new EventHandler&lt;MouseEvent&gt;() {
+ * 	public void handle(MouseEvent event) {
+ * 		// all bindings will show relevant person data and changes made
+ * 		// to the bound controls will be reflected in the bean that is
+ * 		// set at the time of the change
+ * 		personPA.setBean(personPA.getBean() == person1 ? person2 : person1);
+ * 	}
+ * });
+ * </pre>
+ * 
+ * </li>
+ * </ol>
  * 
  * @see #bindBidirectional(String, Property)
  * @param <B>
@@ -148,22 +311,11 @@ public class BeanPathAdapter<B> {
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
 	 */
-	@SuppressWarnings("unchecked")
 	public <E> void bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableList<E> list, final Class<E> listValueType,
 			final SelectionModel<E> selectionModel,
 			final String selectionModelItemMasterPath) {
-		Class<E> clazz = listValueType;
-		if (clazz == null && !list.isEmpty()) {
-			final E sample = list.iterator().next();
-			clazz = sample != null ? (Class<E>) sample.getClass() : null;
-		}
-		if (clazz == null) {
-			throw new UnsupportedOperationException(String.format(
-					"Unable to determine value class for %1$s "
-							+ "and declared type %2$s", list, listValueType));
-		}
 		FieldProperty<?, ?> itemMaster = null;
 		if (selectionModelItemMasterPath != null
 				&& !selectionModelItemMasterPath.isEmpty()) {
@@ -214,22 +366,11 @@ public class BeanPathAdapter<B> {
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
 	 */
-	@SuppressWarnings("unchecked")
 	public <E> void bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableSet<E> set, final Class<E> setValueType,
 			final SelectionModel<E> selectionModel,
 			final String selectionModelItemMasterPath) {
-		Class<E> clazz = setValueType;
-		if (clazz == null && !set.isEmpty()) {
-			final E sample = set.iterator().next();
-			clazz = sample != null ? (Class<E>) sample.getClass() : null;
-		}
-		if (clazz == null) {
-			throw new UnsupportedOperationException(String.format(
-					"Unable to determine value class for %1$s "
-							+ "and declared type %2$s", set, setValueType));
-		}
 		FieldProperty<?, ?> itemMaster = null;
 		if (selectionModelItemMasterPath != null
 				&& !selectionModelItemMasterPath.isEmpty()) {
@@ -280,22 +421,11 @@ public class BeanPathAdapter<B> {
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
 	 */
-	@SuppressWarnings("unchecked")
 	public <K, V> void bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableMap<K, V> map, final Class<V> mapValueType,
 			final SelectionModel<V> selectionModel,
 			final String selectionModelItemMasterPath) {
-		Class<V> clazz = mapValueType;
-		if (clazz == null && !map.isEmpty()) {
-			final V sample = map.values().iterator().next();
-			clazz = sample != null ? (Class<V>) sample.getClass() : null;
-		}
-		if (clazz == null) {
-			throw new UnsupportedOperationException(String.format(
-					"Unable to determine value class for %1$s "
-							+ "and declared type %2$s", map, mapValueType));
-		}
 		FieldProperty<?, ?> itemMaster = null;
 		if (selectionModelItemMasterPath != null
 				&& !selectionModelItemMasterPath.isEmpty()) {
@@ -312,7 +442,6 @@ public class BeanPathAdapter<B> {
 	/**
 	 * Binds a {@linkplain Property} by traversing the bean's field tree
 	 * 
-	 * @see FieldBean#bidirectionalBindOperation(String, Property, boolean)
 	 * @param fieldPath
 	 *            the <b><code>.</code></b> separated field paths relative to
 	 *            the {@linkplain #getBean()} that will be traversed
@@ -342,7 +471,6 @@ public class BeanPathAdapter<B> {
 	/**
 	 * Unbinds a {@linkplain Property} by traversing the bean's field tree
 	 * 
-	 * @see FieldBean#bidirectionalBindOperation(String, Property, boolean)
 	 * @param fieldPath
 	 *            the <b><code>.</code></b> separated field paths relative to
 	 *            the {@linkplain #getBean()} that will be traversed
@@ -430,7 +558,7 @@ public class BeanPathAdapter<B> {
 	/**
 	 * {@linkplain FieldBean} operations
 	 */
-	static enum FieldBeanOperation {
+	public static enum FieldBeanOperation {
 		BIND, UNBIND, CREATE_OR_FIND;
 	}
 
@@ -438,13 +566,11 @@ public class BeanPathAdapter<B> {
 	 * A POJO bean extension that allows binding based upon a <b><code>.</code>
 	 * </b> separated field path that will be traversed on a bean until the
 	 * final field name is found. Each bean may contain child
-	 * {@linkplain FieldBean}s when
-	 * {@linkplain #bidirectionalBindOperation(String, Property, boolean)} is
-	 * called with a direct descendant field that is a non-primitive type. Any
-	 * primitive types are added as a {@linkplain FieldProperty} reference to
-	 * the {@linkplain FieldBean}.
+	 * {@linkplain FieldBean}s when an operation is perfomed with a direct
+	 * descendant field that is a non-primitive type. Any primitive types are
+	 * added as a {@linkplain FieldProperty} reference to the
+	 * {@linkplain FieldBean}.
 	 * 
-	 * @see #bidirectionalBindOperation(String, Property, boolean)
 	 * @param <PT>
 	 *            the parent bean type
 	 * @param <BT>
@@ -571,7 +697,7 @@ public class BeanPathAdapter<B> {
 
 		/**
 		 * Sets the bean of the {@linkplain FieldBean} and it's underlying
-		 * {@linkplain #getFieldNodes()} and {@linkplain #getFieldProperties()}
+		 * {@linkplain #getFieldBeans()} and {@linkplain #getFieldProperties()}
 		 * 
 		 * @see #setParentBean(Object)
 		 * @param bean
@@ -593,7 +719,7 @@ public class BeanPathAdapter<B> {
 
 		/**
 		 * Binds a parent bean to the {@linkplain FieldBean} and it's underlying
-		 * {@linkplain #getFieldNodes()} and {@linkplain #getFieldProperties()}
+		 * {@linkplain #getFieldBeans()} and {@linkplain #getFieldProperties()}
 		 * 
 		 * @see #setBean(Object)
 		 * @param bean
@@ -611,7 +737,9 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * {@linkplain #performOperation(String, Class, String, Observable, Class, SelectionModel, FieldProperty, FieldBeanOperation)}
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
+		 *      String, Observable, Class, SelectionModel, FieldProperty,
+		 *      FieldBeanOperation)
 		 */
 		public <T> FieldProperty<?, ?> performOperation(final String fieldPath,
 				final Property<T> property, final Class<T> propertyValueClass,
@@ -621,7 +749,9 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * {@linkplain #performOperation(String, Class, String, Observable, Class, SelectionModel, FieldProperty, FieldBeanOperation)}
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
+		 *      String, Observable, Class, SelectionModel, FieldProperty,
+		 *      FieldBeanOperation)
 		 */
 		public <T> FieldProperty<?, ?> performOperation(final String fieldPath,
 				final ObservableList<T> observableList,
@@ -637,7 +767,9 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * {@linkplain #performOperation(String, Class, String, Observable, Class, SelectionModel, FieldProperty, FieldBeanOperation)}
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
+		 *      String, Observable, Class, SelectionModel, FieldProperty,
+		 *      FieldBeanOperation)
 		 */
 		public <T> FieldProperty<?, ?> performOperation(final String fieldPath,
 				final ObservableSet<T> observableSet,
@@ -653,7 +785,9 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * {@linkplain #performOperation(String, Class, String, Observable, Class, SelectionModel, FieldProperty, FieldBeanOperation)}
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
+		 *      String, Observable, Class, SelectionModel, FieldProperty,
+		 *      FieldBeanOperation)
 		 */
 		public <K, V> FieldProperty<?, ?> performOperation(
 				final String fieldPath,
@@ -722,7 +856,7 @@ public class BeanPathAdapter<B> {
 		 *         (null when the operation was not performed on any
 		 *         {@linkplain FieldProperty}
 		 */
-		<T> FieldProperty<?, ?> performOperation(final String fieldPath,
+		protected <T> FieldProperty<?, ?> performOperation(final String fieldPath,
 				final Class<T> propertyValueClass,
 				final String collectionItemPath, final Observable observable,
 				final Class<?> collectionItemType,
@@ -814,6 +948,41 @@ public class BeanPathAdapter<B> {
 							(Property<String>) fp,
 							(Property<T>) observable,
 							(StringConverter<T>) getFieldStringConverter(observableValueClass));
+				}
+			} else if (fp.getObservableCollection() != null
+					&& observable != null
+					&& fp.getObservableCollection() != observable) {
+				// handle scenario where multiple observable collections/maps
+				// are being bound to the same field property
+				if (operation == FieldBeanOperation.UNBIND) {
+					Bindings.unbindContentBidirectional(
+							fp.getObservableCollection(), observable);
+				} else if (operation == FieldBeanOperation.BIND) {
+					if (FieldProperty.isObservableList(observable)
+							&& fp.isObservableList()) {
+						Bindings.bindContentBidirectional(
+								(ObservableList<Object>) observable,
+								(ObservableList<Object>) fp
+										.getObservableCollection());
+					} else if (FieldProperty.isObservableSet(observable)
+							&& fp.isObservableSet()) {
+						Bindings.bindContentBidirectional(
+								(ObservableSet<Object>) observable,
+								(ObservableSet<Object>) fp
+										.getObservableCollection());
+					} else if (FieldProperty.isObservableMap(observable)
+							&& fp.isObservableMap()) {
+						Bindings.bindContentBidirectional(
+								(ObservableMap<Object, Object>) observable,
+								(ObservableMap<Object, Object>) fp
+										.getObservableCollection());
+					} else {
+						throw new UnsupportedOperationException(
+								String.format(
+										"Incompatible observable collection/map types cannot be bound %1$s and %2$s",
+										fp.getObservableCollection(),
+										observable));
+					}
 				}
 			} else if (operation == FieldBeanOperation.UNBIND) {
 				fp.set(null);
@@ -1036,7 +1205,7 @@ public class BeanPathAdapter<B> {
 		 *            the {@linkplain Observable} is a
 		 *            {@linkplain ObservableList}, {@linkplain ObservableSet},
 		 *            or {@linkplain ObservableMap})
-		 * @param observable
+		 * @param collectionObservable
 		 *            the {@linkplain Observable} {@linkplain Collection} used
 		 *            to bind to the {@linkplain FieldProperty} <b>OR</b> when
 		 *            the {@linkplain SelectionModel} is specified this is the
@@ -1049,6 +1218,15 @@ public class BeanPathAdapter<B> {
 		 *            {@linkplain Collection} {@linkplain Class} (only
 		 *            applicable when the actual field is a
 		 *            {@linkplain Collection})
+		 * @param collectionSelectionModel
+		 *            the {@linkplain SelectionModel} used to set the values
+		 *            within the {@linkplain Observable} <b>only applicable when
+		 *            the {@linkplain Observable} is used for selection(s) and
+		 *            therefore cannot be updated directly because it is
+		 *            read-only</b>
+		 * @param itemMaster
+		 *            the {@linkplain FieldProperty} that contains the item(s)
+		 *            that the {@linkplain SelectionModel} can select from
 		 */
 		@SuppressWarnings("unchecked")
 		protected FieldProperty(final BT bean, final String fieldName,
@@ -1214,152 +1392,78 @@ public class BeanPathAdapter<B> {
 				// and the bean collections that doesn't require clearing and
 				// resetting them? (see commented onChange methods from revision
 				// 204)
-				FieldProperty<?, ?> fp;
-				Object fpv;
-				int i = -1;
 				if (this.collectionObservable.get() != null
 						&& Collection.class
 								.isAssignableFrom(this.collectionObservable
 										.get().getClass())) {
 					final Collection<Object> oc = (Collection<Object>) this.collectionObservable
 							.get();
-					final boolean isOcList = List.class.isAssignableFrom(oc.getClass());
-					if (!toField && collectionSelectionModel == null) {
-						oc.clear();
-					}
 					if (Collection.class.isAssignableFrom(values.getClass())) {
+						final Collection<Object> col = (Collection<Object>) values;
 						if (toField) {
-							final Collection<Object> col = (Collection<Object>) values;
-							final List<Object> nc = new ArrayList<>();
-							for (final Object item : oc) {
-								fpv = updateCollectionItemProperty(++i, item);
-								nc.add(fpv);
-							}
-							col.clear();
-							col.addAll(nc);
+							syncCollectionValuesFromObservable(col, oc);
 						} else {
-							for (final Object item : (Collection<?>) values) {
-								fp = updateCollectionItemBean(++i, item, null);
-								fpv = fp != null ? fp.getDirty() : item;
-								if (collectionSelectionModel == null) {
-									if (isOcList) {
-										((List<Object>) oc).add(i, fpv);
-									} else {
-										oc.add(fpv);
-									}
-								} else {
-									// call later to give items a chance to update
-									final Object fpvt = fpv;
-									Platform.runLater(new Runnable() {
-										@Override
-										public void run() {
-											collectionSelectionModel.select(fpvt);
-										}
-									});
-								}
+							final boolean wasColEmpty = col.isEmpty();
+							if (collectionSelectionModel == null
+									&& (!wasColEmpty || isDirty)) {
+								oc.clear();
+							} else if (collectionSelectionModel == null) {
+								syncCollectionValuesFromObservable(col, oc);
+							}
+							if (!wasColEmpty) {
+								syncObservableFromCollectionValues(col, oc);
 							}
 						}
 					} else if (Map.class.isAssignableFrom(values.getClass())) {
+						final Map<Object, Object> map = (Map<Object, Object>) values;
 						if (toField) {
-							final Map<Object, Object> map = (Map<Object, Object>) values;
-							final Map<Object, Object> nc = new HashMap<>();
-							for (final Object item : oc) {
-								fpv = updateCollectionItemProperty(++i, item);
-								nc.put(i, fpv);
-							}
-							map.clear();
-							map.putAll(nc);
+							syncCollectionValuesFromObservable(map, oc);
 						} else {
-							for (final Object item : ((Map<?, ?>) values)
-									.values()) {
-								fp = updateCollectionItemBean(++i, item, null);
-								fpv = fp != null ? fp.getDirty() : item;
-								if (collectionSelectionModel == null) {
-									if (isOcList) {
-										((List<Object>) oc).add(i, fpv);
-									} else {
-										oc.add(fpv);
-									}
-								} else {
-									// call later to give items a chance to update
-									final Object fpvt = fpv;
-									Platform.runLater(new Runnable() {
-										@Override
-										public void run() {
-											collectionSelectionModel.select(fpvt);
-										}
-									});
-								}
+							final boolean wasColEmpty = map.isEmpty();
+							if (collectionSelectionModel == null
+									&& (!wasColEmpty || isDirty)) {
+								oc.clear();
+							} else if (collectionSelectionModel == null) {
+								syncCollectionValuesFromObservable(map, oc);
+							}
+							if (!wasColEmpty) {
+								syncObservableFromCollectionValues(map, oc);
 							}
 						}
 					}
 				} else if (this.collectionObservable.get() instanceof ObservableMap) {
 					final ObservableMap<Object, Object> oc = (ObservableMap<Object, Object>) this.collectionObservable
 							.get();
-					if (!toField && collectionSelectionModel == null) {
-						oc.clear();
-					}
 					if (Collection.class.isAssignableFrom(values.getClass())) {
+						final Collection<Object> col = (Collection<Object>) values;
 						if (toField) {
-							final Collection<Object> col = (Collection<Object>) values;
-							final List<Object> nc = new ArrayList<>();
-							for (final Map.Entry<Object, Object> item : oc
-									.entrySet()) {
-								fpv = updateCollectionItemProperty(++i,
-										item.getValue());
-								nc.add(fpv);
-							}
-							col.clear();
-							col.addAll(nc);
+							syncCollectionValuesFromObservable(col, oc);
 						} else {
-							for (final Object item : (Collection<?>) values) {
-								fp = updateCollectionItemBean(++i, item, null);
-								fpv = fp != null ? fp.getDirty() : item;
-								if (!toField
-										&& collectionSelectionModel == null) {
-									oc.put(i, fpv);
-								} else {
-									// call later to give items a chance to update
-									final Object fpvt = fpv;
-									Platform.runLater(new Runnable() {
-										@Override
-										public void run() {
-											collectionSelectionModel.select(fpvt);
-										}
-									});
-								}
+							final boolean wasColEmpty = col.isEmpty();
+							if (collectionSelectionModel == null
+									&& (!wasColEmpty || isDirty)) {
+								oc.clear();
+							} else if (collectionSelectionModel == null) {
+								syncCollectionValuesFromObservable(col, oc);
+							}
+							if (!wasColEmpty) {
+								syncObservableFromCollectionValues(col, oc);
 							}
 						}
 					} else if (Map.class.isAssignableFrom(values.getClass())) {
 						final Map<Object, Object> map = (Map<Object, Object>) values;
 						if (toField) {
-							final Map<Object, Object> nc = new HashMap<>();
-							for (final Map.Entry<Object, Object> item : oc
-									.entrySet()) {
-								fpv = updateCollectionItemProperty(++i,
-										item.getValue());
-								nc.put(i, fpv);
-							}
-							map.clear();
-							map.putAll(nc);
+							syncCollectionValuesFromObservable(map, oc);
 						} else {
-							for (final Map.Entry<Object, Object> item : map
-									.entrySet()) {
-								fp = updateCollectionItemBean(++i, item, null);
-								fpv = fp != null ? fp.getDirty() : item;
-								if (!toField
-										&& collectionSelectionModel == null) {
-									oc.put(i, fpv);
-								} else {
-									// call later to give items a chance to update
-									final Object fpvt = fpv;
-									Platform.runLater(new Runnable() {
-										@Override
-										public void run() {
-											collectionSelectionModel.select(fpvt);
-										}
-									});
-								}
+							final boolean wasColEmpty = map.isEmpty();
+							if (collectionSelectionModel == null
+									&& (!wasColEmpty || isDirty)) {
+								oc.clear();
+							} else if (collectionSelectionModel == null) {
+								syncCollectionValuesFromObservable(map, oc);
+							}
+							if (!wasColEmpty) {
+								syncObservableFromCollectionValues(map, oc);
 							}
 						}
 					}
@@ -1367,6 +1471,245 @@ public class BeanPathAdapter<B> {
 			} finally {
 				isDirtyCollection = false;
 			}
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Collection} values to the supplied
+		 * {@linkplain Observable} {@linkplain Collection}
+		 * 
+		 * @param fromCol
+		 *            the {@linkplain Collection} that synchronization will
+		 *            derive from
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Collection} that
+		 *            should be synchronized to
+		 */
+		private void syncObservableFromCollectionValues(
+				final Collection<Object> fromCol, final Collection<Object> oc) {
+			FieldProperty<?, ?> fp;
+			Object fpv;
+			int i = -1;
+			final boolean isOcList = List.class.isAssignableFrom(oc.getClass());
+			for (final Object item : fromCol) {
+				fp = updateCollectionItemBean(++i, item, null);
+				fpv = fp != null ? fp.getDirty() : item;
+				if (collectionSelectionModel == null) {
+					if (isOcList) {
+						((List<Object>) oc).add(i, fpv);
+					} else {
+						oc.add(fpv);
+					}
+				} else {
+					// call later to give items a chance to update
+					final Object fpvt = fpv;
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							collectionSelectionModel.select(fpvt);
+						}
+					});
+				}
+			}
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Collection} values to the supplied
+		 * {@linkplain Observable} {@linkplain Map}
+		 * 
+		 * @param fromCol
+		 *            the {@linkplain Collection} that synchronization will
+		 *            derive from
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Map} that should
+		 *            be synchronized to
+		 */
+		private void syncObservableFromCollectionValues(
+				final Collection<Object> fromCol, final Map<Object, Object> oc) {
+			FieldProperty<?, ?> fp;
+			Object fpv;
+			int i = -1;
+			for (final Object item : fromCol) {
+				fp = updateCollectionItemBean(++i, item, null);
+				fpv = fp != null ? fp.getDirty() : item;
+				if (collectionSelectionModel == null) {
+					oc.put(i, fpv);
+				} else {
+					// call later to give items a chance to update
+					final Object fpvt = fpv;
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							collectionSelectionModel.select(fpvt);
+						}
+					});
+				}
+			}
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Map} values to the supplied
+		 * {@linkplain Observable} {@linkplain Collection}
+		 * 
+		 * @param fromMap
+		 *            the {@linkplain Map} that synchronization will derive from
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Collection} that
+		 *            should be synchronized to
+		 */
+		private void syncObservableFromCollectionValues(
+				final Map<Object, Object> fromMap, final Collection<Object> oc) {
+			FieldProperty<?, ?> fp;
+			Object fpv;
+			int i = -1;
+			final boolean isOcList = List.class.isAssignableFrom(oc.getClass());
+			for (final Object item : fromMap.values()) {
+				fp = updateCollectionItemBean(++i, item, null);
+				fpv = fp != null ? fp.getDirty() : item;
+				if (collectionSelectionModel == null) {
+					if (isOcList) {
+						((List<Object>) oc).add(i, fpv);
+					} else {
+						oc.add(fpv);
+					}
+				} else {
+					// call later to give items a chance to update
+					final Object fpvt = fpv;
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							collectionSelectionModel.select(fpvt);
+						}
+					});
+				}
+			}
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Map} values to the supplied
+		 * {@linkplain Observable} {@linkplain Map}
+		 * 
+		 * @param fromMap
+		 *            the {@linkplain Map} that synchronization will derive from
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Map} that should
+		 *            be synchronized to
+		 */
+		private void syncObservableFromCollectionValues(
+				final Map<Object, Object> fromMap, final Map<Object, Object> oc) {
+			FieldProperty<?, ?> fp;
+			Object fpv;
+			int i = -1;
+			for (final Map.Entry<Object, Object> item : fromMap.entrySet()) {
+				fp = updateCollectionItemBean(++i, item, null);
+				fpv = fp != null ? fp.getDirty() : item;
+				if (collectionSelectionModel == null) {
+					oc.put(i, fpv);
+				} else {
+					// call later to give items a chance to update
+					final Object fpvt = fpv;
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							collectionSelectionModel.select(fpvt);
+						}
+					});
+				}
+			}
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Observable} {@linkplain Collection}
+		 * values to the supplied {@linkplain Collection}
+		 * 
+		 * @param toCol
+		 *            the {@linkplain Collection} that should be synchronized to
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Collection} that
+		 *            synchronization will derive from
+		 */
+		private void syncCollectionValuesFromObservable(
+				final Collection<Object> toCol, final Collection<Object> oc) {
+			Object fpv;
+			int i = -1;
+			final List<Object> nc = new ArrayList<>();
+			for (final Object item : oc) {
+				fpv = updateCollectionItemProperty(++i, item);
+				nc.add(fpv);
+			}
+			toCol.clear();
+			toCol.addAll(nc);
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Observable} {@linkplain Collection}
+		 * values to the supplied {@linkplain Map}
+		 * 
+		 * @param toMap
+		 *            the {@linkplain Map} that should be synchronized to
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Map} that
+		 *            synchronization will derive from
+		 */
+		private void syncCollectionValuesFromObservable(
+				final Map<Object, Object> toMap,
+				final Collection<Object> oc) {
+			Object fpv;
+			int i = -1;
+			final Map<Object, Object> nc = new HashMap<>();
+			for (final Object item : oc) {
+				fpv = updateCollectionItemProperty(++i, item);
+				nc.put(i, fpv);
+			}
+			toMap.clear();
+			toMap.putAll(nc);
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Observable} {@linkplain Map} values to
+		 * the supplied {@linkplain Collection}
+		 * 
+		 * @param toCol
+		 *            the {@linkplain Collection} that should be synchronized to
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Map} that
+		 *            synchronization will derive from
+		 */
+		private void syncCollectionValuesFromObservable(
+				final Collection<Object> toCol,
+				final ObservableMap<Object, Object> oc) {
+			Object fpv;
+			int i = -1;
+			final List<Object> nc = new ArrayList<>();
+			for (final Map.Entry<Object, Object> item : oc.entrySet()) {
+				fpv = updateCollectionItemProperty(++i, item.getValue());
+				nc.add(fpv);
+			}
+			toCol.clear();
+			toCol.addAll(nc);
+		}
+
+		/**
+		 * Synchronizes the {@linkplain Observable} {@linkplain Map} values to
+		 * the supplied {@linkplain Map}
+		 * 
+		 * @param toMap
+		 *            the {@linkplain Map} that should be synchronized to
+		 * @param oc
+		 *            the {@linkplain Observable} {@linkplain Collection} that
+		 *            synchronization will derive from
+		 */
+		private void syncCollectionValuesFromObservable(
+				final Map<Object, Object> toMap,
+				final ObservableMap<Object, Object> oc) {
+			Object fpv;
+			int i = -1;
+			final Map<Object, Object> nc = new HashMap<>();
+			for (final Map.Entry<Object, Object> item : oc.entrySet()) {
+				fpv = updateCollectionItemProperty(++i, item.getValue());
+				nc.put(i, fpv);
+			}
+			toMap.clear();
+			toMap.putAll(nc);
 		}
 
 		/**
@@ -1448,12 +1791,9 @@ public class BeanPathAdapter<B> {
 
 		/**
 		 * Generates a {@linkplain FieldProperty} for a
-		 * {@linkplain #getCollectionItemPath()} (and
-		 * {@linkplain #getCollectionSelectionModel()} when applicable)
+		 * {@linkplain #getCollectionItemPath()} and
+		 * {@linkplain #getCollectionSelectionModel()} when applicable
 		 * 
-		 * @see FieldBean#performOperation(String, ObservableList, Class,
-		 *      String, Class, SelectionModel, FieldProperty,
-		 *      FieldBeanOperation)
 		 * @param bean
 		 *            the bean to generate a {@linkplain FieldProperty}
 		 * @return the generated {@linkplain FieldProperty}
@@ -1478,8 +1818,8 @@ public class BeanPathAdapter<B> {
 		 *            the collection {@linkplain FieldBean}'s
 		 *            {@linkplain FieldProperty} value to add/update
 		 * @return {@linkplain FieldProperty#getBean()} when the collection item
-		 *         has it's own bean path, the {@Code
-		 *         itemBeanPropertyValue} when it does not
+		 *         has it's own bean path, the <code>
+		 *         itemBeanPropertyValue</code> when it does not
 		 */
 		protected Object updateCollectionItemProperty(final int index,
 				final Object itemBeanPropertyValue) {
@@ -1602,8 +1942,8 @@ public class BeanPathAdapter<B> {
 		/**
 		 * Binds a new target to the {@linkplain FieldHandle}
 		 * 
-		 * @param target
-		 *            the target to bind to
+		 * @param bean
+		 *            the target bean to bind to
 		 */
 		public void setTarget(final BT bean) {
 			isDirty = true;
@@ -1664,10 +2004,7 @@ public class BeanPathAdapter<B> {
 		 *         {@linkplain ObservableList}
 		 */
 		public boolean isObservableList() {
-			return getObservableCollection() != null
-					&& ObservableList.class
-							.isAssignableFrom(getObservableCollection()
-									.getClass());
+			return isObservableList(getObservableCollection());
 		}
 
 		/**
@@ -1675,10 +2012,7 @@ public class BeanPathAdapter<B> {
 		 *         {@linkplain ObservableSet}
 		 */
 		public boolean isObservableSet() {
-			return getObservableCollection() != null
-					&& ObservableSet.class
-							.isAssignableFrom(getObservableCollection()
-									.getClass());
+			return isObservableSet(getObservableCollection());
 		}
 
 		/**
@@ -1686,10 +2020,43 @@ public class BeanPathAdapter<B> {
 		 *         {@linkplain ObservableMap}
 		 */
 		public boolean isObservableMap() {
-			return getObservableCollection() != null
-					&& ObservableMap.class
-							.isAssignableFrom(getObservableCollection()
-									.getClass());
+			return isObservableMap(getObservableCollection());
+		}
+
+		/**
+		 * @param observable
+		 *            the {@linkplain Observable} to check
+		 * @return true when the {@linkplain Observable} is an
+		 *         {@linkplain ObservableList}
+		 */
+		public static boolean isObservableList(final Observable observable) {
+			return observable != null
+					&& ObservableList.class.isAssignableFrom(observable
+							.getClass());
+		}
+
+		/**
+		 * @param observable
+		 *            the {@linkplain Observable} to check
+		 * @return true when the {@linkplain Observable} is an
+		 *         {@linkplain ObservableSet}
+		 */
+		public static boolean isObservableSet(final Observable observable) {
+			return observable != null
+					&& ObservableSet.class.isAssignableFrom(observable
+							.getClass());
+		}
+
+		/**
+		 * @param observable
+		 *            the {@linkplain Observable} to check
+		 * @return true when the {@linkplain Observable} is an
+		 *         {@linkplain ObservableMap}
+		 */
+		public static boolean isObservableMap(final Observable observable) {
+			return observable != null
+					&& ObservableMap.class.isAssignableFrom(observable
+							.getClass());
 		}
 
 		/**
