@@ -1,6 +1,8 @@
 package org.ugate.gui.components;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -39,6 +41,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import jfxtras.labs.scene.control.CalendarPicker;
 
 public class BeanPathAdapterTest extends Application {
 
@@ -177,7 +180,16 @@ public class BeanPathAdapterTest extends Application {
 				beanTF("address.location.international", null, null, null, 0,
 						CheckBox.class, null), langBox, hobbyBox);
 		beanPane.getChildren().addAll(title, personBox);
-
+CalendarPicker lCalendarPicker = new CalendarPicker();
+personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(), Calendar.class);
+lCalendarPicker.calendarProperty().addListener(new ChangeListener<Calendar>() {
+	@Override
+	public void changed(ObservableValue<? extends Calendar> observable,
+			Calendar oldValue, Calendar newValue) {
+		dumpPojo(personPA);
+	}
+});
+personBox.getChildren().add(lCalendarPicker);
 		final TextField pojoNameTF = new TextField();
 		Button pojoNameBtn = new Button("Set Person's Name");
 		pojoNameBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -274,7 +286,9 @@ public class BeanPathAdapterTest extends Application {
 							+ ", allHobbies="
 							+ dumpHobbyNames(p.getBean().getAllHobbies())
 							+ ", hobbies="
-							+ dumpHobbyNames(p.getBean().getHobbies()) + "}\n";
+							+ dumpHobbyNames(p.getBean().getHobbies())
+					+ ", dob="
+					+ (p.getBean().getDob() != null ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz").format(p.getBean().getDob().getTime()) : null) + "}\n";
 				}
 				pojoTA.setText(dump);
 			}
@@ -516,6 +530,7 @@ public class BeanPathAdapterTest extends Application {
 		private Set<Hobby> hobbies;
 		private Set<String> allLanguages;
 		private Set<Hobby> allHobbies;
+		private Calendar dob;
 
 		public String getName() {
 			return name;
@@ -579,6 +594,14 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setAllHobbies(Set<Hobby> allHobbies) {
 			this.allHobbies = allHobbies;
+		}
+
+		public Calendar getDob() {
+			return dob;
+		}
+
+		public void setDob(Calendar dob) {
+			this.dob = dob;
 		}
 	}
 
