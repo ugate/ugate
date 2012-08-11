@@ -7,9 +7,12 @@ import java.lang.invoke.MethodType;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -944,10 +947,18 @@ public class BeanPathAdapter<B> {
 					Bindings.unbindBidirectional((Property<T>) fp,
 							(Property<T>) observable);
 				} else if (operation == FieldBeanOperation.BIND) {
-					Bindings.bindBidirectional(
-							(Property<String>) fp,
-							(Property<T>) observable,
-							(StringConverter<T>) getFieldStringConverter(observableValueClass));
+					if (Calendar.class.isAssignableFrom(observableValueClass)
+							|| Date.class
+									.isAssignableFrom(observableValueClass)) {
+						Bindings.bindBidirectional(
+								(Property<T>) fp,
+								(Property<T>) observable);
+					} else {
+						Bindings.bindBidirectional(
+								(Property<String>) fp,
+								(Property<T>) observable,
+								(StringConverter<T>) getFieldStringConverter(observableValueClass));
+					}
 				}
 			} else if (fp.getObservableCollection() != null
 					&& observable != null
@@ -1095,6 +1106,7 @@ public class BeanPathAdapter<B> {
 	 */
 	protected static class FieldStringConverter<T> extends StringConverter<T> {
 
+		public static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
 		private final Class<T> targetClass;
 
 		/**
@@ -1126,6 +1138,13 @@ public class BeanPathAdapter<B> {
 					&& SelectionModel.class.isAssignableFrom(object.getClass())) {
 				cv = ((SelectionModel<?>) object).getSelectedItem() != null ? ((SelectionModel<?>) object)
 						.getSelectedItem().toString() : null;
+			} else if (object != null
+					&& (Calendar.class.isAssignableFrom(object.getClass()) || Date.class
+							.isAssignableFrom(object.getClass()))) {
+				final Date date = Date.class
+						.isAssignableFrom(object.getClass()) ? (Date) object
+						: ((Calendar) object).getTime();
+				cv = SDF.format(date);
 			} else if (object != null) {
 				cv = object.toString();
 			}
@@ -1158,8 +1177,35 @@ public class BeanPathAdapter<B> {
 			if (v == null || (!isStringType && v.toString().isEmpty())) {
 				val = (VT) FieldHandle.defaultValue(targetClass);
 			} else if (isStringType
-					|| (v != null && v.getClass().isAssignableFrom(targetClass))) {
+					|| (v != null && targetClass.isAssignableFrom(v.getClass()))) {
 				val = (VT) targetClass.cast(v);
+			} else if (v != null && Date.class.isAssignableFrom(targetClass)) {
+				if (Calendar.class.isAssignableFrom(v.getClass())) {
+					val = (VT) ((Calendar) v).getTime();
+				} else {
+					try {
+						val = (VT) SDF.parse(v.toString());
+					} catch (final Throwable t) {
+						throw new IllegalArgumentException(String.format(
+								"Unable to convert %1$s to %2$s", v,
+								targetClass), t);
+					}
+				}
+			} else if (v != null
+					&& Calendar.class.isAssignableFrom(targetClass)) {
+				final Calendar cal = Calendar.getInstance();
+				Date date = null;
+				try {
+					date = Date.class.isAssignableFrom(v.getClass()) ? (Date) v
+							: SDF.parse(v.toString());
+					cal.setTime(date);
+					val = (VT) cal;
+				} catch (final Throwable t) {
+//					throw new IllegalArgumentException(String.format(
+//							"Unable to convert %1$s to %2$s", v, targetClass),
+//							t);
+					val = null;
+				}
 			} else {
 				val = FieldHandle.valueOf(targetClass, v.toString());
 			}
@@ -1276,9 +1322,25 @@ public class BeanPathAdapter<B> {
 		private void setObject(final Object v) {
 			try {
 				if (v != null
-						&& Collection.class.isAssignableFrom(v.getClass())) {
-					fieldHandle.getSetter().invoke(v);
-					postSet();
+						&& (Collection.class.isAssignableFrom(v.getClass()) || Map.class
+								.isAssignableFrom(v.getClass()))) {
+					final Object cv = fieldHandle.getAccessor().invoke();
+					if (cv != v) {
+						fieldHandle.getSetter().invoke(v);
+						postSet();
+					}
+				} else if (v != null
+						&& (Calendar.class.isAssignableFrom(v.getClass()) || Date.class
+								.isAssignableFrom(v.getClass()))) {
+					final Object cv = fieldHandle.getAccessor().invoke();
+					if (cv != v) {
+						final Object val = FieldStringConverter.coerce(
+								v,
+								cv != null ? cv.getClass() : fieldHandle
+										.getFieldType());
+						fieldHandle.getSetter().invoke(val);
+						postSet();
+					}
 				} else {
 					set(v != null ? v.toString() : null);
 				}
@@ -2417,7 +2479,11 @@ public class BeanPathAdapter<B> {
 			}
 			if (targetValue == null) {
 				try {
-					if (DFLTS.containsKey(getFieldType())) {
+					if (Calendar.class.isAssignableFrom(getFieldType())) {
+						targetValue = (F) Calendar.getInstance();
+					} else if (Date.class.isAssignableFrom(getFieldType())) {
+						targetValue = (F) Calendar.getInstance().getTime();
+					} else if (DFLTS.containsKey(getFieldType())) {
 						targetValue = (F) DFLTS.get(getFieldType());
 					} else {
 						final Class<F> clazz = (Class<F>) getAccessor().type()
