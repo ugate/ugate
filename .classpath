@@ -33,7 +33,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.5.v20120716/jetty-servlet-8.1.5.v20120716.jar"/>
-	<classpathentry kind="lib" path="C:/java/maven/repository/org/jfxtras/jfxtras-labs/0.1/jfxtras-labs-0.1.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-aop/3.1.2.RELEASE/spring-aop-3.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-asm/3.1.2.RELEASE/spring-asm-3.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-beans/3.1.2.RELEASE/spring-beans-3.1.2.RELEASE.jar"/>

@@ -2,8 +2,8 @@ package org.ugate.gui.components;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -41,7 +41,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import jfxtras.labs.scene.control.CalendarPicker;
 
 public class BeanPathAdapterTest extends Application {
 
@@ -180,16 +179,29 @@ public class BeanPathAdapterTest extends Application {
 				beanTF("address.location.international", null, null, null, 0,
 						CheckBox.class, null), langBox, hobbyBox);
 		beanPane.getChildren().addAll(title, personBox);
-CalendarPicker lCalendarPicker = new CalendarPicker();
-personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(), Calendar.class);
-lCalendarPicker.calendarProperty().addListener(new ChangeListener<Calendar>() {
-	@Override
-	public void changed(ObservableValue<? extends Calendar> observable,
-			Calendar oldValue, Calendar newValue) {
-		dumpPojo(personPA);
-	}
-});
-personBox.getChildren().add(lCalendarPicker);
+		SimpleCalendar sc = new SimpleCalendar();
+		personPA.bindBidirectional("dob", sc.dateProperty(), Date.class);
+		sc.dateProperty().addListener(new ChangeListener<Date>() {
+			@Override
+			public void changed(ObservableValue<? extends Date> observable,
+					Date oldValue, Date newValue) {
+				dumpPojo(personPA);
+			}
+		});
+		personBox.getChildren().add(sc);
+//CalendarPicker lCalendarPicker = new CalendarPicker();
+//Calendar cal = Calendar.getInstance();
+//cal.add(Calendar.YEAR, 1);
+//lCalendarPicker.setCalendar(cal);
+//personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(), Calendar.class);
+//lCalendarPicker.calendarProperty().addListener(new ChangeListener<Calendar>() {
+//	@Override
+//	public void changed(ObservableValue<? extends Calendar> observable,
+//			Calendar oldValue, Calendar newValue) {
+//		dumpPojo(personPA);
+//	}
+//});
+//personBox.getChildren().add(lCalendarPicker);
 		final TextField pojoNameTF = new TextField();
 		Button pojoNameBtn = new Button("Set Person's Name");
 		pojoNameBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -526,11 +538,20 @@ personBox.getChildren().add(lCalendarPicker);
 		private String password;
 		private Address address;
 		private double age;
+		private Set<String> tst;
 		private Set<String> languages;
 		private Set<Hobby> hobbies;
 		private Set<String> allLanguages;
 		private Set<Hobby> allHobbies;
-		private Calendar dob;
+		private Date dob;
+
+		public Set<String> getTst() {
+			return tst;
+		}
+
+		public void setTst(Set<String> tst) {
+			this.tst = tst;
+		}
 
 		public String getName() {
 			return name;
@@ -596,11 +617,11 @@ personBox.getChildren().add(lCalendarPicker);
 			this.allHobbies = allHobbies;
 		}
 
-		public Calendar getDob() {
+		public Date getDob() {
 			return dob;
 		}
 
-		public void setDob(Calendar dob) {
+		public void setDob(Date dob) {
 			this.dob = dob;
 		}
 	}
