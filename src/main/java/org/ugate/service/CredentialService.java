@@ -19,6 +19,7 @@ import org.ugate.service.dao.CredentialDao;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.entity.jpa.MailRecipient;
 import org.ugate.service.entity.jpa.Role;
 
 /**
@@ -203,10 +204,14 @@ public class CredentialService {
 	 * 
 	 * @param actor
 	 *            the {@linkplain Actor} to merge
+	 * @param mailRecipients
+	 *            the {@linkplain MailRecipient}(s) to remove (if any)
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void mergeActor(final Actor actor) {
+	public void mergeActor(final Actor actor,
+			final MailRecipient... mailRecipients) {
 		credentialDao.mergeEntity(actor);
+		credentialDao.deleteEntitiesById("email", mailRecipients);
 	}
 	
 	/**
@@ -214,10 +219,14 @@ public class CredentialService {
 	 * 
 	 * @param host
 	 *            the {@linkplain Host} to merge
+	 * @param mailRecipients
+	 *            the {@linkplain MailRecipient}(s) to remove (if any)
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void mergeHost(final Host host) {
+	public void mergeHost(final Host host,
+			final MailRecipient... mailRecipients) {
 		credentialDao.mergeEntity(host);
+		credentialDao.deleteEntitiesById("email", mailRecipients);
 	}
 
 	/**

@@ -7,4 +7,8 @@ import java.io.Serializable;
  */
 public interface Model extends Serializable {
 
+	/**
+	 * @return the ID of the model
+	 */
+	public int getId();
 }

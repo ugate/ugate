@@ -121,20 +121,38 @@ public class EmailHostConnectionView extends StatusView {
 						final MailRecipient[] ms = cb.getActor().getHost()
 								.getMailRecipients()
 								.toArray(new MailRecipient[] {});
-						final java.util.List<String> rmaddys = recipients.getListView()
-								.getSelectionModel().getSelectedItems().subList(0, recipients.getListView()
-										.getSelectionModel().getSelectedItems().size());
-						recipients.getListView().getItems().removeAll(rmaddys);
+						final Object[] rmaddyi = recipients.getListView()
+								.getSelectionModel().getSelectedIndices()
+								.toArray(new Object[] {});
+						final java.util.List<String> rmaddys = recipients
+								.getListView()
+								.getSelectionModel()
+								.getSelectedItems()
+								.subList(
+										0,
+										recipients.getListView()
+												.getSelectionModel()
+												.getSelectedItems().size());
 						try {
+							recipients.getListView().getItems()
+									.removeAll(rmaddys);
+							// need to manually remove the mail recipients due
+							// to many-to-many relationship
+							final MailRecipient[] mrr = new MailRecipient[rmaddyi.length];
+							for (final Object i : rmaddyi) {
+								mrr[mrr.length - 1] = ms[(int) i];
+							}
 							ServiceManager.IMPL.getCredentialService().mergeHost(
-									cb.getActor().getHost());
+									cb.getActor().getHost(), mrr);
 						} catch (final Throwable t) {
 							log.info(String.format(
 									"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
 									rmaddys, cb.getActor().getHost().getId()), t);
-							controlBar.setHelpText(RS.rbLabel("mail.alarm.notify.emails.add.failed"));
+							controlBar.setHelpText(RS.rbLabel("mail.alarm.notify.emails.remove.failed"));
 							cb.getActor().getHost().getMailRecipients().clear();
 							cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));
+							cb.getActorPA().setBean(cb.getActor());
+							
 						}
 					}
 				});
