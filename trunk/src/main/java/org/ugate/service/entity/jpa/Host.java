@@ -19,7 +19,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Size;
 
@@ -102,9 +101,6 @@ public class Host implements Model {
 			}
 		, inverseJoinColumns={
 			@JoinColumn(name="MAIL_RECIPIENT_ID", nullable=false)
-			}
-		, uniqueConstraints={
-			@UniqueConstraint(columnNames = {"HOST_ID", "MAIL_RECIPIENT_ID"})
 			}
 		)
     @OrderBy("email")
