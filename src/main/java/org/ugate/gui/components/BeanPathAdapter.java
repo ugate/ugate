@@ -2517,7 +2517,7 @@ public class BeanPathAdapter<B> {
 							targetValue = (F) new LinkedHashSet<>();
 						} else if (Map.class.isAssignableFrom(clazz)) {
 							targetValue = (F) new HashMap<>();
-						} else {
+						} else if (!Calendar.class.isAssignableFrom(getFieldType())) {
 							targetValue = clazz.newInstance();
 						}
 					}
