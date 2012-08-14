@@ -2,6 +2,7 @@ package org.ugate.gui.components;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -190,9 +191,6 @@ public class BeanPathAdapterTest extends Application {
 		});
 		personBox.getChildren().add(sc);
 //CalendarPicker lCalendarPicker = new CalendarPicker();
-//Calendar cal = Calendar.getInstance();
-//cal.add(Calendar.YEAR, 1);
-//lCalendarPicker.setCalendar(cal);
 //personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(), Calendar.class);
 //lCalendarPicker.calendarProperty().addListener(new ChangeListener<Calendar>() {
 //	@Override
@@ -538,20 +536,11 @@ public class BeanPathAdapterTest extends Application {
 		private String password;
 		private Address address;
 		private double age;
-		private Set<String> tst;
 		private Set<String> languages;
 		private Set<Hobby> hobbies;
 		private Set<String> allLanguages;
 		private Set<Hobby> allHobbies;
-		private Date dob;
-
-		public Set<String> getTst() {
-			return tst;
-		}
-
-		public void setTst(Set<String> tst) {
-			this.tst = tst;
-		}
+		private Calendar dob;
 
 		public String getName() {
 			return name;
@@ -617,11 +606,11 @@ public class BeanPathAdapterTest extends Application {
 			this.allHobbies = allHobbies;
 		}
 
-		public Date getDob() {
+		public Calendar getDob() {
 			return dob;
 		}
 
-		public void setDob(Date dob) {
+		public void setDob(Calendar dob) {
 			this.dob = dob;
 		}
 	}
