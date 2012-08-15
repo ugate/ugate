@@ -99,10 +99,13 @@ public class EmailHostConnectionView extends StatusView {
 						try {
 							ServiceManager.IMPL.getCredentialService().mergeHost(
 									cb.getActor().getHost());
-						} catch (final Throwable t) {
+						} catch (final Throwable e) {
+							for (Throwable t = e.getCause(); t != null; t = t.getCause()) {
+							    log.info("Exception:" + t);
+							}
 							log.info(String.format(
 									"Unable to add mail recipient \"%1$s\" in host with ID = %2$s",
-									raddy, cb.getActor().getHost().getId()), t);
+									raddy, cb.getActor().getHost().getId()), e);
 							controlBar.setHelpText(RS.rbLabel("mail.alarm.notify.emails.add.failed"));
 							recipients.getListView().getItems().remove(raddy);
 						}
@@ -144,10 +147,10 @@ public class EmailHostConnectionView extends StatusView {
 							}
 							ServiceManager.IMPL.getCredentialService().mergeHost(
 									cb.getActor().getHost(), mrr);
-						} catch (final Throwable t) {
+						} catch (final Throwable e) {
 							log.info(String.format(
 									"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
-									rmaddys, cb.getActor().getHost().getId()), t);
+									rmaddys, cb.getActor().getHost().getId()), e);
 							controlBar.setHelpText(RS.rbLabel("mail.alarm.notify.emails.remove.failed"));
 							cb.getActor().getHost().getMailRecipients().clear();
 							cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));

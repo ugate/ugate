@@ -65,6 +65,15 @@ public abstract class Dao {
 		return getEntityManager().find(modelClass, entityId);
 	}
 
+	/**
+	 * Deletes {@linkplain Model}(s) based upon a field name within it
+	 * 
+	 * @param matchField
+	 *            the field to match for the deletion
+	 * @param entities
+	 *            the {@linkplain Model}(s)
+	 * @return the result from the update execution
+	 */
 	public int deleteEntitiesById(final String matchField, final Model... entities) {
 		try {
 		if (entities != null && entities.length > 0) {

@@ -225,8 +225,8 @@ public class CredentialService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void mergeHost(final Host host,
 			final MailRecipient... mailRecipients) {
-		credentialDao.mergeEntity(host);
-		credentialDao.deleteEntitiesById("email", mailRecipients);
+       credentialDao.mergeEntity(host);
+       credentialDao.deleteEntitiesById("email", mailRecipients);
 	}
 
 	/**
