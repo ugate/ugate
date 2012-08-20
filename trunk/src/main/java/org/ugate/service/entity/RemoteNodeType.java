@@ -1,7 +1,9 @@
-package org.ugate.service;
+package org.ugate.service.entity;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
@@ -51,6 +53,9 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	CAM_LASER_TRIP_ANGLE_PAN("camLaserTripAnglePan", true),
 	CAM_LASER_TRIP_ANGLE_TILT("camLaserTripAngleTilt", true);
 
+	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
+	private static AtomicInteger canRemoteCount = new AtomicInteger(-1);
+	
 	private final String key;
 	private final boolean canRemote;
 
@@ -68,16 +73,39 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 	
 	/**
+	 * @param host
+	 *            the relative {@linkplain Host} of the {@linkplain RemoteNode}
 	 * @return a new default {@linkplain RemoteNode}
 	 */
-	public static RemoteNode newDefaultRemoteNode() {
+	public static RemoteNode newDefaultRemoteNode(final Host host) {
+		if (host == null) {
+			throw new NullPointerException(Host.class.getName()
+					+ " cannot be null");
+		}
 		final RemoteNode remoteNode = new RemoteNode();
+		remoteNode.setHost(host);
+		remoteNode.setAddress("3333");
 		remoteNode.setDeviceSoundsOn(1);
 		remoteNode.setGateAccessOn(1);
 		remoteNode.setMailAlertOn(1);
 		remoteNode.setUniversalRemoteAccessOn(0);
 		remoteNode.setCreatedDate(new Date());
 		return remoteNode;
+	}
+
+	/**
+	 * @return the number of elements that can remote
+	 */
+	public static int canRemoteCount() {
+		if (canRemoteCount.get() < 0) {
+			canRemoteCount.incrementAndGet();
+			for (final RemoteNodeType rnt : values()) {
+				if (rnt.canRemote()) {
+					canRemoteCount.incrementAndGet();
+				}
+			}
+		}
+		return canRemoteCount.get();
 	}
 
 	/**

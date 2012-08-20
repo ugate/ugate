@@ -21,7 +21,7 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
 import org.ugate.gui.GuiUtil;
-import org.ugate.service.IModelType;
+import org.ugate.service.entity.IModelType;
 
 /**
  * Wrapper for a {@linkplain Label} and {@linkplain TextField},
@@ -36,7 +36,7 @@ import org.ugate.service.IModelType;
  * @param <IVT>
  *            the item type used in the {@linkplain ListView} (if used)
  */
-public class UGateCtrlView<T, IT, IVT> extends VBox {
+public class UGateCtrlBox<T, IT, IVT> extends VBox {
 
 	public final Label label;
 	private final TextField textField;
@@ -63,14 +63,18 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	/**
 	 * Creates a text field preference view
 	 * 
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
+	 * @param modelKey
+	 *            the {@linkplain IModelType} of the field
 	 * @param type
-	 *            the type
+	 *            the {@linkplain Type}
 	 * @param labelText
 	 *            the label text
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final String toolTip) {
 		this(beanPathAdapter, modelKey, null, null, type, null, null, null,
@@ -80,10 +84,12 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	/**
 	 * Creates a text field preference view
 	 * 
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
 	 * @param modelKey
-	 *            the {@linkplain IModelType}
+	 *            the {@linkplain IModelType} of the field
 	 * @param type
-	 *            the type
+	 *            the {@linkplain Type}
 	 * @param labelText
 	 *            the label text
 	 * @param width
@@ -95,7 +101,7 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final Number width, final Number height,
 			final String toolTip) {
@@ -107,8 +113,10 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	 * Creates a numeric stepper that can be incremented/decremented by clicking
 	 * on up/down arrows
 	 * 
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
 	 * @param modelKey
-	 *            the {@linkplain IModelType}
+	 *            the {@linkplain IModelType} of the field
 	 * @param numericStepperFormat
 	 *            the {@linkplain String#format(String, Object...)} (integer of
 	 *            float)
@@ -123,7 +131,7 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	 * @param toolTip
 	 *            the tool tip
 	 */
-	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final String numericStepperFormat,
 			final Color numericStepperColor, final Number minValue,
 			final Number maxValue, final String labelText, final String toolTip) {
@@ -133,14 +141,14 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	}
 
 	/**
-	 * Creates a {@linkplain ListView} version of a {@linkplain UGateCtrlView}
+	 * Creates a {@linkplain ListView} version of a {@linkplain UGateCtrlBox}
 	 * 
 	 * @param beanPathAdapter
-	 *            the {@linkplain BeanPathAdapter} to bind the control data to
+	 *            the {@linkplain BeanPathAdapter} to bind to
 	 * @param modelKey
-	 *            the {@linkplain IModelType} for the data of the control
+	 *            the {@linkplain IModelType} of the field
 	 * @param modelItemKey
-	 *            the {@linkplain IModelType} for each item within the
+	 *            the {@linkplain IModelType} for each item field within the
 	 *            collection/map
 	 * @param modelItemClassType
 	 *            the {@linkplain Class} type of the object that represents the
@@ -159,10 +167,9 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	 *            the items added to
 	 *            {@linkplain ListView#setItems(ObservableList)}
 	 * @param itemValueType
-	 *            the type of items in the
-	 *            {@linkplain ListView#getItems()}
+	 *            the type of items in the {@linkplain ListView#getItems()}
 	 */
-	public UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final IModelType<IT> modelItemKey,
 			final Class<IT> modelItemClassType, final String labelText,
 			final Number width, final Number height, final String toolTip,
@@ -173,12 +180,12 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	}
 
 	/**
-	 * Creates a {@linkplain UGateCtrlView}
+	 * Creates a {@linkplain UGateCtrlBox}
 	 * 
 	 * @param beanPathAdapter
-	 *            the {@linkplain BeanPathAdapter} to bind the control data to
+	 *            the {@linkplain BeanPathAdapter} to bind to
 	 * @param modelKey
-	 *            the {@linkplain IModelType} for the data of the control
+	 *            the {@linkplain IModelType} of the field
 	 * @param modelItemKey
 	 *            the {@linkplain IModelType} for each item within the
 	 *            collection/map
@@ -186,7 +193,7 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	 *            the {@linkplain Class} type of the object that represents the
 	 *            {@linkplain IModelType}
 	 * @param type
-	 *            the {@linkplain UGateCtrlView.Type}
+	 *            the {@linkplain UGateCtrlBox.Type}
 	 * @param numericStepperFormat
 	 *            the {@linkplain String#format(String, Object...)} (integer of
 	 *            float)
@@ -213,7 +220,7 @@ public class UGateCtrlView<T, IT, IVT> extends VBox {
 	 *            the type of items in the
 	 *            {@linkplain ListView#getItems()}
 	 */
-	protected UGateCtrlView(final BeanPathAdapter<T> beanPathAdapter,
+	protected UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final IModelType<IT> modelItemKey,
 			final Class<IT> modelItemClassType, final Type type,
 			final String numericStepperFormat, final Color numericStepperColor,

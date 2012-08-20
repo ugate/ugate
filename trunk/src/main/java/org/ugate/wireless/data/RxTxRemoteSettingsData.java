@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.ugate.RemoteSettings;
 import org.ugate.RemoteSettingsData;
-import org.ugate.UGateKeeper;
+import org.ugate.service.ServiceProvider;
 
 
 /**
@@ -62,7 +62,7 @@ public class RxTxRemoteSettingsData extends RxData {
 		}
 		for (final RemoteSettings rs : RemoteSettings.values()) {
 			if (rs.canRemote()) {
-				data.add(new RemoteSettingsData(rs, Integer.parseInt(UGateKeeper.DEFAULT.settingsGet(rs, getNodeIndex()))));
+				data.add(new RemoteSettingsData(rs, Integer.parseInt(ServiceProvider.IMPL.getWirelessService().settingsGet(rs, getNodeAddress()))));
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.ugate.resources.RS.KEYS;
 
 /**
  * General utility
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class UGateUtil {
 	
 	public static final Logger PLAIN_LOGGER = getLogger(UGateUtil.class);
-	public static final String HELP_TEXT_DEFAULT_KEY = "help.text.default";
+	public static final KEYS HELP_TEXT_DEFAULT_KEY = KEYS.APP_HELP_DEFAULT;
 	
 	/**
 	 * Font used
@@ -119,6 +120,7 @@ public class UGateUtil {
 	 * @param appenders the array to append
 	 * @return the concatenated array
 	 */
+	@SafeVarargs
 	public static <T> T[] arrayConcat(T[] original, T[]... appenders) {
 		int totalLength = original.length;
 		for (final T[] array : appenders) {

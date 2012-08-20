@@ -1,4 +1,4 @@
-package org.ugate.gui;
+package org.ugate.gui.view;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -15,11 +15,13 @@ import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
+import org.ugate.gui.ControlBar;
 import org.ugate.gui.components.UGateComboBox;
-import org.ugate.gui.components.UGateCtrlView;
+import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.resources.RS;
-import org.ugate.service.ActorType;
-import org.ugate.service.ServiceManager;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.jpa.Actor;
 
 public class WirelessHostConnectionView extends StatusView {
@@ -27,7 +29,7 @@ public class WirelessHostConnectionView extends StatusView {
 	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
 	public final UGateComboBox<String> port;
 	public final UGateComboBox<Integer> baud;
-	public final UGateCtrlView<Actor, Void, Void> hostAddress;
+	public final UGateCtrlBox<Actor, Void, Void> hostAddress;
 	public final Button connect;
 
 	/**
@@ -40,19 +42,19 @@ public class WirelessHostConnectionView extends StatusView {
 		
 		port = createComPortBox();
 	    baud = createBaudRateBox();
-	    hostAddress = new UGateCtrlView<>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
-				UGateCtrlView.Type.TYPE_TEXT, RS.rbLabel("wireless.host"), null);
-	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel("wireless.host.desc"));
+	    hostAddress = new UGateCtrlBox<>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
+				UGateCtrlBox.Type.TYPE_TEXT, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY), null);
+	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY_DESC));
 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
 			public void handle(final UGateKeeperEvent<?> event) {
 				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING) {
 					connect.setDisable(true);
-					connect.setText(RS.rbLabel("wireless.connecting"));
+					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECTING));
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED) {
 					connect.setDisable(false);
-					connect.setText(RS.rbLabel("wireless.reconnect"));
+					connect.setText(RS.rbLabel(KEYS.WIRELESS_RECONNECT));
 					log.debug("Turning ON email connection icon");
 					setStatusFill(true);
 					Platform.runLater(new Runnable() {
@@ -64,13 +66,13 @@ public class WirelessHostConnectionView extends StatusView {
 					});
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					connect.setDisable(false);
-					connect.setText(RS.rbLabel("wireless.connect"));
+					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING) {
 					connect.setDisable(true);
-					connect.setText(RS.rbLabel("wireless.disconnecting"));
+					connect.setText(RS.rbLabel(KEYS.WIRELESS_DISCONNECTING));
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED) {
 					connect.setDisable(false);
-					connect.setText(RS.rbLabel("wireless.connect"));
+					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
 					log.debug("Turning OFF email connection icon");
 					setStatusFill(false);
 				}
@@ -84,7 +86,7 @@ public class WirelessHostConnectionView extends StatusView {
 				connect();
 			}
 	    });
-	    connect.setText(RS.rbLabel("wireless.connect"));
+	    connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
 	    
 	    final VBox portBaudView = new VBox(10d);
 	    portBaudView.setPadding(new Insets(30d, 0, 0, 0));
@@ -107,9 +109,9 @@ public class WirelessHostConnectionView extends StatusView {
 	 */
 	public UGateComboBox<String> createComPortBox() {
 		log.debug("Loading available serial ports");
-		final UGateComboBox<String> port = new UGateComboBox<>(RS.rbLabel("wireless.port"), 
-				UGateKeeper.DEFAULT.wirelessSerialPorts());
-		cb.addHelpTextTrigger(port, RS.rbLabel("wireless.port.desc"));
+		final UGateComboBox<String> port = new UGateComboBox<>(RS.rbLabel(KEYS.WIRELESS_PORT), 
+				ServiceProvider.IMPL.getWirelessService().getSerialPorts());
+		cb.addHelpTextTrigger(port, RS.rbLabel(KEYS.WIRELESS_PORT_DESC));
 		cb.bindTo(ActorType.HOST_COM_PORT, port.getComboBox().valueProperty(),
 				String.class);
 		return port;
@@ -121,8 +123,8 @@ public class WirelessHostConnectionView extends StatusView {
 	public UGateComboBox<Integer> createBaudRateBox() {
 		log.debug("Loading available baud rates");
 	    final UGateComboBox<Integer> baud = new UGateComboBox<>(
-	    		RS.rbLabel("wireless.speed"), ActorType.HOST_BAUD_RATES);
-	    cb.addHelpTextTrigger(baud, RS.rbLabel("wireless.speed.desc"));
+	    		RS.rbLabel(KEYS.WIRELESS_SPEED), ActorType.HOST_BAUD_RATES);
+	    cb.addHelpTextTrigger(baud, RS.rbLabel(KEYS.WIRELESS_SPEED_DESC));
 		cb.bindTo(ActorType.HOST_BAUD_RATE, baud.getComboBox().valueProperty(),
 				Integer.class);
 		return baud;
@@ -134,7 +136,7 @@ public class WirelessHostConnectionView extends StatusView {
 	public void connect() {
 		if (!cb.getActor().getHost().getComAddress().isEmpty() && 
 				cb.getActor().getHost().getComBaud() > 0) {
-			ServiceManager.IMPL.getCredentialService().mergeHost(cb.getActor().getHost());
+			ServiceProvider.IMPL.getCredentialService().mergeHost(cb.getActor().getHost());
 			cb.createWirelessConnectionService(cb.getActor().getHost().getComAddress(), 
 					cb.getActor().getHost().getComBaud()).start();
 		}

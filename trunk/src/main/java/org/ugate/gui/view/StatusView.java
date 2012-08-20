@@ -1,4 +1,6 @@
-package org.ugate.gui;
+package org.ugate.gui.view;
+
+import org.ugate.gui.ControlBar;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

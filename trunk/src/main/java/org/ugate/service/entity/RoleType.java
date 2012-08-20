@@ -1,4 +1,4 @@
-package org.ugate.service;
+package org.ugate.service.entity;
 
 import org.ugate.service.entity.jpa.Role;
 

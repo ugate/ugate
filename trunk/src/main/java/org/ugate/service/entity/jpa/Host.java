@@ -107,8 +107,8 @@ public class Host implements Model {
 	private LinkedHashSet<MailRecipient> mailRecipients;
     
 	//bi-directional many-to-one association to RemoteNode
-	@OneToMany(mappedBy="host")
-	private Set<RemoteNode> remoteNodes;
+	@OneToMany(mappedBy="host", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+	private LinkedHashSet<RemoteNode> remoteNodes;
 
     public Host() {
     }
@@ -249,11 +249,11 @@ public class Host implements Model {
 		this.webKeyStore = webKeyStore;
 	}
 
-	public Set<RemoteNode> getRemoteNodes() {
+	public LinkedHashSet<RemoteNode> getRemoteNodes() {
 		return remoteNodes;
 	}
 
-	public void setRemoteNodes(Set<RemoteNode> remoteNodes) {
+	public void setRemoteNodes(LinkedHashSet<RemoteNode> remoteNodes) {
 		this.remoteNodes = remoteNodes;
 	}
 	

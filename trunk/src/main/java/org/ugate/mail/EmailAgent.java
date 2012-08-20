@@ -33,8 +33,8 @@ import javax.mail.internet.MimeMultipart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.UGateKeeper;
-import org.ugate.service.ActorType;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
 
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;
@@ -431,7 +431,7 @@ public class EmailAgent implements Runnable {
 	 * @return true when the addresses have permission to execute commands
 	 */
 	protected boolean hasCommandPermission(final Address... addresses) {
-		List<String> authRecipients = UGateKeeper.DEFAULT.settingsGet(ActorType.MAIL_RECIPIENTS, 
+		List<String> authRecipients = ServiceProvider.IMPL.getWirelessService().settingsGet(ActorType.MAIL_RECIPIENTS, 
 				null, ActorType.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false;
 		InternetAddress inernetAddress;

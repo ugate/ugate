@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
 
 /**
  * Base view for control settings
@@ -55,10 +56,10 @@ public abstract class ControlPane extends GridPane {
 	/**
 	 * Creates a label
 	 * 
-	 * @param key the resource key
+	 * @param key the {@linkplain KEYS} resource key
 	 * @return the label
 	 */
-	protected Label createLabel(final String key) {
+	protected Label createLabel(final KEYS key) {
 		final Label label = new Label(RS.rbLabel(key));
 		label.setWrapText(true);
 		label.setPrefWidth(LABEL_WIDTH);

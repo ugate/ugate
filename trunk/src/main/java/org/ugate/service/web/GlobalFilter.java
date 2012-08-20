@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
 
 /**
  * {@linkplain Filter} to wrap common output for {@linkplain Servlet}s. <a
@@ -35,7 +36,7 @@ public class GlobalFilter implements Filter {
 			}
 			response.setContentType("text/html;charset=utf-8");
 			response.getWriter().println("<html><body><button onclick=\"header('HTTP/1.1 401 Unauthorized');\">Logout</button>");
-			response.getWriter().println("<h1>" + RS.rbLabel("app.title") + "</h1>");
+			response.getWriter().println("<h1>" + RS.rbLabel(KEYS.APP_TITLE) + "</h1>");
 
 			// delegate the request to the next filter, and eventually to the target servlet or JSP
 			chain.doFilter(request, response);

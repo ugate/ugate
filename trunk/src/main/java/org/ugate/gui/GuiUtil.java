@@ -41,6 +41,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
 
 /**
  * General GUI utility
@@ -88,7 +89,7 @@ public class GuiUtil {
 		//final ProgressIndicator pi = ProgressIndicatorBuilder.create().maxWidth(200d).effect(lighting).build(); 
 		final ProgressIndicator pi = ProgressBarBuilder.create().maxWidth(parent.getWidth() / 2d).maxHeight(25d).effect(lighting).build();
 		final Stage alert = alert(parent, parent.getWidth(), parent.getHeight(), Modality.APPLICATION_MODAL, pi, 
-				LabelBuilder.create().text(RS.rbLabel("sending")).build());
+				LabelBuilder.create().text(RS.rbLabel(KEYS.SENDING)).build());
 		final Service<T> service = new Service<T>() {
 			@Override
 			protected Task<T> createTask() {
@@ -194,11 +195,11 @@ public class GuiUtil {
 	 *            added to the bottom of the dialog.
 	 * @return the {@linkplain DialogService}
 	 */
-	public static DialogService dialogService(final Stage parent, final String titleKey, final String headerKey, 
-			final String submitLabelKey, final double width, final double height, final Service<Void> submitService, 
+	public static DialogService dialogService(final Stage parent, final KEYS titleKey, final KEYS headerKey, 
+			final KEYS submitLabelKey, final double width, final double height, final Service<Void> submitService, 
 			final Node... children) {
 		final Stage window = new Stage();
-		final Button submitBtn = ButtonBuilder.create().text(RS.rbLabel(submitLabelKey == null ? "submit" : 
+		final Button submitBtn = ButtonBuilder.create().text(RS.rbLabel(submitLabelKey == null ? KEYS.SUBMIT : 
 			submitLabelKey)).defaultButton(true).onAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent actionEvent) {
@@ -220,8 +221,8 @@ public class GuiUtil {
 		private final Text messageHeader;
 		private final VBox content;
 		
-		public Dialog(final Stage parent, final Stage stage, final String titleKey,
-				final String headerKey, final Button submitButton,
+		public Dialog(final Stage parent, final Stage stage, final KEYS titleKey,
+				final KEYS headerKey, final Button submitButton,
 				final double width, final double height, final Node... children) {
 			final String headerText = headerKey != null ? RS.rbLabel(headerKey)
 					: "";

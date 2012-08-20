@@ -17,7 +17,8 @@ import javafx.scene.layout.HBox;
 
 import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
-import org.ugate.service.IModelType;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.entity.IModelType;
 
 /**
  * Toggle switch view that shows an image as an indicator as to what is being
@@ -28,7 +29,7 @@ import org.ugate.service.IModelType;
  * 
  * @see ToggleSwitch
  */
-public class UGateToggleSwitchView<T> extends HBox {
+public class UGateToggleSwitchBox<T> extends HBox {
 	
 	public static final int TOGGLE_ITEM_START_INDEX = 0;
 	private final List<ToggleItem> toggleItems;
@@ -48,11 +49,11 @@ public class UGateToggleSwitchView<T> extends HBox {
 	 * @param offImageFileName
 	 *            the file name of the image shown when the toggled off
 	 */
-	public UGateToggleSwitchView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateToggleSwitchBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, 
 			final String onImageFileName, final String offImageFileName) {
 		this(beanPathAdapter, modelKey, onImageFileName, offImageFileName, RS
-				.rbLabel("toggleswitch.on"), RS.rbLabel("toggleswitch.off"));
+				.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_ON), RS.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_OFF));
 	}
 	
 	/**
@@ -72,7 +73,7 @@ public class UGateToggleSwitchView<T> extends HBox {
 	 * @param offText
 	 *            the text to show when off
 	 */
-	public UGateToggleSwitchView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateToggleSwitchBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final String onImageFileName, 
 			final String offImageFileName, final String onText, final String offText) {
 		this(beanPathAdapter, modelKey, new ToggleItem(onImageFileName, offImageFileName, null, null, 
@@ -90,7 +91,7 @@ public class UGateToggleSwitchView<T> extends HBox {
 	 * @param toggleItems
 	 *            the toggle items
 	 */
-	public UGateToggleSwitchView(final BeanPathAdapter<T> beanPathAdapter,
+	public UGateToggleSwitchBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final ToggleItem... toggleItems) {
 		setSpacing(5d);
 		setAlignment(Pos.BOTTOM_LEFT);
@@ -107,7 +108,7 @@ public class UGateToggleSwitchView<T> extends HBox {
 		};
 
 		// add the toggle items
-		this.toggleItems = new ArrayList<UGateToggleSwitchView.ToggleItem>(toggleItems.length);
+		this.toggleItems = new ArrayList<UGateToggleSwitchBox.ToggleItem>(toggleItems.length);
 		for (final ToggleItem item : toggleItems) {
 			this.toggleItems.add(item);
 			item.toggleSwitch.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -158,7 +159,7 @@ public class UGateToggleSwitchView<T> extends HBox {
 	
 	/**
 	 * Updates the toggle items selected property based upon the current
-	 * {@linkplain UGateToggleSwitchView} value
+	 * {@linkplain UGateToggleSwitchBox} value
 	 */
 	protected final void updateToggleItems() {
 		final String val = Integer.toBinaryString(getValue());
@@ -170,12 +171,12 @@ public class UGateToggleSwitchView<T> extends HBox {
 	}
 	
 	/**
-	 * Gets the maximum allowed {@linkplain UGateToggleSwitchView} value for a
+	 * Gets the maximum allowed {@linkplain UGateToggleSwitchBox} value for a
 	 * given item count (zero is always the minimum)
 	 * 
 	 * @param numItems
 	 *            the number of items
-	 * @return the maximum allowed {@linkplain UGateToggleSwitchView} value
+	 * @return the maximum allowed {@linkplain UGateToggleSwitchBox} value
 	 */
 	private int getMaxValue(final int numItems) {
 		int max = (int) Math.pow(numItems, 2);
@@ -183,7 +184,7 @@ public class UGateToggleSwitchView<T> extends HBox {
 	}
 	
 	/**
-	 * @return the maximum allowed {@linkplain UGateToggleSwitchView} value
+	 * @return the maximum allowed {@linkplain UGateToggleSwitchBox} value
 	 */
 	public int getMaxValue() {
 		return getMaxValue(toggleItems.size());
@@ -197,19 +198,19 @@ public class UGateToggleSwitchView<T> extends HBox {
 	}
 	
 	/**
-	 * @return the {@linkplain UGateToggleSwitchView#getValue()} property
+	 * @return the {@linkplain UGateToggleSwitchBox#getValue()} property
 	 */
 	public IntegerProperty valueProperty() {
 		return valueProperty;
 	}
 	
 	/**
-	 * Sets the {@linkplain UGateToggleSwitchView} value (must be greater than
+	 * Sets the {@linkplain UGateToggleSwitchBox} value (must be greater than
 	 * or equal to zero and less than or equal to
 	 * {@linkplain #getMaxValue()}
 	 * 
 	 * @param value
-	 *            the {@linkplain UGateToggleSwitchView} value to set
+	 *            the {@linkplain UGateToggleSwitchBox} value to set
 	 */
 	public void setValue(final int value) {
 		valueProperty().set(value);
@@ -225,13 +226,13 @@ public class UGateToggleSwitchView<T> extends HBox {
 	}
 	
 	/**
-	 * Sets the {@linkplain UGateToggleSwitchView} value (must be greater than
+	 * Sets the {@linkplain UGateToggleSwitchBox} value (must be greater than
 	 * or equal to zero and less than or equal to
 	 * {@linkplain #getMaxValue()} without a need to update the toggle
 	 * items
 	 * 
 	 * @param value
-	 *            the {@linkplain UGateToggleSwitchView} value to set
+	 *            the {@linkplain UGateToggleSwitchBox} value to set
 	 */
 	protected void setValueNoSelectionUpdate(final int value) {
 		toggleItemsNeedSelectionUpdates = false;
@@ -240,7 +241,7 @@ public class UGateToggleSwitchView<T> extends HBox {
 	}
 	
 	/**
-	 * @return the {@linkplain UGateToggleSwitchView} value
+	 * @return the {@linkplain UGateToggleSwitchBox} value
 	 */
 	public int getValue() {
 		return valueProperty().get();
@@ -303,8 +304,8 @@ public class UGateToggleSwitchView<T> extends HBox {
 				final String noneImageFileName, final String allImageFileName,
 				final boolean showToggleSwitch) {
 			this(onImageFileName, offImageFileName, noneImageFileName, 
-					allImageFileName, RS.rbLabel("toggleswitch.on"), 
-					RS.rbLabel("toggleswitch.off"), false, showToggleSwitch);
+					allImageFileName, RS.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_ON), 
+					RS.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_OFF), false, showToggleSwitch);
 		}
 		
 		/**
