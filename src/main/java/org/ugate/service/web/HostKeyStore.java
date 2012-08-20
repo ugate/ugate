@@ -35,7 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
-import org.ugate.service.ServiceManager;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.Host;
 
 /**
@@ -100,7 +101,7 @@ public class HostKeyStore {
 			}
 		}
 		final HostKeyStore mgr = create(
-				Locale.getDefault().getCountry(), RS.rbLabel("app.id"), 
+				Locale.getDefault().getCountry(), RS.rbLabel(KEYS.APP_ID), 
 				Locale.getDefault().getDisplayName(),
 				Locale.getDefault().getDisplayName(), 
 				host.getMailUserName(), host.getWebHost(),
@@ -128,7 +129,7 @@ public class HostKeyStore {
 			final ByteArrayOutputStream ksByteStream = new ByteArrayOutputStream();
 			getKeyStore().store(ksByteStream, keyStorePassword.toCharArray());
 			host.setWebKeyStore(ksByteStream.toByteArray());
-			ServiceManager.IMPL.getCredentialService().mergeHost(host);
+			ServiceProvider.IMPL.getCredentialService().mergeHost(host);
 			return true;
 		} catch (final Throwable t) {
 			log.error("Unable to persist self signed certificate key store", t);

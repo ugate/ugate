@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
 
 /**
  * Wrapper for {@linkplain Label} and {@linkplain ComboBox} controls
@@ -57,7 +58,7 @@ public class UGateComboBox<T> extends VBox {
 		label.setText(labelText);
 		comboBox = new ComboBox<T>(choices);
 		// choice.setTooltip(new Tooltip(label.getText()));
-		comboBox.setPromptText(RS.rbLabel("select"));
+		comboBox.setPromptText(RS.rbLabel(KEYS.SELECT));
 		comboBox.autosize();
 		getChildren().addAll(label, comboBox);
 	}

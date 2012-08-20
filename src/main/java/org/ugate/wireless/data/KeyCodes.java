@@ -2,6 +2,8 @@ package org.ugate.wireless.data;
 
 import java.lang.reflect.Field;
 
+import org.ugate.service.entity.jpa.RemoteNode;
+
 /**
  * Key codes used for universal remote access to device nodes
  */
@@ -14,16 +16,22 @@ public class KeyCodes extends RxData {
 	/**
 	 * Constructor
 	 * 
-	 * @param nodeIndex the remote node index
-	 * @param status the {@linkplain Status}
-	 * @param signalStrength the signal strength
-	 * @param keyCode1 the first key code
-	 * @param keyCode2 the second key code
-	 * @param keyCode3 the third key code
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode}
+	 * @param status
+	 *            the {@linkplain Status}
+	 * @param signalStrength
+	 *            the signal strength
+	 * @param keyCode1
+	 *            the first key code
+	 * @param keyCode2
+	 *            the second key code
+	 * @param keyCode3
+	 *            the third key code
 	 */
-	public KeyCodes(final Integer nodeIndex, final Status status, final int signalStrength, final int keyCode1, 
+	public KeyCodes(final RemoteNode remoteNode, final Status status, final int signalStrength, final int keyCode1, 
 			final int keyCode2, final int keyCode3) {
-		super(nodeIndex, status, signalStrength);
+		super(remoteNode, status, signalStrength);
 		this.keyCode1 = keyCode1;
 		this.keyCode2 = keyCode2;
 		this.keyCode3 = keyCode3;

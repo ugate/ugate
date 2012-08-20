@@ -20,8 +20,8 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.service.RoleType;
-import org.ugate.service.ServiceManager;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
 
 /**
@@ -88,7 +88,7 @@ public class WebServer {
 			// final XmlConfiguration configuration = new
 			// XmlConfiguration(serverXml.getInputStream());
 			// server = (Server) configuration.configure();
-			final Host host = ServiceManager.IMPL.getCredentialService()
+			final Host host = ServiceProvider.IMPL.getCredentialService()
 					.getHostById(getHostId());
 			
 			server = new Server();

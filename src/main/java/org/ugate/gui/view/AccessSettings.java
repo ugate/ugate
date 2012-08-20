@@ -1,11 +1,10 @@
-package org.ugate.gui;
+package org.ugate.gui.view;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -13,12 +12,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
 import org.ugate.Command;
-import org.ugate.RemoteSettings;
-import org.ugate.UGateKeeper;
-import org.ugate.gui.components.UGateCtrlView;
-import org.ugate.gui.components.UGateToggleSwitchView;
+import org.ugate.gui.ControlBar;
+import org.ugate.gui.ControlPane;
+import org.ugate.gui.GuiUtil;
+import org.ugate.gui.components.UGateCtrlBox;
+import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
-import org.ugate.service.RemoteNodeType;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxSensorReadings;
 
@@ -27,13 +29,13 @@ import org.ugate.wireless.data.RxTxSensorReadings;
  */
 public class AccessSettings extends ControlPane {
 
-	private UGateToggleSwitchView<RemoteNode> universalRemoteAccessToggleSwitch;
-	private UGateCtrlView<RemoteNode, Void, Void> remoteAddress;
-	private UGateCtrlView<RemoteNode, Void, Void> workingDir;
-	private UGateCtrlView<RemoteNode, Void, Void> accessKey1;
-	private UGateCtrlView<RemoteNode, Void, Void> accessKey2;
-	private UGateCtrlView<RemoteNode, Void, Void> accessKey3;
-	private UGateToggleSwitchView<RemoteNode> gateToggleSwitchView;
+	private UGateToggleSwitchBox<RemoteNode> universalRemoteAccessToggleSwitch;
+	private UGateCtrlBox<RemoteNode, Void, Void> remoteAddress;
+	private UGateCtrlBox<RemoteNode, Void, Void> workingDir;
+	private UGateCtrlBox<RemoteNode, Void, Void> accessKey1;
+	private UGateCtrlBox<RemoteNode, Void, Void> accessKey2;
+	private UGateCtrlBox<RemoteNode, Void, Void> accessKey3;
+	private UGateToggleSwitchBox<RemoteNode> gateToggleSwitchView;
 
 	/**
 	 * Constructor
@@ -48,64 +50,48 @@ public class AccessSettings extends ControlPane {
 	}
 
 	protected void addConnectionChildren() {
-		final Label nodeLabel = createLabel("wireless.node.remote");
+		final Label nodeLabel = createLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY);
 
-		remoteAddress = new UGateCtrlView<>(controlBar.getRemoteNodePA(),
-				RemoteNodeType.WIRELESS_ADDRESS, UGateCtrlView.Type.TYPE_TEXT,
-				RS.rbLabel("wireless.remote"), null);
+		remoteAddress = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
+				RemoteNodeType.WIRELESS_ADDRESS, UGateCtrlBox.Type.TYPE_TEXT,
+				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY), null);
 		controlBar.addHelpTextTrigger(remoteAddress, RS.rbLabel(
-				"wireless.remote.desc",
-				UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
-		workingDir = new UGateCtrlView<>(controlBar.getRemoteNodePA(),
+				KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC,
+				ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()));
+		workingDir = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.WIRELESS_WORKING_DIR_PATH,
-				UGateCtrlView.Type.TYPE_TEXT,
-				RS.rbLabel("wireless.workingdir"), null);
+				UGateCtrlBox.Type.TYPE_TEXT,
+				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR), null);
 		controlBar.addHelpTextTrigger(workingDir,
-				RS.rbLabel("wireless.workingdir.desc"));
-	    final Button update = new Button(RS.rbLabel("update"));
-	    update.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (GuiUtil.isPrimaryPress(event)) {
-					
-					UGateKeeper.DEFAULT.settingsSet(RemoteSettings.WIRELESS_ADDRESS_NODE, 
-							UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-							remoteAddress.getValue().toString());
-					UGateKeeper.DEFAULT.settingsSet(RemoteSettings.WIRELESS_WORKING_DIR_PATH, 
-							UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
-							workingDir.getValue().toString());
-				}
-			}
-		});
-		
-	    final Group nodeConnectionCell = createCell(false, true, nodeLabel, remoteAddress, workingDir, update);
+				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR_DESC));
+	    final Group nodeConnectionCell = createCell(false, true, nodeLabel, remoteAddress, workingDir);
 		add(nodeConnectionCell, 0, 0);
 	}
 	
 	protected void addUniveralRemoteChildren() {
-		final Label univRemoteLabel = createLabel("wireless.remote.universal");
-		universalRemoteAccessToggleSwitch = new UGateToggleSwitchView<>(
+		final Label univRemoteLabel = createLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL);
+		universalRemoteAccessToggleSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON,
 				RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
 		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, 
-				RS.rbLabel("wireless.remote.universal.desc", 
-						UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()));
-		accessKey1 = new UGateCtrlView<>(controlBar.getRemoteNodePA(),
+				RS.rbLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL_DESC, 
+						ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()));
+		accessKey1 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_1,
 				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
-						"wireless.access.key", 1), null);
-	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel("wireless.access.key.desc", 1));
-		accessKey2 = new UGateCtrlView<>(controlBar.getRemoteNodePA(),
+						KEYS.WIRELESS_ACCESS_KEY, 1), null);
+	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel(KEYS.WIRELESS_ACCESS_KEY_DESC, 1));
+		accessKey2 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_2,
 				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
-						"wireless.access.key", 2), null);
-	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel("wireless.access.key.desc", 2));
-		accessKey3 = new UGateCtrlView<>(controlBar.getRemoteNodePA(),
+						KEYS.WIRELESS_ACCESS_KEY, 2), null);
+	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel(KEYS.WIRELESS_ACCESS_KEY_DESC, 2));
+		accessKey3 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_3,
 				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
-						"wireless.access.key", 3), null);
-	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel("wireless.access.key.desc", 3));
+						KEYS.WIRELESS_ACCESS_KEY, 3), null);
+	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel(KEYS.WIRELESS_ACCESS_KEY_DESC, 3));
 	    
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
@@ -115,17 +101,17 @@ public class AccessSettings extends ControlPane {
 	}
 	
 	protected void addGateChildren() {
-		final Label gateHeader = createLabel("gate.conf");
-		gateToggleSwitchView = new UGateToggleSwitchView<>(
+		final Label gateHeader = createLabel(KEYS.GATE_CONFIG);
+		gateToggleSwitchView = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.GATE_ACCESS_ON,
 				RS.IMG_GATE_ON, RS.IMG_GATE_OFF);
-		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel("gate.toggle"));
-		final Label gateCtrlHeader = createLabel("gate.state");
+		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel(KEYS.GATE_TOGGLE));
+		final Label gateCtrlHeader = createLabel(KEYS.GATE_STATE);
 		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
 		final Region gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
 				1, false, gateToggleButton);
 		gateGroup.setCursor(Cursor.HAND);
-		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel("gate.toggle.desc"));
+		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel(KEYS.GATE_TOGGLE_DESC));
 		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {

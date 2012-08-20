@@ -9,7 +9,7 @@ import org.eclipse.jetty.util.security.Credential.MD5;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.service.CredentialService;
-import org.ugate.service.ServiceManager;
+import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Role;
 
@@ -36,7 +36,7 @@ public class JPALoginService extends MappedLoginService {
 	protected UserIdentity loadUser(final String username) {
 		// get the user and roles from JPA (roles should be eagerly fetched or pre-fetched
 		// or a null pointer will be thrown)
-		final Actor actor = ServiceManager.IMPL.getCredentialService().getActor(username);
+		final Actor actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
 		final String[] roles = new String[actor.getRoles().size()];
 		int i = -1;
 		for (final Role role : actor.getRoles()) {

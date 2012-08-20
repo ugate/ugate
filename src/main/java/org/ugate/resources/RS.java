@@ -37,7 +37,6 @@ import javax.imageio.stream.ImageInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.RemoteSettings;
 import org.ugate.UGateUtil;
 
 public class RS {
@@ -322,8 +321,8 @@ public class RS {
 						String.format("RXTX Install: %1$s is not a supported operating system", 
 						UGateUtil.os()));
 			}
-			final String rxtxVersion = rbLabel("rxtx.version");
-			final String rxtxFileName = rbLabel("rxtx.file.name");
+			final String rxtxVersion = rbLabel(KEYS.RXTX_VERSION);
+			final String rxtxFileName = rbLabel(KEYS.RXTX_FILE_NAME);
 			final String jvmPath = System.getProperties().getProperty("java.home");
 			log.info(String.format("RXTX Install: Installing version %1$s from %2$s for JVM %3$s", 
 					rxtxVersion, rxtxFileName, jvmPath));
@@ -433,7 +432,7 @@ public class RS {
 		// Might not be defined on non Hotspot VM implementations.
 		final String mcmd = System.getProperty("sun.java.command");
 		final StringBuilder cmd = new StringBuilder();
-		final String[] mainCommand = mcmd != null && !mcmd.isEmpty() ? mcmd.split(" ") : new String[] { rbLabel("main.class") };
+		final String[] mainCommand = mcmd != null && !mcmd.isEmpty() ? mcmd.split(" ") : new String[] { rbLabel(KEYS.MAIN_CLASS) };
 		log.info(String.format("Restarting application at entry point: %1$s", mainCommand[0]));
 		cmd.append('"');
 		cmd.append(Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString());
@@ -549,9 +548,14 @@ public class RS {
 	}
 	
 	/**
-	 * @param validate true to validate that the resource exists
-	 * @param resourceName the name of the resource to get a {@linkplain Path} to
-	 * @param closeFileSystem true to close the {@linkplain FileSystem}
+	 * Gets the resource path
+	 * 
+	 * @param validate
+	 *            true to validate that the resource exists
+	 * @param resourceName
+	 *            the name of the resource to get a {@linkplain Path} to
+	 * @param closeFileSystem
+	 *            true to close the {@linkplain FileSystem}
 	 * @return the {@linkplain Path} to the resource
 	 */
 	private static Path resourcePath(final boolean validate, final String resourceName, final boolean closeFileSystem) {
@@ -661,14 +665,6 @@ public class RS {
 	}
 	
 	/**
-	 * @return the {@linkplain Path} to the default remote node (index 
-	 * 		{@linkplain RemoteSettings.WIRELESS_ADDRESS_START_INDEX})
-	 */
-	public static Path remoteDefaultPropertiesPath() {
-		return resourcePath(true, remotePropertiesFileName(RemoteSettings.WIRELESS_ADDRESS_START_INDEX), true);
-	}
-	
-	/**
 	 * @param nodeIndex the index of the remote node
 	 * @return the {@linkplain Path} to the remote node
 	 */
@@ -677,40 +673,214 @@ public class RS {
 	}
 	
 	/**
-	 * Gets the first available locale and the label resource bundles 
-	 * value for the specified key
+	 * Gets the first available locale and the label resource bundles value for
+	 * the specified key
 	 * 
-	 * @param key the key of the resource bundle value
-	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
+	 * @param key
+	 *            the {@linkplain KEYS} of the resource bundle value
+	 * @param formatArguments
+	 *            the {@linkplain String#format(Locale, String, Object...)}
+	 *            arguments
 	 * @return the resource bundle value
 	 */
-	public static String rbLabel(final String key, final Object... formatArguments) {
+	public static String rbLabel(final KEYS key, final Object... formatArguments) {
 		return rbLabel(Locale.getAvailableLocales()[0], key, formatArguments);
 	}
 	
 	/**
 	 * Gets the a label resource bundles value for the specified key
-	 *  
-	 * @param locale the locale of the resource bundle
-	 * @param key the key of the resource bundle value
-	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
+	 * 
+	 * @param locale
+	 *            the locale of the resource bundle
+	 * @param key
+	 *            the {@linkplain KEYS} of the resource bundle value
+	 * @param formatArguments
+	 *            the {@linkplain String#format(Locale, String, Object...)}
+	 *            arguments
 	 * @return the resource bundle value
 	 */
-	public static String rbLabel(final Locale locale, final String key, final Object... formatArguments) {
+	public static String rbLabel(final Locale locale, final KEYS key, final Object... formatArguments) {
 		return rbValue(RB_GUI, locale, key, formatArguments);
 	}
 	
 	/**
 	 * Gets the a resource bundles value for the specified key
-	 *  
-	 * @param rb the resource bundle name
-	 * @param locale the locale of the resource bundle
-	 * @param key the key of the resource bundle value
-	 * @param formatArguments the {@linkplain String#format(Locale, String, Object...)} arguments
+	 * 
+	 * @param rb
+	 *            the resource bundle name
+	 * @param locale
+	 *            the locale of the resource bundle
+	 * @param key
+	 *            the {@linkplain KEYS} of the resource bundle value
+	 * @param formatArguments
+	 *            the {@linkplain String#format(Locale, String, Object...)}
+	 *            arguments
 	 * @return the resource bundle value
 	 */
-	private static String rbValue(final String rb, final Locale locale, final String key, final Object... formatArguments) {
-		final String rbStr = ResourceBundle.getBundle(rb, locale).getString(key);
+	private static String rbValue(final String rb, final Locale locale, final KEYS key, final Object... formatArguments) {
+		final String rbStr = ResourceBundle.getBundle(rb, locale).getString(key.getKey());
 		return formatArguments != null && formatArguments.length > 0 ? String.format(locale, rbStr, formatArguments) : rbStr;
+	}
+
+	/**
+	 * {@linkplain RS} bundle keys
+	 */
+	public enum KEYS {
+		MAIN_CLASS("main.class"), RXTX_VERSION("rxtx.version"), RXTX_FILE_NAME(
+				"rxtx.file.name"), APP_ID("app.id"), APP_VERSION("app.version"), APP_DESC(
+				"app.desc"), APP_TITLE("app.title"), APP_TITLE_ACTION_REQUIRED(
+				"app.action.required"), APP_TITLE_ERROR("app.title.error"), APP_SERVICE_COM_RESTART_REQUIRED(
+				"app.service.com.restart.required"), APP_SERVICE_INIT_ERROR(
+				"app.service.init.error"), APP_GATE_KEEPER_ERROR(
+				"app.gatekeeper.init.error"), APP_CONNECTION_DESC(
+				"app.connection.desc"), APP_CONTROLS_DESC("app.controls.desc"), APP_CAPTURE_DESC(
+				"app.capture.desc"), APP_LOGS_DESC("app.logs.desc"), APP_DIALOG_SETUP(
+				"app.dialog.setup"), APP_DIALOG_SETUP_ERROR(
+				"app.dialog.setup.error"), APP_DIALOG_SETUP_ERROR_PWD_MISMATCH(
+				"app.dialog.setup.error.password.mismatch"), APP_DIALOG_AUTH(
+				"app.dialog.auth"), APP_DIALOG_AUTH_ERROR(
+				"app.dialog.auth.error"), APP_DIALOG_USERNAME(
+				"app.dialog.username"), APP_DIALOG_PWD("app.dialog.password"), APP_DIALOG_PWD_VERIFY(
+				"app.dialog.password.verify"), APP_DIALOG_REQUIRED(
+				"app.dialog.required"), APP_HELP_DEFAULT("help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
+				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
+				"win.systray.tooltip"), LOADING("loading"), SELECT("select"), TODAY(
+				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), UPDATE(
+				"update"), SUBMIT("submit"), SENDING("sending"), CAM_PAN(
+				"cam.pan"), CAM_PAN_DESC("cam.pan.desc"), CAM_TILT("cam.tilt"), CAM_TILT_DESC(
+				"cam.pan.tilt.desc"), CAM_RES("cam.resolution"), CAM_RES_DESC(
+				"cam.resolution.desc"), CAM_RES_VGA("cam.resolution.vga"), CAM_RES_QVGA(
+				"cam.resolution.qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
+				"cam.trip.angle.priority.desc"), CAM_SONAR_TRIP_ANGLE_PRIORITY(
+				"cam.sonar.trip.angle.priority"), CAM_PIR_TRIP_ANGLE_PRIORITY(
+				"cam.pir.trip.angle.priority"), CAM_MW_TRIP_ANGLE_PRIORITY(
+				"cam.mw.trip.angle.priority"), CAM_LASER_TRIP_ANGLE_PRIORITY(
+				"cam.laser.trip.angle.priority"), CAM_PAN_SONAR("cam.pan.sonar"), CAM_TILT_SONAR(
+				"cam.tilt.sonar"), CAM_PAN_SONAR_DESC("cam.pan.sonar.desc"), CAM_TILT_SONAR_DESC(
+				"cam.tilt.sonar.desc"), CAM_PAN_PIR("cam.pan.pir"), CAM_TILT_PIR(
+				"cam.tilt.pir"), CAM_PAN_PIR_DESC("cam.pan.pir.desc"), CAM_TILT_PIR_DESC(
+				"cam.tilt.pir.desc"), CAM_PAN_MW("cam.pan.microwave"), CAM_TILT_MW(
+				"cam.pan.microwave"), CAM_PAN_MW_DESC("cam.pan.microwave.desc"), CAM_TILT_MW_DESC(
+				"cam.pan.microwave.desc"), CAM_PAN_LASER("cam.pan.laser"), CAM_TILT_LASER(
+				"cam.tilt.laser"), CAM_PAN_LASER_DESC("cam.pan.laser.desc"), CAM_TILT_LASER_DESC(
+				"cam.tilt.laser.desc"), CAM_ACTION_QVGA("cam.take.qvga"), CAM_ACTION_VGA(
+				"cam.take.vga"), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
+				"settings.receive"), SETTINGS_SEND_FAILED(
+				"settings.send.failed"), SENSOR_READINGS_GET(
+				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_READINGS(
+				"sensors.readings"), SENSOR_READINGS_FAILED(
+				"sensors.readings.failed"), GATE_CONFIG("gate.conf"), GATE_TOGGLE(
+				"gate.toggle"), GATE_TOGGLE_FAILED("gate.toggle.failed"), GATE_TOGGLE_DESC(
+				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_REMOTE_ACCESS(
+				"remoteaccess"), LABEL_POS_SETTINGS("positionsettings"), LABEL_ALARM_SETTINGS(
+				"alarmsettings"), LABEL_GRAPH_DESC("app.graph.desc"), LABEL_GRAPH_ALARM_NOTIFY(
+				"graph.alarm.notify"), LABEL_GRAPH_AXIS_X("graph.axis.x"), LABEL_DISPLAYSHELF_FULLSIZE_DESC(
+				"displayshelf.fullsize.tooltip"), LABEL_TOGGLE_SWITCH_ON(
+				"toggleswitch.on"), LABEL_TOGGLE_SWITCH_OFF("toggleswitch.off"), SERVICE_TX_RESPONSE_INVALID(
+				"service.tx.response.unrecognized"), SERVICE_TX_RESPONSE_SUCCESS(
+				"service.tx.response.success"), SERVICE_TX_RESPONSE_ERROR(
+				"service.tx.response.error"), SERVICE_RX_READINGS(
+				"service.rx.readings"), SERVICE_RX_SETTINGS(
+				"service.rx.settings"), SERVICE_RX_KEYCODES(
+				"service.rx.keycodes"), SERVICE_RX_IMAGE_MULTPART(
+				"service.rx.image.multipart"), SERVICE_RX_IMAGE_SUCCESS(
+				"service.rx.image.success"), SERVICE_RX_IMAGE_LOST_PACKETS(
+				"service.rx.image.lostpackets"), SERVICE_RX_IMAGE_LOST_PACKETS_RETRY(
+				"service.rx.image.lostpackets.retry"), SERVICE_RX_IMAGE_TIMEOUT(
+				"service.rx.image.timeout"), SERVICE_CMD_SOUNDS(
+				"service.command.sounds"), SERVICE_CMD_SOUNDS_TOGGLE(
+				"service.command.sounds.toggle"), SERVICE_CMD_FAILED(
+				"service.command.failed"), SERVICE_WIRELESS_CONNECTION_REQUIRED(
+				"service.wireless.connection.required"), SERVICE_WIRELESS_FAILED(
+				"service.wireless.failed"), SERVICE_WIRELESS_ACK_SUCCESS(
+				"service.wireless.ack.success"), SERVICE_WIRELESS_ACK_FAILED(
+				"service.wireless.ack.failed"), SERVICE_WIRELESS_SENDING(
+				"service.wireless.sending"), SERVICE_WIRELESS_SUCCESS(
+				"service.wireless.success"), SERVICE_WIRELESS_TX_TIMEOUT(
+				"service.wireless.tx.timeout"), SERVICE_WIRELESS_TX_FAILED(
+				"service.wireless.tx.failed"), SERVICE_WIRELESS_TX_BATCH_FAILED(
+				"service.wireless.tx.batch.failed"), SERVICE_WIRELESS_SETTINGS_FAILED(
+				"service.wireless.settings.failed"), SERVICE_EMAIL_FAILED(
+				"service.email.failed"), SERVICE_EMAIL_CMD_EXEC(
+				"service.email.commandexec"), SERVICE_EMAIL_CMD_EXEC_FAILED(
+				"service.email.commandexec.failed"), LABEL_GRAPH_AXIS_Y(
+				"graph.axis.y"), LABEL_GRAPH_SERIES_ALARM("graph.series.alarm"), LABEL_GRAPH_SERIES_ACTIVITY_MANUAL(
+				"graph.series.activity.manual"), MAIL_CONNECT_FAILED(
+				"mail.connect.failed"), MAIL_CONNECT("mail.connect"), MAIL_CONNECTED(
+				"mail.connected"), MAIL_CONNECTING("mail.connecting"), MAIL_DISCONNECTING(
+				"mail.disconnecting"), MAIL_DISCONNECTED("mail.disconnected"), MAIL_CLOSED(
+				"mail.closed"), MAIL_RECONNECT("mail.reconnect"), MAIL_SMTP_HOST(
+				"mail.smtp.host"), MAIL_SMTP_HOST_DESC("mail.smtp.host.desc"), MAIL_SMTP_PORT(
+				"mail.smtp.port"), MAIL_SMTP_PORT_DESC("mail.smtp.port.desc"), MAIL_IMAP_HOST(
+				"mail.imap.host"), MAIL_IMAP_HOST_DESC("mail.imap.host.desc"), MAIL_IMAP_PORT(
+				"mail.imap.port"), MAIL_IMAP_PORT_DESC("mail.imap.port.desc"), MAIL_USERNAME(
+				"mail.username"), MAIL_USERNAME_DESC("mail.username.desc"), MAIL_PASSWORD(
+				"mail.password"), MAIL_PASSWORD_DESC("mail.password.desc"), MAIL_FOLDER_NAME(
+				"mail.folder"), MAIL_FOLDER_DESC("mail.folder.desc"), SONAR_THRESHOLD(
+				"sonar.threshold"), SONAR_THRESHOLD_DESC("sonar.threshold.desc"), SONAR_PIR_PAN(
+				"sonarpir.pan"), SONAR_PIR_PAN_DESC("sonarpir.pan.desc"), SONAR_PIR_TILT(
+				"sonarpir.tilt"), SONAR_PIR_TILT_DESC("sonarpir.tilt.desc"), SONAR_ALARM_DELAY(
+				"sonar.alarm.delay"), SONAR_ALARM_DELAY_DESC(
+				"sonar.alarm.delay.desc"), PIR_ALARM_DELAY("pir.alarm.delay"), PIR_ALARM_DELAY_DESC(
+				"pir.alarm.delay.desc"), MW_THRESHOLD("microwave.threshold"), MW_THRESHOLD_DESC(
+				"microwave.threshold.desc"), MW_ALARM_DELAY(
+				"microwave.alarm.delay"), MW_ALARM_DELAY_DESC(
+				"microwave.alarm.delay.desc"), MW_PAN("microwave.pan"), MW_PAN_DESC(
+				"microwave.pan.desc"), LASER_THRESHOLD("laser.threshold"), LASER_THRESHOLD_DESC(
+				"laser.threshold.desc"), LASER_ALARM_DELAY("laser.alarm.delay"), LASER_ALARM_DELAY_DESC(
+				"laser.alarm.delay.desc"), LASER_CALIBRATION(
+				"laser.calibration"), LASER_CALIBRATION_DESC(
+				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
+				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
+				"laser.calibration.failed"), WIRELESS_NODE_REMOTE_ADDY(
+				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
+				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
+				"wireless.node.remote.prompt"), WIRELESS_NODE_REMOTE_STATUS(
+				"wireless.node.remote.status"), WIRELESS_NODE_REMOTE_CHANGING(
+				"wireless.node.remote.changing"), WIRELESS_NODE_REMOTE_REMOVE(
+				"wireless.node.remote.remove"), WIRELESS_NODE_REMOTE_REMOVE_DESC(
+				"wireless.node.remote.remove.desc"), WIRELESS_NODE_REMOTE_ADD(
+				"wireless.node.remote.add"), WIRELESS_REMOTE_UNIVERSAL(
+				"wireless.remote.universal"), WIRELESS_REMOTE_UNIVERSAL_DESC(
+				"wireless.remote.universal.desc"), WIRELESS_PORT(
+				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(
+				"wireless.speed"), WIRELESS_SPEED_DESC("wireless.speed.desc"), WIRELESS_ACCESS_KEY(
+				"wireless.access.key"), WIRELESS_ACCESS_KEY_DESC(
+				"wireless.access.key.desc"), WIRELESS_HOST_ADDY("wireless.host"), WIRELESS_HOST_ADDY_DESC(
+				"wireless.host.desc"), WIRELESS_CONNECT("wireless.connect"), WIRELESS_CONNECTING(
+				"wireless.connecting"), WIRELESS_RECONNECT("wireless.reconnect"), WIRELESS_DISCONNECTING(
+				"wireless.disconnecting"), WIRELESS_SYNC(
+				"wireless.synchronizing"), WIRELESS_NODE_REMOTE_ADD_DESC(
+				"wireless.node.remote.add.desc"), WIRELESS_WORKING_DIR(
+				"wireless.workingdir"), WIRELESS_WORKING_DIR_DESC(
+				"wireless.workingdir.desc"), MAIL_ALARM_NOTIFY(
+				"mail.alarm.notify"), MAIL_ALARM_NOTIFY_DESC(
+				"mail.alarm.notify.desc"), MAIL_ALARM_NOFITY_EMAILS(
+				"mail.alarm.notify.emails"), MAIL_ALARM_NOTIFY_EMAILS_DESC(
+				"mail.alarm.notify.emails.desc"), MAIL_ALARM_NOTIFY_EMAILS_REMOVE(
+				"mail.alarm.notify.emails.remove"), MAIL_ALARM_NOTIFY_EMAILS_ADD(
+				"mail.alarm.notify.emails.add"), MAIL_ALARM_NOTIFY_EMAILS_ADD_DESC(
+				"mail.alarm.notify.emails.add.desc"), MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED(
+				"mail.alarm.notify.emails.add.failed"), MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED(
+				"mail.alarm.notify.emails.remove.failed");
+
+		private final String key;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param key
+		 *            the key to the {@linkplain RS}
+		 */
+		private KEYS(final String key) {
+			this.key = key;
+		}
+
+		/**
+		 * @return the key to the {@linkplain RS}
+		 */
+		public String getKey() {
+			return key;
+		}
 	}
 }

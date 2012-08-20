@@ -1,4 +1,4 @@
-package org.ugate.gui;
+package org.ugate.gui.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,8 +26,12 @@ import org.ugate.Command;
 import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
+import org.ugate.gui.ControlBar;
+import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.ServiceProvider;
 
 /**
  * {@linkplain ToolBar} for displaying the status of each of the remote nodes
@@ -50,7 +54,7 @@ public class RemoteNodeToolBar extends ToolBar {
 		setOrientation(orientation);
 		this.controlBar = controlBar;
 		addGlobalNodeControls();
-		addNodeIcons(UGateKeeper.DEFAULT.wirelessGetRemoteAddressMap());
+		addNodeIcons(ServiceProvider.IMPL.getWirelessService().getRemoteNodeAddressMap());
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
 			public void handle(final UGateKeeperEvent<?> event) {
@@ -61,8 +65,8 @@ public class RemoteNodeToolBar extends ToolBar {
 				if (isNodeChange || isRemoteCommand) {
 					final Map<Integer, String> adds = new HashMap<Integer, String>();
 					final List<NodeStatusView> removes = new ArrayList<NodeStatusView>();
-					//final int currNodeIndex = UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex();
-					final String currNodeAddesss = UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress();
+					//final int currNodeIndex = ServiceProvider.IMPL.getWirelessService().wirelessGetCurrentRemoteNodeIndex();
+					final String currNodeAddesss = ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress();
 					for (final Map.Entry<Integer, String> me : event.getNodeAddresses().entrySet()) {
 						if (event.getType() == UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_ADD) {
 							adds.put(me.getKey(), me.getValue());
@@ -106,7 +110,7 @@ public class RemoteNodeToolBar extends ToolBar {
 		if (addressesToAdd != null) {
 			for (final Map.Entry<Integer, String> wn : addressesToAdd.entrySet()) {
 				final NodeStatusView wnav = new NodeStatusView(controlBar, wn.getKey(), wn.getValue());
-				if (wn.getKey() == UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()) {
+				if (wn.getKey() == ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()) {
 					wnav.setStatusFill(true);
 				}
 				getItems().add(wnav);
@@ -118,10 +122,10 @@ public class RemoteNodeToolBar extends ToolBar {
 	 * Adds the user interaction controls for adding/removing nodes
 	 */
 	protected void addGlobalNodeControls() {
-		textField.setPromptText(RS.rbLabel("wireless.node.remote.prompt"));
+		textField.setPromptText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_PROMPT));
 //		textField.setTooltip(new Tooltip(RS.rbLabel("wireless.node.remote")));
 		textField.setMaxWidth(100d);
-		controlBar.addHelpTextTrigger(textField, RS.rbLabel("wireless.node.remote.desc"));
+		controlBar.addHelpTextTrigger(textField, RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC));
 		final Button addNodeButton = new FunctionButton(FunctionButton.Function.ADD, 
 				new Runnable() {
 					@Override
@@ -129,7 +133,7 @@ public class RemoteNodeToolBar extends ToolBar {
 						addOrRemoveNodeAddress(textField.getText(), true);
 					}
 				});
-		controlBar.addHelpTextTrigger(addNodeButton, RS.rbLabel("wireless.node.remote.add.desc"));
+		controlBar.addHelpTextTrigger(addNodeButton, RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADD_DESC));
 		final Button removeNodeButton = new FunctionButton(
 				FunctionButton.Function.REMOVE, new Runnable() {
 					@Override
@@ -137,7 +141,7 @@ public class RemoteNodeToolBar extends ToolBar {
 						addOrRemoveNodeAddress(textField.getText(), false);
 					}
 				});
-		controlBar.addHelpTextTrigger(removeNodeButton, RS.rbLabel("wireless.node.remote.remove.desc"));
+		controlBar.addHelpTextTrigger(removeNodeButton, RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE_DESC));
 		getItems().addAll(textField, addNodeButton, removeNodeButton, new Separator(Orientation.VERTICAL));
 	}
 	
@@ -157,13 +161,13 @@ public class RemoteNodeToolBar extends ToolBar {
 						log.warn("Cannot add a remote node address that already exists");
 						return;
 					} else {
-						UGateKeeper.DEFAULT.wirelessRemoveNode(((NodeStatusView) node).getNodeAddress());
+						ServiceProvider.IMPL.getWirelessService().removeNode(((NodeStatusView) node).getNodeAddress());
 						return;
 					}
 				}
 			}
 			if (add) {
-				UGateKeeper.DEFAULT.wirelessSetRemoteNode(nodeAddress);
+				ServiceProvider.IMPL.getWirelessService().setRemoteNode(nodeAddress);
 			}
 		}
 	}
@@ -194,7 +198,7 @@ public class RemoteNodeToolBar extends ToolBar {
 				@Override
 				public void handle(final MouseEvent event) {
 					if (GuiUtil.isPrimaryPress(event)) {
-						UGateKeeper.DEFAULT.wirelessSetRemoteNode(getNodeAddress());
+						ServiceProvider.IMPL.getWirelessService().setRemoteNode(getNodeAddress());
 						blinkStop(true);
 					}
 				}
@@ -213,7 +217,7 @@ public class RemoteNodeToolBar extends ToolBar {
 		 * @param commandDesc the node command description
 		 */
 		protected void setHelpText(final String commandDesc) {
-			this.helpTextStringProperty.set(RS.rbLabel("wireless.node.remote.status", getNodeAddress(), commandDesc));
+			this.helpTextStringProperty.set(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_STATUS, getNodeAddress(), commandDesc));
 		}
 		
 		/**

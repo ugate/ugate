@@ -35,11 +35,11 @@ public class DefaultAppServlet extends DefaultServlet {
 			response.getWriter().println("<h1>RESULTS</h1>");
 			// TODO : Implement web GUI
 //	        final Message msg = new Message("Hello Persistence! " + System.currentTimeMillis());
-//	        ServiceManager.IMPL.getRemoteNodeService().saveMessage(msg);
+//	        ServiceProvider.IMPL.getRemoteNodeService().saveMessage(msg);
 //	        log.info("NEW Message ID: " + msg.getId());
 //	        // Go through each of the entities and print out each of their
 //	        // messages, as well as the date on which it was created 
-//	        for (Message m : ServiceManager.IMPL.getRemoteNodeService().getAllMessages()) { // (List<Message>) q.getResultList()) {
+//	        for (Message m : ServiceProvider.IMPL.getRemoteNodeService().getAllMessages()) { // (List<Message>) q.getResultList()) {
 //	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')');
 //	            response.getWriter().println("<h3>" + m.getMessage() + " (created on: " + m.getCreated() + ')' + "</h3>");
 //	        }

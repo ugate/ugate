@@ -1,5 +1,6 @@
 package org.ugate.service;
 
+import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.jpa.MailRecipient;
 
 public enum MailRecipientType implements IModelType<MailRecipient> {

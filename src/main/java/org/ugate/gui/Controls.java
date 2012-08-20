@@ -17,7 +17,11 @@ import javafx.scene.web.WebView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.gui.view.AccessSettings;
+import org.ugate.gui.view.AlarmSettings;
+import org.ugate.gui.view.PositionSettings;
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
 import org.w3c.dom.Element;
 
 /**
@@ -38,9 +42,9 @@ public class Controls extends TabPane {
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab remoteAccessTab = createTab(null, RS.rbLabel("remoteaccess"), AccessSettings.class, controlBar);
-		final Tab alarmSettingsTab = createTab(null, RS.rbLabel("alarmsettings"), AlarmSettings.class, controlBar);
-		final Tab positioningTab = createTab(null, RS.rbLabel("positionsettings"), PositionSettings.class, controlBar);
+		final Tab remoteAccessTab = createTab(null, RS.rbLabel(KEYS.LABEL_REMOTE_ACCESS), AccessSettings.class, controlBar);
+		final Tab alarmSettingsTab = createTab(null, RS.rbLabel(KEYS.LABEL_ALARM_SETTINGS), AlarmSettings.class, controlBar);
+		final Tab positioningTab = createTab(null, RS.rbLabel(KEYS.LABEL_POS_SETTINGS), PositionSettings.class, controlBar);
 		getTabs().addAll(remoteAccessTab, alarmSettingsTab, positioningTab);
 	}
 	
@@ -170,7 +174,7 @@ public class Controls extends TabPane {
 	 * @return the created button
 	 */
 	protected Button createReloadButton(final WebView webView) {
-		final Button reloadBtn = new Button(RS.rbLabel("reload"));
+		final Button reloadBtn = new Button(RS.rbLabel(KEYS.RELOAD));
 		reloadBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {

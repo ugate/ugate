@@ -39,10 +39,13 @@ import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.Digits;
-import org.ugate.gui.components.UGateToggleSwitchView;
+import org.ugate.gui.components.UGateToggleSwitchBox;
+import org.ugate.gui.view.AlarmSettings;
 import org.ugate.resources.RS;
-import org.ugate.service.ActorType;
-import org.ugate.service.RemoteNodeType;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxSensorReadings;
@@ -100,11 +103,11 @@ public class ControlBar extends ToolBar {
 		
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
-		addHelpTextTrigger(camTakeQvga, RS.rbLabel("cam.take.qvga"));
+		addHelpTextTrigger(camTakeQvga, RS.rbLabel(KEYS.CAM_ACTION_QVGA));
 		camTakeQvga.setCursor(Cursor.HAND);
 		camTakeQvga.setEffect(ds);
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
-		addHelpTextTrigger(camTakeVga, RS.rbLabel("cam.take.vga"));
+		addHelpTextTrigger(camTakeVga, RS.rbLabel(KEYS.CAM_ACTION_VGA));
 		camTakeVga.setCursor(Cursor.HAND);
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
@@ -117,7 +120,7 @@ public class ControlBar extends ToolBar {
 				}
 			}
 	    });
-		addHelpTextTrigger(settingsSet, RS.rbLabel("settings.send"));
+		addHelpTextTrigger(settingsSet, RS.rbLabel(KEYS.SETTINGS_SEND));
 		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
 		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
@@ -130,7 +133,7 @@ public class ControlBar extends ToolBar {
 				}
 			}
 	    });
-		addHelpTextTrigger(settingsGet, RS.rbLabel("settings.receive"));
+		addHelpTextTrigger(settingsGet, RS.rbLabel(KEYS.SETTINGS_RECEIVE));
 		settingsGet.setEffect(ds);
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
 		readingsGet.setCursor(Cursor.HAND);
@@ -142,7 +145,7 @@ public class ControlBar extends ToolBar {
 				}
 			}
 	    });
-		addHelpTextTrigger(readingsGet, RS.rbLabel("sensors.readings.get"));
+		addHelpTextTrigger(readingsGet, RS.rbLabel(KEYS.SENSOR_READINGS_GET));
 		readingsGet.setEffect(ds);
 		
 		// add the readings view
@@ -165,19 +168,19 @@ public class ControlBar extends ToolBar {
 		
 		
 		// add the multi-alarm trip state
-		final UGateToggleSwitchView<RemoteNode> multiAlarmToggleSwitch = new UGateToggleSwitchView<>(
+		final UGateToggleSwitchBox<RemoteNode> multiAlarmToggleSwitch = new UGateToggleSwitchBox<>(
 				getRemoteNodePA(),RemoteNodeType.MULTI_ALARM_TRIP_STATE, 
-				new UGateToggleSwitchView.ToggleItem(RS.IMG_SONAR_ALARM_MULTI, 
+				new UGateToggleSwitchBox.ToggleItem(RS.IMG_SONAR_ALARM_MULTI, 
 						RS.IMG_SONAR_ALARM_OFF, RS.IMG_SONAR_ALARM_ANY, null, false),
-				new UGateToggleSwitchView.ToggleItem(RS.IMG_PIR_ALARM_MULTI, 
+				new UGateToggleSwitchBox.ToggleItem(RS.IMG_PIR_ALARM_MULTI, 
 						RS.IMG_PIR_ALARM_OFF, RS.IMG_PIR_ALARM_ANY, null, false),
-				new UGateToggleSwitchView.ToggleItem(RS.IMG_MICROWAVE_ALARM_MULTI,
+				new UGateToggleSwitchBox.ToggleItem(RS.IMG_MICROWAVE_ALARM_MULTI,
 						RS.IMG_MICROWAVE_ALARM_OFF, RS.IMG_MICROWAVE_ALARM_ANY, null, false),
-				new UGateToggleSwitchView.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
+				new UGateToggleSwitchBox.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
 						RS.IMG_LASER_ALARM_OFF, RS.IMG_LASER_ALARM_ANY, null, false));
 		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
 				false, multiAlarmToggleSwitch);
-		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel("sensors.trip.multi"));
+		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel(KEYS.SENSOR_TRIP_MULTI));
 		
 		// add the menu items
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSet, settingsGet, readingsGet, 
@@ -253,8 +256,8 @@ public class ControlBar extends ToolBar {
 	 * @return the service
 	 */
 	public Service<Boolean> createCommandService(final Command command, final boolean start) {
-		if (!UGateKeeper.DEFAULT.wirelessIsConnected()) {
-			setHelpText(RS.rbLabel("service.wireless.connection.required"));
+		if (!ServiceProvider.IMPL.getWirelessService().isConnected()) {
+			setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_CONNECTION_REQUIRED));
 			return null;
 		}
 		setHelpText(null);
@@ -263,26 +266,26 @@ public class ControlBar extends ToolBar {
 			protected Boolean call() throws Exception {
 				try {
 					if (command == Command.SENSOR_GET_READINGS) {
-						if (!UGateKeeper.DEFAULT.wirelessSendData(
-								UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+						if (!ServiceProvider.IMPL.getWirelessService().sendData(
+								ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex(), 
 								Command.SENSOR_GET_READINGS)) {
-							setHelpText(RS.rbLabel("sensors.readings.failed",
-									UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress()));
+							setHelpText(RS.rbLabel(KEYS.SENSOR_READINGS_FAILED,
+									ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress()));
 							return false;
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
-						if (!UGateKeeper.DEFAULT.wirelessSendSettings(
-								UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex())) {
-							setHelpText(RS.rbLabel("settings.send.failed",
-									UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress()));
+						if (!ServiceProvider.IMPL.getWirelessService().sendSettings(
+								ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex())) {
+							setHelpText(RS.rbLabel(KEYS.SETTINGS_SEND_FAILED,
+									ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress()));
 							return false;
 						}
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
-						if (!UGateKeeper.DEFAULT.wirelessSendData(
-								UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex(), 
+						if (!ServiceProvider.IMPL.getWirelessService().sendData(
+								ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex(), 
 								Command.GATE_TOGGLE_OPEN_CLOSE)) {
-							setHelpText(RS.rbLabel("gate.toggle.failed",
-									UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeAddress()));
+							setHelpText(RS.rbLabel(KEYS.GATE_TOGGLE_FAILED,
+									ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress()));
 							return false;
 						}
 					} else {
@@ -291,7 +294,7 @@ public class ControlBar extends ToolBar {
 						return false;
 					}
 				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel("service.command.failed"));
+					setHelpText(RS.rbLabel(KEYS.SERVICE_CMD_FAILED));
 					log.error("Unable to execute " + command, t);
 					return false;
 				}
@@ -312,16 +315,17 @@ public class ControlBar extends ToolBar {
 	 * @param baudRate the baud rate to connect at
 	 * @return the service
 	 */
-	public Service<Boolean> createWirelessConnectionService(final String comPort, final int baudRate) {
+	public Service<Boolean> createWirelessConnectionService() {
 		setHelpText(null);
 		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
 					// establish wireless connection (blocking)
-					UGateKeeper.DEFAULT.wirelessConnect(comPort, baudRate);
+					ServiceProvider.IMPL.getWirelessService().connect(
+							getActor().getHost(), getRemoteNode());
 				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel("service.wireless.failed"));
+					setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
 					log.error("Unable to establish a wireless connection", t);
 				}
 				return false;
@@ -342,9 +346,9 @@ public class ControlBar extends ToolBar {
 			protected Boolean call() throws Exception {
 				try {
 					// establish wireless connection (blocking)
-					UGateKeeper.DEFAULT.emailConnect();
+					ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
 				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel("service.email.failed"));
+					setHelpText(RS.rbLabel(KEYS.SERVICE_EMAIL_FAILED));
 					log.error("Unable to establish a wireless connection", t);
 				}
 				return false;

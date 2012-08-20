@@ -61,14 +61,18 @@ import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
+import org.ugate.gui.view.EmailHostConnectionView;
+import org.ugate.gui.view.RemoteNodeToolBar;
+import org.ugate.gui.view.WirelessHostConnectionView;
 import org.ugate.resources.RS;
-import org.ugate.service.ActorType;
-import org.ugate.service.RemoteNodeType;
-import org.ugate.service.RoleType;
-import org.ugate.service.ServiceManager;
+import org.ugate.resources.RS.KEYS;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.RemoteNodeType;
+import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
-import org.ugate.service.web.SignatureAlgorithm;
 import org.ugate.wireless.data.ImageCapture;
 
 /**
@@ -94,7 +98,7 @@ public class UGateGUI extends Application {
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
-	private static String initErrorTitleRsKey = "app.title.error";
+	private static KEYS initErrorTitleRsKey = KEYS.APP_TITLE_ERROR;
 	private static StringBuffer initErrors;
 	private final BeanPathAdapter<Actor> actorPA;
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
@@ -105,7 +109,9 @@ public class UGateGUI extends Application {
 	public UGateGUI() {
 		// TextAreaAppender.setTextArea(loggingView);
 		actorPA = new BeanPathAdapter<Actor>(ActorType.newDefaultActor());
-		remoteNodePA = new BeanPathAdapter<RemoteNode>(RemoteNodeType.newDefaultRemoteNode());
+		remoteNodePA = new BeanPathAdapter<RemoteNode>(
+				RemoteNodeType
+						.newDefaultRemoteNode(actorPA.getBean().getHost()));
 	}
 
 	/**
@@ -130,30 +136,20 @@ public class UGateGUI extends Application {
 	@Override
 	public void init() {
 		try {
+			log.debug("Iniitializing Service Provider...");
 			notifyPreloader(new ProgressNotification(0.3d));
-			ServiceManager.IMPL.open();
-		} catch (final Throwable t) {
-			log.error("Unable to start services", t);
-			try {
-				addInitError(RS.rbLabel("app.service.init.error"), t.getMessage());
-			} catch (final Throwable t2) {
-				log.error("Unable notify user that services failed to start", t2);
-			}
-		}
-		try {
-			log.debug("Iniitializing GUI...");
-			notifyPreloader(new ProgressNotification(0.7d));
-			if (UGateKeeper.DEFAULT.init()) {
-				initErrorTitleRsKey = "app.title.action.required";
-				addInitError(RS.rbLabel("app.service.com.restart.required"));
+			ServiceProvider.IMPL.init();
+			if (ServiceProvider.IMPL.getWirelessService().in()) {
+				initErrorTitleRsKey = KEYS.APP_TITLE_ACTION_REQUIRED;
+				addInitError(RS.rbLabel(KEYS.APP_SERVICE_COM_RESTART_REQUIRED));
 			}
 			// Text.setFontSmoothingType(FontSmoothingType.LCD);
 		} catch (final Throwable t) {
-			log.error("Unable to initialize the GUI", t);
+			log.error("Unable to start services", t);
 			try {
-				addInitError(RS.rbLabel("app.gatekeeper.init.error"), t.getMessage());
+				addInitError(RS.rbLabel(KEYS.APP_SERVICE_INIT_ERROR), t.getMessage());
 			} catch (final Throwable t2) {
-				log.error("Unable notify user that the gate keeper failed to start", t2);
+				log.error("Unable notify user that services failed to start", t2);
 			}
 		}
 	}
@@ -185,8 +181,8 @@ public class UGateGUI extends Application {
 			if (initErrors != null && initErrors.length() > 0) {
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
-				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, "app.title", initErrorTitleRsKey, 
-						"close", 550d, 300d, new Service<Void>() {
+				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, initErrorTitleRsKey, 
+						KEYS.CLOSE, 550d, 300d, new Service<Void>() {
 					@Override
 					protected Task<Void> createTask() {
 						return new Task<Void>() {
@@ -221,7 +217,7 @@ public class UGateGUI extends Application {
 	protected void mainStageStart(final Stage stage) {
 		notifyPreloader(new ProgressNotification(0.9d));
 		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
-		stage.setTitle(RS.rbLabel("app.title"));
+		stage.setTitle(RS.rbLabel(KEYS.APP_TITLE));
 
 		controlBar = new ControlBar(stage, actorPA, remoteNodePA);
 		final BorderPane content = new BorderPane();
@@ -268,42 +264,44 @@ public class UGateGUI extends Application {
 		// content.setBottom(taskbar);
 		content.setBottom(bottom);
 
-		taskbar.getChildren().add(createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel("app.connection.desc"), 0, new Runnable() {
+		taskbar.getChildren().add(createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEYS.APP_CONNECTION_DESC), 0, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(connectionView, 0);
 			}
 		})));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel("app.controls.desc"), 1, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel(KEYS.APP_CONTROLS_DESC), 1, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(controls, 1);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_PICS, RS.rbLabel("app.capture.desc"), 2, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_PICS, RS.rbLabel(KEYS.APP_CAPTURE_DESC), 2, new Runnable() {
 			@Override
 			public void run() {
-				changeCenterView(new DisplayShelf(UGateKeeper.DEFAULT.wirelessWorkingDirectory(UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex()).toFile(), 350, 350, 0.25, 45, 80, DisplayShelf.TOOLBAR_POSITION_TOP, RS.rbLabel("displayshelf.fullsize.tooltip")), 2);
+				changeCenterView(new DisplayShelf(ServiceProvider.IMPL.getWirelessService().wirelessWorkingDirectory(
+						ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()).toFile(), 350, 350, 0.25, 45, 80, 
+						DisplayShelf.TOOLBAR_POSITION_TOP, RS.rbLabel(KEYS.LABEL_DISPLAYSHELF_FULLSIZE_DESC)), 2);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel("app.graph.desc"), 3, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel(KEYS.LABEL_GRAPH_DESC), 3, new Runnable() {
 			@Override
 			public void run() {
 				NumberAxis xAxis = new NumberAxis();
 				NumberAxis yAxis = new NumberAxis();
 				LineChart<Number, Number> chart = new LineChart<Number, Number>(xAxis, yAxis);
-				chart.setTitle(RS.rbLabel("graph.alarm.notify"));
-				xAxis.setLabel(RS.rbLabel("graph.axis.x"));
-				yAxis.setLabel(RS.rbLabel("graph.axis.y"));
+				chart.setTitle(RS.rbLabel(KEYS.LABEL_GRAPH_ALARM_NOTIFY));
+				xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
+				yAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_Y));
 				XYChart.Series<Number, Number> sonarTrippedSeries = new XYChart.Series<Number, Number>();
-				sonarTrippedSeries.setName(RS.rbLabel("graph.series.alarm"));
+				sonarTrippedSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM));
 				Random random = new Random();
 				for (int i = 0; i < 10 + random.nextInt(20); i++) {
 					sonarTrippedSeries.getData().add(new XYChart.Data<Number, Number>(10 * i + 10, random.nextDouble() * 150));
 				}
 				chart.getData().add(sonarTrippedSeries);
 				XYChart.Series<Number, Number> manualImageSeries = new XYChart.Series<Number, Number>();
-				manualImageSeries.setName(RS.rbLabel("graph.series.activity.manual"));
+				manualImageSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ACTIVITY_MANUAL));
 				for (int i = 0; i < 10 + random.nextInt(20); i++) {
 					manualImageSeries.getData().add(new XYChart.Data<Number, Number>(10 * i + 10, random.nextDouble() * 150));
 				}
@@ -334,7 +332,7 @@ public class UGateGUI extends Application {
 				changeCenterView(history, 3);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel("app.logs.desc"), 4, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel(KEYS.APP_LOGS_DESC), 4, new Runnable() {
 			@Override
 			public void run() {
 				loggingView.setEditable(false);
@@ -351,58 +349,65 @@ public class UGateGUI extends Application {
 	 * @param stage the primary {@linkplain Stage}
 	 */
 	protected void afterStart(final Stage stage) {
-		final String appVersion = RS.rbLabel("app.version");
-		if (ServiceManager.IMPL.getCredentialService().addAppInfoIfNeeded(RS.rbLabel("app.version"))) {
+		final String appVersion = RS.rbLabel(KEYS.APP_VERSION);
+		if (ServiceProvider.IMPL.getCredentialService().addAppInfoIfNeeded(RS.rbLabel(KEYS.APP_VERSION))) {
 			log.info("Persisted new application information for version " + appVersion);
 		}
 		// if there are no users then the user needs to be prompted for a username/password
-		final boolean isAuth = ServiceManager.IMPL.getCredentialService().getActorCount() > 0;
-		String dialogHeaderKey;
+		final boolean isAuth = ServiceProvider.IMPL.getCredentialService().getActorCount() > 0;
+		KEYS dialogHeaderKey;
 		if (isAuth) {
-			dialogHeaderKey = "app.dialog.auth";
+			dialogHeaderKey = KEYS.APP_DIALOG_AUTH;
 			log.debug("Presenting authentication dialog prompt");
 		} else {
-			dialogHeaderKey = "app.dialog.setup";
+			dialogHeaderKey = KEYS.APP_DIALOG_SETUP;
 			log.info("Initializing post installation dialog prompt");
 		}
-		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel("app.dialog.username")).build();
-		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel("app.dialog.password")).build();
+		final TextField wirelessHostAddy = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_HOST_ADDY)).build();
+		final TextField wirelessRemoteNodeAddy = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY)).build();
+		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_USERNAME)).build();
+		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_PWD)).build();
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
-				RS.rbLabel("app.dialog.password.verify")).build();
-		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel("close")).build() : null;
-		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, "app.title", dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
+				RS.rbLabel(KEYS.APP_DIALOG_PWD_VERIFY)).build();
+		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build() : null;
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
 					private Actor actor;
 					@Override
 					protected Void call() throws Exception {
+						final boolean hasWirelessHostAddy = !wirelessHostAddy.getText().isEmpty();
+						final boolean hasWirelessRemoteNodeAddy = !wirelessRemoteNodeAddy.getText().isEmpty();
 						final boolean hasUsername = !username.getText().isEmpty();
 						final boolean hasPassword = !password.getText().isEmpty();
 						final boolean hasPasswordVerify = passwordVerify == null ? true : !passwordVerify.getText().isEmpty();
-						if (hasUsername && hasPassword && hasPasswordVerify) {
+						if (hasWirelessRemoteNodeAddy && hasUsername && hasPassword && hasPasswordVerify) {
 							try {
 								if (isAuth) {
-									actor = ServiceManager.IMPL.getCredentialService().authenticate(
+									actor = ServiceProvider.IMPL.getCredentialService().authenticate(
 											username.getText(), password.getText());
 									if (actor == null) {
-										throw new AuthenticationException(RS.rbLabel("app.dialog.auth.error", 
+										throw new AuthenticationException(RS.rbLabel(KEYS.APP_DIALOG_AUTH_ERROR, 
 												username.getText()));
 									}
 								} else {
 									if (!password.getText().equals(passwordVerify.getText())) {
-										throw new InputMismatchException(RS.rbLabel("app.dialog.setup.error.password.mismatch"));
+										throw new InputMismatchException(RS.rbLabel(
+												KEYS.APP_DIALOG_SETUP_ERROR_PWD_MISMATCH));
 									}
-									actor = 
-											ServiceManager.IMPL.getCredentialService().addUser(
-													username.getText(), password.getText(), 
-													ActorType.newDefaultHost(), 
+									final Host host = ActorType.newDefaultHost();
+									host.setComAddress(wirelessHostAddy.getText());
+									host.getRemoteNodes().iterator().next().setAddress(wirelessRemoteNodeAddy.getText());
+									actor = ServiceProvider.IMPL.getCredentialService().addUser(
+													username.getText(), password.getText(), host, 
 													RoleType.ADMIN.newRole());
 									if (actor == null) {
 										throw new IllegalArgumentException("Unable to add user " + username.getText());
 									}
 								}
-								ServiceManager.IMPL.startWebServer(actor.getHost().getId(), SignatureAlgorithm.getDefault());
+								// start the service connections based upon newly created/authorized user
+								ServiceProvider.IMPL.connect(actorPA.getBean().getHost(), 0, true);
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {
@@ -415,22 +420,24 @@ public class UGateGUI extends Application {
 									errorMsg = t.getMessage();
 								} else {
 									errorMsg = RS.rbLabel(isAuth ? 
-											"app.dialog.auth.error" : "app.dialog.setup.error", username.getText());
+											KEYS.APP_DIALOG_AUTH_ERROR : KEYS.APP_DIALOG_SETUP_ERROR, username.getText());
 									log.warn(errorMsg, t);
 								}
 								throw new RuntimeException(errorMsg, t);
 							}
 						} else {
-							final String invalidFields = (!hasUsername ? username.getPromptText() : "") + ' ' +
+							final String invalidFields = (!hasWirelessHostAddy ? wirelessHostAddy.getPromptText() : "") + ' ' +
+									(!hasWirelessRemoteNodeAddy ? wirelessRemoteNodeAddy.getPromptText() : "") +
+									(!hasUsername ? username.getPromptText() : "") + 
 									(!hasPassword ? password.getPromptText() : "") + 
 									(!hasPasswordVerify ? passwordVerify.getPromptText() : "");
-							throw new RuntimeException(RS.rbLabel("app.dialog.required", invalidFields));
+							throw new RuntimeException(RS.rbLabel(KEYS.APP_DIALOG_REQUIRED, invalidFields));
 						}
 						return null;
 					}
 				};
 			}
-		}, closeBtn, username, password, passwordVerify);
+		}, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, username, password, passwordVerify);
 		if (closeBtn != null) {
 			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
@@ -462,6 +469,7 @@ public class UGateGUI extends Application {
 			@Override
 			public void run() {
 				actorPA.setBean(authActor);
+				remoteNodePA.setBean(ServiceProvider.IMPL.getRemoteNode());
 			}
 		});
 	}
@@ -473,14 +481,11 @@ public class UGateGUI extends Application {
 	public void stop() throws Exception {
 		log.info("Exiting application...");
 		try {
-			ServiceManager.IMPL.close();
+			ServiceProvider.IMPL.disconnect();
 		} catch (final Throwable t) {
-			log.error("Unable to stop services", t);
-		}
-		try {
-			UGateKeeper.DEFAULT.close();
-		} catch (final Throwable t) {
-			log.error("Unable to stop gate keeper", t);
+			log.error(
+					"Unable to disconnect from "
+							+ ServiceProvider.class.getName(), t);
 		}
 		try {
 			SystemTray.exit();
@@ -593,7 +598,7 @@ public class UGateGUI extends Application {
 	 *            the event
 	 */
 	protected void playSound(final UGateKeeperEvent<?> event) {
-		final String soundsOn = UGateKeeper.DEFAULT.settingsGet(RemoteSettings.SOUNDS_ON, UGateKeeper.DEFAULT.wirelessGetCurrentRemoteNodeIndex());
+		final String soundsOn = ServiceProvider.IMPL.getWirelessService().settingsGet(RemoteSettings.SOUNDS_ON, ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex());
 		if (soundsOn == null || soundsOn.isEmpty() || Integer.parseInt(soundsOn) != 1) {
 			return;
 		}

@@ -1,10 +1,11 @@
-package org.ugate.service;
+package org.ugate.service.entity;
 
 import java.util.LinkedHashSet;
 
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * {@linkplain Actor} types that contain {@linkplain #getKey()}s that point to
@@ -77,6 +78,7 @@ public enum ActorType implements IModelType<Actor> {
 	 */
 	public static Actor newDefaultActor() {
 		final Actor actor = new Actor();
+		actor.setHost(newDefaultHost());
 		return actor;
 	}
 
@@ -85,6 +87,8 @@ public enum ActorType implements IModelType<Actor> {
 	 */
 	public static Host newDefaultHost() {
 		final Host host = new Host();
+		final LinkedHashSet<RemoteNode> remoteNodes = new LinkedHashSet<>();
+		remoteNodes.add(RemoteNodeType.newDefaultRemoteNode(host));
 		final LinkedHashSet<MailRecipient> mailRecipients = new LinkedHashSet<>();
 		final MailRecipient mr1 = new MailRecipient();
 		mr1.setEmail("user1@example.com");
@@ -104,9 +108,10 @@ public enum ActorType implements IModelType<Actor> {
 		host.setMailImapPort(993);
 		host.setMailUserName("myemail@gmail.com");
 		host.setMailInboxName("Inbox");
-		host.setMailRecipients(mailRecipients);
 		host.setWebHost("localhost");
 		host.setWebPort(443);
+		host.setMailRecipients(mailRecipients);
+		host.setRemoteNodes(remoteNodes);
 		return host;
 	}
 }

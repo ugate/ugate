@@ -31,6 +31,7 @@ import org.ugate.IGateKeeperListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEYS;
 
 /**
  * System tray that uses AWT until JavaFX 3.0 is released 
@@ -152,7 +153,7 @@ public class SystemTray extends Service<Void> {
 						java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(
 								javax.imageio.ImageIO.read(RS.stream(imageName)));
 						//UGateKeeper.DEFAULT.
-						trayIcon.setToolTip(RS.rbLabel("win.systray.tooltip"));
+						trayIcon.setToolTip(RS.rbLabel(KEYS.APP_WIN_SYSTRAY));
 						java.awt.SystemTray.getSystemTray().add(trayIcon);
 						trayIcon.addMouseListener(ml);
 						Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -341,7 +342,7 @@ public class SystemTray extends Service<Void> {
 			dummyPopup.show();
 			
 			if (isSystemTraySupported()) {
-				showNotification(RS.rbLabel("win.systray.minimize.info"));
+				showNotification(RS.rbLabel(KEYS.APP_WIN_SYSTRAY_MIN_INFO));
 			}
 		}
 		stage.close();
