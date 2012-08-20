@@ -1,13 +1,11 @@
 package org.ugate.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.ugate.Command;
-import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
@@ -16,9 +14,10 @@ import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
-import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.entity.jpa.MailRecipient;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * Email service
@@ -75,17 +74,22 @@ public class EmailService {
 				public void handle(final EmailEvent event) {
 					String msg;
 					if (event.type == EmailEvent.Type.EXECUTE_COMMAND) {
-						if (ServiceProvider.IMPL.getWirelessService().wirelessIsConnected()) {
-							int nodeIndex;
-							final Map<Integer, String> addys = new HashMap<Integer, String>();
+						if (ServiceProvider.IMPL.getWirelessService().isConnected()) {
+							RemoteNode rn;
+							final LinkedHashSet<String> addys = new LinkedHashSet<>();
 							final List<String> commandMsgs = new ArrayList<String>();
 							for (final Command command : event.commands) {
 								// send command to all the nodes defined in the email
 								for (final String toAddress : event.toAddresses) {
 									try {
-										nodeIndex = ServiceProvider.IMPL.getWirelessService().getNodeAddressIndex(toAddress);
-										addys.put(nodeIndex, toAddress);
-										ServiceProvider.IMPL.getWirelessService().sendData(nodeIndex, command);
+										rn = ServiceProvider.IMPL.getWirelessService().findRemoteNodeByAddress(toAddress);
+										if (rn == null) {
+											throw new IllegalArgumentException(
+													"Invalid remote address: "
+															+ toAddress);
+										}
+										addys.add(toAddress);
+										ServiceProvider.IMPL.getWirelessService().sendData(rn, command);
 										msg = RS.rbLabel(KEYS.SERVICE_EMAIL_CMD_EXEC, command, event.from, toAddress);
 										log.info(msg);
 										commandMsgs.add(msg);
@@ -98,11 +102,11 @@ public class EmailService {
 							}
 							if (!addys.isEmpty()) {
 								UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<List<Command>>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.EMAIL_EXECUTED_COMMANDS, 
-										false, addys, RemoteNodeType.WIRELESS_ADDRESS_NODE_, null, null, event.commands, 
+										false, addys, RemoteNodeType.WIRELESS_ADDRESS, null, null, event.commands, 
 										commandMsgs.toArray(new String[]{})));
 							} else {
 								UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<List<Command>>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, 
-										false, addys, RemoteNodeType.WIRELESS_ADDRESS_NODE, null, null, event.commands, 
+										false, addys, RemoteNodeType.WIRELESS_ADDRESS, null, null, event.commands, 
 										commandMsgs.toArray(new String[]{})));
 							}
 						} else {
@@ -110,7 +114,7 @@ public class EmailService {
 									UGateUtil.toString(event.toAddresses), RS.rbLabel(KEYS.SERVICE_WIRELESS_CONNECTION_REQUIRED));
 							log.warn(msg);
 							UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<List<Command>>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, false, null,
-									RemoteNodeType.WIRELESS_ADDRESS_NODE, null, null, event.commands, msg));
+									RemoteNodeType.WIRELESS_ADDRESS, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
 						isEmailConnected = true;
@@ -133,8 +137,12 @@ public class EmailService {
 					}
 				}
 			});
+			List<String> authEmails = new ArrayList<>(host.getMailRecipients().size());
+			for (final MailRecipient mr : host.getMailRecipients()) {
+				authEmails.add(mr.getEmail());
+			}
 			this.emailAgent = EmailAgent.start(smtpHost, String.valueOf(smtpPort), imapHost, String.valueOf(imapPort), 
-					username, password, mainFolderName, listeners.toArray(new IEmailListener[0]));
+					username, password, mainFolderName, authEmails, listeners.toArray(new IEmailListener[0]));
 			return true;
 		} catch (final Throwable t) {
 			msg = RS.rbLabel(KEYS.MAIL_CONNECT_FAILED, 

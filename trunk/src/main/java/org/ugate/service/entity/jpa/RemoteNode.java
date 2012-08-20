@@ -36,7 +36,7 @@ public class RemoteNode implements Model {
 	@Column(name="CREATED_DATE", nullable=false)
 	private Date createdDate;
 
-	@Column(nullable=false, length=100)
+	@Column(unique=true, nullable=false, length=100)
 	private String address;
 
 	@Column(name="CAM_ANGLE_PAN", nullable=false)

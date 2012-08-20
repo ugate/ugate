@@ -267,25 +267,25 @@ public class ControlBar extends ToolBar {
 				try {
 					if (command == Command.SENSOR_GET_READINGS) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
-								ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex(), 
+								getRemoteNode(), 
 								Command.SENSOR_GET_READINGS)) {
 							setHelpText(RS.rbLabel(KEYS.SENSOR_READINGS_FAILED,
-									ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress()));
+									getRemoteNode().getAddress()));
 							return false;
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendSettings(
-								ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex())) {
+								getRemoteNode())) {
 							setHelpText(RS.rbLabel(KEYS.SETTINGS_SEND_FAILED,
-									ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress()));
+									getRemoteNode().getAddress()));
 							return false;
 						}
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
-								ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex(), 
+								getRemoteNode(), 
 								Command.GATE_TOGGLE_OPEN_CLOSE)) {
 							setHelpText(RS.rbLabel(KEYS.GATE_TOGGLE_FAILED,
-									ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeAddress()));
+									getRemoteNode().getAddress()));
 							return false;
 						}
 					} else {

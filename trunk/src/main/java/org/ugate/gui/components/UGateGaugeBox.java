@@ -403,6 +403,7 @@ public class UGateGaugeBox<T> extends VBox {
 						format, onColor, offColor);
 			}
 		});
+		setValueFromProperties(modelKeyWholeNum, modelKeyFraction, format, onColor, offColor);
 		beanPathAdapter.bindBidirectional(modelKeyWholeNum.getKey(), wholeNumProperty);
 		beanPathAdapter.bindBidirectional(modelKeyFraction.getKey(), fractionProperty);
         

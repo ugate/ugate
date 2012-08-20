@@ -839,8 +839,12 @@ public class RS {
 				"wireless.node.remote.status"), WIRELESS_NODE_REMOTE_CHANGING(
 				"wireless.node.remote.changing"), WIRELESS_NODE_REMOTE_REMOVE(
 				"wireless.node.remote.remove"), WIRELESS_NODE_REMOTE_REMOVE_DESC(
-				"wireless.node.remote.remove.desc"), WIRELESS_NODE_REMOTE_ADD(
-				"wireless.node.remote.add"), WIRELESS_REMOTE_UNIVERSAL(
+				"wireless.node.remote.remove.desc"), WIRELESS_NODE_REMOVE_FAILED(
+				"wireless.node.remote.remove.failed"), WIRELESS_NODE_REMOTE_ADD(
+				"wireless.node.remote.add"), WIRELESS_NODE_REMOTE_ADD_DESC(
+				"wireless.node.remote.add.desc"), WIRELESS_NODE_ADD_FAILED(
+				"wireless.node.remote.add.failed"), WIRELESS_NODE_REMOTE_SELECT_FAILED(
+				"wireless.node.remote.select.failed"), WIRELESS_REMOTE_UNIVERSAL(
 				"wireless.remote.universal"), WIRELESS_REMOTE_UNIVERSAL_DESC(
 				"wireless.remote.universal.desc"), WIRELESS_PORT(
 				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(
@@ -850,8 +854,7 @@ public class RS {
 				"wireless.host.desc"), WIRELESS_CONNECT("wireless.connect"), WIRELESS_CONNECTING(
 				"wireless.connecting"), WIRELESS_RECONNECT("wireless.reconnect"), WIRELESS_DISCONNECTING(
 				"wireless.disconnecting"), WIRELESS_SYNC(
-				"wireless.synchronizing"), WIRELESS_NODE_REMOTE_ADD_DESC(
-				"wireless.node.remote.add.desc"), WIRELESS_WORKING_DIR(
+				"wireless.synchronizing"), WIRELESS_WORKING_DIR(
 				"wireless.workingdir"), WIRELESS_WORKING_DIR_DESC(
 				"wireless.workingdir.desc"), MAIL_ALARM_NOTIFY(
 				"mail.alarm.notify"), MAIL_ALARM_NOTIFY_DESC(

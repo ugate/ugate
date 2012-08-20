@@ -2,6 +2,7 @@ package org.ugate.wireless.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * Sensor readings
@@ -19,7 +20,7 @@ public class RxTxSensorReadings extends RxData  {
 	/**
 	 * Constructor
 	 * 
-	 * @param nodeIndex the remote node index
+	 * @param remoteNode the remote node index
 	 * @param status the {@linkplain Status}
 	 * @param signalStrength the signal strength
 	 * @param sonarFeet sonar feet portion
@@ -29,9 +30,9 @@ public class RxTxSensorReadings extends RxData  {
 	 * @param irInches the IR inches portion
 	 * @param gateState the gate state
 	 */
-	public RxTxSensorReadings(final Integer nodeIndex, final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
+	public RxTxSensorReadings(final RemoteNode remoteNode, final Status status, final int signalStrength, final int sonarFeet, final int sonarInches, 
 			final int microwaveCycleCnt, final int irFeet, final int irInches, final int gateState) {
-		super(nodeIndex, status, signalStrength);
+		super(remoteNode, status, signalStrength);
 		this.sonarFeet = sonarFeet;
 		this.sonarInches = sonarInches;
 		this.microwaveCycleCnt = microwaveCycleCnt;

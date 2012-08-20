@@ -1,12 +1,8 @@
 package org.ugate.service;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -27,7 +23,7 @@ import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxData;
-import org.ugate.wireless.data.RxTxRemoteSettingsData;
+import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 
 import com.rapplogic.xbee.api.AtCommand;
 import com.rapplogic.xbee.api.AtCommandResponse;
@@ -74,6 +70,20 @@ public class WirelessService {
 		final boolean commInitialized = RS.initComm();
 		if (commInitialized) {
 			xbee = new XBee();
+			packetListener = new UGateXBeePacketListener() {
+				@Override
+				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<V> event) {
+					// TODO : update the remote nodes history for incoming data
+//					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
+//							event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+//						for (final Map.Entry<Integer, String> ea : event.getNodeAddresses().entrySet()) {
+//							
+//						}
+//					}
+					UGateKeeper.DEFAULT.notifyListeners(event);
+				}
+			};
+			xbee.addPacketListener(packetListener);
 			return true;
 		}
 		// test the serial ports
@@ -97,24 +107,6 @@ public class WirelessService {
 		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
 			xbee.open(host.getComAddress(), host.getComBaud());
-			packetListener = new UGateXBeePacketListener() {
-				@Override
-				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<V> event) {
-					// TODO : update the remote nodes history for incoming data
-//					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
-//							event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-//						for (final Map.Entry<Integer, String> ea : event.getNodeAddresses().entrySet()) {
-//							
-//						}
-//					}
-					UGateKeeper.DEFAULT.notifyListeners(event);
-				}
-				@Override
-				public int getCamImgCaptureRetryCnt() {
-					return remoteNode.getCamImgCaptureRetryCnt();
-				}
-			};
-			xbee.addPacketListener(packetListener);
 			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
 					host.getComAddress(), host.getComBaud()));
 			// XBee connection is blocking so notification can be sent here
@@ -185,11 +177,25 @@ public class WirelessService {
 	 *            the {@linkplain Host}
 	 * @return a {@linkplain List} for the service {@linkplain Host}
 	 */
-	public List<RemoteNode> getRemoteNodes(final Host host) {
+	public List<RemoteNode> findRemoteNodesByHost(final Host host) {
 		if (host != null && host.getId() > 0) {
-			return remoteNodeDao.getRemoteNodesForHost(host.getId());
+			return remoteNodeDao.findByHostId(host.getId());
 		}
 		return new ArrayList<>();
+	}
+
+	/**
+	 * Gets {@linkplain RemoteNode} for a given {@linkplain RemoteNode#getAddress()}
+	 * 
+	 * @param address
+	 *            the {@linkplain RemoteNode#getAddress()}
+	 * @return a {@linkplain RemoteNode}
+	 */
+	public RemoteNode findRemoteNodeByAddress(final String address) {
+		if (address != null && !address.isEmpty()) {
+			return remoteNodeDao.findByAddress(address);
+		}
+		return null;
 	}
 
 	/**
@@ -386,53 +392,6 @@ public class WirelessService {
 		final XBeeAddress16 xbeeAddress = new XBeeAddress16(msb, lsb);
 		return xbeeAddress;
 	}
-
-	/**
-	 * Removes a wireless node by address and sets the new wireless node address/index with the next one in the list
-	 * 
-	 * @param nodeAddress the wireless node address to remove
-	 * @return the new wireless node address (the same node address passed if it cannot be removed)
-	 */
-	public String removeNode(final RemoteNode remoteNode) {
-			final String msg = RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE,
-					remoteNode.getAddress(), remoteNode.getAddress());
-			log.info(msg);
-			// send notification(s)
-			final LinkedHashSet<String> removed = new LinkedHashSet<>(1);
-			removed.put(wakRemove.getKey(), oldAddy);
-			UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Integer>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_REMOVE, false,
-					removed, null, null, wakRemove.getKey(), 
-					this.wirelessCurrentRemoteNodeIndex, msg));
-			return wakSelect.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey());
-		}
-		return nodeAddress;
-	}
-	
-	/**
-	 * 
-	 * @param nodeAddress the existing or new node address
-	 */
-	public void setRemoteNode(final String nodeAddress) {
-		if (nodeAddress != null && !nodeAddress.isEmpty()) {
-			setCurrentRemoteNodeIndex(getNodeAddressIndex(nodeAddress), nodeAddress, true);
-		}
-	}
-	
-	/**
-	 * Gets the index for a wireless node address
-	 * 
-	 * @param nodeAddress the wireless node address
-	 * @return the index of the wireless node address (negative one when the address value is not found)
-	 */
-	public int getNodeAddressIndex(final String nodeAddress) {
-		for (final Map.Entry<Integer, RemoteNodeStorage> wak : remoteNodes.entrySet()) {
-			if (wak.getValue().settings.hasKey(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()) && 
-					wak.getValue().settings.get(RemoteSettings.WIRELESS_ADDRESS_NODE.getKey()).equals(nodeAddress)) {
-				return wak.getKey();
-			}
-		}
-		return -1; 
-	}
 	
 	/**
 	 * Synchronizes the locally hosted settings with the remote wireless node(s)
@@ -445,45 +404,25 @@ public class WirelessService {
 			return allSuccess;
 		}
 		try {
-			final RxTxRemoteSettingsData sd = new RxTxRemoteSettingsData(nodeIndex);
-			final int[] sendData = sd.getAllData();
-			log.info(String.format("Attempting to send: %s", sd));
-			final Map<Integer, String> was = new HashMap<>();
-			was.put(0, remoteNode);
-			final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, false, 
-					was, null, Command.SENSOR_SET_SETTINGS, null, sendData);
-			if (sendData(event)) {
-				log.info(String.format("Settings sent to %1$s node(s)", was.size()));
-				allSuccess = true;
+			for (final RemoteNode rn : remoteNode) {
+				final RxTxRemoteNodeDTO sd = new RxTxRemoteNodeDTO(rn);
+				final int[] sendData = sd.getData();
+				log.info(String.format("Attempting to send: %s", sd));
+				final LinkedHashSet<String> was = new LinkedHashSet<>();
+				was.add(rn.getAddress());
+				final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(
+						UGateKeeper.DEFAULT, UGateKeeperEvent.Type.INITIALIZE,
+						false, was, null, Command.SENSOR_SET_SETTINGS, null,
+						sendData);
+				if (sendData(event)) {
+					log.info(String.format("Settings sent to %1$s node(s)", was.size()));
+					allSuccess = true;
+				}
 			}
 		} catch (final Throwable t) {
 			log.error("Error while sending settings", t);
 		}
 		return allSuccess;
-	}
-	
-	/**
-	 * Sets the current wireless remote node index
-	 * 
-	 * @param newNodeIndex
-	 *            the remote index of the device node for which the controls
-	 *            represent
-	 * @param nodeAddy
-	 *            the new node address to set (when adding a new node and
-	 *            setting it's index)
-	 * @param notifyListeners
-	 *            true to notify any listeners of the change
-	 */
-	private void setCurrentRemoteNodeIndex(final int newNodeIndex, final String nodeAddy, final boolean notifyListeners) {
-		int newAdjNodeIndex = newNodeIndex < 0 ? wirelessNextRemoteNodeIndex : newNodeIndex;
-		if (oldIndex != newAdjNodeIndex) {
-			if (notifyListeners) {
-				UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Integer>(UGateKeeper.DEFAULT, noAdd ? UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_SELECT : 
-					UGateKeeperEvent.Type.SETTINGS_REMOTE_NODE_CHANGED_FROM_ADD, false,
-						getRemoteNodeAddressMap(this.wirelessCurrentRemoteNodeIndex),null, null, oldIndex, 
-						this.wirelessCurrentRemoteNodeIndex, msg));
-			}
-		}
 	}
 	
 	/**

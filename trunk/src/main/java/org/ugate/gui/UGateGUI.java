@@ -1,5 +1,6 @@
 package org.ugate.gui;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.InputMismatchException;
@@ -53,7 +54,6 @@ import javax.security.sasl.AuthenticationException;
 
 import org.slf4j.Logger;
 import org.ugate.IGateKeeperListener;
-import org.ugate.RemoteSettings;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateKeeperEvent;
 import org.ugate.UGateUtil;
@@ -139,7 +139,7 @@ public class UGateGUI extends Application {
 			log.debug("Iniitializing Service Provider...");
 			notifyPreloader(new ProgressNotification(0.3d));
 			ServiceProvider.IMPL.init();
-			if (ServiceProvider.IMPL.getWirelessService().in()) {
+			if (ServiceProvider.IMPL.getWirelessService().init()) {
 				initErrorTitleRsKey = KEYS.APP_TITLE_ACTION_REQUIRED;
 				addInitError(RS.rbLabel(KEYS.APP_SERVICE_COM_RESTART_REQUIRED));
 			}
@@ -279,8 +279,7 @@ public class UGateGUI extends Application {
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_PICS, RS.rbLabel(KEYS.APP_CAPTURE_DESC), 2, new Runnable() {
 			@Override
 			public void run() {
-				changeCenterView(new DisplayShelf(ServiceProvider.IMPL.getWirelessService().wirelessWorkingDirectory(
-						ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()).toFile(), 350, 350, 0.25, 45, 80, 
+				changeCenterView(new DisplayShelf(new File(controlBar.getRemoteNode().getWorkingDir()), 350, 350, 0.25, 45, 80, 
 						DisplayShelf.TOOLBAR_POSITION_TOP, RS.rbLabel(KEYS.LABEL_DISPLAYSHELF_FULLSIZE_DESC)), 2);
 			}
 		}));
@@ -369,7 +368,7 @@ public class UGateGUI extends Application {
 		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_PWD)).build();
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
 				RS.rbLabel(KEYS.APP_DIALOG_PWD_VERIFY)).build();
-		final Button closeBtn = isAuth ? ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build() : null;
+		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
 		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
@@ -469,7 +468,8 @@ public class UGateGUI extends Application {
 			@Override
 			public void run() {
 				actorPA.setBean(authActor);
-				remoteNodePA.setBean(ServiceProvider.IMPL.getRemoteNode());
+				remoteNodePA.setBean(authActor.getHost().getRemoteNodes()
+						.iterator().next());
 			}
 		});
 	}
@@ -592,35 +592,49 @@ public class UGateGUI extends Application {
 	}
 
 	/**
-	 * Plays a sound for predefined events if preferences is set to do so
+	 * Plays a sound for predefined events if the
+	 * {@linkplain RemoteNode#getDeviceSoundsOn()} is set for each of the
+	 * {@linkplain UGateKeeperEvent#getNodeAddresses()}
 	 * 
 	 * @param event
-	 *            the event
+	 *            the {@linkplain UGateKeeperEvent}
 	 */
 	protected void playSound(final UGateKeeperEvent<?> event) {
-		final String soundsOn = ServiceProvider.IMPL.getWirelessService().settingsGet(RemoteSettings.SOUNDS_ON, ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex());
-		if (soundsOn == null || soundsOn.isEmpty() || Integer.parseInt(soundsOn) != 1) {
+		if (event.getNodeAddresseCount() <= 0) {
 			return;
 		}
-		if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
-			RS.mediaPlayerConfirm.play();
-		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-			RS.mediaPlayerBlip.play();
-		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
-			RS.mediaPlayerError.play();
-		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
-			RS.mediaPlayerDoorBell.play();
-			// TODO : send email with image as attachment (only when the image
-			// is captured via alarm trip rather, but not from GUI)
-			// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
-			// trippedImage.toString(),
-			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
-			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
-			// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
-			// imageFile.filePath);
-			RS.mediaPlayerComplete.play();
-		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
-			RS.mediaPlayerCam.play();
+		RemoteNode rn;
+		for (final String addy : event.getNodeAddresses()) {
+			rn = ServiceProvider.IMPL.getWirelessService().findRemoteNodeByAddress(event.getNodeAddress());
+			if (rn == null) {
+				log.error(String
+						.format("Unrecognized remote address %1$s ... discarding host sound alarm",
+								addy));
+				continue;
+			}
+			if (rn.getDeviceSoundsOn() != 1) {
+				continue;
+			}
+			if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
+				RS.mediaPlayerConfirm.play();
+			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+				RS.mediaPlayerBlip.play();
+			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
+				RS.mediaPlayerError.play();
+			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
+				RS.mediaPlayerDoorBell.play();
+				// TODO : send email with image as attachment (only when the image
+				// is captured via alarm trip rather, but not from GUI)
+				// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
+				// trippedImage.toString(),
+				// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
+				// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
+				// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
+				// imageFile.filePath);
+				RS.mediaPlayerComplete.play();
+			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
+				RS.mediaPlayerCam.play();
+			}
 		}
 	}
 }

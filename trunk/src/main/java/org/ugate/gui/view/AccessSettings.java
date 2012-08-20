@@ -19,7 +19,6 @@ import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
-import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxSensorReadings;
@@ -57,7 +56,7 @@ public class AccessSettings extends ControlPane {
 				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY), null);
 		controlBar.addHelpTextTrigger(remoteAddress, RS.rbLabel(
 				KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC,
-				ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()));
+				controlBar.getRemoteNode().getAddress()));
 		workingDir = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.WIRELESS_WORKING_DIR_PATH,
 				UGateCtrlBox.Type.TYPE_TEXT,
@@ -76,7 +75,7 @@ public class AccessSettings extends ControlPane {
 				RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
 		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, 
 				RS.rbLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL_DESC, 
-						ServiceProvider.IMPL.getWirelessService().getCurrentRemoteNodeIndex()));
+						controlBar.getRemoteNode().getAddress()));
 		accessKey1 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_1,
 				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
