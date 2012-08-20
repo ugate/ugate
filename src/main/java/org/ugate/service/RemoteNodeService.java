@@ -40,6 +40,6 @@ public class RemoteNodeService {
 	 * @return the {@linkplain RemoteNode}(s)
 	 */
 	public List<RemoteNode> findForHost(final int hostId) {
-		return remoteNodeDao.getRemoteNodesForHost(hostId);
+		return remoteNodeDao.findByHostId(hostId);
 	}
 }

@@ -18,7 +18,7 @@ import org.ugate.wireless.data.RxData.Status;
 import org.ugate.wireless.data.RxRawData;
 import org.ugate.wireless.data.RxTxImage;
 import org.ugate.wireless.data.RxTxJPEG;
-import org.ugate.wireless.data.RxTxRemoteSettingsData;
+import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 import org.ugate.wireless.data.RxTxSensorReadings;
 
 import com.rapplogic.xbee.api.ErrorResponse;
@@ -119,7 +119,12 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 	protected void handleRxResponse16(final RxResponse16 rxResponse) {
 		final String remoteAddress = Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[0]) + 
 				Integer.toHexString(rxResponse.getRemoteAddress().getAddress()[1]);
-		final Integer remoteIndex = ServiceProvider.IMPL.getWirelessService().getNodeAddressIndex(remoteAddress);
+		// TODO : RemoteNode should not be queried every time a response is received when multi-chunking data (like image) 
+		final RemoteNode rn = ServiceProvider.IMPL.getWirelessService().findRemoteNodeByAddress(remoteAddress);
+		if (rn == null) {
+			log.error(String .format("Received data from an unknown address %1$s... Discarding response...", remoteAddress));
+			return;
+		}
 		final Command command = extractCommand(rxResponse);
 		if (command == null) {
 			log.error(String.format("An unrecognized %1$s command was received from %2$s", 
@@ -140,7 +145,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 							RS.rbLabel(KEYS.SERVICE_RX_IMAGE_TIMEOUT, ic));
 				}
 				// TODO : add check for what sensor tripped the image and image format detection (instead of using just JPEG)
-				rxTxImage = new RxTxJPEG(remoteIndex, status, rxResponse.getRssi(), null);
+				rxTxImage = new RxTxJPEG(rn, status, rxResponse.getRssi(), null);
 				ic = rxTxImage.createImageSegmentsSnapshot();
 				log.info(String.format("======= Receiving chunked image data (%1$s) =======", rxTxImage));
 				processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART, command, remoteAddress, ic, 
@@ -153,15 +158,14 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			}
 			if (rxTxImage.isEof()) {
 				if (rxTxImage.getStatus() != RxData.Status.NORMAL) {
-					final int retries = getRemoteNode().getCamImgCaptureRetryCnt();
+					final int retries = rn.getCamImgCaptureRetryCnt();
 					rxTxImage = null;
 					ic = rxTxImage.createImageSegmentsSnapshot();
 					if (retries != 0 && rxTxAttempts <= retries) {
 						rxTxAttempts++;
 						processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_FAILED_RETRYING, command, remoteAddress, ic, 
 								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxAttempts, retries));
-						final RemoteNode remoteNode = remoteNod
-						ServiceProvider.IMPL.getWirelessService().sendData(ServiceProvider.IMPL.getWirelessService().getNodeAddressIndex(remoteAddress), command);
+						ServiceProvider.IMPL.getWirelessService().sendData(rn, command);
 					} else {
 						processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_FAILED, command, remoteAddress, ic, 
 								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxAttempts));
@@ -181,18 +185,18 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			}
 		} else if (command == Command.ACCESS_CODE_CHANGE) {
 			//final int hasFailures = rxResponse.getData()[1];
-			final KeyCodes kc = new KeyCodes(getRemoteNode(), status, rxResponse.getRssi(), rxResponse.getData()[1], 
+			final KeyCodes kc = new KeyCodes(rn, status, rxResponse.getRssi(), rxResponse.getData()[1], 
 					rxResponse.getData()[2], rxResponse.getData()[3]);
 			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, kc, 
 					RS.rbLabel(KEYS.SERVICE_RX_KEYCODES, kc));
 		} else if (command == Command.SERVO_LASER_CALIBRATE) {
 			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, 
-					new RxRawData<Void>(getRemoteNode(), status, rxResponse.getRssi(), null), 
+					new RxRawData<Void>(rn, status, rxResponse.getRssi(), null), 
 					failures > 0 ? RS.rbLabel(KEYS.LASER_CALIBRATION_FAILED) : RS.rbLabel(KEYS.LASER_CALIBRATION_SUCCESS));
 		} else if (command == Command.SENSOR_GET_READINGS) {
 			log.info("=== Sensor Readings received ===");
 			int i = 1;
-			final RxTxSensorReadings sr = new RxTxSensorReadings(remoteIndex, status, rxResponse.getRssi(), 
+			final RxTxSensorReadings sr = new RxTxSensorReadings(rn, status, rxResponse.getRssi(), 
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
 					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]);
 			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, sr, 
@@ -204,10 +208,10 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			for (int j = 0; j<RemoteNodeType.canRemoteCount(); j++) {
 				sd[j] = rxResponse.getData()[++i];
 			}
-			final RxTxRemoteSettingsData rsd = new RxTxRemoteSettingsData(remoteIndex, status, 
+			final RxTxRemoteNodeDTO dto = new RxTxRemoteNodeDTO(rn, status,
 					rxResponse.getRssi(), sd);
-			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, rsd, 
-					RS.rbLabel(KEYS.SERVICE_RX_SETTINGS, rsd));
+			processData(UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, remoteAddress, dto, 
+					RS.rbLabel(KEYS.SERVICE_RX_SETTINGS, dto));
 		} else {
 			log.error("Unrecognized command: " + command);
 		}
@@ -265,9 +269,4 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 		}
 		return null;
 	}
-
-	/**
-	 * @return the {@linkplain RemoteNode}
-	 */
-	public abstract RemoteNode getRemoteNode();
 }

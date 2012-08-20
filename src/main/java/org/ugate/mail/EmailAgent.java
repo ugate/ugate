@@ -33,7 +33,6 @@ import javax.mail.internet.MimeMultipart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 
 import com.sun.mail.imap.IMAPFolder;
@@ -61,6 +60,7 @@ public class EmailAgent implements Runnable {
 	private final URLName smtpUrlName;
 	private final URLName imapUrlName;
 	private final String mainFolderName;
+	private final List<String> authEmails;
 	private final Properties props;
 	
 //	private volatile IMAPFolder mainFolder;
@@ -69,37 +69,57 @@ public class EmailAgent implements Runnable {
 	private IMAPStore store;
 	
 	/**
-	 * Creates/Starts an email agent service using <a href="http://mail.google.com">gmail</a>.
+	 * Creates/Starts an email agent service using <a
+	 * href="http://mail.google.com">gmail</a>.
 	 * 
-	 * @param username the email user name that the service will use
-	 * @param password the email password that the service will use
-	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
-	 * @param listeners any email listeners
+	 * @param username
+	 *            the email user name that the service will use
+	 * @param password
+	 *            the email password that the service will use
+	 * @param mainFolderName
+	 *            the top-level email folder that will be listened to for new
+	 *            incoming emails
+	 * @param authEmails
+	 *            the emails that are authorized to send commands
+	 * @param listeners
+	 *            any email listeners
 	 * @return the created/started email agent
 	 */
 	public static EmailAgent start(final String username, final String password, final String mainFolderName, 
-			final IEmailListener... listeners) {
+			final List<String> authEmails, final IEmailListener... listeners) {
 		return start(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, 
-				username, password, mainFolderName, listeners);
+				username, password, mainFolderName, authEmails, listeners);
 	}
 	
 	/**
 	 * Creates/Starts an email agent service
 	 * 
-	 * @param smtpHost the SMTP host
-	 * @param smtpPort the SMTP port
-	 * @param imapHost the IMAP host
-	 * @param imapPort the IMAP port
-	 * @param username the email user name that the service will use
-	 * @param password the email password that the service will use
-	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
-	 * @param listeners any email listeners
+	 * @param smtpHost
+	 *            the SMTP host
+	 * @param smtpPort
+	 *            the SMTP port
+	 * @param imapHost
+	 *            the IMAP host
+	 * @param imapPort
+	 *            the IMAP port
+	 * @param username
+	 *            the email user name that the service will use
+	 * @param password
+	 *            the email password that the service will use
+	 * @param mainFolderName
+	 *            the top-level email folder that will be listened to for new
+	 *            incoming emails
+	 * @param authEmails
+	 *            the emails that are authorized to send commands
+	 * @param listeners
+	 *            any email listeners
 	 * @return the created/started email agent
 	 */
 	public static EmailAgent start(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
-			final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
+			final String username, final String password, final String mainFolderName, final List<String> authEmails, 
+			final IEmailListener... listeners) {
 		final EmailAgent emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, username, 
-				password, mainFolderName, listeners);
+				password, mainFolderName, authEmails, listeners);
 		final Thread emailAgentThread = new Thread(Thread.currentThread().getThreadGroup(), emailAgent, getThreadName("main"));
 		emailAgentThread.setDaemon(true);
 		emailAgentThread.start();
@@ -109,17 +129,32 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Creates an email agent service
 	 * 
-	 * @param smtpHost the SMTP host
-	 * @param smtpPort the SMTP port
-	 * @param imapHost the IMAP host
-	 * @param imapPort the IMAP port
-	 * @param username the email user name that the service will use
-	 * @param password the email password that the service will use
-	 * @param mainFolderName the top-level email folder that will be listened to for new incoming emails
-	 * @param listeners any email listeners
+	 * @param smtpHost
+	 *            the SMTP host
+	 * @param smtpPort
+	 *            the SMTP port
+	 * @param imapHost
+	 *            the IMAP host
+	 * @param imapPort
+	 *            the IMAP port
+	 * @param username
+	 *            the email user name that the service will use
+	 * @param password
+	 *            the email password that the service will use
+	 * @param mainFolderName
+	 *            the top-level email folder that will be listened to for new
+	 *            incoming emails
+	 * @param authEmails
+	 *            the emails that are authorized to send commands
+	 * @param listeners
+	 *            any email listeners
 	 */
 	public EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
-			final String username, final String password, final String mainFolderName, final IEmailListener... listeners) {
+			final String username, final String password, final String mainFolderName, final List<String> authEmails, 
+			final IEmailListener... listeners) {
+		if (authEmails == null || authEmails.isEmpty()) {
+			throw new IllegalArgumentException("Authorized emails are required");
+		}
 		// connect using TLS
 		this.props = new Properties();
 		props.put("mail.smtps.auth", "true");
@@ -131,6 +166,7 @@ public class EmailAgent implements Runnable {
 		this.smtpUrlName = new URLName("smtps", smtpHost, Integer.parseInt(smtpPort), null, username, password);
 		this.imapUrlName = new URLName("imaps", imapHost, Integer.parseInt(imapPort), null, username, password);
 		this.mainFolderName = mainFolderName == null || mainFolderName.isEmpty() ? DEFAULT_INBOX_FOLDER_NAME : mainFolderName;
+		this.authEmails = authEmails;
 
 		this.listeners.addAll(Arrays.asList(listeners));
 		
@@ -431,13 +467,11 @@ public class EmailAgent implements Runnable {
 	 * @return true when the addresses have permission to execute commands
 	 */
 	protected boolean hasCommandPermission(final Address... addresses) {
-		List<String> authRecipients = ServiceProvider.IMPL.getWirelessService().settingsGet(ActorType.MAIL_RECIPIENTS, 
-				null, ActorType.MAIL_RECIPIENTS_DELIMITER);
 		boolean hasPermission = false;
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {
 			inernetAddress = (InternetAddress) from;
-			if (authRecipients.contains(inernetAddress.getAddress())) {
+			if (authEmails.contains(inernetAddress.getAddress())) {
 				hasPermission = true;
 				break;
 			}

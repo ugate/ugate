@@ -18,7 +18,14 @@ public class RemoteNodeDao extends Dao {
 	@PersistenceContext
 	private EntityManager em;
 
-	public List<RemoteNode> getRemoteNodesForHost(final int hostId) {
+	public RemoteNode findByAddress(final String address) {
+		final TypedQuery<RemoteNode> q = em.createQuery(
+				"select rn from RemoteNode rn where rn.address = :addy", RemoteNode.class);
+		q.setParameter("addy", address);
+		return q.getSingleResult();
+	}
+
+	public List<RemoteNode> findByHostId(final int hostId) {
 		final TypedQuery<RemoteNode> q = em.createQuery(
 				"select rn from RemoteNode rn where rn.host.id = :hostId", RemoteNode.class);
 		q.setParameter("hostId", hostId);

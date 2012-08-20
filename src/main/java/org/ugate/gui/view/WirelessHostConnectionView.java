@@ -137,8 +137,7 @@ public class WirelessHostConnectionView extends StatusView {
 		if (!cb.getActor().getHost().getComAddress().isEmpty() && 
 				cb.getActor().getHost().getComBaud() > 0) {
 			ServiceProvider.IMPL.getCredentialService().mergeHost(cb.getActor().getHost());
-			cb.createWirelessConnectionService(cb.getActor().getHost().getComAddress(), 
-					cb.getActor().getHost().getComBaud()).start();
+			cb.createWirelessConnectionService().start();
 		}
 	}
 }
