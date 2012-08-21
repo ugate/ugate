@@ -52,37 +52,37 @@ public class EmailHostConnectionView extends StatusView {
 		super(controlBar, false, 20);
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		smtpHost = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_SMTP_HOST, UGateCtrlBox.Type.TYPE_TEXT,
+				ActorType.MAIL_SMTP_HOST, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_SMTP_HOST), null);
 		controlBar.addHelpTextTrigger(smtpHost,
 				RS.rbLabel(KEYS.MAIL_SMTP_HOST_DESC));
 		smtpPort = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_SMTP_PORT, UGateCtrlBox.Type.TYPE_TEXT,
+				ActorType.MAIL_SMTP_PORT, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_SMTP_PORT), null);
 		controlBar.addHelpTextTrigger(smtpPort,
 				RS.rbLabel(KEYS.MAIL_SMTP_PORT_DESC));
 		imapHost = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_IMAP_HOST, UGateCtrlBox.Type.TYPE_TEXT,
+				ActorType.MAIL_IMAP_HOST, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_IMAP_HOST), null);
 		controlBar.addHelpTextTrigger(imapHost,
 				RS.rbLabel(KEYS.MAIL_IMAP_HOST_DESC));
 		imapPort = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_IMAP_PORT, UGateCtrlBox.Type.TYPE_TEXT,
+				ActorType.MAIL_IMAP_PORT, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_IMAP_PORT), null);
 		controlBar.addHelpTextTrigger(imapPort,
 				RS.rbLabel(KEYS.MAIL_IMAP_PORT_DESC));
 		username = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_USERNAME, UGateCtrlBox.Type.TYPE_TEXT,
+				ActorType.MAIL_USERNAME, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_USERNAME), null);
 		controlBar.addHelpTextTrigger(username,
 				RS.rbLabel(KEYS.MAIL_USERNAME_DESC));
 		password = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_PASSWORD, UGateCtrlBox.Type.TYPE_PASSWORD,
+				ActorType.MAIL_PASSWORD, UGateCtrlBox.Type.PASSWORD,
 				RS.rbLabel(KEYS.MAIL_PASSWORD), null);
 		controlBar.addHelpTextTrigger(password,
 				RS.rbLabel(KEYS.MAIL_PASSWORD_DESC));
 		inboxFolder = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_INBOX_NAME, UGateCtrlBox.Type.TYPE_TEXT,
+				ActorType.MAIL_INBOX_NAME, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_FOLDER_NAME), null);
 		controlBar.addHelpTextTrigger(inboxFolder,
 				RS.rbLabel(KEYS.MAIL_FOLDER_DESC));
