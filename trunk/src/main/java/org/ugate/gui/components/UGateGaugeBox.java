@@ -405,7 +405,9 @@ public class UGateGaugeBox<T> extends VBox {
 		});
 		setValueFromProperties(modelKeyWholeNum, modelKeyFraction, format, onColor, offColor);
 		beanPathAdapter.bindBidirectional(modelKeyWholeNum.getKey(), wholeNumProperty);
-		beanPathAdapter.bindBidirectional(modelKeyFraction.getKey(), fractionProperty);
+		if (modelKeyFraction != null) {
+			beanPathAdapter.bindBidirectional(modelKeyFraction.getKey(), fractionProperty);
+		}
         
 		// create the image view
         imageView = icon;
