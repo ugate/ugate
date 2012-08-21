@@ -45,9 +45,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import javax.security.sasl.AuthenticationException;
@@ -60,6 +62,7 @@ import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
+import org.ugate.gui.components.FunctionButton;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.gui.view.EmailHostConnectionView;
 import org.ugate.gui.view.RemoteNodeToolBar;
@@ -362,14 +365,33 @@ public class UGateGUI extends Application {
 			dialogHeaderKey = KEYS.APP_DIALOG_SETUP;
 			log.info("Initializing post installation dialog prompt");
 		}
+		final HBox wirelessRemoteNodeDirBox = new HBox(10);
+		final TextField wirelessRemoteNodeDir = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_WORKING_DIR)).editable(false).build();
+		HBox.setHgrow(wirelessRemoteNodeDir, Priority.ALWAYS);
+		final Button wirelessRemoteNodeDirBtn = new FunctionButton(
+				FunctionButton.Function.ADD, new Runnable() {
+					@Override
+					public void run() {
+						final DirectoryChooser dc = new DirectoryChooser();
+						dc.setTitle(RS.rbLabel(KEYS.WIRELESS_WORKING_DIR));
+						final File wdir = dc.showDialog(stage);
+						if (wdir != null) {
+							wirelessRemoteNodeDir.setText(wdir
+									.getAbsolutePath());
+						}
+					}
+				});
+		wirelessRemoteNodeDirBox.getChildren().addAll(wirelessRemoteNodeDir, wirelessRemoteNodeDirBtn);
 		final TextField wirelessHostAddy = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_HOST_ADDY)).build();
 		final TextField wirelessRemoteNodeAddy = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY)).build();
+		//final FileChooser wirelessRemoteNodeDir = new FileChooser();
+		//wirelessRemoteNodeDir.setTitle(RS.rbLabel(KEYS.WIRELESS_WORKING_DIR));
 		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_USERNAME)).build();
 		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_PWD)).build();
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
 				RS.rbLabel(KEYS.APP_DIALOG_PWD_VERIFY)).build();
 		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
-		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeaderKey, null, 550d, 300d, new Service<Void>() {
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeaderKey, null, 550d, 400d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
@@ -378,10 +400,11 @@ public class UGateGUI extends Application {
 					protected Void call() throws Exception {
 						final boolean hasWirelessHostAddy = !wirelessHostAddy.getText().isEmpty();
 						final boolean hasWirelessRemoteNodeAddy = !wirelessRemoteNodeAddy.getText().isEmpty();
+						final boolean hasWirelessRemoteNodeDir = !wirelessRemoteNodeDir.getText().isEmpty();
 						final boolean hasUsername = !username.getText().isEmpty();
 						final boolean hasPassword = !password.getText().isEmpty();
 						final boolean hasPasswordVerify = passwordVerify == null ? true : !passwordVerify.getText().isEmpty();
-						if (hasWirelessRemoteNodeAddy && hasUsername && hasPassword && hasPasswordVerify) {
+						if (hasWirelessRemoteNodeAddy && hasWirelessRemoteNodeDir && hasUsername && hasPassword && hasPasswordVerify) {
 							try {
 								if (isAuth) {
 									actor = ServiceProvider.IMPL.getCredentialService().authenticate(
@@ -398,6 +421,7 @@ public class UGateGUI extends Application {
 									final Host host = ActorType.newDefaultHost();
 									host.setComAddress(wirelessHostAddy.getText());
 									host.getRemoteNodes().iterator().next().setAddress(wirelessRemoteNodeAddy.getText());
+									host.getRemoteNodes().iterator().next().setWorkingDir(wirelessRemoteNodeDir.getText());
 									actor = ServiceProvider.IMPL.getCredentialService().addUser(
 													username.getText(), password.getText(), host, 
 													RoleType.ADMIN.newRole());
@@ -436,7 +460,7 @@ public class UGateGUI extends Application {
 					}
 				};
 			}
-		}, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, username, password, passwordVerify);
+		}, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify);
 		if (closeBtn != null) {
 			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
