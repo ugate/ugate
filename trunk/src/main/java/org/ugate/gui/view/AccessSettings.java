@@ -52,14 +52,14 @@ public class AccessSettings extends ControlPane {
 		final Label nodeLabel = createLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY);
 
 		remoteAddress = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
-				RemoteNodeType.WIRELESS_ADDRESS, UGateCtrlBox.Type.TYPE_TEXT,
+				RemoteNodeType.WIRELESS_ADDRESS, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY), null);
 		controlBar.addHelpTextTrigger(remoteAddress, RS.rbLabel(
 				KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC,
 				controlBar.getRemoteNode().getAddress()));
 		workingDir = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.WIRELESS_WORKING_DIR_PATH,
-				UGateCtrlBox.Type.TYPE_TEXT,
+				UGateCtrlBox.Type.DIR_CHOOSER,
 				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR), null);
 		controlBar.addHelpTextTrigger(workingDir,
 				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR_DESC));

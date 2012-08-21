@@ -135,7 +135,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			final IModelType<T> modelKey, final String numericStepperFormat,
 			final Color numericStepperColor, final Number minValue,
 			final Number maxValue, final String labelText, final String toolTip) {
-		this(beanPathAdapter, modelKey, null, null, Type.TYPE_NUMERIC_STEPPER,
+		this(beanPathAdapter, modelKey, null, null, Type.NUMERIC_STEPPER,
 				numericStepperFormat, numericStepperColor, minValue, maxValue,
 				labelText, null, null, toolTip, null, null);
 	}
@@ -175,7 +175,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			final Number width, final Number height, final String toolTip,
 			final IVT[] items, final Class<IVT> itemValueType) {
 		this(beanPathAdapter, modelKey, modelItemKey, modelItemClassType,
-				Type.TYPE_LIST_VIEW, null, null, null, null, labelText, width,
+				Type.LIST_VIEW, null, null, null, null, labelText, width,
 				height, toolTip, items, itemValueType);
 	}
 
@@ -238,20 +238,20 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 		if (toolTip != null && !toolTip.isEmpty()) {
 			label.setTooltip(new Tooltip(toolTip));
 		}
-		this.numericStepperFormat = type != Type.TYPE_NUMERIC_STEPPER ? null
+		this.numericStepperFormat = type != Type.NUMERIC_STEPPER ? null
 				: numericStepperFormat == null
 						|| numericStepperFormat.length() == 0 ? "%03d"
 						: numericStepperFormat;
-		this.numericStepperUseInt = type != Type.TYPE_NUMERIC_STEPPER ? false
+		this.numericStepperUseInt = type != Type.NUMERIC_STEPPER ? false
 				: this.numericStepperFormat.indexOf("d") > -1;
-		this.numericStepperDigitCount = type != Type.TYPE_NUMERIC_STEPPER ? 0
+		this.numericStepperDigitCount = type != Type.NUMERIC_STEPPER ? 0
 				: calculateDigitCount(this.numericStepperFormat,
 						this.numericStepperUseInt);
-		this.minValue = type != Type.TYPE_NUMERIC_STEPPER ? 0 : adjustedMinMax(
+		this.minValue = type != Type.NUMERIC_STEPPER ? 0 : adjustedMinMax(
 				minValue, true);
-		this.maxValue = type != Type.TYPE_NUMERIC_STEPPER ? 0 : adjustedMinMax(
+		this.maxValue = type != Type.NUMERIC_STEPPER ? 0 : adjustedMinMax(
 				maxValue, false);
-		if (type == Type.TYPE_PASSWORD) {
+		if (type == Type.PASSWORD) {
 			textField = null;
 			textArea = null;
 			numericStepperDigits = null;
@@ -266,7 +266,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			getChildren().addAll(label, passwordField);
 			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
 					passwordField.textProperty());
-		} else if (type == Type.TYPE_TEXT_AREA) {
+		} else if (type == Type.TEXT_AREA) {
 			textField = null;
 			passwordField = null;
 			numericStepperDigits = null;
@@ -282,7 +282,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			getChildren().addAll(label, textArea);
 			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
 					textArea.textProperty());
-		} else if (type == Type.TYPE_NUMERIC_STEPPER) {
+		} else if (type == Type.NUMERIC_STEPPER) {
 			textField = null;
 			textArea = null;
 			passwordField = null;
@@ -307,7 +307,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			setValue(numericStepperDigits.getValue());
 			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
 					numericStepperDigits.valueProperty());
-		} else if (type == Type.TYPE_LIST_VIEW) {
+		} else if (type == Type.LIST_VIEW) {
 			textField = null;
 			textArea = null;
 			passwordField = null;
@@ -330,18 +330,24 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			passwordField = null;
 			numericStepperDigits = null;
 			listView = null;
-			textField = new TextField();
+			if (type == Type.DIR_CHOOSER) {
+				final UGateDirectory dir = new UGateDirectory(null);
+				textField = dir.getTextField();
+				getChildren().addAll(label, dir);
+			} else {
+				textField = new TextField();
+				getChildren().addAll(label, textField);
+			}
 			if (width != null) {
 				textField.setPrefWidth(width.doubleValue());
 			}
 			if (height != null) {
 				textField.setPrefHeight(height.doubleValue());
 			}
-			getChildren().addAll(label, textField);
 			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
 					textField.textProperty());
 		}
-		// if (type != Type.TYPE_NUMERIC_STEPPER) {
+		// if (type != Type.NUMERIC_STEPPER) {
 		// setValue(textValue);
 		// }
 	}
@@ -466,17 +472,17 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 	 * @return gets the value of the control
 	 */
 	public Object getValue() {
-		if (type == Type.TYPE_PASSWORD) {
+		if (type == Type.PASSWORD) {
 			return passwordField.getText();
-		} else if (type == Type.TYPE_TEXT_AREA) {
+		} else if (type == Type.TEXT_AREA) {
 			return textArea.getText();
-		} else if (type == Type.TYPE_NUMERIC_STEPPER) {
+		} else if (type == Type.NUMERIC_STEPPER) {
 			if (numericStepperUseInt) {
 				return Integer.valueOf(numericStepperDigits.getValue());
 			} else {
 				return Float.valueOf(numericStepperDigits.getValue());
 			}
-		} else if (type == Type.TYPE_LIST_VIEW) {
+		} else if (type == Type.LIST_VIEW) {
 			return listView.getItems();
 		} else {
 			return textField.getText();
@@ -488,15 +494,15 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 	 */
 	@SuppressWarnings("unchecked")
 	public void setValue(final Object value) {
-		if (type == Type.TYPE_PASSWORD) {
+		if (type == Type.PASSWORD) {
 			passwordField.setText(value == null ? "" : value.toString());
 			valuePropertyWrapper.set(passwordField.getText());
-		} else if (type == Type.TYPE_TEXT_AREA) {
+		} else if (type == Type.TEXT_AREA) {
 			textArea.setText(value == null ? "" : value.toString());
 			valuePropertyWrapper.set(textArea.getText());
-		} else if (type == Type.TYPE_NUMERIC_STEPPER) {
+		} else if (type == Type.NUMERIC_STEPPER) {
 			setNumericStepperValue(value);
-		} else if (type == Type.TYPE_LIST_VIEW) {
+		} else if (type == Type.LIST_VIEW) {
 			listView.setItems((ObservableList<IVT>) value);
 			valuePropertyWrapper.set(listView.getItems());
 		} else {
@@ -577,6 +583,6 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 	 * The type of text control
 	 */
 	public enum Type {
-		TYPE_TEXT, TYPE_TEXT_AREA, TYPE_PASSWORD, TYPE_NUMERIC_STEPPER, TYPE_LIST_VIEW;
+		TEXT, TEXT_AREA, PASSWORD, NUMERIC_STEPPER, LIST_VIEW, DIR_CHOOSER;
 	}
 }

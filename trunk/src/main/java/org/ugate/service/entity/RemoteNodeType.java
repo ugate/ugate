@@ -78,15 +78,35 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 			throw new NullPointerException(Host.class.getName()
 					+ " cannot be null");
 		}
-		final RemoteNode remoteNode = new RemoteNode();
-		remoteNode.setHost(host);
-		remoteNode.setAddress("3333");
-		remoteNode.setDeviceSoundsOn(1);
-		remoteNode.setGateAccessOn(1);
-		remoteNode.setMailAlertOn(1);
-		remoteNode.setUniversalRemoteAccessOn(0);
-		remoteNode.setCreatedDate(new Date());
-		return remoteNode;
+		final RemoteNode rn = new RemoteNode();
+		rn.setHost(host);
+		rn.setAddress("3333");
+		rn.setCreatedDate(new Date());
+		rn.setCamAnglePan(90);
+		rn.setCamAngleTilt(90);
+		rn.setCamImgCaptureRetryCnt(3);
+		rn.setCamLaserTripAnglePan(181);
+		rn.setCamLaserTripAnglePriority(1);
+		rn.setCamLaserTripAngleTilt(181);
+		rn.setCamMwTripAnglePan(181);
+		rn.setCamMwTripAnglePriority(3);
+		rn.setCamMwTripAngleTilt(181);
+		rn.setCamPirTripAnglePan(181);
+		rn.setCamPirTripAnglePriority(2);
+		rn.setCamPirTripAngleTilt(181);
+		rn.setCamSonarTripAnglePan(181);
+		rn.setCamSonarTripAnglePriority(4);
+		rn.setCamSonarTripAngleTilt(181);
+		rn.setDeviceSoundsOn(1);
+		rn.setGateAccessOn(1);
+		rn.setLaserDistanceThresFeet(10);
+		rn.setMailAlertOn(1);
+		rn.setMwSpeedThresCyclesPerSec(10);
+		rn.setSonarDistanceThresFeet(7);
+		rn.setUniversalRemoteAccessCode1(1);
+		rn.setUniversalRemoteAccessCode2(2);
+		rn.setUniversalRemoteAccessCode3(3);
+		return rn;
 	}
 
 	/**

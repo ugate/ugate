@@ -43,7 +43,7 @@ public class WirelessHostConnectionView extends StatusView {
 		port = createComPortBox();
 	    baud = createBaudRateBox();
 	    hostAddress = new UGateCtrlBox<>(cb.getActorPA(), ActorType.HOST_COM_ADDY, 
-				UGateCtrlBox.Type.TYPE_TEXT, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY), null);
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY), null);
 	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY_DESC));
 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
