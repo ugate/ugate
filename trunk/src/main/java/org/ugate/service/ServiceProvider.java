@@ -66,7 +66,7 @@ public enum ServiceProvider {
 	 */
 	public boolean connect(final Host host, final int remoteNodeIndex,
 			final boolean startWebServer) {
-		return start(host, remoteNodeIndex, startWebServer, null);
+		return connect(host, remoteNodeIndex, startWebServer, null);
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public enum ServiceProvider {
 	 * @return true when the {@linkplain WirelessService} successfully connected
 	 *         to the local device (required for application to run)
 	 */
-	public boolean start(final Host host, final int remoteNodeIndex,
+	public boolean connect(final Host host, final int remoteNodeIndex,
 			final boolean startWebServer, final SignatureAlgorithm sa) {
 		try {
 			if (host == null && this.host == null) {
