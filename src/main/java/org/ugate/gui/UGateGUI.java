@@ -139,8 +139,8 @@ public class UGateGUI extends Application {
 		try {
 			log.debug("Iniitializing Service Provider...");
 			notifyPreloader(new ProgressNotification(0.3d));
-			ServiceProvider.IMPL.init();
-			if (ServiceProvider.IMPL.getWirelessService().init()) {
+			if (!ServiceProvider.IMPL.init() && 
+					ServiceProvider.IMPL.getWirelessService().isRequiresRestart()) {
 				initErrorHeader = RS.rbLabel(KEYS.APP_TITLE_ACTION_REQUIRED);
 				addInitError(RS.rbLabel(KEYS.APP_SERVICE_COM_RESTART_REQUIRED));
 			}
@@ -418,8 +418,6 @@ public class UGateGUI extends Application {
 										throw new IllegalArgumentException("Unable to add user " + username.getText());
 									}
 								}
-								// start the service connections based upon newly created/authorized user
-								ServiceProvider.IMPL.connect(actorPA.getBean().getHost(), 0, true);
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {

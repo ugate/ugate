@@ -343,9 +343,13 @@ public class RS {
 			final Path rxtxPath = zipFs.getPath("/");
 
 			// TODO : verify Mac x64/Linux x64 works using embedded files... see http://blog.iharder.net/2009/08/18/rxtx-java-6-and-librxtxserial-jnilib-on-intel-mac-os-x/
-			final String winArch = "Windows" + (System.getProperties().getProperty("os.arch") != "x86" ? "-x64" : "");
-			final String linuxArch = "Linux" + (System.getProperties().getProperty("os.arch") != "x86" ? "-x64" : "");
-			final String macArch = "Mac_OS_X" + (System.getProperties().getProperty("os.arch") != "x86" ? "-x64" : "");
+			final boolean is64 = !System.getProperties().getProperty("os.arch").equalsIgnoreCase("x86");
+			final String winArch32 = "Windows" + (is64 ? "-x64" : "");
+			final String linuxArch32 = "Linux" + (is64 ? "-x64" : "");
+			final String macArch32 = "Mac_OS_X" + (is64 ? "-x64" : "");
+			final String winArch64 = "Windows-x64";
+			final String linuxArch64 = "Linux-x64";
+			final String macArch64 = "Mac_OS_X-x64";
 
 			// install files
 			Files.walkFileTree(rxtxPath, new java.nio.file.SimpleFileVisitor<Path>() {
@@ -353,9 +357,9 @@ public class RS {
 				@Override
 				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
 					try {
-						if ((!UGateUtil.isWindows() && dir.toAbsolutePath().toString().contains(winArch)) || 
-								(!UGateUtil.isMac() && dir.toAbsolutePath().toString().contains(macArch)) || 
-								(!UGateUtil.isLinux() && dir.toAbsolutePath().toString().contains(linuxArch)) || 
+						if (skipCommPath(dir, winArch32, winArch64, UGateUtil.isWindows()) || 
+								skipCommPath(dir, macArch32, macArch64, UGateUtil.isMac()) || 
+								skipCommPath(dir, linuxArch32, linuxArch64, UGateUtil.isLinux()) || 
 								(!UGateUtil.isSolaris() && dir.toAbsolutePath().toString().contains("Solaris"))) {
 							return FileVisitResult.SKIP_SUBTREE;
 						}
@@ -424,6 +428,28 @@ public class RS {
 		}
 	}
 
+	/**
+	 * Determines if a {@linkplain Path} should be skipped for
+	 * {@linkplain #installComm()}
+	 * 
+	 * @param dir
+	 *            the {@linkplain Path}
+	 * @param osArch32
+	 *            the OS 32-bit architecture folder name
+	 * @param osArch64
+	 *            the OS 64-bit architecture folder name
+	 * @param osSame
+	 *            true when the OS being checked is the same as the OS
+	 *            architecture folder names
+	 * @return true to skip
+	 */
+	protected static boolean skipCommPath(final Path dir, final String osArch32, final String osArch64, final boolean osSame) {
+		final boolean is64 = !System.getProperties().getProperty("os.arch").equalsIgnoreCase("x86");
+		final String absp = dir.toAbsolutePath().toString();
+		return ((!osSame && absp.contains(osArch32)) || 
+				((osSame && !is64 && absp.contains(osArch64)) || 
+						(osSame && is64 && absp.contains(osArch32 + '/'))));
+	}
 	/**
 	 * Restarts the application
 	 */
@@ -729,7 +755,7 @@ public class RS {
 		MAIN_CLASS("main.class"), RXTX_VERSION("rxtx.version"), RXTX_FILE_NAME(
 				"rxtx.file.name"), APP_ID("app.id"), APP_VERSION("app.version"), APP_DESC(
 				"app.desc"), APP_TITLE("app.title"), APP_TITLE_ACTION_REQUIRED(
-				"app.action.required"), APP_TITLE_ERROR("app.title.error"), APP_SERVICE_COM_RESTART_REQUIRED(
+				"app.title.action.required"), APP_TITLE_ERROR("app.title.error"), APP_SERVICE_COM_RESTART_REQUIRED(
 				"app.service.com.restart.required"), APP_SERVICE_INIT_ERROR(
 				"app.service.init.error"), APP_GATE_KEEPER_ERROR(
 				"app.gatekeeper.init.error"), APP_CONNECTION_DESC(

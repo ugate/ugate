@@ -45,6 +45,8 @@ public class WirelessService {
 	private final Logger log = UGateUtil.getLogger(WirelessService.class);
 	private XBee xbee;
 	private UGateXBeePacketListener packetListener;
+	private boolean requiresRestart;
+	private boolean isListening;
 	
 	@Resource
 	private RemoteNodeDao remoteNodeDao;
@@ -58,7 +60,7 @@ public class WirelessService {
 	/**
 	 * Connects to the local wireless device
 	 * 
-	 * @return true if connected
+	 * @return true if the connection has been established
 	 */
 	public boolean init() {
 		if (xbee != null) {
@@ -66,28 +68,27 @@ public class WirelessService {
 		}
 		log.info("Initializing local XBee");
 		// ensure that the needed RXTX is installed (if not install it)
-		final boolean commInitialized = RS.initComm();
-		if (commInitialized) {
-			xbee = new XBee();
-			packetListener = new UGateXBeePacketListener() {
-				@Override
-				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<RemoteNode, V> event) {
-					// TODO : update the remote nodes history for incoming data
-//					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
-//							event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-//						for (final Map.Entry<Integer, String> ea : event.getNodeAddresses().entrySet()) {
-//							
-//						}
-//					}
-					UGateKeeper.DEFAULT.notifyListeners(event);
-				}
-			};
-			xbee.addPacketListener(packetListener);
-			return true;
+		requiresRestart = RS.initComm();
+		if (requiresRestart) {
+			return false;
 		}
+		xbee = new XBee();
+		packetListener = new UGateXBeePacketListener() {
+			@Override
+			protected <V extends RxData> void handleEvent(final UGateKeeperEvent<RemoteNode, V> event) {
+				// TODO : update the remote nodes history for incoming data
+//				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
+//						event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+//					for (final Map.Entry<Integer, String> ea : event.getNodeAddresses().entrySet()) {
+//						
+//					}
+//				}
+				UGateKeeper.DEFAULT.notifyListeners(event);
+			}
+		};
 		// test the serial ports
 		getSerialPorts();
-		return commInitialized;
+		return true;
 	}
 	
 	/**
@@ -99,6 +100,10 @@ public class WirelessService {
 	public boolean connect(final Host host, final RemoteNode remoteNode) {
 		if (xbee == null) {
 			init();
+		}
+		if (!isListening()) {
+			xbee.addPacketListener(packetListener);
+			isListening = true;
 		} else {
 			disconnect();
 		}
@@ -437,5 +442,20 @@ public class WirelessService {
 	 */
 	public List<String> getSerialPorts() {
 		return RS.getSerialPorts();
+	}
+
+	/**
+	 * @return true if the application needs to be restarted before a wireless
+	 *         connection can be established
+	 */
+	public boolean isRequiresRestart() {
+		return requiresRestart;
+	}
+
+	/**
+	 * @return true when the service is listening to incoming wireless data
+	 */
+	public boolean isListening() {
+		return isListening;
 	}
 }
