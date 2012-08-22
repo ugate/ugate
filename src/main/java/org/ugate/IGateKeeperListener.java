@@ -8,9 +8,9 @@ import java.util.EventListener;
 public interface IGateKeeperListener extends EventListener {
 	
 	/**
-	 * Handles the gate keeper event
+	 * Handles any {@linkplain UGateKeeperEvent}s
 	 *
-	 * @param event the event to handle
+	 * @param event the {@linkplain UGateKeeperEvent} to handle
 	 */
-	public abstract void handle(final UGateKeeperEvent<?> event);
+	public abstract void handle(final UGateKeeperEvent<?, ?> event);
 }

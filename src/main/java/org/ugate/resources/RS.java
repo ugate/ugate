@@ -746,11 +746,11 @@ public class RS {
 				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
 				"win.systray.tooltip"), LOADING("loading"), SELECT("select"), TODAY(
 				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), UPDATE(
-				"update"), SUBMIT("submit"), SENDING("sending"), CAM_PAN(
-				"cam.pan"), CAM_PAN_DESC("cam.pan.desc"), CAM_TILT("cam.tilt"), CAM_TILT_DESC(
-				"cam.pan.tilt.desc"), CAM_RES("cam.resolution"), CAM_RES_DESC(
-				"cam.resolution.desc"), CAM_RES_VGA("cam.resolution.vga"), CAM_RES_QVGA(
-				"cam.resolution.qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
+				"update"), SUBMIT("submit"), ERROR("error"), INVALID("invalid"), SENDING(
+				"sending"), CAM_PAN("cam.pan"), CAM_PAN_DESC("cam.pan.desc"), CAM_TILT(
+				"cam.tilt"), CAM_TILT_DESC("cam.pan.tilt.desc"), CAM_RES(
+				"cam.resolution"), CAM_RES_DESC("cam.resolution.desc"), CAM_RES_VGA(
+				"cam.resolution.vga"), CAM_RES_QVGA("cam.resolution.qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
 				"cam.trip.angle.priority.desc"), CAM_SONAR_TRIP_ANGLE_PRIORITY(
 				"cam.sonar.trip.angle.priority"), CAM_PIR_TRIP_ANGLE_PRIORITY(
 				"cam.pir.trip.angle.priority"), CAM_MW_TRIP_ANGLE_PRIORITY(
@@ -844,7 +844,10 @@ public class RS {
 				"wireless.node.remote.add"), WIRELESS_NODE_REMOTE_ADD_DESC(
 				"wireless.node.remote.add.desc"), WIRELESS_NODE_ADD_FAILED(
 				"wireless.node.remote.add.failed"), WIRELESS_NODE_REMOTE_SELECT_FAILED(
-				"wireless.node.remote.select.failed"), WIRELESS_REMOTE_UNIVERSAL(
+				"wireless.node.remote.select.failed"), WIRELESS_NODE_REMOTE_SAVED_LOCAL(
+				"wireless.node.remote.local.saved"), WIRELESS_REMOTE_SYNCD(
+				"wireless.node.remote.syncd"), WIRELESS_REMOTE_OUT_OF_SYNC(
+				"wireless.node.remote.outofsync"), WIRELESS_REMOTE_UNIVERSAL(
 				"wireless.remote.universal"), WIRELESS_REMOTE_UNIVERSAL_DESC(
 				"wireless.remote.universal.desc"), WIRELESS_PORT(
 				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(

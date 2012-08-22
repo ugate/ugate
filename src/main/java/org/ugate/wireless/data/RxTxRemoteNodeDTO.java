@@ -11,7 +11,7 @@ import org.ugate.service.entity.jpa.RemoteNode;
  * Settings data
  */
 public class RxTxRemoteNodeDTO extends RxData {
-	
+
 	private int[] data = new int[RemoteNodeType.canRemoteCount()];
 	
 	/**
@@ -85,7 +85,7 @@ public class RxTxRemoteNodeDTO extends RxData {
 	public int[] getData() {
 		return Arrays.copyOf(data, RemoteNodeType.canRemoteCount());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

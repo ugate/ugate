@@ -99,7 +99,7 @@ public class UGateGUI extends Application {
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
-	private static KEYS initErrorTitleRsKey = KEYS.APP_TITLE_ERROR;
+	private String initErrorHeader;
 	private static StringBuffer initErrors;
 	private final BeanPathAdapter<Actor> actorPA;
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
@@ -141,7 +141,7 @@ public class UGateGUI extends Application {
 			notifyPreloader(new ProgressNotification(0.3d));
 			ServiceProvider.IMPL.init();
 			if (ServiceProvider.IMPL.getWirelessService().init()) {
-				initErrorTitleRsKey = KEYS.APP_TITLE_ACTION_REQUIRED;
+				initErrorHeader = RS.rbLabel(KEYS.APP_TITLE_ACTION_REQUIRED);
 				addInitError(RS.rbLabel(KEYS.APP_SERVICE_COM_RESTART_REQUIRED));
 			}
 			// Text.setFontSmoothingType(FontSmoothingType.LCD);
@@ -182,7 +182,10 @@ public class UGateGUI extends Application {
 			if (initErrors != null && initErrors.length() > 0) {
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
-				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, initErrorTitleRsKey, 
+				if (initErrorHeader == null) {
+					initErrorHeader = RS.rbLabel(KEYS.APP_TITLE_ERROR);
+				}
+				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, initErrorHeader, 
 						KEYS.CLOSE, 550d, 300d, new Service<Void>() {
 					@Override
 					protected Task<Void> createTask() {
@@ -242,7 +245,7 @@ public class UGateGUI extends Application {
 		// connections are lost
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?> event) {
+			public void handle(final UGateKeeperEvent<?, ?> event) {
 				try {
 					playSound(event);
 				} catch (final Exception e) {
@@ -355,12 +358,12 @@ public class UGateGUI extends Application {
 		}
 		// if there are no users then the user needs to be prompted for a username/password
 		final boolean isAuth = ServiceProvider.IMPL.getCredentialService().getActorCount() > 0;
-		KEYS dialogHeaderKey;
+		String dialogHeader;
 		if (isAuth) {
-			dialogHeaderKey = KEYS.APP_DIALOG_AUTH;
+			dialogHeader = RS.rbLabel(KEYS.APP_DIALOG_AUTH);
 			log.debug("Presenting authentication dialog prompt");
 		} else {
-			dialogHeaderKey = KEYS.APP_DIALOG_SETUP;
+			dialogHeader = RS.rbLabel(KEYS.APP_DIALOG_SETUP);
 			log.info("Initializing post installation dialog prompt");
 		}
 		final UGateDirectory wirelessRemoteNodeDirBox = isAuth ? null : new UGateDirectory(stage);
@@ -376,7 +379,7 @@ public class UGateGUI extends Application {
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
 				RS.rbLabel(KEYS.APP_DIALOG_PWD_VERIFY)).build();
 		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
-		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeaderKey, null, 550d, isAuth ? 200d : 400d, new Service<Void>() {
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 400d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
@@ -604,48 +607,39 @@ public class UGateGUI extends Application {
 
 	/**
 	 * Plays a sound for predefined events if the
-	 * {@linkplain RemoteNode#getDeviceSoundsOn()} is set for each of the
-	 * {@linkplain UGateKeeperEvent#getNodeAddresses()}
+	 * {@linkplain RemoteNode#getDeviceSoundsOn()} for the
+	 * {@linkplain UGateKeeperEvent#getSource()} (i.e. {@linkplain RemoteNode})
 	 * 
 	 * @param event
 	 *            the {@linkplain UGateKeeperEvent}
 	 */
-	protected void playSound(final UGateKeeperEvent<?> event) {
-		if (event.getNodeAddresseCount() <= 0) {
+	protected void playSound(final UGateKeeperEvent<?, ?> event) {
+		if (!(event.getSource() instanceof RemoteNode)) {
 			return;
 		}
-		RemoteNode rn;
-		for (final String addy : event.getNodeAddresses()) {
-			rn = ServiceProvider.IMPL.getWirelessService().findRemoteNodeByAddress(event.getNodeAddress());
-			if (rn == null) {
-				log.error(String
-						.format("Unrecognized remote address %1$s ... discarding host sound alarm",
-								addy));
-				continue;
-			}
-			if (rn.getDeviceSoundsOn() != 1) {
-				continue;
-			}
-			if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
-				RS.mediaPlayerConfirm.play();
-			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-				RS.mediaPlayerBlip.play();
-			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
-				RS.mediaPlayerError.play();
-			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
-				RS.mediaPlayerDoorBell.play();
-				// TODO : send email with image as attachment (only when the image
-				// is captured via alarm trip rather, but not from GUI)
-				// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
-				// trippedImage.toString(),
-				// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
-				// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
-				// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
-				// imageFile.filePath);
-				RS.mediaPlayerComplete.play();
-			} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
-				RS.mediaPlayerCam.play();
-			}
+		final RemoteNode rn = (RemoteNode) event.getSource();
+		if (rn == null || rn.getDeviceSoundsOn() != 1) {
+			return;
+		}
+		if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
+			RS.mediaPlayerConfirm.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+			RS.mediaPlayerBlip.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
+			RS.mediaPlayerError.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
+			RS.mediaPlayerDoorBell.play();
+			// TODO : send email with image as attachment (only when the image
+			// is captured via alarm trip rather, but not from GUI)
+			// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
+			// trippedImage.toString(),
+			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
+			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
+			// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
+			// imageFile.filePath);
+			RS.mediaPlayerComplete.play();
+		} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
+			RS.mediaPlayerCam.play();
 		}
 	}
 }

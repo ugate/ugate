@@ -33,8 +33,8 @@ public class StartupPreloader extends Preloader {
 		lighting.setSurfaceScale(3d);
 		lighting.setLight(light);
 		bar.setEffect(lighting);
-		new Dialog(null, stage, KEYS.APP_TITLE, KEYS.LOADING, null, WIDTH, HEIGHT,
-				bar);
+		new Dialog(null, stage, KEYS.APP_TITLE, RS.rbLabel(KEYS.LOADING), null,
+				WIDTH, HEIGHT, bar);
 	}
 
 	/**

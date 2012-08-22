@@ -93,7 +93,7 @@ public class EmailHostConnectionView extends StatusView {
 				new Runnable() {
 					@Override
 					public void run() {
-						if (recipient.getText().isEmpty()) {
+						if (recipient.getText().isEmpty() || !validate(true)) {
 							return;
 						}
 						final String raddy = recipient.getText();
@@ -120,7 +120,7 @@ public class EmailHostConnectionView extends StatusView {
 					@Override
 					public void run() {
 						if (recipients.getListView().getSelectionModel()
-								.getSelectedItems().isEmpty()) {
+								.getSelectedItems().isEmpty() || !validate(true)) {
 							return;
 						}
 						final MailRecipient[] ms = cb.getActor().getHost()
@@ -175,7 +175,7 @@ public class EmailHostConnectionView extends StatusView {
 		// update the status when email connections are made/lost
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?> event) {
+			public void handle(final UGateKeeperEvent<?, ?> event) {
 				if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
@@ -250,12 +250,7 @@ public class EmailHostConnectionView extends StatusView {
 	 * Establishes an email connection using internal parameters
 	 */
 	public void connect() {
-		if (!cb.getActor().getHost().getMailSmtpHost().isEmpty()
-				&& cb.getActor().getHost().getMailSmtpPort() > 0
-				&& !cb.getActor().getHost().getMailImapHost().isEmpty()
-				&& cb.getActor().getHost().getMailImapPort() > 0
-				&& !cb.getActor().getHost().getMailUserName().isEmpty()
-				&& !cb.getActor().getHost().getMailPassword().isEmpty()) {
+		if (validate(true)) {
 			log.debug("Connecting to email...");
 			ServiceProvider.IMPL.getCredentialService().mergeHost(
 					cb.getActor().getHost());
@@ -263,5 +258,31 @@ public class EmailHostConnectionView extends StatusView {
 		} else {
 			log.debug("Unable to connect to email due to blank values");
 		}
+	}
+
+	/**
+	 * TODO : add validation framework implementation
+	 * 
+	 * @return true when all required fields are valid
+	 */
+	public boolean validate(final boolean notify) {
+		final boolean hsmtph = !cb.getActor().getHost().getMailSmtpHost().isEmpty();
+		final boolean hsmtpp = cb.getActor().getHost().getMailSmtpPort() > 0;
+		final boolean himaph = !cb.getActor().getHost().getMailImapHost().isEmpty();
+		final boolean himpap = cb.getActor().getHost().getMailImapPort() > 0;
+		final boolean husern = !cb.getActor().getHost().getMailUserName().isEmpty();
+		final boolean huserp = cb.getActor().getHost().getMailPassword().length() >= 3;
+		if (hsmtph && hsmtpp && himaph && himpap && husern && huserp) {
+			return true;
+		} else if (notify) {
+			final String invalidFields = (!hsmtph ? smtpHost.getTextField().getPromptText() : "") + ' ' +
+					(!hsmtpp ? smtpPort.getTextField().getPromptText() : "") +
+					(!himaph ? imapHost.getTextField().getPromptText() : "") +
+					(!himpap ? imapPort.getTextField().getPromptText() : "") + 
+					(!husern ? username.getTextField().getPromptText() : "") + 
+					(!huserp ? password.getPasswordField().getPromptText() : "");
+			cb.setHelpText(RS.rbLabel(KEYS.INVALID, invalidFields));
+		}
+		return false;
 	}
 }

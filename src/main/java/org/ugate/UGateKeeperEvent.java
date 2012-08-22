@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -17,69 +17,89 @@ import org.ugate.wireless.data.RxRawData;
 /**
  * Gate keeper event
  * 
- * @param <V> the old/new value type
+ * @param <S>
+ *            the source type
+ * @param <V>
+ *            the old/new value type
  */
-public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
+public class UGateKeeperEvent<S, V> extends EventObject implements Cloneable {
 	
 	private static final long serialVersionUID = 7451746276275099724L;
 	private Type type;
-	private final Set<String> addys;
 	private final IModelType<?> key;
 	private final Command command;
 	private final V oldValue;
 	private final V newValue;
 	private boolean fromRemote;
 	private List<String> messages;
+	private AtomicBoolean consumed = new AtomicBoolean();
 	
 	/**
-	 * Creates a gate keeper event
+	 * Constructor
 	 * 
-	 * @param source the {@linkplain UGateKeeper} the event is for
-	 * @param type the {@linkplain Type} type
-	 * @param fromRemote true when the event is initialized from a remote source
-	 * @param messages messages (if any)
+	 * @param source
+	 *            the source of the event
+	 * @param type
+	 *            the {@linkplain Type} type
+	 * @param fromRemote
+	 *            true when the event is initialized from a remote source
+	 * @param messages
+	 *            messages (if any)
 	 */
-	public UGateKeeperEvent(final Object source, final Type type, final boolean fromRemote, final String... messages) {
-		this(source, type, fromRemote, null, null, null, null, null, messages);
+	public UGateKeeperEvent(final S source, final Type type, final boolean fromRemote, final String... messages) {
+		this(source, type, fromRemote, null, null, null, null, messages);
 	}
 	
 	/**
-	 * Creates a gate keeper event
+	 * Constructor
 	 * 
-	 * @param source the {@linkplain UGateKeeper} the event is for
-	 * @param type the {@linkplain Type} type
-	 * @param fromRemote true when the event originated from a remote node
-	 * @param addys the {@linkplain RemoteNode#getAddress()} the event is for (null when event is for all nodes)
-	 * @param key the {@linkplain IModelType} (null when event is for all nodes)
-	 * @param command the executing {@linkplain Command} (null when not applicable)
-	 * @param oldValue the old value (null when event is for all nodes)
-	 * @param newValue the new value (null when event is for all nodes)
-	 * @param messages messages (if any)
+	 * @param source
+	 *            the source of the event
+	 * @param type
+	 *            the {@linkplain Type} type
+	 * @param fromRemote
+	 *            true when the event originated from a {@linkplain RemoteNode}
+	 * @param key
+	 *            the {@linkplain IModelType} (null when event is for all nodes)
+	 * @param command
+	 *            the executing {@linkplain Command} (null when not applicable)
+	 * @param oldValue
+	 *            the old value (null when event is for all nodes)
+	 * @param newValue
+	 *            the new value (null when event is for all nodes)
+	 * @param messages
+	 *            messages (if any)
 	 */
-	public UGateKeeperEvent(final Object source, final Type type, final boolean fromRemote, final Set<String> addys,
+	public UGateKeeperEvent(final S source, final Type type, final boolean fromRemote, 
 			final IModelType<?> key, final Command command, final V oldValue, final V newValue, final String... messages) {
-		this(source, type, fromRemote, addys, key, command, oldValue, newValue, 
+		this(source, type, fromRemote, key, command, oldValue, newValue, 
 				messages != null && messages.length > 0 ? new ArrayList<String>(Arrays.asList(messages)) : null);
 	}
 
 	/**
-	 * Creates a gate keeper event
+	 * Constructor
 	 * 
-	 * @param source the {@linkplain UGateKeeper} the event is for
-	 * @param type the {@linkplain Type} type
-	 * @param fromRemote true when the event originated from a remote node
-	 * @param addys the {@linkplain RemoteNode#getAddress()} the event is for (null when event is for all nodes)
-	 * @param key the {@linkplain IModelType} (null when event is for all nodes)
-	 * @param command the executing {@linkplain Command} (null when not applicable)
-	 * @param oldValue the old value (null when event is for all nodes)
-	 * @param newValue the new value (null when event is for all nodes)
-	 * @param messages messages (if any)
+	 * @param source
+	 *            the source of the event
+	 * @param type
+	 *            the {@linkplain Type} type
+	 * @param fromRemote
+	 *            true when the event originated from a {@linkplain RemoteNode}
+	 * @param key
+	 *            the {@linkplain IModelType} (null when event is for all nodes)
+	 * @param command
+	 *            the executing {@linkplain Command} (null when not applicable)
+	 * @param oldValue
+	 *            the old value (null when event is for all nodes)
+	 * @param newValue
+	 *            the new value (null when event is for all nodes)
+	 * @param messages
+	 *            messages (if any)
 	 */
-	public UGateKeeperEvent(final Object source, final Type type, final boolean fromRemote, final Set<String> addys,  
+	public UGateKeeperEvent(final S source, final Type type, final boolean fromRemote, 
 			final IModelType<?> key, final Command command, final V oldValue, final V newValue, final List<String> messages) {
 		super(source);
 		this.type = type;
-		this.addys = addys;
 		this.key = key;
 		this.command = command;
 		this.oldValue = oldValue;
@@ -96,10 +116,10 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	 * @return the event clone
 	 */
 	@SuppressWarnings("unchecked")
-	public UGateKeeperEvent<V> clone(final Type type, final int nodeIndex, final String... messages) {
-		UGateKeeperEvent<V> event = null;
+	public UGateKeeperEvent<S, V> clone(final Type type, final int nodeIndex, final String... messages) {
+		UGateKeeperEvent<S, V> event = null;
 		try {
-			event = (UGateKeeperEvent<V>) super.clone();
+			event = (UGateKeeperEvent<S, V>) super.clone();
 			event.type = type;
 			if (messages != null) {
 				for (final String error : messages) {
@@ -112,7 +132,15 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		}
 		return event;
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public S getSource() {
+		return getSource();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -163,31 +191,6 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 
 	/**
-	 * @return the {@linkplain RemoteNode#getAddress()} count
-	 */
-	public int getNodeAddresseCount() {
-		return addys != null ? addys.size() : 0;
-	}
-
-	/**
-	 * Gets the first {@linkplain RemoteNode#getAddress()} from
-	 * {@linkplain #getNodeAddresses()}
-	 * 
-	 * @return the {@linkplain RemoteNode#getAddress()}
-	 */
-	public String getNodeAddress() {
-		return addys != null && !addys.isEmpty() ? addys.iterator().next()
-				: null;
-	}
-
-	/**
-	 * @return the {@linkplain Set} of {@linkplain RemoteNode#getAddress()}
-	 */
-	public Set<String> getNodeAddresses() {
-		return addys;
-	}
-
-	/**
 	 * @return the {@linkplain Type}
 	 */
 	public Type getType() {
@@ -223,7 +226,7 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 
 	/**
-	 * @return true when the event originated from a remote node
+	 * @return true when the event originated from a {@linkplain RemoteNode}
 	 */
 	public boolean isFromRemote() {
 		return fromRemote;
@@ -273,19 +276,40 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 	}
 
 	/**
+	 * @return true when the event is consumed (no other listeners will be
+	 *         notified)
+	 */
+	public boolean isConsumed() {
+		return consumed.get();
+	}
+
+	/**
+	 * @param consumed
+	 *            true to set that event as consumed (no other listeners will be
+	 *            notified)
+	 */
+	public void setConsumed(boolean consumed) {
+		this.consumed.set(consumed);
+	}
+
+	/**
 	 * The {@linkplain UGateKeeperEvent} types
 	 */
 	public enum Type {
 		/** Event when the event is initializing */
 		INITIALIZE, 
-		/** Event when preferences/settings are being set on the host */
-		SETTINGS_SAVE_LOCAL, 
-		/** Event when the remote node for the preferences/settings has changed due to a new node being added */
-		SETTINGS_REMOTE_NODE_CHANGED_FROM_ADD, 
-		/** Event when the remote node for the preferences/settings has changed due to an existing node being removed */
-		SETTINGS_REMOTE_NODE_CHANGED_FROM_REMOVE, 
-		/** Event when the remote node for the preferences/settings has changed from an existing node to another existing node */
-		SETTINGS_REMOTE_NODE_CHANGED_FROM_SELECT, 
+		/** Event when a {@linkplain RemoteNode} has updated values that have been committed, but not yet sent the {@linkplain RemoteNode}'s device */
+		WIRELESS_REMOTE_NODE_COMMITTED, 
+		/** Event when a {@linkplain RemoteNode} has updated values that have been committed and notification has been received, but not yet sent the {@linkplain RemoteNode}'s device */
+		WIRELESS_REMOTE_NODE_COMMITTED_NOTIFIED, 
+		/** Event when a {@linkplain RemoteNode} has changing due to a new node being added */
+		WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD, 
+		/** Event when a {@linkplain RemoteNode} has changing due to an existing node being removed */
+		WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE, 
+		/** Event when a {@linkplain RemoteNode} has changing from an existing node to another existing node */
+		WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT, 
+		/** Event when a {@linkplain RemoteNode} has changed {@linkplain UGateKeeperEvent#getOldValue()} will contain the old {@linkplain RemoteNode} and {@linkplain UGateKeeperEvent#getNewValue()} will contain the new {@linkplain RemoteNode} */
+		WIRELESS_REMOTE_NODE_CHANGED, 
 		/** Event when connecting to the local host wireless device */
 		WIRELESS_HOST_CONNECTING,
 		/** Event when a connection has been established with the local host wireless device */
@@ -298,43 +322,43 @@ public class UGateKeeperEvent<V> extends EventObject implements Cloneable {
 		WIRELESS_HOST_DISCONNECTED,
 		/** Event when a disconnection attempt has been made, but failed to be completed */
 		WIRELESS_HOST_DISCONNECT_FAILED,
-		/** Event when wireless data is being sent to ALL THE SPECIFIED remote node(s) */
+		/** Event when wireless data is being sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) */
 		WIRELESS_DATA_ALL_TX,
-		/** Event when wireless data is being sent to a SINGLE remote node */
+		/** Event when wireless data is being sent to a SINGLE {@linkplain RemoteNode} */
 		WIRELESS_DATA_TX,
-		/** Event when wireless data has failed to be sent to a SINGLE remote node */
+		/** Event when wireless data has failed to be sent to a SINGLE {@linkplain RemoteNode} */
 		WIRELESS_DATA_TX_FAILED,
-		/** Event when wireless data has been sent to a SINGLE remote node and a sent acknowledgment has been received from the LOCAL node */
+		/** Event when wireless data has been sent to a SINGLE {@linkplain RemoteNode} and a sent acknowledgment has been received from the LOCAL node */
 		WIRELESS_DATA_TX_ACK,
-		/** Event when wireless data has been sent to a SINGLE remote node and an acknowledgment from the LOCAL node was never received */
+		/** Event when wireless data has been sent to a SINGLE {@linkplain RemoteNode} and an acknowledgment from the LOCAL node was never received */
 		WIRELESS_DATA_TX_ACK_FAILED,
-		/** Event when wireless data has been sent to a SINGLE remote node and the REMOTE node successfully responded to the sent data */
+		/** Event when wireless data has been sent to a SINGLE {@linkplain RemoteNode} and the {@linkplain RemoteNode} successfully responded to the sent data */
 		WIRELESS_DATA_TX_SUCCESS,
-		/** Event when wireless data has been sent and an unrecognized response has been received by a remote node. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
+		/** Event when wireless data has been sent and an unrecognized response has been received by a {@linkplain RemoteNode}. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
 		WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED,
-		/** Event when wireless data has been sent and a response has been received by a remote node. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
+		/** Event when wireless data has been sent and a response has been received by a {@linkplain RemoteNode}. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
 		WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS,
-		/** Event when wireless data has been sent and an error response has been received by a remote node(s). {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
+		/** Event when wireless data has been sent and an error response has been received by a {@linkplain RemoteNode}(s). {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxRawData} */
 		WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED,
-		/** Event when wireless data has been sent to ALL THE SPECIFIED remote node(s) and a sent acknowledgment has been received for each REMOTE node from the LOCAL node */
+		/** Event when wireless data has been sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) and a sent acknowledgment has been received for each {@linkplain RemoteNode} from the LOCAL node */
 		WIRELESS_DATA_ALL_TX_ACK,
-		/** Event when wireless data has been sent to ALL THE SPECIFIED remote node(s) and an acknowledgment from ANY number of REMOTE node(s) were never received by the LOCAL node */
+		/** Event when wireless data has been sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) and an acknowledgment from ANY number of {@linkplain RemoteNode}(s) were never received by the LOCAL node */
 		WIRELESS_DATA_ALL_TX_ACK_FAILED,
-		/** Event when wireless data has been sent to remote node(s) and ALL THE SPECIFIED of the REMOTE node successfully responded to the sent data */
+		/** Event when wireless data has been sent to {@linkplain RemoteNode}(s) and ALL THE SPECIFIED of the {@linkplain RemoteNode} successfully responded to the sent data */
 		WIRELESS_DATA_ALL_TX_SUCCESS,
-		/** Event when wireless data has been sent to ALL THE SPECIFIED remote node(s) and at least one of the REMOTE node(s) responded with a failure to the sent data */
+		/** Event when wireless data has been sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) and at least one of the {@linkplain RemoteNode}(s) responded with a failure to the sent data */
 		WIRELESS_DATA_ALL_TX_FAILED,
-		/** Event when wireless data has been received by a remote node that requires multiple transmissions. {@linkplain UGateKeeperEvent#getNewValue()} will contain a partial {@linkplain RxData} */
+		/** Event when wireless data has been received by a {@linkplain RemoteNode} that requires multiple transmissions. {@linkplain UGateKeeperEvent#getNewValue()} will contain a partial {@linkplain RxData} */
 		WIRELESS_DATA_RX_MULTIPART,
-		/** Event when wireless data has been received by a remote node without any failures. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxData} */
+		/** Event when wireless data has been received by a {@linkplain RemoteNode} without any failures. {@linkplain UGateKeeperEvent#getNewValue()} will contain {@linkplain RxData} */
 		WIRELESS_DATA_RX_SUCCESS,
-		/** Event when wireless data has been received by a remote node, but failures exist- retrying attempt */
+		/** Event when wireless data has been received by a {@linkplain RemoteNode}, but failures exist- retrying attempt */
 		WIRELESS_DATA_RX_FAILED_RETRYING,
-		/** Event when wireless data has been received by a remote node, but failures exist */
+		/** Event when wireless data has been received by a {@linkplain RemoteNode}, but failures exist */
 		WIRELESS_DATA_RX_FAILED,
-		/** Event triggered when executed command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of remote nodes address(es) */
+		/** Event triggered when executed command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of {@linkplain RemoteNode}s address(es) */
 		EMAIL_EXECUTED_COMMANDS,
-		/** Event triggered when failure occurs while executing command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of remote nodes address(es) */
+		/** Event triggered when failure occurs while executing command(s) from email {@linkplain UGateKeeperEvent#getNewValue()} will contain a {@linkplain List} of {@linkplain RemoteNode}s address(es) */
 		EMAIL_EXECUTE_COMMANDS_FAILED,
 		/** Event triggered when connecting to email */
 		EMAIL_CONNECTING,

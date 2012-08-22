@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
+import javafx.scene.control.Label;
 import javafx.scene.control.LabelBuilder;
 import javafx.scene.control.ProgressBarBuilder;
 import javafx.scene.control.ProgressIndicator;
@@ -61,10 +62,12 @@ public class GuiUtil {
 	}
 	
 	/**
-	 * Creates a modal alert that shows a progress display
+	 * Creates a modal alert that shows a {@linkplain ProgressIndicator} display
 	 * 
-	 * @param parent the parent stage of the alert (should not be null)
-	 * @return the progress alert
+	 * @param parent
+	 *            the parent {@linkplain Stage} of the alert (should not be
+	 *            null)
+	 * @return the {@linkplain ProgressIndicator} alert
 	 */
 	public static Stage alertProgress(final Stage parent) {
 		final Stage alert = alert(parent, 200, 150, 
@@ -73,13 +76,19 @@ public class GuiUtil {
 	}
 	
 	/**
-	 * Creates a service that will show a modal progress window that will automatically be shown when
-	 * started and hidden when complete/failed/canceled
+	 * Creates a {@linkplain Service} that will show a modal
+	 * {@linkplain ProgressIndicator} {@linkplain Stage} that will automatically
+	 * be shown when started and hidden when complete/failed/canceled
 	 * 
-	 * @param <T> the service task type
-	 * @param parent the parent stage of the progress alert
-	 * @param progressTask the progress task ran in the service
-	 * @return the progress alert service
+	 * @param <T>
+	 *            the {@linkplain Service} task type
+	 * @param parent
+	 *            the parent {@linkplain Stage} of the
+	 *            {@linkplain ProgressIndicator} alert
+	 * @param progressTask
+	 *            the {@linkplain ProgressIndicator} {@linkplain Task} ran in
+	 *            the {@linkplain Service}
+	 * @return the {@linkplain ProgressIndicator} alert {@linkplain Service}
 	 */
 	public static <T> Service<T> alertProgress(final Stage parent, final Task<T> progressTask) {
 		final Light light = new Light.Distant();
@@ -123,11 +132,17 @@ public class GuiUtil {
 	/**
 	 * Creates an alert {@linkplain Stage}
 	 * 
-	 * @param parent the parent of the alert (when present the alert will be centered over the parent)
-	 * @param width the width of the alert
-	 * @param height the height of the alert
-	 * @param modality the {@linkplain Modality} of the alert
-	 * @param children the children of the alert
+	 * @param parent
+	 *            the parent of the alert (when present the alert will be
+	 *            centered over the parent)
+	 * @param width
+	 *            the width of the alert
+	 * @param height
+	 *            the height of the alert
+	 * @param modality
+	 *            the {@linkplain Modality} of the alert
+	 * @param children
+	 *            the children of the alert
 	 * @return the alert
 	 */
 	public static Stage alert(final Stage parent, final double width, final double height, 
@@ -175,9 +190,8 @@ public class GuiUtil {
 	 *            the parent {@linkplain Stage}
 	 * @param titleKey
 	 *            the resource key for the {@linkplain Stage#setTitle(String)}
-	 * @param headerKey
-	 *            the resource key for the {@linkplain Text#setText(String)}
-	 *            messageHeader
+	 * @param headerText
+	 *            the text displayed in the header of the {@linkplain Dialog}
 	 * @param submitLabelKey
 	 *            the resource key for the {@linkplain Button#setText(String)}
 	 * @param width
@@ -195,7 +209,7 @@ public class GuiUtil {
 	 *            added to the bottom of the dialog.
 	 * @return the {@linkplain DialogService}
 	 */
-	public static DialogService dialogService(final Stage parent, final KEYS titleKey, final KEYS headerKey, 
+	public static DialogService dialogService(final Stage parent, final KEYS titleKey, final String headerText, 
 			final KEYS submitLabelKey, final double width, final double height, final Service<Void> submitService, 
 			final Node... children) {
 		final Stage window = new Stage();
@@ -206,12 +220,12 @@ public class GuiUtil {
 				submitService.restart();
 			}
 		}).build();
-		final Dialog dialog = new Dialog(parent, window, titleKey, headerKey, submitBtn, width, height, children);
+		final Dialog dialog = new Dialog(parent, window, titleKey, headerText, submitBtn, width, height, children);
 		return new DialogService(dialog, submitService);
 	}
 
 	/**
-	 * Dialog stage
+	 * Dialog {@linkplain Stage}
 	 */
 	public static class Dialog {
 
@@ -220,12 +234,30 @@ public class GuiUtil {
 		private final Text header;
 		private final Text messageHeader;
 		private final VBox content;
-		
+
+		/**
+		 * Constructor
+		 * 
+		 * @param parent
+		 *            the parent {@linkplain Stage}
+		 * @param stage
+		 *            the dialog {@linkplain Stage}
+		 * @param titleKey
+		 *            the {@linkplain KEYS} used for the title
+		 * @param headerText
+		 *            the text used for the header
+		 * @param submitButton
+		 *            the submit {@linkplain Button}
+		 * @param width
+		 *            the width
+		 * @param height
+		 *            the height
+		 * @param children
+		 *            the child {@linkplain Node}s
+		 */
 		public Dialog(final Stage parent, final Stage stage, final KEYS titleKey,
-				final KEYS headerKey, final Button submitButton,
+				final String headerText, final Button submitButton,
 				final double width, final double height, final Node... children) {
-			final String headerText = headerKey != null ? RS.rbLabel(headerKey)
-					: "";
 			header = TextBuilder.create().text(headerText)
 					.styleClass("dialog-title").wrappingWidth(width / 1.2d)
 					.build();
@@ -270,50 +302,98 @@ public class GuiUtil {
 			}
 			content.getChildren().addAll(flowPane);
 		}
+
+		/**
+		 * @return the parent {@linkplain Stage}
+		 */
 		public Stage getParent() {
 			return parent;
 		}
+
+		/**
+		 * @return the {@linkplain Dialog} {@linkplain Stage}
+		 */
 		public Stage getStage() {
 			return stage;
 		}
+
+		/**
+		 * @return the header text
+		 */
 		public Text getHeader() {
 			return header;
 		}
+
+		/**
+		 * @return the message header
+		 */
 		public Text getMessageHeader() {
 			return messageHeader;
 		}
+
+		/**
+		 * @return the content {@linkplain VBox}
+		 */
 		public VBox getContent() {
 			return content;
 		}
 	}
 	
 	/**
-	 * Creates a {@linkplain Popup} version of the alert
+	 * Creates a {@linkplain Popup} alert
 	 * 
-	 * @param width the width of the alert
-	 * @param height the height of the alert
-	 * @param children the children of the alert
-	 * @return the alert
+	 * @param width
+	 *            the width of the {@linkplain Popup}
+	 * @param height
+	 *            the height of the {@linkplain Popup}
+	 * @param headerText
+	 *            the text to display in the header {@linkplain Region}
+	 * @param closeButtonKey
+	 *            the {@linkplain KEYS} used for the text of the alternative
+	 *            close {@linkplain Button} when no children are specified
+	 * @param children
+	 *            the children of the {@linkplain Popup} (when null a close
+	 *            button will be added)
+	 * @return the {@linkplain Popup}
 	 */
 	public static Popup alert(final double width, final double height, 
-			final Node... children) {
+			final String headerText, final KEYS closeButtonKey, final Node... children) {
 		final Popup alert = new Popup();
 		alert.setAutoFix(true);
 		alert.setAutoHide(false);
 		alert.setHideOnEscape(false);
-		alert.getContent().addAll(children);
+		if (headerText != null && !headerText.isEmpty()) {
+			alert.getContent().add(new Label(headerText));
+		}
+		if (children != null && children.length > 0) {
+			alert.getContent().addAll(children);
+		} else {
+			final KEYS cbk = closeButtonKey != null ? closeButtonKey : KEYS.CLOSE;
+			final Button cb = ButtonBuilder.create().text(RS.rbLabel(cbk)).build();
+			cb.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(final MouseEvent event) {
+					alert.hide();
+				}
+			});
+		}
 		alert.sizeToScene();
 		return alert;
 	}
 	
 	/**
-	 * Creates a time line that will alternate the colors of the drop shadow when played
-	 *  
-	 * @param ds the drop shadow
-	 * @param onColor the on color
-	 * @param offColor the off color
-	 * @param cycleCount the cycle count
-	 * @return the time line
+	 * Creates a {@linkplain Timeline} that will alternate the
+	 * {@linkplain Color}s of the {@linkplain DropShadow} when played
+	 * 
+	 * @param ds
+	 *            the {@linkplain DropShadow}
+	 * @param onColor
+	 *            the on {@linkplain Color}
+	 * @param offColor
+	 *            the off {@linkplain Color}
+	 * @param cycleCount
+	 *            the {@linkplain Timeline#getCycleCount()}
+	 * @return the {@linkplain Timeline}
 	 */
 	public static Timeline createDropShadowColorIndicatorTimline(final DropShadow ds, 
 			final Color onColor, final Color offColor, final int cycleCount) {
@@ -338,14 +418,19 @@ public class GuiUtil {
 	}
 	
 	/**
-	 * Creates a background display
+	 * Creates a background display {@linkplain Region}
 	 * 
-	 * @param padding the padding in the grid group
-	 * @param gapBetweenChildren the vertical and/or horizontal gap between cells
-	 * @param numItemsPerRow the number of items per row
-	 * @param gaugeStyle true to style the children as gauges
-	 * @param nodes the nodes to add to the display
-	 * @return the background display
+	 * @param padding
+	 *            the padding in the {@linkplain GridPane} group
+	 * @param gapBetweenChildren
+	 *            the vertical and/or horizontal gap between cells
+	 * @param numItemsPerRow
+	 *            the number of items per row
+	 * @param gaugeStyle
+	 *            true to style the children as gauges
+	 * @param nodes
+	 *            the {@linkplain Node}s to add to the display
+	 * @return the background display {@linkplain Region}
 	 */
 	public static final Region createBackgroundDisplay(final Insets padding, final double gapBetweenChildren, 
 			final int numItemsPerRow, final boolean gaugeStyle, final Node... nodes) {
@@ -368,10 +453,11 @@ public class GuiUtil {
 	}
 	
 	/**
-	 * Checks the mouse event to see if it's a normal primary press of the mouse without
-	 * any other keys held down
+	 * Checks the {@linkplain MouseEvent} to see if it's a normal primary press
+	 * of the mouse without any other keys held down
 	 * 
-	 * @param event the mouse pressed event
+	 * @param event
+	 *            the pressed {@linkplain MouseEvent}
 	 * @return true when just the primary is pressed
 	 */
 	public static boolean isPrimaryPress(final MouseEvent event) {

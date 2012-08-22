@@ -48,6 +48,7 @@ import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 import org.ugate.wireless.data.RxTxSensorReadings;
 
 /**
@@ -59,7 +60,8 @@ public class ControlBar extends ToolBar {
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
-	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
+	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper;
+	private final Timeline settingsSetTimeline;
 	
 	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
 	public static final Color ATTENTION_COLOR = Color.YELLOW;
@@ -75,6 +77,10 @@ public class ControlBar extends ToolBar {
 		this.stage = stage;
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
+		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
+		final DropShadow settingsDS = new DropShadow();
+		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
+				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		helpTextDropShadow.setRadius(50d);
@@ -121,7 +127,6 @@ public class ControlBar extends ToolBar {
 			}
 	    });
 		addHelpTextTrigger(settingsSet, RS.rbLabel(KEYS.SETTINGS_SEND));
-		final DropShadow settingsDS = new DropShadow();
 		settingsSet.setEffect(settingsDS);
 		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
 		settingsGet.setCursor(Cursor.HAND);
@@ -186,22 +191,33 @@ public class ControlBar extends ToolBar {
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSet, settingsGet, readingsGet, 
 				new Separator(Orientation.VERTICAL), readingsGroup, 
 				new Separator(Orientation.VERTICAL), multiAlarmGroup);
-		
-		final Timeline settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
-				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
 		// show a visual indication that the settings need updated
+		// TODO : when other nodes are changed 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?> event) {
+			public void handle(final UGateKeeperEvent<?, ?> event) {
 				setHelpText(event.getMessageString());
-				if (event.getType() == UGateKeeperEvent.Type.SETTINGS_SAVE_LOCAL) {
-					if (event.getKey() != null && event.getKey().canRemote()) {
-						settingsSetTimeline.play();
+				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
+					final RemoteNode rn = (RemoteNode) event.getSource();
+					if (!rn.isDeviceSynchronized() && rn.isDeviceAutoSynchronize()) {
+						// automatically send the changes to the remote node
+						// (consume event so no other notifications for the
+						// event will be processed)
+						event.setConsumed(true);
+						createCommandService(Command.SENSOR_SET_SETTINGS, true);
+					} else if (!rn.isDeviceSynchronized() && 
+							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
+						validateRemoteNodeSynchronization();
 					}
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
-					settingsSetTimeline.stop();
+					final RemoteNode rn = (RemoteNode) event.getSource();
+					if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
+						settingsSetTimeline.stop();
+					}
 				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
-					if (event.getNewValue() instanceof RxTxSensorReadings) {
+					final RemoteNode rn = (RemoteNode) event.getSource();
+					if (event.getNewValue() instanceof RxTxSensorReadings && 
+							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						final RxTxSensorReadings sr = (RxTxSensorReadings) event.getNewValue();
 						sensorReadingsPropertyWrapper.set(sr);
 						sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 
@@ -210,15 +226,43 @@ public class ControlBar extends ToolBar {
 								Double.parseDouble(sr.getIrFeet() + "." + sr.getIrInches())));
 						mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 
 								Math.round(sr.getSpeedMPH())));
+					} else if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
+						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
+						if (!RemoteNodeType.remoteEquivalent(rn, ndto.getRemoteNode())) {
+							// remote device values do not match the local device values
+							rn.setDeviceSynchronized(false);
+							ndto.getRemoteNode().setDeviceSynchronized(false);
+							if (rn.isDeviceAutoSynchronize()) {
+								// automatically send the changes to the remote node
+								// (consume event so no other notifications for the
+								// event will be processed)
+								event.setConsumed(true);
+								createCommandService(Command.SENSOR_SET_SETTINGS, true);
+							} else if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
+								validateRemoteNodeSynchronization();
+							}
+						}
 					}
 				}
 			}
 		});
+		validateRemoteNodeSynchronization();
 //		sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 5.3f));
 //		pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 3.7f));
 //		mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 24L));
 	}
-	
+
+	/**
+	 * Notifies the user that the {@linkplain #getRemoteNode()} needs to be
+	 * sent/synchronized with the remote device (if needed)
+	 */
+	public void validateRemoteNodeSynchronization() {
+		if (getRemoteNode().isDeviceSynchronized()) {
+			settingsSetTimeline.stop();
+		} else {
+			settingsSetTimeline.play();
+		}
+	}
 	/**
 	 * @return the menu bar items related to the control bar
 	 */

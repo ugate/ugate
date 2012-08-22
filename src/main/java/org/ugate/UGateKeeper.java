@@ -49,14 +49,21 @@ public enum UGateKeeper {
 	}
 	
 	/**
-	 * Notifies the listeners of preference/settings and connection interactions.
+	 * Notifies the listeners of preference/settings and connection
+	 * interactions. TODO : remove reference to GUI implementation
 	 * 
-	 * @param <V> the type of event value
-	 * @param events the event(s)
+	 * @param <S>
+	 *            the source of the event
+	 * @param <V>
+	 *            the type of event value
+	 * @param events
+	 *            the event(s)
 	 */
-	public <V> void notifyListeners(final UGateKeeperEvent<V> event) {
+	public <S, V> void notifyListeners(final UGateKeeperEvent<S, V> event) {
 		for (final IGateKeeperListener pl : listeners) {
-			// TODO : remove reference to GUI implementation
+			if (event.isConsumed()) {
+				return;
+			}
 			if (Platform.isFxApplicationThread()) {
 				pl.handle(event);
 			} else {
@@ -64,6 +71,9 @@ public enum UGateKeeper {
 					@Override
 					public void run() {
 						try {
+							if (event.isConsumed()) {
+								return;
+							}
 							pl.handle(event);
 						} catch (final Throwable t) {
 							log.warn("Unable to notify listener: " + pl, t);
