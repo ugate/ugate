@@ -257,6 +257,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			numericStepperDigits = null;
 			listView = null;
 			passwordField = new PasswordField();
+			passwordField.setPromptText(labelText);
 			if (width != null) {
 				passwordField.setPrefWidth(width.doubleValue());
 			}
@@ -273,6 +274,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			listView = null;
 			textArea = new TextArea();
 			textArea.setWrapText(true);
+			textArea.setPromptText(labelText);
 			if (width != null) {
 				textArea.setPrefColumnCount(width.intValue());
 			}
@@ -344,6 +346,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 			if (height != null) {
 				textField.setPrefHeight(height.doubleValue());
 			}
+			textField.setPromptText(labelText);
 			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
 					textField.textProperty());
 		}

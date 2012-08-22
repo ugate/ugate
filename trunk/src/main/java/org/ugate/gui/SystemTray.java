@@ -128,7 +128,7 @@ public class SystemTray extends Service<Void> {
 					// when the primary stage is minimized to the system tray show a notification for the event message
 					UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 						@Override
-						public void handle(final UGateKeeperEvent<?> event) {
+						public void handle(final UGateKeeperEvent<?, ?> event) {
 							if (!SystemTray.this.stage.isShowing()) {
 								final String msg = event.getMessageString();
 								if (msg != null && !msg.isEmpty()) {

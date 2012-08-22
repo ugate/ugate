@@ -147,7 +147,16 @@ public class StatusView extends VBox {
 	public void blinkStart() {
 		blinkStart(isOn(), isOn(), 0);
 	}
-	
+
+	/**
+	 * Creates a time line that will alternate the status icon fill for the specified cycle count
+	 * 
+	 * @param cycleCount the cycle count of the {@linkplain Timeline}
+	 */
+	public void blinkStart(final int cycleCount) {
+		blinkStart(isOn(), isOn(), cycleCount);
+	}
+
 	/**
 	 * Creates a time line that will alternate the status icon fill for the specified cycle count
 	 * 
@@ -160,7 +169,7 @@ public class StatusView extends VBox {
 			blinkTimeline = null;
 		}
 		blinkTimeline = new Timeline();
-		blinkTimeline.setCycleCount(cycleCount <=0 ? Timeline.INDEFINITE : cycleCount);
+		blinkTimeline.setCycleCount(cycleCount <= 0 ? Timeline.INDEFINITE : cycleCount);
 		blinkTimeline.setAutoReverse(true);
 		final KeyFrame kf = new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
 			@Override

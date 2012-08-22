@@ -16,7 +16,9 @@ import org.ugate.service.entity.jpa.RemoteNode;
  * devices.
  */
 public enum RemoteNodeType implements IModelType<RemoteNode> {
-	DEVICE_SOUNDS_ON("deviceSoundsOn", false), CAM_IMG_CAPTURE_RETRY_CNT(
+	DEVICE_SOUNDS_ON("deviceSoundsOn", false), DEVICE_AUTO_SYNCHRONIZE(
+			"deviceAutoSynchronize", false), DEVICE_SYNCHRONIZED(
+			"deviceSynchronized", false), CAM_IMG_CAPTURE_RETRY_CNT(
 			"camImgCaptureRetryCnt", false), WIRELESS_ADDRESS("address", false), WIRELESS_WORKING_DIR_PATH(
 			"workingDir", false), MAIL_ALERT_ON("mailAlertOn", false), UNIVERSAL_REMOTE_ACCESS_ON(
 			"universalRemoteAccessOn", true), UNIVERSAL_REMOTE_ACCESS_CODE_1(
@@ -122,6 +124,35 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 			}
 		}
 		return canRemoteCount.get();
+	}
+
+	/**
+	 * Determines if two {@linkplain RemoteNode}s have equivalent remote values
+	 * 
+	 * @param remoteNode1
+	 *            the {@linkplain RemoteNode} to evaluate
+	 * @param remoteNode2
+	 *            the {@linkplain RemoteNode} to evaluate
+	 * @return true when all the remote values are equivalent
+	 */
+	public static boolean remoteEquivalent(final RemoteNode remoteNode1, final RemoteNode remoteNode2) {
+		if (remoteNode1 != null && remoteNode2 != null) {
+			for (final RemoteNodeType rnt : RemoteNodeType.values()) {
+				try {
+					if (rnt.canRemote()
+							&& rnt.getRemoteValue(remoteNode1) != rnt
+									.getRemoteValue(remoteNode2)) {
+						return false;
+					}
+				} catch (final Throwable t) {
+					throw new IllegalArgumentException(String.format(
+							"Unable to extract %1$s from both %2$s and %3$s",
+							rnt, remoteNode1.getAddress(),
+							remoteNode2.getAddress()), t);
+				}
+			}
+		}
+		return true;
 	}
 
 	/**

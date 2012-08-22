@@ -10,10 +10,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 
+import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateKeeperEvent.Type;
 import org.ugate.service.entity.Model;
 
 
@@ -160,10 +166,28 @@ public class RemoteNode implements Model {
 	@Column(name="WORKING_DIR", nullable=false, length=100)
 	private String workingDir;
 
+	@Column(name="DEVICE_AUTO_SYNCHRONIZE")
+	private boolean deviceAutoSynchronize;
+
+	@Column(name="DEVICE_SYNCHRONIZED")
+	private boolean deviceSynchronized;
+
 	//bi-directional many-to-one association to Host
 	@ManyToOne
 	@JoinColumn(name="HOST_ID", nullable=false)
 	private Host host;
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateKeeperEvent)} when any
+	 * changes are committed
+	 */
+	@PostPersist
+	@PostUpdate
+	@PostRemove
+	void notifyListeners() {
+		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<>(this,
+				Type.WIRELESS_REMOTE_NODE_COMMITTED, false));
+	}
 
 	public RemoteNode() {
 	}
@@ -502,6 +526,22 @@ public class RemoteNode implements Model {
 
 	public void setWorkingDir(String workingDir) {
 		this.workingDir = workingDir;
+	}
+
+	public boolean isDeviceAutoSynchronize() {
+		return deviceAutoSynchronize;
+	}
+
+	public void setDeviceAutoSynchronize(boolean deviceAutoSynchronize) {
+		this.deviceAutoSynchronize = deviceAutoSynchronize;
+	}
+
+	public boolean isDeviceSynchronized() {
+		return deviceSynchronized;
+	}
+
+	public void setDeviceSynchronized(boolean deviceSynchronized) {
+		this.deviceSynchronized = deviceSynchronized;
 	}
 
 	public Host getHost() {

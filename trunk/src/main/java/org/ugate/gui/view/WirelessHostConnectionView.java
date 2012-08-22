@@ -48,7 +48,7 @@ public class WirelessHostConnectionView extends StatusView {
 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?> event) {
+			public void handle(final UGateKeeperEvent<?, ?> event) {
 				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECTING));

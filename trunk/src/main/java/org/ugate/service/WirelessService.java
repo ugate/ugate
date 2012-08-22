@@ -1,7 +1,6 @@
 package org.ugate.service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -72,7 +71,7 @@ public class WirelessService {
 			xbee = new XBee();
 			packetListener = new UGateXBeePacketListener() {
 				@Override
-				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<V> event) {
+				protected <V extends RxData> void handleEvent(final UGateKeeperEvent<RemoteNode, V> event) {
 					// TODO : update the remote nodes history for incoming data
 //					if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
 //							event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
@@ -104,19 +103,22 @@ public class WirelessService {
 			disconnect();
 		}
 		log.info("Connecting to local XBee");
-		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, false));
+		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<WirelessService, Void>(
+				this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
 			xbee.open(host.getComAddress(), host.getComBaud());
 			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
 					host.getComAddress(), host.getComBaud()));
 			// XBee connection is blocking so notification can be sent here
-			UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED, false));
+			UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<WirelessService, Void>(
+					this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED, false));
 			return true;
 		} catch (final Throwable t) {
 			final String errorMsg = String.format("Unable to establish a connection to the local XBee using port %1$s and baud rate %2$s", 
 					host.getComAddress(), host.getComBaud());
 			log.error(errorMsg, t);
-			UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED, false, errorMsg, t.getMessage()));
+			UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<WirelessService, Void>(
+					this, UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED, false, errorMsg, t.getMessage()));
 			if (t instanceof XBeeException) {
 				// bug in XBee connection that will show xbee.isConnected() as true after an XBeeException unless we close it here
 				try {
@@ -148,7 +150,8 @@ public class WirelessService {
 			String msg = "Disconnecting from XBee";
 			log.info(msg);
 			if (notify) {
-				UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING, false, msg));	
+				UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<WirelessService, Void>(
+						WirelessService.this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING, false, msg));	
 			}
 			try {
 				xbee.close();
@@ -156,13 +159,15 @@ public class WirelessService {
 				log.info(msg);
 				if (notify) {
 					// XBee close is blocking so notification can be sent here
-					UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED, false, msg));
+					UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<WirelessService, Void>(
+							WirelessService.this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED, false, msg));
 				}
 			} catch (final Throwable t) {
 				msg = "Unable to close wireless connection";
 				log.error(msg, t);
 				if (notify) {
-					UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<Void>(UGateKeeper.DEFAULT, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED, false, 
+					UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<WirelessService, Void>(
+							WirelessService.this, UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECT_FAILED, false, 
 							msg, t.getMessage()));
 				}
 			}
@@ -252,23 +257,25 @@ public class WirelessService {
 	 *            the data to send
 	 * @return true when successful
 	 */
-	public boolean sendData(final RemoteNode remoteNode, final Command command, final int... data) {
-		final LinkedHashSet<String> addys = new LinkedHashSet<>(1);
-		addys.add(remoteNode.getAddress());
-		return sendData(new UGateKeeperEvent<int[]>(this, UGateKeeperEvent.Type.INITIALIZE, false, 
-				addys, null, command, null, data));
+	public boolean sendData(final RemoteNode remoteNode, final Command command,
+			final int... data) {
+		return sendData(new UGateKeeperEvent<RemoteNode, int[]>(remoteNode,
+				UGateKeeperEvent.Type.INITIALIZE, false, null, command, null,
+				data));
 	}
 	
 	/**
-	 * Sends the data array to the remote address
+	 * Sends the data array to the {@linkplain RemoteNode#getAddress()}
 	 * 
-	 * @param event the event that contains the <code>int</code> array of data to send 
-	 * 	{@linkplain UGateKeeperEvent#newValue}, the {@linkplain UGateKeeperEvent#command}, 
-	 * 	and {@linkplain UGateKeeperEvent#nodeAddresses} to send the data to
+	 * @param event
+	 *            the event that contains the <code>int</code> array of data to
+	 *            send {@linkplain UGateKeeperEvent#getNewValue()}, the
+	 *            {@linkplain UGateKeeperEvent#getCommand()}, and
+	 *            {@linkplain UGateKeeperEvent#getSource()} to send the data to
 	 * @return true when successful
 	 */
-	private boolean sendData(final UGateKeeperEvent<int[]> event) {
-		if (event.getNodeAddresseCount() <= 0) {
+	private boolean sendData(final UGateKeeperEvent<RemoteNode, int[]> event) {
+		if (event.getSource() == null) {
 			throw new NullPointerException("No wireless node addresses to send data to");
 		}
 		int i = 0;
@@ -276,44 +283,42 @@ public class WirelessService {
 		int failureCount = 0;
 		UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX, i));
 		String message;
-		for (final String addy : event.getNodeAddresses()) {
-			try {
-				// bytes header command and status/failure code
-				final int[] bytesHeader = new int[] { event.getCommand().id, RxData.Status.NORMAL.ordinal() };
-				final int[] bytes = event.getNewValue() != null && event.getNewValue().length > 0 ? 
-						UGateUtil.arrayConcatInt(bytesHeader, event.getNewValue()) : bytesHeader;
-				final XBeeAddress16 xbeeAddress = getXbeeAddress(addy);
-				// create a unicast packet to be delivered to the supplied address, with the pay load
-				final TxRequest16 request = new TxRequest16(xbeeAddress, bytes);
-				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_SENDING, bytes, addy);
+		try {
+			// bytes header command and status/failure code
+			final int[] bytesHeader = new int[] { event.getCommand().id, RxData.Status.NORMAL.ordinal() };
+			final int[] bytes = event.getNewValue() != null && event.getNewValue().length > 0 ? 
+					UGateUtil.arrayConcatInt(bytesHeader, event.getNewValue()) : bytesHeader;
+			final XBeeAddress16 xbeeAddress = getXbeeAddress(event.getSource().getAddress());
+			// create a unicast packet to be delivered to the supplied address, with the pay load
+			final TxRequest16 request = new TxRequest16(xbeeAddress, bytes);
+			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_SENDING, bytes, event.getSource().getAddress());
+			log.info(message);
+			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX, i, message));
+			// send the packet and wait up to 10 seconds for the transmit status reply
+			final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
+			if (response.isSuccess()) {
+				// packet was delivered successfully
+				successCount++;
+				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_SUCCESS, bytes, event.getSource().getAddress(), response.getStatus());
 				log.info(message);
-				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX, i, message));
-				// send the packet and wait up to 10 seconds for the transmit status reply
-				final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
-				if (response.isSuccess()) {
-					// packet was delivered successfully
-					successCount++;
-					message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_SUCCESS, bytes, addy, response.getStatus());
-					log.info(message);
-					UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_ACK, i, message));
-				} else {
-					// packet was not delivered
-					failureCount++;
-					message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_FAILED, bytes, addy, response.getStatus());
-					log.error(message);
-					UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_ACK_FAILED, i, message));
-				}
-			} catch (XBeeTimeoutException e) {
+				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_ACK, i, message));
+			} else {
+				// packet was not delivered
 				failureCount++;
-				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_TIMEOUT, addy);
-				log.error(message, e);
-				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
-			} catch (final Throwable t) {
-				failureCount++;
-				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_FAILED, addy);
-				log.error(message, t);
-				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
+				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_FAILED, bytes, event.getSource().getAddress(), response.getStatus());
+				log.error(message);
+				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_ACK_FAILED, i, message));
 			}
+		} catch (XBeeTimeoutException e) {
+			failureCount++;
+			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_TIMEOUT, event.getSource().getAddress());
+			log.error(message, e);
+			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
+		} catch (final Throwable t) {
+			failureCount++;
+			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_FAILED, event.getSource().getAddress());
+			log.error(message, t);
+			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateKeeperEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
 		}
 		if (failureCount <= 0) {
 			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_SUCCESS, successCount);
@@ -408,14 +413,12 @@ public class WirelessService {
 				final RxTxRemoteNodeDTO sd = new RxTxRemoteNodeDTO(rn);
 				final int[] sendData = sd.getData();
 				log.info(String.format("Attempting to send: %s", sd));
-				final LinkedHashSet<String> was = new LinkedHashSet<>();
-				was.add(rn.getAddress());
-				final UGateKeeperEvent<int[]> event = new UGateKeeperEvent<int[]>(
-						UGateKeeper.DEFAULT, UGateKeeperEvent.Type.INITIALIZE,
-						false, was, null, Command.SENSOR_SET_SETTINGS, null,
+				final UGateKeeperEvent<RemoteNode, int[]> event = new UGateKeeperEvent<>(
+						rn, UGateKeeperEvent.Type.INITIALIZE,
+						false, null, Command.SENSOR_SET_SETTINGS, null,
 						sendData);
 				if (sendData(event)) {
-					log.info(String.format("Settings sent to %1$s node(s)", was.size()));
+					log.info(String.format("Settings sent to %1$s", rn.getAddress()));
 					allSuccess = true;
 				}
 			}
