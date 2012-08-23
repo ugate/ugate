@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.ugate.service.entity.IModelType;
+import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.RxRawData;
@@ -136,9 +137,10 @@ public class UGateKeeperEvent<S, V> extends EventObject implements Cloneable {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public S getSource() {
-		return getSource();
+		return (S) super.getSource();
 	}
 
 	/**
@@ -298,10 +300,12 @@ public class UGateKeeperEvent<S, V> extends EventObject implements Cloneable {
 	public enum Type {
 		/** Event when the event is initializing */
 		INITIALIZE, 
+		/** Event when a {@linkplain Host} has updated values that have been committed */
+		ACTOR_COMMITTED,
+		/** Event when a {@linkplain Host} has updated values that have been committed */
+		HOST_COMMITTED,
 		/** Event when a {@linkplain RemoteNode} has updated values that have been committed, but not yet sent the {@linkplain RemoteNode}'s device */
 		WIRELESS_REMOTE_NODE_COMMITTED, 
-		/** Event when a {@linkplain RemoteNode} has updated values that have been committed and notification has been received, but not yet sent the {@linkplain RemoteNode}'s device */
-		WIRELESS_REMOTE_NODE_COMMITTED_NOTIFIED, 
 		/** Event when a {@linkplain RemoteNode} has changing due to a new node being added */
 		WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD, 
 		/** Event when a {@linkplain RemoteNode} has changing due to an existing node being removed */

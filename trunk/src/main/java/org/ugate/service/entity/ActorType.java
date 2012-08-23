@@ -101,7 +101,7 @@ public enum ActorType implements IModelType<Actor> {
 		mailRecipients.add(mr3);
 		host.setComAddress("7777");
 		host.setComBaud(19200);
-		host.setComPort("COM1");
+		//host.setComPort("COM1");
 		host.setMailSmtpHost("smtp.gmail.com");
 		host.setMailSmtpPort(465);
 		host.setMailImapHost("imap.gmail.com");

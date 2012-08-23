@@ -413,7 +413,7 @@ public class RemoteNodeToolBar extends ToolBar {
 		public void updateLastCommand(final Command command) {
 			setHelpText(command.toString());
 			blinkStart(remoteNode.getAddress().equalsIgnoreCase(
-					cb.getRemoteNode().getAddress()) ? 10 : 0);
+					cb.getRemoteNode().getAddress()) ? 0 : 0);
 		}
 		
 		/**

@@ -511,6 +511,22 @@ public class UGateGaugeBox<T> extends VBox {
 	protected void setValueFromGauge(final String digitsValue) {
 		gaugeDigits.setValue(digitsValue);
 	}
+
+	/**
+	 * @return the {@linkplain IntegerProperty} for the whole number portion of
+	 *         the {@linkplain Gauge}
+	 */
+	public IntegerProperty wholeNumProperty() {
+		return wholeNumProperty;
+	}
+
+	/**
+	 * @return the {@linkplain IntegerProperty} for the fraction portion (right
+	 *         of the decimal point) of the {@linkplain Gauge}
+	 */
+	public IntegerProperty fractionProperty() {
+		return fractionProperty;
+	}
 	
 	// TODO : add metric option
 //	protected boolean useMetric() {

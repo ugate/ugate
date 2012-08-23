@@ -1,7 +1,7 @@
 package org.ugate;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javafx.application.Platform;
 
@@ -15,12 +15,16 @@ public enum UGateKeeper {
 	DEFAULT;
 	
 	private final Logger log = UGateUtil.getLogger(UGateKeeper.class);
-	private final List<IGateKeeperListener> listeners = new ArrayList<IGateKeeperListener>();
+	private final List<IGateKeeperListener> listeners = new CopyOnWriteArrayList<IGateKeeperListener>();
+	//private final int numOfProcessors;
+	//private final ForkJoinPool pool;
 	
 	/**
 	 * Constructor
 	 */
 	private UGateKeeper() {
+		//numOfProcessors = Runtime.getRuntime().availableProcessors();
+		//pool = new ForkJoinPool(numOfProcessors);
 	}
 	
 	/* ======= Listeners ======= */
@@ -50,7 +54,7 @@ public enum UGateKeeper {
 	
 	/**
 	 * Notifies the listeners of preference/settings and connection
-	 * interactions. TODO : remove reference to GUI implementation
+	 * interactions.
 	 * 
 	 * @param <S>
 	 *            the source of the event
@@ -60,27 +64,43 @@ public enum UGateKeeper {
 	 *            the event(s)
 	 */
 	public <S, V> void notifyListeners(final UGateKeeperEvent<S, V> event) {
-		for (final IGateKeeperListener pl : listeners) {
-			if (event.isConsumed()) {
-				return;
-			}
-			if (Platform.isFxApplicationThread()) {
-				pl.handle(event);
-			} else {
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							if (event.isConsumed()) {
-								return;
-							}
-							pl.handle(event);
-						} catch (final Throwable t) {
-							log.warn("Unable to notify listener: " + pl, t);
-						}
+		if (Platform.isFxApplicationThread()) {
+			notifyListenersExec(event);
+		} else {
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					notifyListenersExec(event);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Notifies the listeners of preference/settings and connection
+	 * interactions. TODO : remove reference to GUI implementation
+	 * 
+	 * @param <S>
+	 *            the source of the event
+	 * @param <V>
+	 *            the type of event value
+	 * @param events
+	 *            the event(s)
+	 */
+	private <S, V> void notifyListenersExec(final UGateKeeperEvent<S, V> event) {
+		try {
+			for (final IGateKeeperListener pl : listeners) {
+				try {
+					if (event.isConsumed()) {
+						return;
 					}
-				});
+					pl.handle(event);
+				} catch (final Throwable t) {
+					log.warn("Unable to handle listener: " + pl, t);
+				}
 			}
+		} catch (final Throwable t) {
+			log.warn("Unable to cycle listeners: ", t);
 		}
 	}
 }

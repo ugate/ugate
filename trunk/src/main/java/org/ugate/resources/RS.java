@@ -108,9 +108,12 @@ public class RS {
 	public static final String IMG_MICROWAVE = "mw32x32.png";
 	public static final String IMG_SOUND_ON = "sound-on.png";
 	public static final String IMG_SOUND_OFF = "sound-off.png";
+	public static final String IMG_SYNC_ON = "sync-on.png";
+	public static final String IMG_SYNC_OFF = "sync-off.png";
 	public static final String IMG_UNIVERSAL_REMOTE_ON = "universal-remote-on.png";
 	public static final String IMG_UNIVERSAL_REMOTE_OFF = "universal-remote-off.png";
 	public static final String IMG_CORNER_RESIZE = "ugskin-resize11x11.png";
+	public static final String IMG_DB_SAVE = "db-save.png";
 	private static final String RB_GUI = "LabelsBundle";
 	public static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
 	public static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
@@ -790,8 +793,8 @@ public class RS {
 				"cam.pan.microwave.desc"), CAM_PAN_LASER("cam.pan.laser"), CAM_TILT_LASER(
 				"cam.tilt.laser"), CAM_PAN_LASER_DESC("cam.pan.laser.desc"), CAM_TILT_LASER_DESC(
 				"cam.tilt.laser.desc"), CAM_ACTION_QVGA("cam.take.qvga"), CAM_ACTION_VGA(
-				"cam.take.vga"), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
-				"settings.receive"), SETTINGS_SEND_FAILED(
+				"cam.take.vga"), SETTINGS_SAVE("settings.save"), SETTINGS_SEND(
+				"settings.send"), SETTINGS_RECEIVE("settings.receive"), SETTINGS_SEND_FAILED(
 				"settings.send.failed"), SENSOR_READINGS_GET(
 				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_READINGS(
 				"sensors.readings"), SENSOR_READINGS_FAILED(
@@ -871,7 +874,9 @@ public class RS {
 				"wireless.node.remote.add.desc"), WIRELESS_NODE_ADD_FAILED(
 				"wireless.node.remote.add.failed"), WIRELESS_NODE_REMOTE_SELECT_FAILED(
 				"wireless.node.remote.select.failed"), WIRELESS_NODE_REMOTE_SAVED_LOCAL(
-				"wireless.node.remote.local.saved"), WIRELESS_REMOTE_SYNCD(
+				"wireless.node.remote.local.saved"), WIRELESS_REMOTE_SYNC(
+				"wireless.node.remote.sync"), WIRELESS_REMOTE_SYNC_DESC(
+				"wireless.node.remote.sync.desc"), WIRELESS_REMOTE_SYNCD(
 				"wireless.node.remote.syncd"), WIRELESS_REMOTE_OUT_OF_SYNC(
 				"wireless.node.remote.outofsync"), WIRELESS_REMOTE_UNIVERSAL(
 				"wireless.remote.universal"), WIRELESS_REMOTE_UNIVERSAL_DESC(

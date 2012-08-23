@@ -47,6 +47,7 @@ import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 import org.ugate.wireless.data.RxTxSensorReadings;
@@ -78,6 +79,7 @@ public class ControlBar extends ToolBar {
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
 		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
+		final DropShadow dbDS = new DropShadow();
 		final DropShadow settingsDS = new DropShadow();
 		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
 				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
@@ -116,6 +118,18 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(camTakeVga, RS.rbLabel(KEYS.CAM_ACTION_VGA));
 		camTakeVga.setCursor(Cursor.HAND);
 		camTakeVga.setEffect(ds);
+		final ImageView settingsSave = RS.imgView(RS.IMG_DB_SAVE);
+		settingsSave.setCursor(Cursor.HAND);
+		settingsSave.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					ServiceProvider.IMPL.getCredentialService().mergeActor(getActor());
+				}
+			}
+	    });
+		addHelpTextTrigger(settingsSave, RS.rbLabel(KEYS.SETTINGS_SAVE));
+		settingsSave.setEffect(dbDS);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
 		settingsSet.setCursor(Cursor.HAND);
 		settingsSet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
@@ -188,16 +202,23 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel(KEYS.SENSOR_TRIP_MULTI));
 		
 		// add the menu items
-		getItems().addAll(camTakeQvga, camTakeVga, settingsSet, settingsGet, readingsGet, 
-				new Separator(Orientation.VERTICAL), readingsGroup, 
-				new Separator(Orientation.VERTICAL), multiAlarmGroup);
+		getItems().addAll(camTakeQvga, camTakeVga, settingsSave, settingsSet,
+				settingsGet, readingsGet, new Separator(Orientation.VERTICAL),
+				readingsGroup, new Separator(Orientation.VERTICAL),
+				multiAlarmGroup);
 		// show a visual indication that the settings need updated
-		// TODO : when other nodes are changed 
 		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
 			@Override
 			public void handle(final UGateKeeperEvent<?, ?> event) {
 				setHelpText(event.getMessageString());
-				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
+				if (event.getType() == UGateKeeperEvent.Type.ACTOR_COMMITTED) {
+					// need to update the existing dirty actor
+					getActorPA().setBean((Actor) event.getSource());
+				} else if (event.getType() == UGateKeeperEvent.Type.HOST_COMMITTED) {
+					// need to update the existing dirty host
+					getActor().setHost((Host) event.getSource());
+					getActorPA().setBean(getActor());
+				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					if (!rn.isDeviceSynchronized() && rn.isDeviceAutoSynchronize()) {
 						// automatically send the changes to the remote node

@@ -13,9 +13,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateKeeperEvent.Type;
 import org.ugate.service.entity.Model;
 
 
@@ -57,6 +63,19 @@ public class Actor implements Model {
 			}
 		)
 	private Set<Role> roles;
+
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateKeeperEvent)} when any
+	 * changes are committed
+	 */
+	@PostPersist
+	@PostUpdate
+	@PostRemove
+	void notifyListeners() {
+		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<>(this,
+				Type.ACTOR_COMMITTED, false));
+	}
 
     public Actor() {
     }

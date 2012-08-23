@@ -36,8 +36,8 @@ public abstract class ControlPane extends GridPane {
 	public static final double CHILD_PADDING = 30d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	public static final double KNOB_SIZE_SCALE = 0.25d;
-	public static final double THRESHOLD_SIZE_SCALE = 0.68d;
-	public static final double DELAY_SIZE_SCALE = 0.50d;
+	public static final double THRESHOLD_SIZE_SCALE = 0.74d;
+	public static final double DELAY_SIZE_SCALE = 0.54d;
 	public static final Color COLOR_CAM = Color.YELLOW;
 	public static final Color COLOR_MULTI = Color.ORANGE;
 	protected final ControlBar controlBar;

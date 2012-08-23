@@ -2,7 +2,6 @@ package org.ugate.gui.view;
 
 import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
@@ -10,7 +9,6 @@ import org.ugate.gui.ControlBar;
 import org.ugate.gui.ControlPane;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.gui.components.UGateGaugeBox;
-import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.entity.RemoteNodeType;
@@ -20,10 +18,6 @@ import org.ugate.service.entity.jpa.RemoteNode;
  * Sensor/Gate control view
  */
 public class AlarmSettings extends ControlPane {
-
-	private UGateToggleSwitchBox<RemoteNode> soundsToggleSwitch;
-	private UGateToggleSwitchBox<RemoteNode> emailToggleSwitch;
-	private UGateToggleSwitchBox<RemoteNode> imgResToggleSwitch;
 	
 	/**
 	 * Constructor
@@ -32,37 +26,11 @@ public class AlarmSettings extends ControlPane {
 	 */
 	public AlarmSettings(final ControlBar controlBar) {
 		super(controlBar);
-		addOptionChildren();
-		addSettingsChildren();
+		int ci = -1;
+		addSettingsChildren(++ci, 0);
 	}
 	
-	protected void addOptionChildren() {
-		final Label soundLabel = createLabel(KEYS.SERVICE_CMD_SOUNDS);
-		final Label emailLabel = createLabel(KEYS.MAIL_ALARM_NOTIFY);
-		final Label imgResLabel = createLabel(KEYS.CAM_RES);
-
-		soundsToggleSwitch = new UGateToggleSwitchBox<>(
-				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_SOUNDS_ON,
-				RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
-		controlBar.addHelpTextTrigger(soundsToggleSwitch, RS.rbLabel(KEYS.SERVICE_CMD_SOUNDS_TOGGLE));
-		emailToggleSwitch = new UGateToggleSwitchBox<>(
-				controlBar.getRemoteNodePA(), RemoteNodeType.MAIL_ALERT_ON,
-				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
-		controlBar.addHelpTextTrigger(emailToggleSwitch, RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_DESC));
-		imgResToggleSwitch = new UGateToggleSwitchBox<>(
-				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_RESOLUTION,
-				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA,
-				RS.rbLabel(KEYS.CAM_RES_VGA),
-				RS.rbLabel(KEYS.CAM_RES_QVGA));
-		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
-		controlBar.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel(KEYS.CAM_RES_DESC));
-	   
-		final Group generalCell = createCell(false, true, soundLabel, soundsToggleSwitch, emailLabel, emailToggleSwitch,
-				imgResLabel, imgResToggleSwitch);
-		add(generalCell, 0, 0);
-	}
-	
-	protected void addSettingsChildren() {
+	protected void addSettingsChildren(final int columnIndex, final int rowIndex) {
 		final GridPane grid = new GridPane();
 		
 		// thresholds
@@ -154,6 +122,6 @@ public class AlarmSettings extends ControlPane {
 		grid.add(tgrid, 0, 0);
 		grid.add(dgrid, 0, 1);
 		final Group camCell = createCell(false, true, grid);
-		add(camCell, 1, 0);
+		add(camCell, columnIndex, rowIndex);
 	}
 }
