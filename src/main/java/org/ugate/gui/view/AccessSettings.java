@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -28,6 +29,10 @@ import org.ugate.wireless.data.RxTxSensorReadings;
  */
 public class AccessSettings extends ControlPane {
 
+	private UGateToggleSwitchBox<RemoteNode> syncToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> soundsToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> emailToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> imgResToggleSwitch;
 	private UGateToggleSwitchBox<RemoteNode> universalRemoteAccessToggleSwitch;
 	private UGateCtrlBox<RemoteNode, Void, Void> remoteAddress;
 	private UGateCtrlBox<RemoteNode, Void, Void> workingDir;
@@ -43,17 +48,52 @@ public class AccessSettings extends ControlPane {
 	 */
 	public AccessSettings(final ControlBar controlBar) {
 		super(controlBar);
-		addConnectionChildren();
-		addUniveralRemoteChildren();
-		addGateChildren();
+		int ci = -1;
+		addRemoteNodeSetupChildren(++ci, 0);
+		addNotificationOptionChildren(++ci, 0);
+		addGateChildren(++ci, 0);
 	}
 
-	protected void addConnectionChildren() {
-		final Label nodeLabel = createLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY);
+	protected void addNotificationOptionChildren(final int columnIndex, final int rowIndex) {
+		final Label soundLabel = createLabel(KEYS.SERVICE_CMD_SOUNDS);
+		final Label emailLabel = createLabel(KEYS.MAIL_ALARM_NOTIFY);
+		final Label imgResLabel = createLabel(KEYS.CAM_RES);
+		final Label syncResLabel = createLabel(KEYS.WIRELESS_REMOTE_SYNC);
 
+		soundsToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_SOUNDS_ON,
+				RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
+		controlBar.addHelpTextTrigger(soundsToggleSwitch, RS.rbLabel(KEYS.SERVICE_CMD_SOUNDS_TOGGLE));
+		emailToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.MAIL_ALERT_ON,
+				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
+		controlBar.addHelpTextTrigger(emailToggleSwitch, RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_DESC));
+		imgResToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_RESOLUTION,
+				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA,
+				RS.rbLabel(KEYS.CAM_RES_VGA),
+				RS.rbLabel(KEYS.CAM_RES_QVGA));
+		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
+		controlBar.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel(KEYS.CAM_RES_DESC));
+		syncToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE,
+				RS.IMG_SYNC_ON, RS.IMG_SYNC_OFF);
+		controlBar.addHelpTextTrigger(syncToggleSwitch, RS.rbLabel(KEYS.WIRELESS_REMOTE_SYNC_DESC));
+	   
+		final Group generalCell = createCell(false, true, soundLabel, soundsToggleSwitch, emailLabel, emailToggleSwitch,
+				imgResLabel, imgResToggleSwitch, syncResLabel, syncToggleSwitch);
+		add(generalCell, columnIndex, rowIndex);
+	}
+	
+	protected void addRemoteNodeSetupChildren(final int columnIndex, final int rowIndex) {
+		final Label univRemoteLabel = createLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL);
+		final Label nodeLabel = createLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY);
+		nodeLabel.setPrefWidth(350d);
+		
 		remoteAddress = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.WIRELESS_ADDRESS, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY), null);
+		remoteAddress.label.getStyleClass().add("dialog-normal");
 		controlBar.addHelpTextTrigger(remoteAddress, RS.rbLabel(
 				KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC,
 				controlBar.getRemoteNode().getAddress()));
@@ -61,14 +101,10 @@ public class AccessSettings extends ControlPane {
 				RemoteNodeType.WIRELESS_WORKING_DIR_PATH,
 				UGateCtrlBox.Type.DIR_CHOOSER,
 				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR), null);
+		workingDir.label.getStyleClass().add("dialog-normal");
 		controlBar.addHelpTextTrigger(workingDir,
 				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR_DESC));
-	    final Group nodeConnectionCell = createCell(false, true, nodeLabel, remoteAddress, workingDir);
-		add(nodeConnectionCell, 0, 0);
-	}
-	
-	protected void addUniveralRemoteChildren() {
-		final Label univRemoteLabel = createLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL);
+
 		universalRemoteAccessToggleSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON,
@@ -95,11 +131,12 @@ public class AccessSettings extends ControlPane {
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
 	    
-		final Group univRemoteCell = createCell(false, true, univRemoteLabel, universalRemoteAccessToggleSwitch, accessKeysContainer);
-		add(univRemoteCell, 1, 0);
+		final Group setupCell = createCell(false, true, nodeLabel, remoteAddress, workingDir, 
+				univRemoteLabel, universalRemoteAccessToggleSwitch, accessKeysContainer);
+		add(setupCell, columnIndex, rowIndex);
 	}
 	
-	protected void addGateChildren() {
+	protected void addGateChildren(final int columnIndex, final int rowIndex) {
 		final Label gateHeader = createLabel(KEYS.GATE_CONFIG);
 		gateToggleSwitchView = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.GATE_ACCESS_ON,
@@ -136,6 +173,6 @@ public class AccessSettings extends ControlPane {
 		
 		final Group cell = createCell(false, true, gateHeader, gateToggleSwitchView, 
 				gateCtrlHeader, gateGroup);
-		add(cell, 2, 0);
+		add(cell, columnIndex, rowIndex);
 	}
 }

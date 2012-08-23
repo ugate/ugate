@@ -83,7 +83,7 @@ public class UGateGUI extends Application {
 
 	private static final Logger log = UGateUtil.getLogger(UGateGUI.class);
 
-	public static final double APPLICATION_WIDTH = 900d;
+	public static final double APPLICATION_WIDTH = 920d;
 	public static final double APPLICATION_HEIGHT = 800d;
 
 	private static final double TASKBAR_HEIGHT = 130d;
@@ -137,6 +137,7 @@ public class UGateGUI extends Application {
 	@Override
 	public void init() {
 		try {
+			logStartStop(true);
 			log.debug("Iniitializing Service Provider...");
 			notifyPreloader(new ProgressNotification(0.3d));
 			if (!ServiceProvider.IMPL.init() && 
@@ -501,12 +502,19 @@ public class UGateGUI extends Application {
 		}
 		try {
 			SystemTray.exit();
-			UGateUtil.PLAIN_LOGGER.info("=============================================Exit Complete=============================================");
+			logStartStop(false);
 		} catch (final Throwable t) {
 			log.error("Unable to exit the system tray", t);
 		}
 		Platform.exit();
 		// System.exit(0);
+	}
+
+	private static void logStartStop(final boolean start) {
+		final String msg = start ? "Application Starting" : "Application Exited";
+		UGateUtil.PLAIN_LOGGER
+				.info("=============================================" + msg
+						+ "=============================================");
 	}
 
 	private Separator createSeparator(final Orientation orientation) {

@@ -145,6 +145,9 @@
 	-fx-border-radius: 8 8 8 8;
 	-fx-background-radius: 10 10 10 10;
 }
+.dialog-normal {
+	-fx-text-fill: white;
+}
 /*******************************************************************************
  *                                                                             *
  * Button                                                                      *

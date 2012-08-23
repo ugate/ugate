@@ -101,7 +101,7 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 		rn.setCamSonarTripAngleTilt(181);
 		rn.setDeviceSoundsOn(1);
 		rn.setGateAccessOn(1);
-		rn.setLaserDistanceThresFeet(10);
+		rn.setLaserDistanceThresFeet(24);
 		rn.setMailAlertOn(1);
 		rn.setMwSpeedThresCyclesPerSec(10);
 		rn.setSonarDistanceThresFeet(7);

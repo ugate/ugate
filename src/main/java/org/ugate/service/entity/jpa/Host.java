@@ -17,11 +17,17 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.PostPersist;
+import javax.persistence.PostRemove;
+import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Size;
 
+import org.ugate.UGateKeeper;
+import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateKeeperEvent.Type;
 import org.ugate.service.entity.Email;
 import org.ugate.service.entity.Model;
 
@@ -109,6 +115,18 @@ public class Host implements Model {
 	//bi-directional many-to-one association to RemoteNode
 	@OneToMany(mappedBy="host", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	private LinkedHashSet<RemoteNode> remoteNodes;
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateKeeperEvent)} when any
+	 * changes are committed
+	 */
+	@PostPersist
+	@PostUpdate
+	@PostRemove
+	void notifyListeners() {
+		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<>(this,
+				Type.HOST_COMMITTED, false));
+	}
 
     public Host() {
     }
