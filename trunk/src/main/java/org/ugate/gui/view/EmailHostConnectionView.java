@@ -16,9 +16,9 @@ import javafx.scene.layout.VBox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.IGateKeeperListener;
+import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateEvent;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.components.FunctionButton;
 import org.ugate.gui.components.UGateCtrlBox;
@@ -173,27 +173,27 @@ public class EmailHostConnectionView extends StatusView {
 				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_DESC));
 
 		// update the status when email connections are made/lost
-		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?, ?> event) {
-				if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTING) {
+			public void handle(final UGateEvent<?, ?> event) {
+				if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
-				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECTED) {
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 					connect.setDisable(false);
 					// connect.setText(RS.rbLabel("mail.reconnect"));
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
 					connect.setDisable(true);
 					setStatusFill(true);
-				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_CONNECT_FAILED) {
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
 					setStatusFill(false);
-				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTING) {
+				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_DISCONNECTING));
-				} else if (event.getType() == UGateKeeperEvent.Type.EMAIL_DISCONNECTED
-						|| event.getType() == UGateKeeperEvent.Type.EMAIL_CLOSED) {
+				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
+						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED) {
 					// run later in case the application is going to exit which
 					// will cause an issue with FX thread
 					Platform.runLater(new Runnable() {

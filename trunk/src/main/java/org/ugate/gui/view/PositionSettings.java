@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -124,7 +124,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(laserCalibrate, RS.rbLabel(KEYS.LASER_CALIBRATION_DESC));
 		grid.add(laserCalibrate, 1, 5);
 		
-		final Group camCell = createCell(false, true, grid);
+		final Parent camCell = createCell(false, true, grid);
 		add(camCell, 0, 0);
 	}
 	
@@ -191,7 +191,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(pirTiltGauge, RS.rbLabel(KEYS.CAM_TILT_PIR_DESC));
 		grid.add(pirTiltGauge, 1, 5);
 		
-		final Group cell = createCell(false, true, grid);
+		final Parent cell = createCell(false, true, grid);
 		add(cell, 1, 0);
 	}
 	
@@ -256,7 +256,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(laserTiltGauge, RS.rbLabel(KEYS.CAM_TILT_LASER_DESC));
 		grid.add(laserTiltGauge, 1, 5);
 		
-		final Group cell = createCell(false, true, grid);
+		final Parent cell = createCell(false, true, grid);
 		add(cell, 2, 0);
 	}
 	

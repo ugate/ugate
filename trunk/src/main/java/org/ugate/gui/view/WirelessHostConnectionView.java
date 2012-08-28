@@ -12,9 +12,9 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.IGateKeeperListener;
+import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateEvent;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.components.UGateComboBox;
 import org.ugate.gui.components.UGateCtrlBox;
@@ -46,13 +46,13 @@ public class WirelessHostConnectionView extends StatusView {
 				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY), null);
 	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY_DESC));
 
-		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?, ?> event) {
-				if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTING) {
+			public void handle(final UGateEvent<?, ?> event) {
+				if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECTING));
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECTED) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_RECONNECT));
 					log.debug("Turning ON email connection icon");
@@ -64,13 +64,13 @@ public class WirelessHostConnectionView extends StatusView {
 							controlBar.createCommandService(Command.SENSOR_SET_SETTINGS, true);
 						}
 					});
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTING) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_DISCONNECTING));
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_HOST_DISCONNECTED) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
 					log.debug("Turning OFF email connection icon");

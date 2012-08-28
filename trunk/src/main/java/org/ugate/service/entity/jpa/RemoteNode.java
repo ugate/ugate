@@ -18,8 +18,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
-import org.ugate.UGateKeeperEvent.Type;
+import org.ugate.UGateEvent;
+import org.ugate.UGateEvent.Type;
 import org.ugate.service.entity.Model;
 
 
@@ -178,14 +178,14 @@ public class RemoteNode implements Model {
 	private Host host;
 
 	/**
-	 * Call {@linkplain UGateKeeper#notifyListeners(UGateKeeperEvent)} when any
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
 	 * changes are committed
 	 */
 	@PostPersist
 	@PostUpdate
 	@PostRemove
 	void notifyListeners() {
-		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<>(this,
+		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
 				Type.WIRELESS_REMOTE_NODE_COMMITTED, false));
 	}
 

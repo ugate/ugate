@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -19,6 +20,7 @@ import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
@@ -49,7 +51,7 @@ import javafx.scene.transform.Rotate;
 /**
  * Gauge control // TODO : add additional documentation w/examples
  */
-public class Gauge extends Group {
+public class Gauge extends Parent {
 
 	public static final double RADIUS_OUTER_BASE = 140d;
 	public static final double RADIUS_INNER_BASE = 130d;
@@ -254,6 +256,12 @@ public class Gauge extends Group {
 		this.highlightFillProperty = new SimpleObjectProperty<Paint>(Color.WHITE);
 		this.snapToTicksProperty = new SimpleBooleanProperty(false);
 		createChildren();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				angleProperty.set(1d);
+			}
+		});
 	}
 	
 	/**
@@ -415,14 +423,6 @@ public class Gauge extends Group {
 		border2.setStrokeWidth(1d);
 		valContainer.getChildren().add(border2);
 		return valContainer;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void layoutChildren() {
-		super.layoutChildren();
 	}
 	
 	/**

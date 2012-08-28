@@ -15,7 +15,7 @@ public enum UGateKeeper {
 	DEFAULT;
 	
 	private final Logger log = UGateUtil.getLogger(UGateKeeper.class);
-	private final List<IGateKeeperListener> listeners = new CopyOnWriteArrayList<IGateKeeperListener>();
+	private final List<UGateListener> listeners = new CopyOnWriteArrayList<UGateListener>();
 	//private final int numOfProcessors;
 	//private final ForkJoinPool pool;
 	
@@ -30,23 +30,23 @@ public enum UGateKeeper {
 	/* ======= Listeners ======= */
 	
 	/**
-	 * Removes a {@linkplain IGateKeeperListener}
+	 * Removes a {@linkplain UGateListener}
 	 * 
 	 * @param listener the listener to remove
 	 */
-	public void removeListener(final IGateKeeperListener listener) {
+	public void removeListener(final UGateListener listener) {
 		if (listener != null && listeners.contains(listener)) {
 			listeners.remove(listener);
 		}
 	}
 	
 	/**
-	 * Adds a {@linkplain IGateKeeperListener} that will be notified of preference/settings 
+	 * Adds a {@linkplain UGateListener} that will be notified of preference/settings 
 	 * and connection interactions.
 	 * 
 	 * @param listener the listener to add
 	 */
-	public void addListener(final IGateKeeperListener listener) {
+	public void addListener(final UGateListener listener) {
 		if (listener != null && !listeners.contains(listener)) {
 			listeners.add(listener);
 		}
@@ -63,7 +63,7 @@ public enum UGateKeeper {
 	 * @param events
 	 *            the event(s)
 	 */
-	public <S, V> void notifyListeners(final UGateKeeperEvent<S, V> event) {
+	public <S, V> void notifyListeners(final UGateEvent<S, V> event) {
 		if (Platform.isFxApplicationThread()) {
 			notifyListenersExec(event);
 		} else {
@@ -87,9 +87,9 @@ public enum UGateKeeper {
 	 * @param events
 	 *            the event(s)
 	 */
-	private <S, V> void notifyListenersExec(final UGateKeeperEvent<S, V> event) {
+	private <S, V> void notifyListenersExec(final UGateEvent<S, V> event) {
 		try {
-			for (final IGateKeeperListener pl : listeners) {
+			for (final UGateListener pl : listeners) {
 				try {
 					if (event.isConsumed()) {
 						return;
