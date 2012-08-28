@@ -31,6 +31,7 @@ public class UGateGaugeBox<T> extends VBox {
 	public Digits gaugeDigits;
 	public final IntegerProperty wholeNumProperty = new SimpleIntegerProperty();
 	public final IntegerProperty fractionProperty = new SimpleIntegerProperty();
+	private boolean isInternalUpdate;
 	
 	/**
 	 * Constructs a new gauge display
@@ -435,29 +436,37 @@ public class UGateGaugeBox<T> extends VBox {
 	private void setValueFromProperties(final IModelType<T> modelKeyWholeNum,
 			final IModelType<T> modelKeyFraction, final String format,
 			final Color onColor, final Color offColor) {
-		final boolean useInt = format.indexOf("d") > -1;
-		final double val1 = (double) wholeNumProperty.get();
-		final double val2 = fractionProperty != null ? (double) fractionProperty
-				.get() : 0d;
-		final Double newVal = val1 + val2;
-		final String newValStr = useInt ? String.format(format,
-				newVal.intValue()) : String.format(format, newVal.floatValue());
-		if (gaugeDigits == null) {
-			gaugeDigits = new Digits(newValStr, 0.15f, onColor, offColor);
-			gaugeDigits.setEffect(new DropShadow());
-	        HBox.setMargin(gaugeDigits, new Insets(0, 5, 0, 5));
-	        //gaugeDigits.getTransforms().add(new Scale(0.2f, 0.2f, 0, 0));
-			gaugeDigits.valueProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> observable,
-						String oldValue, String newValue) {
-					setValueFromDigits(modelKeyWholeNum, modelKeyFraction, newValue);
-				}
-			});
-		} else {
-			gaugeDigits.setValue(newValStr);
+		if (isInternalUpdate) {
+			return;
 		}
-		gauge.setTickValue(newVal);
+		try {
+			isInternalUpdate = true;
+			final boolean useInt = format.indexOf("d") > -1;
+			final double val1 = (double) wholeNumProperty.get();
+			final double val2 = fractionProperty != null ? (double) fractionProperty
+					.get() : 0d;
+			final Double newVal = val1 + val2;
+			final String newValStr = useInt ? String.format(format,
+					newVal.intValue()) : String.format(format, newVal.floatValue());
+			if (gaugeDigits == null) {
+				gaugeDigits = new Digits(newValStr, 0.15f, onColor, offColor);
+				gaugeDigits.setEffect(new DropShadow());
+		        HBox.setMargin(gaugeDigits, new Insets(0, 5, 0, 5));
+		        //gaugeDigits.getTransforms().add(new Scale(0.2f, 0.2f, 0, 0));
+				gaugeDigits.valueProperty().addListener(new ChangeListener<String>() {
+					@Override
+					public void changed(ObservableValue<? extends String> observable,
+							String oldValue, String newValue) {
+						setValueFromDigits(modelKeyWholeNum, modelKeyFraction, newValue);
+					}
+				});
+			} else {
+				gaugeDigits.setValue(newValStr);
+			}
+			gauge.setTickValue(newVal);
+		} finally {
+			isInternalUpdate = false;
+		}
 	}
 
 	/**
@@ -473,15 +482,23 @@ public class UGateGaugeBox<T> extends VBox {
 	 */
 	private void setValueFromDigits(final IModelType<T> modelKeyWholeNum,
 			final IModelType<T> modelKeyFraction, final String newValue) {
-		if (modelKeyFraction != null) {
-			final double value = Double.parseDouble(newValue);
-			final int feet = (int) value;
-			final int inches = (int) (12d * (value - feet));
-			wholeNumProperty.set(feet);
-			fractionProperty.set(inches);
-		} else {
-			final int value = Integer.parseInt(newValue);
-			wholeNumProperty.set(value);
+		if (isInternalUpdate) {
+			return;
+		}
+		try {
+			isInternalUpdate = true;
+			if (modelKeyFraction != null) {
+				final double value = Double.parseDouble(newValue);
+				final int feet = (int) value;
+				final int inches = (int) (12d * (value - feet));
+				wholeNumProperty.set(feet);
+				fractionProperty.set(inches);
+			} else {
+				final int value = Integer.parseInt(newValue);
+				wholeNumProperty.set(value);
+			}
+		} finally {
+			isInternalUpdate = false;
 		}
 	}
 	

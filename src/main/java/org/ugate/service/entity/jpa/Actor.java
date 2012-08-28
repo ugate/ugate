@@ -20,8 +20,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
-import org.ugate.UGateKeeperEvent.Type;
+import org.ugate.UGateEvent;
+import org.ugate.UGateEvent.Type;
 import org.ugate.service.entity.Model;
 
 
@@ -66,14 +66,14 @@ public class Actor implements Model {
 
 
 	/**
-	 * Call {@linkplain UGateKeeper#notifyListeners(UGateKeeperEvent)} when any
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
 	 * changes are committed
 	 */
 	@PostPersist
 	@PostUpdate
 	@PostRemove
 	void notifyListeners() {
-		UGateKeeper.DEFAULT.notifyListeners(new UGateKeeperEvent<>(this,
+		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
 				Type.ACTOR_COMMITTED, false));
 	}
 

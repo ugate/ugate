@@ -1,24 +1,46 @@
 package org.ugate.gui.view;
 
-import javafx.scene.Group;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
+import org.ugate.Command;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.ControlPane;
-import org.ugate.gui.components.Gauge.IndicatorType;
-import org.ugate.gui.components.UGateGaugeBox;
+import org.ugate.gui.GuiUtil;
+import org.ugate.gui.components.UGateCtrlBox;
+import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.wireless.data.RxTxSensorReadings;
 
 /**
- * Sensor/Gate control view
+ * Node configuration
  */
 public class AlarmSettings extends ControlPane {
-	
+
+	private UGateToggleSwitchBox<RemoteNode> syncToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> soundsToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> emailToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> imgResToggleSwitch;
+	private UGateToggleSwitchBox<RemoteNode> universalRemoteAccessToggleSwitch;
+	private UGateCtrlBox<RemoteNode, Void, Void> remoteAddress;
+	private UGateCtrlBox<RemoteNode, Void, Void> workingDir;
+	private UGateCtrlBox<RemoteNode, Void, Void> accessKey1;
+	private UGateCtrlBox<RemoteNode, Void, Void> accessKey2;
+	private UGateCtrlBox<RemoteNode, Void, Void> accessKey3;
+	private UGateToggleSwitchBox<RemoteNode> gateToggleSwitchView;
+
 	/**
 	 * Constructor
 	 * 
@@ -27,101 +49,130 @@ public class AlarmSettings extends ControlPane {
 	public AlarmSettings(final ControlBar controlBar) {
 		super(controlBar);
 		int ci = -1;
-		addSettingsChildren(++ci, 0);
+		addRemoteNodeSetupChildren(++ci, 0);
+		addNotificationOptionChildren(++ci, 0);
+		addGateChildren(++ci, 0);
+	}
+
+	protected void addNotificationOptionChildren(final int columnIndex, final int rowIndex) {
+		final Label soundLabel = createLabel(KEYS.SERVICE_CMD_SOUNDS);
+		final Label emailLabel = createLabel(KEYS.MAIL_ALARM_NOTIFY);
+		final Label imgResLabel = createLabel(KEYS.CAM_RES);
+		final Label syncResLabel = createLabel(KEYS.WIRELESS_REMOTE_SYNC);
+
+		soundsToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_SOUNDS_ON,
+				RS.IMG_SOUND_ON, RS.IMG_SOUND_OFF);
+		controlBar.addHelpTextTrigger(soundsToggleSwitch, RS.rbLabel(KEYS.SERVICE_CMD_SOUNDS_TOGGLE));
+		emailToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.MAIL_ALERT_ON,
+				RS.IMG_EMAIL_NOTIFY_ON, RS.IMG_EMAIL_NOTIFY_OFF);
+		controlBar.addHelpTextTrigger(emailToggleSwitch, RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_DESC));
+		imgResToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_RESOLUTION,
+				RS.IMG_CAM_TOGGLE_VGA, RS.IMG_CAM_TOGGLE_QVGA,
+				RS.rbLabel(KEYS.CAM_RES_VGA),
+				RS.rbLabel(KEYS.CAM_RES_QVGA));
+		imgResToggleSwitch.getToggleItem().toggleSwitchImageView.setEffect(new DropShadow());
+		controlBar.addHelpTextTrigger(imgResToggleSwitch, RS.rbLabel(KEYS.CAM_RES_DESC));
+		syncToggleSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE,
+				RS.IMG_SYNC_ON, RS.IMG_SYNC_OFF);
+		controlBar.addHelpTextTrigger(syncToggleSwitch, RS.rbLabel(KEYS.WIRELESS_REMOTE_SYNC_DESC));
+	   
+		final Parent generalCell = createCell(false, true, soundLabel, soundsToggleSwitch, emailLabel, emailToggleSwitch,
+				imgResLabel, imgResToggleSwitch, syncResLabel, syncToggleSwitch);
+		add(generalCell, columnIndex, rowIndex);
 	}
 	
-	protected void addSettingsChildren(final int columnIndex, final int rowIndex) {
-		final GridPane grid = new GridPane();
+	protected void addRemoteNodeSetupChildren(final int columnIndex, final int rowIndex) {
+		final Label univRemoteLabel = createLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL);
+		final Label nodeLabel = createLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY);
+		nodeLabel.setPrefWidth(350d);
 		
-		// thresholds
-		final GridPane tgrid = new GridPane();
-		
-		final Label sonarThresholdLabel = createLabel(KEYS.SONAR_THRESHOLD);
-		tgrid.add(sonarThresholdLabel, 0, 0);
-		final UGateGaugeBox<RemoteNode> sonarTripGauge = new UGateGaugeBox<>(
+		remoteAddress = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
+				RemoteNodeType.WIRELESS_ADDRESS, UGateCtrlBox.Type.TEXT,
+				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY), null);
+		remoteAddress.label.getStyleClass().add("dialog-normal");
+		controlBar.addHelpTextTrigger(remoteAddress, RS.rbLabel(
+				KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC,
+				controlBar.getRemoteNode().getAddress()));
+		workingDir = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
+				RemoteNodeType.WIRELESS_WORKING_DIR_PATH,
+				UGateCtrlBox.Type.DIR_CHOOSER,
+				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR), null);
+		workingDir.label.getStyleClass().add("dialog-normal");
+		controlBar.addHelpTextTrigger(workingDir,
+				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR_DESC));
+
+		universalRemoteAccessToggleSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(),
-				RemoteNodeType.SONAR_DISTANCE_THRES_FEET,
-				RemoteNodeType.SONAR_DISTANCE_THRES_INCHES,
-				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE, 1d, 2, 0, 180d, 9,
-				4, FORMAT_SONAR, RS.IMG_RULER, COLOR_SONAR);
-		sonarTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
-		controlBar.addHelpTextTrigger(sonarTripGauge, RS.rbLabel(KEYS.SONAR_THRESHOLD_DESC));
-		sonarTripGauge.gauge.setIntensity(80d, 15d, 5d);
-		tgrid.add(sonarTripGauge, 0, 1);
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON,
+				RS.IMG_UNIVERSAL_REMOTE_ON, RS.IMG_UNIVERSAL_REMOTE_OFF);
+		controlBar.addHelpTextTrigger(universalRemoteAccessToggleSwitch, 
+				RS.rbLabel(KEYS.WIRELESS_REMOTE_UNIVERSAL_DESC, 
+						controlBar.getRemoteNode().getAddress()));
+		accessKey1 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_1,
+				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
+						KEYS.WIRELESS_ACCESS_KEY, 1), null);
+	    controlBar.addHelpTextTrigger(accessKey1, RS.rbLabel(KEYS.WIRELESS_ACCESS_KEY_DESC, 1));
+		accessKey2 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_2,
+				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
+						KEYS.WIRELESS_ACCESS_KEY, 2), null);
+	    controlBar.addHelpTextTrigger(accessKey2, RS.rbLabel(KEYS.WIRELESS_ACCESS_KEY_DESC, 2));
+		accessKey3 = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_CODE_3,
+				ACCESS_KEY_CODE_FORMAT, null, null, null, RS.rbLabel(
+						KEYS.WIRELESS_ACCESS_KEY, 3), null);
+	    controlBar.addHelpTextTrigger(accessKey3, RS.rbLabel(KEYS.WIRELESS_ACCESS_KEY_DESC, 3));
+	    
+	    final HBox accessKeysContainer = new HBox(5);
+	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
+	    
+		final Parent setupCell = createCell(false, true, nodeLabel, remoteAddress, workingDir, 
+				univRemoteLabel, universalRemoteAccessToggleSwitch, accessKeysContainer);
+		add(setupCell, columnIndex, rowIndex);
+	}
+	
+	protected void addGateChildren(final int columnIndex, final int rowIndex) {
+		final Label gateHeader = createLabel(KEYS.GATE_CONFIG);
+		gateToggleSwitchView = new UGateToggleSwitchBox<>(
+				controlBar.getRemoteNodePA(), RemoteNodeType.GATE_ACCESS_ON,
+				RS.IMG_GATE_ON, RS.IMG_GATE_OFF);
+		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel(KEYS.GATE_TOGGLE));
+		final Label gateCtrlHeader = createLabel(KEYS.GATE_STATE);
+		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
+		final Region gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
+				1, false, gateToggleButton);
+		gateGroup.setCursor(Cursor.HAND);
+		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel(KEYS.GATE_TOGGLE_DESC));
+		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					gateToggleButton.setDisable(true);
+					if (controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE, true) == null) {
+						gateToggleButton.setDisable(false);
+					}
+				}
+			}
+		});
+		controlBar.sensorReadingsProperty().addListener(new ChangeListener<RxTxSensorReadings>() {
+			@Override
+			public void changed(final ObservableValue<? extends RxTxSensorReadings> observable, 
+					final RxTxSensorReadings oldValue, final RxTxSensorReadings newValue) {
+				// when a command is sent to a remote node to open/close a gate a response for
+				// sensor readings will be sent to the host where the gate state update is captured
+				gateToggleButton.setImage(newValue.getGateState() == 1 ? RS.img(RS.IMG_GATE_OPENED) : 
+					RS.img(RS.IMG_GATE_CLOSED));
+				gateToggleButton.setDisable(false);
+			}
+		});
 		
-		final Label mwThreshold = createLabel(KEYS.MW_THRESHOLD);
-		tgrid.add(mwThreshold, 2, 0);
-		final UGateGaugeBox<RemoteNode> mwTripGauge = new UGateGaugeBox<>(
-				controlBar.getRemoteNodePA(),
-				RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC, null,
-				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE, 1d, 2, 0, 180d, 50,
-				0, FORMAT_MW, RS.IMG_SPEEDOMETER, COLOR_MW);
-		controlBar.addHelpTextTrigger(mwTripGauge, RS.rbLabel(KEYS.MW_THRESHOLD_DESC));
-		tgrid.add(mwTripGauge, 2, 1);
-		
-		final Label laserThreshold = createLabel(KEYS.LASER_THRESHOLD);
-		tgrid.add(laserThreshold, 3, 0);
-		final UGateGaugeBox<RemoteNode> laserTripGauge = new UGateGaugeBox<>(
-				controlBar.getRemoteNodePA(),
-				RemoteNodeType.LASER_DISTANCE_THRES_FEET,
-				RemoteNodeType.LASER_DISTANCE_THRES_INCHES,
-				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE, 4d, 0, 0d, 180d, 9,
-				3, FORMAT_LASER, RS.IMG_RULER, COLOR_LASER);
-		laserTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
-		controlBar.addHelpTextTrigger(laserTripGauge, RS.rbLabel(KEYS.LASER_THRESHOLD_DESC));
-		laserTripGauge.gauge.setIntensity(100d, 0d, 0d);
-		tgrid.add(laserTripGauge, 3, 1);
-		
-		// delays
-		final GridPane dgrid = new GridPane();
-		
-		final Label sonarDelayLabel = createLabel(KEYS.SONAR_ALARM_DELAY);
-		dgrid.add(sonarDelayLabel, 0, 0);
-		final UGateGaugeBox<RemoteNode> sonarTripRateGauge = new UGateGaugeBox<>(
-				controlBar.getRemoteNodePA(),
-				RemoteNodeType.SONAR_DELAY_BTWN_TRIPS, null,
-				IndicatorType.NEEDLE, DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0,
-				FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_SONAR);
-		controlBar.addHelpTextTrigger(sonarTripRateGauge, RS.rbLabel(KEYS.SONAR_ALARM_DELAY_DESC));
-		sonarTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
-		dgrid.add(sonarTripRateGauge, 0, 1);
-		
-		final Label pirDelay = createLabel(KEYS.PIR_ALARM_DELAY);
-		dgrid.add(pirDelay, 1, 0);
-		final UGateGaugeBox<RemoteNode> pirTripRateGauge = new UGateGaugeBox<>(
-				controlBar.getRemoteNodePA(),
-				RemoteNodeType.PIR_DELAY_BTWN_TRIPS, null,
-				IndicatorType.NEEDLE, DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0,
-				FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_PIR);
-		controlBar.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel(KEYS.PIR_ALARM_DELAY_DESC));
-		pirTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
-		dgrid.add(pirTripRateGauge, 1, 1);
-		
-		final Label mwDelay = createLabel(KEYS.MW_ALARM_DELAY);
-		dgrid.add(mwDelay, 2, 0);
-		final UGateGaugeBox<RemoteNode> mwTripRateGauge = new UGateGaugeBox<>(
-				controlBar.getRemoteNodePA(),
-				RemoteNodeType.MW_DELAY_BTWN_TRIPS, null, IndicatorType.NEEDLE,
-				DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0, FORMAT_DELAY,
-				RS.IMG_STOPWATCH, COLOR_MW);
-		controlBar.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel(KEYS.MW_ALARM_DELAY_DESC));
-		mwTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
-		dgrid.add(mwTripRateGauge, 2, 1);
-		
-		final Label laserDelay = createLabel(KEYS.LASER_ALARM_DELAY);
-		dgrid.add(laserDelay, 3, 0);
-		final UGateGaugeBox<RemoteNode> laserTripRateGauge = new UGateGaugeBox<>(
-				controlBar.getRemoteNodePA(),
-				RemoteNodeType.LASER_DELAY_BTWN_TRIPS, null,
-				IndicatorType.NEEDLE, DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0,
-				FORMAT_DELAY, RS.IMG_STOPWATCH, COLOR_LASER);
-		controlBar.addHelpTextTrigger(laserTripRateGauge, RS.rbLabel(KEYS.LASER_ALARM_DELAY_DESC));
-		laserTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
-		dgrid.add(laserTripRateGauge, 3, 1);
-		
-		grid.add(tgrid, 0, 0);
-		grid.add(dgrid, 0, 1);
-		final Group camCell = createCell(false, true, grid);
-		add(camCell, columnIndex, rowIndex);
+		final Parent cell = createCell(false, true, gateHeader, gateToggleSwitchView, 
+				gateCtrlHeader, gateGroup);
+		add(cell, columnIndex, rowIndex);
 	}
 }

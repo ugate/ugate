@@ -18,9 +18,9 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.IGateKeeperListener;
+import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateEvent;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
@@ -58,15 +58,15 @@ public class RemoteNodeToolBar extends ToolBar {
 	}
 
 	/**
-	 * Registers any {@linkplain IGateKeeperListener}s
+	 * Registers any {@linkplain UGateListener}s
 	 */
 	protected final void registerListeners() {
-		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?, ?> event) {
-				final boolean isNodeChange = event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT || 
-					event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD || 
-					event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE;
+			public void handle(final UGateEvent<?, ?> event) {
+				final boolean isNodeChange = event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT || 
+					event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD || 
+					event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE;
 				final boolean isRemoteCommand = event.isFromRemote() && event.getCommand() != null;
 				if (isNodeChange || isRemoteCommand) {
 					// commit selection/add/remove changes
@@ -80,13 +80,13 @@ public class RemoteNodeToolBar extends ToolBar {
 								if (isRemoteCommand) {
 									// blink status to indicate the a remote command has been received
 									((NodeStatusView) node).updateLastCommand(event.getCommand());
-								} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE) {
+								} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE) {
 									addOrRemoveNodeAddress(((RemoteNode) event.getSource()).getAddress(), false, true);
 									isRemoteNodeChanged = true;
-								} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD) {
+								} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD) {
 									addOrRemoveNodeAddress(((RemoteNode) event.getSource()).getAddress(), true, true);
 									isRemoteNodeChanged = true;
-								} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT) {
+								} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT) {
 									controlBar.getRemoteNodePA().setBean((RemoteNode) event.getSource());
 									isRemoteNodeChanged = true;
 								} else {
@@ -100,20 +100,20 @@ public class RemoteNodeToolBar extends ToolBar {
 						}
 					}
 					if (!isRemoteNodeChanged
-							&& event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT) {
+							&& event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT) {
 						controlBar.setHelpText(RS.rbLabel(
 								KEYS.WIRELESS_NODE_REMOTE_SELECT_FAILED,
 								((RemoteNode) event.getSource()).getAddress()));
 					} else if (isRemoteNodeChanged) {
 						UGateKeeper.DEFAULT
-								.notifyListeners(new UGateKeeperEvent<RemoteNode, RemoteNode>(
+								.notifyListeners(new UGateEvent<RemoteNode, RemoteNode>(
 										(RemoteNode) event.getSource(),
-										UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGED,
+										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED,
 										false, null, null, (RemoteNode) event
 												.getSource(), controlBar
 												.getRemoteNode()));
 					}
-				} else if (isRemoteCommand && event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
+				} else if (isRemoteCommand && event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					// notify the user that the remote node has successfully been committed locally
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					final NodeStatusView nsv = getNodeStatusView(rn);
@@ -124,7 +124,7 @@ public class RemoteNodeToolBar extends ToolBar {
 								KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
 								((RemoteNode) event.getSource()).getAddress()));
 					}
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
 						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
@@ -194,9 +194,9 @@ public class RemoteNodeToolBar extends ToolBar {
 								controlBar.getActor().getHost());
 						rn.setAddress(textField.getText());
 						UGateKeeper.DEFAULT.notifyListeners(
-								new UGateKeeperEvent<RemoteNode, Void>(
+								new UGateEvent<RemoteNode, Void>(
 										rn,
-										UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD,
+										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD,
 										false));
 					}
 				});
@@ -213,9 +213,9 @@ public class RemoteNodeToolBar extends ToolBar {
 								controlBar.getActor().getHost());
 						rn.setAddress(textField.getText());
 						UGateKeeper.DEFAULT.notifyListeners(
-								new UGateKeeperEvent<RemoteNode, Void>(
+								new UGateEvent<RemoteNode, Void>(
 										rn,
-										UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE,
+										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE,
 										false));
 					}
 				});
@@ -380,9 +380,9 @@ public class RemoteNodeToolBar extends ToolBar {
 		 */
 		public void selectNotify() {
 			UGateKeeper.DEFAULT.notifyListeners(
-					new UGateKeeperEvent<RemoteNode, Void>(
+					new UGateEvent<RemoteNode, Void>(
 							getRemoteNode(),
-							UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT,
+							UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT,
 							false));
 			blinkStop(true);
 		}

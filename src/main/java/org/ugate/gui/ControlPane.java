@@ -3,10 +3,11 @@ package org.ugate.gui;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -36,7 +37,7 @@ public abstract class ControlPane extends GridPane {
 	public static final double CHILD_PADDING = 30d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	public static final double KNOB_SIZE_SCALE = 0.25d;
-	public static final double THRESHOLD_SIZE_SCALE = 0.74d;
+	public static final double THRESHOLD_SIZE_SCALE = 0.8d;
 	public static final double DELAY_SIZE_SCALE = 0.54d;
 	public static final Color COLOR_CAM = Color.YELLOW;
 	public static final Color COLOR_MULTI = Color.ORANGE;
@@ -75,9 +76,11 @@ public abstract class ControlPane extends GridPane {
 	 * @param nodes the nodes to add to the side (when null, the group returned will be null)
 	 * @return the group
 	 */
-	protected Group createCell(final boolean resizeWidth, final boolean resizeHeight, final Node... nodes) {
-		final Group group = new Group();
+	protected Parent createCell(final boolean resizeWidth, final boolean resizeHeight, final Node... nodes) {
 		final VBox view = new VBox(CHILD_SPACING);
+		for (final Node node : nodes) {
+			VBox.setVgrow(node, Priority.NEVER);
+		}
 		view.setPadding(PADDING_INSETS);
 		view.getChildren().addAll(nodes);
 		
@@ -85,10 +88,20 @@ public abstract class ControlPane extends GridPane {
 //		view.setAlignment(Pos.TOP_CENTER);
 //		view.getStyleClass().add("content-background");
 //		group.getChildren().addAll(view);
-		group.getChildren().addAll(createBackground(view, resizeWidth, resizeHeight), view);
-		return group;
+		final Parent pc = new PaneCell(createBackground(view, resizeWidth, resizeHeight), view);
+		//final StackPane pc = new StackPane();
+		//pc.setAlignment(Pos.TOP_LEFT);
+		//pc.getChildren().addAll(createBackground(view, resizeWidth, resizeHeight), view);
+		return pc;
 	}
-	
+
+	protected static class PaneCell extends Parent {
+		
+		public PaneCell(final Node... nodes) {
+			getChildren().addAll(nodes);
+		}
+	}
+
 	/**
 	 * Creates a background
 	 * 
@@ -141,7 +154,7 @@ public abstract class ControlPane extends GridPane {
 		final double contentWidth = resizeWidth ? Math.max(getWidth() - PADDING_INSETS.getLeft(), 
 				node.getWidth()) : node.getWidth() - PADDING_INSETS.getLeft();
 		final double contentHeight = resizeHeight ? Math.max(getHeight() - PADDING_INSETS.getTop() - 
-				PADDING_INSETS.getBottom(), node.getHeight()) : node.getHeight();
+				PADDING_INSETS.getBottom(), node.getHeight()) : node.getHeight() - PADDING_INSETS.getTop();
 		backgroundRec.setWidth(contentWidth);
 		backgroundRec.setHeight(contentHeight);
 	}

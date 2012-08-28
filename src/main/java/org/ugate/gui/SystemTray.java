@@ -27,9 +27,9 @@ import javafx.util.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.IGateKeeperListener;
+import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateEvent;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 
@@ -126,9 +126,9 @@ public class SystemTray extends Service<Void> {
 						}
 					});
 					// when the primary stage is minimized to the system tray show a notification for the event message
-					UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+					UGateKeeper.DEFAULT.addListener(new UGateListener() {
 						@Override
-						public void handle(final UGateKeeperEvent<?, ?> event) {
+						public void handle(final UGateEvent<?, ?> event) {
 							if (!SystemTray.this.stage.isShowing()) {
 								final String msg = event.getMessageString();
 								if (msg != null && !msg.isEmpty()) {

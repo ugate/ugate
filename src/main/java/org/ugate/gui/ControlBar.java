@@ -33,14 +33,14 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.IGateKeeperListener;
+import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateKeeperEvent;
+import org.ugate.UGateEvent;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.UGateToggleSwitchBox;
-import org.ugate.gui.view.AlarmSettings;
+import org.ugate.gui.view.AlarmThresholds;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
@@ -169,17 +169,17 @@ public class ControlBar extends ToolBar {
 		
 		// add the readings view
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
-		final Digits sonarReading = new Digits(String.format(AlarmSettings.FORMAT_SONAR, 0.0f),
-				0.15f, AlarmSettings.COLOR_SONAR, null);
+		final Digits sonarReading = new Digits(String.format(AlarmThresholds.FORMAT_SONAR, 0.0f),
+				0.15f, AlarmThresholds.COLOR_SONAR, null);
 		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
-		final Digits pirReading = new Digits(String.format(AlarmSettings.FORMAT_PIR, 0.0f), 
-				0.15f, AlarmSettings.COLOR_PIR, null);
+		final Digits pirReading = new Digits(String.format(AlarmThresholds.FORMAT_PIR, 0.0f), 
+				0.15f, AlarmThresholds.COLOR_PIR, null);
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
-		final Digits mwReading = new Digits(String.format(AlarmSettings.FORMAT_MW, 0), 0.15f, 
-				AlarmSettings.COLOR_MW, null);
+		final Digits mwReading = new Digits(String.format(AlarmThresholds.FORMAT_MW, 0), 0.15f, 
+				AlarmThresholds.COLOR_MW, null);
 		final ImageView laserReadingLabel = RS.imgView(RS.IMG_LASER);
-		final Digits laserReading = new Digits(String.format(AlarmSettings.FORMAT_LASER, 0.0f), 
-				0.15f, AlarmSettings.COLOR_LASER, null);
+		final Digits laserReading = new Digits(String.format(AlarmThresholds.FORMAT_LASER, 0.0f), 
+				0.15f, AlarmThresholds.COLOR_LASER, null);
 		final Region readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10, true,
 				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading, 
 				laserReadingLabel, laserReading);
@@ -207,18 +207,18 @@ public class ControlBar extends ToolBar {
 				readingsGroup, new Separator(Orientation.VERTICAL),
 				multiAlarmGroup);
 		// show a visual indication that the settings need updated
-		UGateKeeper.DEFAULT.addListener(new IGateKeeperListener() {
+		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
-			public void handle(final UGateKeeperEvent<?, ?> event) {
+			public void handle(final UGateEvent<?, ?> event) {
 				setHelpText(event.getMessageString());
-				if (event.getType() == UGateKeeperEvent.Type.ACTOR_COMMITTED) {
+				if (event.getType() == UGateEvent.Type.ACTOR_COMMITTED) {
 					// need to update the existing dirty actor
 					getActorPA().setBean((Actor) event.getSource());
-				} else if (event.getType() == UGateKeeperEvent.Type.HOST_COMMITTED) {
+				} else if (event.getType() == UGateEvent.Type.HOST_COMMITTED) {
 					// need to update the existing dirty host
 					getActor().setHost((Host) event.getSource());
 					getActorPA().setBean(getActor());
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					if (!rn.isDeviceSynchronized() && rn.isDeviceAutoSynchronize()) {
 						// automatically send the changes to the remote node
@@ -230,22 +230,22 @@ public class ControlBar extends ToolBar {
 							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						validateRemoteNodeSynchronization();
 					}
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						settingsSetTimeline.stop();
 					}
-				} else if (event.getType() == UGateKeeperEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					if (event.getNewValue() instanceof RxTxSensorReadings && 
 							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						final RxTxSensorReadings sr = (RxTxSensorReadings) event.getNewValue();
 						sensorReadingsPropertyWrapper.set(sr);
-						sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 
+						sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 
 								Double.parseDouble(sr.getSonarFeet() + "." + sr.getSonarInches())));
-						pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 
+						pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 
 								Double.parseDouble(sr.getIrFeet() + "." + sr.getIrInches())));
-						mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 
+						mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 
 								Math.round(sr.getSpeedMPH())));
 					} else if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
 						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
@@ -268,9 +268,9 @@ public class ControlBar extends ToolBar {
 			}
 		});
 		validateRemoteNodeSynchronization();
-//		sonarReading.setValue(String.format(AlarmSettings.FORMAT_SONAR, 5.3f));
-//		pirReading.setValue(String.format(AlarmSettings.FORMAT_PIR, 3.7f));
-//		mwReading.setValue(String.format(AlarmSettings.FORMAT_MW, 24L));
+//		sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 5.3f));
+//		pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 3.7f));
+//		mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 24L));
 	}
 
 	/**

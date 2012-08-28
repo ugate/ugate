@@ -17,8 +17,8 @@ import javafx.scene.web.WebView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.gui.view.AccessSettings;
 import org.ugate.gui.view.AlarmSettings;
+import org.ugate.gui.view.AlarmThresholds;
 import org.ugate.gui.view.PositionSettings;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -42,8 +42,8 @@ public class Controls extends TabPane {
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab remoteAccessTab = createTab(null, RS.rbLabel(KEYS.LABEL_REMOTE_ACCESS), AccessSettings.class, controlBar);
-		final Tab alarmSettingsTab = createTab(null, RS.rbLabel(KEYS.LABEL_ALARM_SETTINGS), AlarmSettings.class, controlBar);
+		final Tab remoteAccessTab = createTab(null, RS.rbLabel(KEYS.LABEL_REMOTE_ACCESS), AlarmSettings.class, controlBar);
+		final Tab alarmSettingsTab = createTab(null, RS.rbLabel(KEYS.LABEL_ALARM_SETTINGS), AlarmThresholds.class, controlBar);
 		final Tab positioningTab = createTab(null, RS.rbLabel(KEYS.LABEL_POS_SETTINGS), PositionSettings.class, controlBar);
 		getTabs().addAll(remoteAccessTab, alarmSettingsTab, positioningTab);
 	}
