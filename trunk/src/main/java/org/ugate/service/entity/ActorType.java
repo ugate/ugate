@@ -18,6 +18,7 @@ public enum ActorType implements IModelType<Actor> {
 	HOST_COM_ADDY("host.comAddress"),
 	HOST_COM_PORT("host.comPort"),
 	HOST_BAUD_RATE("host.comBaud"),
+	REMOTE_NODES("host.remoteNodes"),
 	MAIL_RECIPIENTS("host.mailRecipients"),
 	MAIL_SMTP_HOST("host.mailSmtpHost"),
 	MAIL_SMTP_PORT("host.mailSmtpPort"),
@@ -36,7 +37,7 @@ public enum ActorType implements IModelType<Actor> {
 	 */
 	public static final Integer[] HOST_BAUD_RATES = {1200, 2400, 4800, 9600, 19200, 
 		38400, 57600, 115200, 230400};
-	public final String key;
+	private final String key;
 	
 	/**
 	 * Constructor

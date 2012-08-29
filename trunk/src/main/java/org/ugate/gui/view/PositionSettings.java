@@ -124,7 +124,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(laserCalibrate, RS.rbLabel(KEYS.LASER_CALIBRATION_DESC));
 		grid.add(laserCalibrate, 1, 5);
 		
-		final Parent camCell = createCell(false, true, grid);
+		final Parent camCell = createCell(grid);
 		add(camCell, 0, 0);
 	}
 	
@@ -191,7 +191,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(pirTiltGauge, RS.rbLabel(KEYS.CAM_TILT_PIR_DESC));
 		grid.add(pirTiltGauge, 1, 5);
 		
-		final Parent cell = createCell(false, true, grid);
+		final Parent cell = createCell(grid);
 		add(cell, 1, 0);
 	}
 	
@@ -256,7 +256,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(laserTiltGauge, RS.rbLabel(KEYS.CAM_TILT_LASER_DESC));
 		grid.add(laserTiltGauge, 1, 5);
 		
-		final Parent cell = createCell(false, true, grid);
+		final Parent cell = createCell(grid);
 		add(cell, 2, 0);
 	}
 	

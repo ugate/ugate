@@ -103,6 +103,37 @@
 		linear-gradient(from 0% 0% to 0% 100%, black, white 3%, white 97%, black);
 	-fx-alignment: CENTER;
 }
+.section-pane {
+	-fx-text-fill: white;
+    -fx-base: #505359;
+    -fx-background: #505359;
+    -fx-background-color:
+        linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%),
+        linear-gradient(#020b02, #3a3a3a),
+        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
+        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
+        linear-gradient(#777777 0%, #606060 50%, #505250 51%, #2a2b2a 100%);
+	-fx-border-width: 3;
+    -fx-border-color: 
+    	linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%) 
+		linear-gradient(#686868 10%, white 40%, #343534 90%, #757575 100%)
+		linear-gradient(#686868 0%, #232723 25%, #373837 75%, #757575 100%)
+		linear-gradient(#686868 10%, white 40%, #343534 90%, #757575 100%);
+	-fx-border-insets: 1 1 1 1;
+	-fx-alignment: center;
+    -fx-spacing: 10;
+    -fx-padding: 10 10 10 10;
+	-fx-border-radius: 8 8 8 8;
+	-fx-background-radius: 10 10 10 10;
+}
+.section-grid {
+	-fx-text-fill: white;
+	-fx-background-color: 
+		linear-gradient(from 0% 0% to 0% 100%, #000000 0%, #32404e 10%, #32404e 25%, #586b7d 50%, #32404e 75%, #32404e 90%, #000000);
+	-fx-hgap: 20;
+	-fx-vgap: 20;
+	-fx-alignment: center;
+}
 /*******************************************************************************
  *                                                                             *
  * Dialog                                                                      *
@@ -554,11 +585,6 @@
     -fx-padding: 4 4 4 4;
     -fx-background-color: 
  		linear-gradient(from 0% 0% to 0% 100%, #515151, #3c3f46 4%, #494d53 4.1%, #666970 66%, #919398 94%, #919398);
-}
-.gauge-control-pane {
-	-fx-text-fill: white;
-	-fx-background-color: 
-		linear-gradient(from 0% 0% to 0% 100%, #000000 0%, #32404e 10%, #32404e 25%, #586b7d 50%, #32404e 75%, #32404e 90%, #000000);
 }
 .gauge-header {
     -fx-text-fill: white;

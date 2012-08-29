@@ -1,34 +1,40 @@
 package org.ugate.gui.view;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.event.EventHandler;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.UGateListener;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateListener;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
-import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 
@@ -40,6 +46,7 @@ public class RemoteNodeToolBar extends ToolBar {
 	private static final Logger log = LoggerFactory.getLogger(RemoteNodeToolBar.class);
 	protected final ControlBar controlBar;
 	private final TextField textField = new TextField();
+	private final ListView<String> rnListView = new ListView<>();
 	
 	/**
 	 * Constructor
@@ -52,8 +59,8 @@ public class RemoteNodeToolBar extends ToolBar {
 		getStyleClass().add("dialog-base");
 		setOrientation(orientation);
 		this.controlBar = controlBar;
+		this.rnListView.setOrientation(orientation);
 		addGlobalNodeControls();
-		initNodeItems();
 		registerListeners();
 	}
 
@@ -64,59 +71,11 @@ public class RemoteNodeToolBar extends ToolBar {
 		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
 			public void handle(final UGateEvent<?, ?> event) {
-				final boolean isNodeChange = event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT || 
-					event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD || 
-					event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE;
 				final boolean isRemoteCommand = event.isFromRemote() && event.getCommand() != null;
-				if (isNodeChange || isRemoteCommand) {
-					// commit selection/add/remove changes
-					boolean isSameAddy = false;
-					boolean isRemoteNodeChanged = false;
-					for (final Node node : getItems()) {
-						if (node instanceof NodeStatusView) {
-							isSameAddy = ((NodeStatusView) node).getRemoteNode().getAddress().equalsIgnoreCase(
-									controlBar.getRemoteNode().getAddress());
-							if (isSameAddy) {
-								if (isRemoteCommand) {
-									// blink status to indicate the a remote command has been received
-									((NodeStatusView) node).updateLastCommand(event.getCommand());
-								} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE) {
-									addOrRemoveNodeAddress(((RemoteNode) event.getSource()).getAddress(), false, true);
-									isRemoteNodeChanged = true;
-								} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD) {
-									addOrRemoveNodeAddress(((RemoteNode) event.getSource()).getAddress(), true, true);
-									isRemoteNodeChanged = true;
-								} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT) {
-									controlBar.getRemoteNodePA().setBean((RemoteNode) event.getSource());
-									isRemoteNodeChanged = true;
-								} else {
-									((NodeStatusView) node).setStatusFill(true);
-								}
-							} else if (!isRemoteCommand && isSameAddy) {
-								((NodeStatusView) node).setStatusFill(true);
-							} else if (!isRemoteCommand) {
-								((NodeStatusView) node).setStatusFill(false);
-							}
-						}
-					}
-					if (!isRemoteNodeChanged
-							&& event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT) {
-						controlBar.setHelpText(RS.rbLabel(
-								KEYS.WIRELESS_NODE_REMOTE_SELECT_FAILED,
-								((RemoteNode) event.getSource()).getAddress()));
-					} else if (isRemoteNodeChanged) {
-						UGateKeeper.DEFAULT
-								.notifyListeners(new UGateEvent<RemoteNode, RemoteNode>(
-										(RemoteNode) event.getSource(),
-										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED,
-										false, null, null, (RemoteNode) event
-												.getSource(), controlBar
-												.getRemoteNode()));
-					}
-				} else if (isRemoteCommand && event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
+				if (isRemoteCommand && event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					// notify the user that the remote node has successfully been committed locally
 					final RemoteNode rn = (RemoteNode) event.getSource();
-					final NodeStatusView nsv = getNodeStatusView(rn);
+					final NodeStatusView nsv = getNodeStatusView(rn.getAddress());
 					if (nsv != null) {
 						// blink status to indicate the a remote command has been received
 						nsv.updateLastCommand(event.getCommand());
@@ -132,7 +91,7 @@ public class RemoteNodeToolBar extends ToolBar {
 							// remote device values do not match the local device values
 							rn.setDeviceSynchronized(false);
 							ndto.getRemoteNode().setDeviceSynchronized(false);
-							final NodeStatusView nsv = getNodeStatusView(rn);
+							final NodeStatusView nsv = getNodeStatusView(rn.getAddress());
 							// blink status to indicate the a remote device is out of sync
 							nsv.updateLastCommand(event.getCommand());
 							controlBar.setHelpText(RS.rbLabel(
@@ -143,34 +102,6 @@ public class RemoteNodeToolBar extends ToolBar {
 				}
 			}
 		});
-	}
-	/**
-	 * Creates all the available {@linkplain NodeStatusView}s from the
-	 * {@linkplain ControlBar}'s {@linkplain Host#getRemoteNodes()}
-	 */
-	protected void initNodeItems() {
-		if (controlBar.getActor().getHost().getRemoteNodes() != null) {
-			for (final RemoteNode remoteNode : controlBar.getActor().getHost()
-					.getRemoteNodes()) {
-				addNodeItem(remoteNode);
-			}
-		}
-	}
-
-	/**
-	 * Adds a {@linkplain NodeStatusView} for a {@linkplain RemoteNode}
-	 * 
-	 * @param remoteNode
-	 *            the {@linkplain RemoteNode} to add a
-	 *            {@linkplain NodeStatusView} for
-	 */
-	protected void addNodeItem(final RemoteNode remoteNode) {
-		final NodeStatusView wnav = new NodeStatusView(controlBar, remoteNode);
-		if (controlBar.getRemoteNode().getAddress()
-				.equalsIgnoreCase(remoteNode.getAddress())) {
-			wnav.setStatusFill(true);
-		}
-		getItems().add(wnav);
 	}
 
 	/**
@@ -190,14 +121,19 @@ public class RemoteNodeToolBar extends ToolBar {
 						if (textField.getText().isEmpty()) {
 							return;
 						}
-						final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(
-								controlBar.getActor().getHost());
-						rn.setAddress(textField.getText());
-						UGateKeeper.DEFAULT.notifyListeners(
-								new UGateEvent<RemoteNode, Void>(
-										rn,
-										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD,
-										false));
+						log.info("Attempting to add remote node at address: "
+								+ textField.getText());
+						final NodeStatusView nsv = getNodeStatusView(textField.getText());
+						if (nsv == null) {
+							final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(
+									controlBar.getActor().getHost());
+							rn.setAddress(textField.getText());
+							controlBar.getActor().getHost().getRemoteNodes().add(rn);
+							ServiceProvider.IMPL.getCredentialService().mergeHost(
+									controlBar.getActor().getHost());
+							log.info("Added remote node at address: "
+									+ textField.getText());
+						}
 					}
 				});
 		controlBar.addHelpTextTrigger(addNodeButton,
@@ -209,127 +145,89 @@ public class RemoteNodeToolBar extends ToolBar {
 						if (textField.getText().isEmpty()) {
 							return;
 						}
-						final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(
-								controlBar.getActor().getHost());
-						rn.setAddress(textField.getText());
-						UGateKeeper.DEFAULT.notifyListeners(
-								new UGateEvent<RemoteNode, Void>(
-										rn,
-										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE,
-										false));
+						log.info("Attempting to remove remote node at address: "
+								+ textField.getText());
+						if (controlBar.getActor().getHost().getRemoteNodes().size() > 1) {
+							RemoteNode rnr = null;
+							for (final RemoteNode rn : controlBar.getActor().getHost().getRemoteNodes()) {
+								if (textField.getText().equalsIgnoreCase(rn.getAddress())) {
+									rnr = rn;
+									break;
+								}
+							}
+							if (rnr != null) {
+								controlBar.getActor().getHost().getRemoteNodes().remove(rnr);
+								ServiceProvider.IMPL.getCredentialService().mergeHost(
+										controlBar.getActor().getHost());
+								log.info("Removed remote node at address: "
+										+ textField.getText());
+							}
+						}
 					}
 				});
 		controlBar.addHelpTextTrigger(removeNodeButton,
 				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE_DESC));
-		getItems().addAll(textField, addNodeButton, removeNodeButton,
-				new Separator(Orientation.VERTICAL));
-	}
 
-	/**
-	 * Adds/Removes a nodes address. Validates that an address doesn't already
-	 * exist when adding and validates that an address does exist when removing.
-	 * 
-	 * @param nodeAddress
-	 *            the node address to add or remove
-	 * @param add
-	 *            true to add, false to remove
-	 * @param commit
-	 *            true to commit the changes to the {@linkplain RemoteNode}
-	 * @return true when successful
-	 */
-	protected boolean addOrRemoveNodeAddress(final String nodeAddress,
-			final boolean add, final boolean commit) {
-		if (addOrRemoveNodeAddress(nodeAddress, add) && commit) {
-			try {
-				ServiceProvider.IMPL.getCredentialService().mergeHost(
-						controlBar.getActor().getHost());
-				return true;
-			} catch (final Throwable t) {
-				log.error(String.format("Unable to commit changes to %1$s", 
-						nodeAddress), t);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Adds/Removes a nodes address. Validates that an address doesn't already
-	 * exist when adding and validates that an address does exist when removing.
-	 * 
-	 * @param nodeAddress
-	 *            the node address to add or remove
-	 * @param add
-	 *            true to add, false to remove
-	 * @return true when successful
-	 */
-	private boolean addOrRemoveNodeAddress(final String nodeAddress, final boolean add) {
-		if (nodeAddress != null && !nodeAddress.isEmpty()) {
-			RemoteNode rns = null;
-			for (final Node node : getItems()) {
-				rns = node instanceof NodeStatusView ? ((NodeStatusView) node).getRemoteNode() : null;
-				if (rns != null && rns.getAddress().equalsIgnoreCase(nodeAddress)) {
-					if (add) {
-						log.warn(String.format("Cannot add a remote node %1$s because it already exists", 
-								rns.getAddress()));
-						return false;
-					} else {
-						for (final RemoteNode rn : controlBar.getActor().getHost().getRemoteNodes()) {
-							if (rns.getAddress().equalsIgnoreCase(rn.getAddress())) {
-								controlBar.getActor().getHost().getRemoteNodes().remove(rn);
-								try {
-									// select first available node
-									controlBar.getRemoteNodePA().setBean(
-											controlBar.getActor().getHost().getRemoteNodes()
-											.iterator().next());
-									getItems().remove(node);
-									return true;
-								} catch (final Throwable t) {
-									log.error(String.format("Unable to remove %1$s", 
-											rn.getAddress()), t);
-									controlBar.setHelpText(RS.rbLabel(
-											KEYS.WIRELESS_NODE_REMOVE_FAILED, 
-											rns.getAddress()));
-									return false;
-								}
+		rnListView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+            @Override 
+            public ListCell<String> call(final ListView<String> list) {
+                return new NodeStatusView(controlBar);
+            }
+        });
+		HBox.setHgrow(rnListView, Priority.ALWAYS);
+		VBox.setVgrow(rnListView, Priority.NEVER);
+		rnListView.setPrefSize(USE_PREF_SIZE, USE_PREF_SIZE);
+		rnListView.getSelectionModel().selectedItemProperty()
+				.addListener(new ChangeListener<String>() {
+					@Override
+					public void changed(
+							final ObservableValue<? extends String> ov,
+							final String oldAddress, final String newAddress) {
+						for (final RemoteNode rn : controlBar.getActor()
+								.getHost().getRemoteNodes()) {
+							if (rn.getAddress().equalsIgnoreCase(newAddress)) {
+								controlBar.getRemoteNodePA().setBean(rn);
+								Platform.runLater(new Runnable() {
+									@Override
+									public void run() {
+										UGateKeeper.DEFAULT
+												.notifyListeners(new UGateEvent<RemoteNode, RemoteNode>(
+														rn,
+														UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED,
+														false,
+														null,
+														null,
+														rn,
+														controlBar
+																.getRemoteNode()));
+									}
+								});
+								break;
 							}
 						}
-						return false;
 					}
-				}
-			}
-			if (add && rns == null) {
-				rns = RemoteNodeType.newDefaultRemoteNode(controlBar.getActor().getHost());
-				rns.setAddress(nodeAddress);
-				controlBar.getActor().getHost().getRemoteNodes().add(rns);
-				try {
-					controlBar.getRemoteNodePA().setBean(rns);
-					addNodeItem(rns);
-					return true;
-				} catch (final Throwable t) {
-					log.error(String.format("Unable to add %1$s", 
-							rns.getAddress()), t);
-					controlBar.setHelpText(RS.rbLabel(
-							KEYS.WIRELESS_NODE_ADD_FAILED, rns.getAddress()));
-					return false;
-				}
-			}
-		}
-		return false;
+				});
+		controlBar.getActorPA().bindContentBidirectional(
+				ActorType.REMOTE_NODES.getKey(),
+				RemoteNodeType.WIRELESS_ADDRESS.getKey(), RemoteNode.class,
+				rnListView.getItems(), String.class, null, null);
+		getItems().addAll(textField, addNodeButton, removeNodeButton,
+				new Separator(Orientation.VERTICAL), rnListView);
 	}
 
 	/**
 	 * Gets a {@linkplain NodeStatusView} for a specified
-	 * {@linkplain RemoteNode}
+	 * {@linkplain RemoteNode#getAddress()}
 	 * 
-	 * @param remoteNode
-	 *            the {@linkplain RemoteNode}
+	 * @param address
+	 *            the {@linkplain RemoteNode#getAddress()}
 	 * @return the {@linkplain NodeStatusView}
 	 */
-	public NodeStatusView getNodeStatusView(final RemoteNode remoteNode) {
+	public NodeStatusView getNodeStatusView(final String address) {
 		for (final Node node : getItems()) {
 			if (node instanceof NodeStatusView
-					&& ((NodeStatusView) node).getRemoteNode().getAddress()
-							.equalsIgnoreCase(remoteNode.getAddress())) {
+					&& ((NodeStatusView) node).getAddress()
+							.equalsIgnoreCase(address)) {
 				return (NodeStatusView) node;
 			}
 		}
@@ -339,9 +237,11 @@ public class RemoteNodeToolBar extends ToolBar {
 	/**
 	 * Node status view 
 	 */
-	protected static final class NodeStatusView extends StatusView {
+	protected static final class NodeStatusView extends ListCell<String> {
 
-		private final RemoteNode remoteNode;
+		private final ControlBar controlBar;
+		private String address;
+		private final StatusView statusView;
 		private final StringProperty helpTextStringProperty;
 		
 		/**
@@ -353,39 +253,31 @@ public class RemoteNodeToolBar extends ToolBar {
 		 *            the {@linkplain RemoteNode} the
 		 *            {@linkplain NodeStatusView} is for
 		 */
-		public NodeStatusView(final ControlBar controlBar, final RemoteNode remoteNode) {
-			super(controlBar, false, GuiUtil.COLOR_UNSELECTED, null, GuiUtil.COLOR_SELECTING);
-			this.remoteNode = remoteNode;
+		public NodeStatusView(final ControlBar controlBar) {
+			super();
+			this.controlBar = controlBar;
+			this.statusView = new StatusView(controlBar, true, GuiUtil.COLOR_UNSELECTED, 
+            		null, GuiUtil.COLOR_SELECTING);
 			this.helpTextStringProperty = new SimpleStringProperty();
 			setHelpText("");
 			setCursor(Cursor.HAND);
-			addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-				@Override
-				public void handle(final MouseEvent event) {
-					if (GuiUtil.isPrimaryPress(event)) {
-						selectNotify();
-					}
-				}
-			});
 			controlBar.addHelpTextTrigger(this, this.helpTextStringProperty);
-			final HBox hbox = new HBox();
-			hbox.setAlignment(Pos.CENTER);
-			final Label addressLabel = new Label(this.remoteNode.getAddress());
-			hbox.getChildren().addAll(addressLabel, statusIcon);
-			getChildren().add(hbox);
 		}
 
-		/**
-		 * Send notification of selection
-		 */
-		public void selectNotify() {
-			UGateKeeper.DEFAULT.notifyListeners(
-					new UGateEvent<RemoteNode, Void>(
-							getRemoteNode(),
-							UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT,
-							false));
-			blinkStop(true);
-		}
+        @Override
+        public void updateItem(final String item, final boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null) {
+            	this.address = item;
+    			final HBox hbox = new HBox();
+    			hbox.setPrefSize(USE_COMPUTED_SIZE, USE_COMPUTED_SIZE);
+    			hbox.setAlignment(Pos.CENTER);
+    			final Label addressLabel = new Label(this.address);
+    			hbox.getChildren().addAll(addressLabel, this.statusView);
+    			//hbox.setScaleY(0.7);
+                setGraphic(hbox);
+            }
+        }
 
 		/**
 		 * Sets the help text for the status view
@@ -395,8 +287,8 @@ public class RemoteNodeToolBar extends ToolBar {
 		 */
 		protected void setHelpText(final String commandDesc) {
 			this.helpTextStringProperty.set(RS.rbLabel(
-					KEYS.WIRELESS_NODE_REMOTE_STATUS, getRemoteNode()
-							.getAddress(), commandDesc));
+					KEYS.WIRELESS_NODE_REMOTE_STATUS, 
+					getAddress(), commandDesc));
 		}
 		
 		/**
@@ -412,15 +304,22 @@ public class RemoteNodeToolBar extends ToolBar {
 		 */
 		public void updateLastCommand(final Command command) {
 			setHelpText(command.toString());
-			blinkStart(remoteNode.getAddress().equalsIgnoreCase(
-					cb.getRemoteNode().getAddress()) ? 0 : 0);
+			this.statusView.blinkStart(getAddress().equalsIgnoreCase(
+					controlBar.getRemoteNode().getAddress()) ? 0 : 0);
 		}
 		
 		/**
-		 * @return the {@linkplain RemoteNode}
+		 * @return the {@linkplain RemoteNode#getAddress()}
 		 */
-		public RemoteNode getRemoteNode() {
-			return remoteNode;
+		public String getAddress() {
+			return address;
+		}
+
+		/**
+		 * @return the {@linkplain StatusView}
+		 */
+		public StatusView getStatusView() {
+			return statusView;
 		}
 	}
 }

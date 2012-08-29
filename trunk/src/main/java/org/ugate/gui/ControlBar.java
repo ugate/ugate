@@ -344,6 +344,8 @@ public class ControlBar extends ToolBar {
 							setHelpText(RS.rbLabel(KEYS.SETTINGS_SEND_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
+						} else if (!getRemoteNode().isDeviceSynchronized()) {
+							getRemoteNode().setDeviceSynchronized(true);
 						}
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
