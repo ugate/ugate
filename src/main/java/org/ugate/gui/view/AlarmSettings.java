@@ -5,12 +5,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 
 import org.ugate.Command;
 import org.ugate.gui.ControlBar;
@@ -79,8 +79,8 @@ public class AlarmSettings extends ControlPane {
 				controlBar.getRemoteNodePA(), RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE,
 				RS.IMG_SYNC_ON, RS.IMG_SYNC_OFF);
 		controlBar.addHelpTextTrigger(syncToggleSwitch, RS.rbLabel(KEYS.WIRELESS_REMOTE_SYNC_DESC));
-	   
-		final Parent generalCell = createCell(false, true, soundLabel, soundsToggleSwitch, emailLabel, emailToggleSwitch,
+
+		final Parent generalCell = createCell(soundLabel, soundsToggleSwitch, emailLabel, emailToggleSwitch,
 				imgResLabel, imgResToggleSwitch, syncResLabel, syncToggleSwitch);
 		add(generalCell, columnIndex, rowIndex);
 	}
@@ -131,7 +131,7 @@ public class AlarmSettings extends ControlPane {
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
 	    
-		final Parent setupCell = createCell(false, true, nodeLabel, remoteAddress, workingDir, 
+		final Parent setupCell = createCell(nodeLabel, remoteAddress, workingDir, 
 				univRemoteLabel, universalRemoteAccessToggleSwitch, accessKeysContainer);
 		add(setupCell, columnIndex, rowIndex);
 	}
@@ -143,18 +143,18 @@ public class AlarmSettings extends ControlPane {
 				RS.IMG_GATE_ON, RS.IMG_GATE_OFF);
 		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel(KEYS.GATE_TOGGLE));
 		final Label gateCtrlHeader = createLabel(KEYS.GATE_STATE);
-		final ImageView gateToggleButton = RS.imgView(RS.IMG_GATE_CLOSED);
-		final Region gateGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
-				1, false, gateToggleButton);
-		gateGroup.setCursor(Cursor.HAND);
-		controlBar.addHelpTextTrigger(gateGroup, RS.rbLabel(KEYS.GATE_TOGGLE_DESC));
-		gateGroup.setOnMousePressed(new EventHandler<MouseEvent>() {
+		final ImageView gateToggleImgView = RS.imgView(RS.IMG_GATE_CLOSED);
+		final Button gateToggleBtn = new Button();
+		gateToggleBtn.setCursor(Cursor.HAND);
+		gateToggleBtn.setGraphic(gateToggleImgView);
+		controlBar.addHelpTextTrigger(gateToggleBtn, RS.rbLabel(KEYS.GATE_TOGGLE_DESC));
+		gateToggleBtn.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					gateToggleButton.setDisable(true);
+					gateToggleBtn.setDisable(true);
 					if (controlBar.createCommandService(Command.GATE_TOGGLE_OPEN_CLOSE, true) == null) {
-						gateToggleButton.setDisable(false);
+						gateToggleBtn.setDisable(false);
 					}
 				}
 			}
@@ -165,14 +165,14 @@ public class AlarmSettings extends ControlPane {
 					final RxTxSensorReadings oldValue, final RxTxSensorReadings newValue) {
 				// when a command is sent to a remote node to open/close a gate a response for
 				// sensor readings will be sent to the host where the gate state update is captured
-				gateToggleButton.setImage(newValue.getGateState() == 1 ? RS.img(RS.IMG_GATE_OPENED) : 
+				gateToggleImgView.setImage(newValue.getGateState() == 1 ? RS.img(RS.IMG_GATE_OPENED) : 
 					RS.img(RS.IMG_GATE_CLOSED));
-				gateToggleButton.setDisable(false);
+				gateToggleBtn.setDisable(false);
 			}
 		});
 		
-		final Parent cell = createCell(false, true, gateHeader, gateToggleSwitchView, 
-				gateCtrlHeader, gateGroup);
+		final Parent cell = createCell(gateHeader, gateToggleSwitchView, 
+				gateCtrlHeader, gateToggleBtn);
 		add(cell, columnIndex, rowIndex);
 	}
 }

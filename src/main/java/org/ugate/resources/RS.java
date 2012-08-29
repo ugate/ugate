@@ -800,9 +800,8 @@ public class RS {
 				"sensors.readings"), SENSOR_READINGS_FAILED(
 				"sensors.readings.failed"), GATE_CONFIG("gate.conf"), GATE_TOGGLE(
 				"gate.toggle"), GATE_TOGGLE_FAILED("gate.toggle.failed"), GATE_TOGGLE_DESC(
-				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_REMOTE_ACCESS(
-				"remoteaccess"), LABEL_POS_SETTINGS("positionsettings"), LABEL_ALARM_SETTINGS(
-				"alarmsettings"), LABEL_GRAPH_DESC("app.graph.desc"), LABEL_GRAPH_ALARM_NOTIFY(
+				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_GRAPH_DESC(
+				"app.graph.desc"), LABEL_GRAPH_ALARM_NOTIFY(
 				"graph.alarm.notify"), LABEL_GRAPH_AXIS_X("graph.axis.x"), LABEL_DISPLAYSHELF_FULLSIZE_DESC(
 				"displayshelf.fullsize.tooltip"), LABEL_TOGGLE_SWITCH_ON(
 				"toggleswitch.on"), LABEL_TOGGLE_SWITCH_OFF("toggleswitch.off"), SERVICE_TX_RESPONSE_INVALID(
@@ -861,7 +860,8 @@ public class RS {
 				"laser.calibration"), LASER_CALIBRATION_DESC(
 				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
 				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
-				"laser.calibration.failed"), WIRELESS_NODE_REMOTE_ADDY(
+				"laser.calibration.failed"), WIRELESS_TAB1("wireless.tab1"), WIRELESS_TAB2(
+				"wireless.tab2"), WIRELESS_TAB3("wireless.tab3"), WIRELESS_NODE_REMOTE_ADDY(
 				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
 				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
 				"wireless.node.remote.prompt"), WIRELESS_NODE_REMOTE_STATUS(

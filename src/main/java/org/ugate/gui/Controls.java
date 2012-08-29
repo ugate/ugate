@@ -42,10 +42,10 @@ public class Controls extends TabPane {
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab remoteAccessTab = createTab(null, RS.rbLabel(KEYS.LABEL_REMOTE_ACCESS), AlarmSettings.class, controlBar);
-		final Tab alarmSettingsTab = createTab(null, RS.rbLabel(KEYS.LABEL_ALARM_SETTINGS), AlarmThresholds.class, controlBar);
-		final Tab positioningTab = createTab(null, RS.rbLabel(KEYS.LABEL_POS_SETTINGS), PositionSettings.class, controlBar);
-		getTabs().addAll(remoteAccessTab, alarmSettingsTab, positioningTab);
+		final Tab tab1 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB1), AlarmSettings.class, controlBar);
+		final Tab tab2 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB2), AlarmThresholds.class, controlBar);
+		final Tab tab3 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB3), PositionSettings.class, controlBar);
+		getTabs().addAll(tab1, tab2, tab3);
 	}
 	
 	/**

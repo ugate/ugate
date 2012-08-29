@@ -22,8 +22,8 @@
 			JAR and the JavaFX ant JAR reside -->
 		<!-- NOTE: Cannot just add to the project repository due to native file 
 			dependencies. Possible solutions: https://forums.oracle.com/forums/thread.jspa?threadID=2307062 -->
-		<ugate.javafx.jar.path>C:\java\fx\rt\lib\jfxrt.jar</ugate.javafx.jar.path>
-		<ugate.javafx.antjar.path>C:\java\fx\tools\ant-javafx.jar</ugate.javafx.antjar.path>
+		<ugate.javafx.jar.path>C:\java\jdk\jre\lib\jfxrt.jar</ugate.javafx.jar.path>
+		<ugate.javafx.antjar.path>C:\java\jdk\lib\ant-javafx.jar</ugate.javafx.antjar.path>
 		<ugate.javafx.version>2.1.0</ugate.javafx.version>
 		<!-- RXTX will be automatically installed in the appropriate Java directories 
 			(if not already installed). To run from within IDE ensure the RXTX ZIP archive 
@@ -45,7 +45,7 @@
 		<ugate.plugin.compiler.version>2.5</ugate.plugin.compiler.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
 		<ugate.plugin.shade.version>1.6</ugate.plugin.shade.version>
-		<ugate.plugin.dependency.version>2.5</ugate.plugin.dependency.version>
+		<ugate.plugin.dependency.version>2.5.1</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
 		<ugate.plugin.surefire.version>2.5</ugate.plugin.surefire.version>

@@ -306,12 +306,6 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 		HOST_COMMITTED,
 		/** Event when a {@linkplain RemoteNode} has updated values that have been committed, but not yet sent the {@linkplain RemoteNode}'s device */
 		WIRELESS_REMOTE_NODE_COMMITTED, 
-		/** Event when a {@linkplain RemoteNode} has changing due to a new node being added */
-		WIRELESS_REMOTE_NODE_CHANGING_FROM_ADD, 
-		/** Event when a {@linkplain RemoteNode} has changing due to an existing node being removed */
-		WIRELESS_REMOTE_NODE_CHANGING_FROM_REMOVE, 
-		/** Event when a {@linkplain RemoteNode} has changing from an existing node to another existing node */
-		WIRELESS_REMOTE_NODE_CHANGING_FROM_SELECT, 
 		/** Event when a {@linkplain RemoteNode} has changed {@linkplain UGateEvent#getOldValue()} will contain the old {@linkplain RemoteNode} and {@linkplain UGateEvent#getNewValue()} will contain the new {@linkplain RemoteNode} */
 		WIRELESS_REMOTE_NODE_CHANGED, 
 		/** Event when connecting to the local host wireless device */
