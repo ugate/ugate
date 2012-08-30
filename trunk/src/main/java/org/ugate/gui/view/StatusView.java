@@ -21,7 +21,7 @@ import javafx.util.Duration;
  */
 public class StatusView extends VBox {
 	
-	public static final double RADIUS_MIN = 7;
+	public static final double RADIUS_MIN = 5;
 	public static final Color COLOR_NOT_SET = Color.web("#4977A3", 1);
 	public static final Color COLOR_ON = Color.web("#00FF00", 1);
 	public static final Color COLOR_OFF = Color.web("#FF0000", 1);
@@ -111,6 +111,8 @@ public class StatusView extends VBox {
 	private Circle createStatusCircle(final Boolean on) {
 		this.on = on;
 		final Circle circle = new Circle(on == null ? getRadius() : getRadius() * (getRadius() * 0.10d), Color.web("white", 0.05));
+		circle.setCenterX(-getRadius());
+		circle.setCenterY(-getRadius());
 		circle.setFill(getStatusFill(this.on));
 		circle.setStroke(Color.web("#D0E6FA", 0.16));
 		circle.setStrokeType(StrokeType.OUTSIDE);

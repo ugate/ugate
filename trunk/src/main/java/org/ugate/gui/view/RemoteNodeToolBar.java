@@ -6,11 +6,9 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
@@ -175,7 +173,8 @@ public class RemoteNodeToolBar extends ToolBar {
             }
         });
 		HBox.setHgrow(rnListView, Priority.ALWAYS);
-		VBox.setVgrow(rnListView, Priority.NEVER);
+		VBox.setVgrow(rnListView, Priority.ALWAYS);
+		//rnListView.getStyleClass().add("remote-node-listview");
 		rnListView.setPrefSize(USE_PREF_SIZE, USE_PREF_SIZE);
 		rnListView.getSelectionModel().selectedItemProperty()
 				.addListener(new ChangeListener<String>() {
@@ -269,13 +268,8 @@ public class RemoteNodeToolBar extends ToolBar {
             super.updateItem(item, empty);
             if (item != null) {
             	this.address = item;
-    			final HBox hbox = new HBox();
-    			hbox.setPrefSize(USE_COMPUTED_SIZE, USE_COMPUTED_SIZE);
-    			hbox.setAlignment(Pos.CENTER);
-    			final Label addressLabel = new Label(this.address);
-    			hbox.getChildren().addAll(addressLabel, this.statusView);
-    			//hbox.setScaleY(0.7);
-                setGraphic(hbox);
+    			setText(this.address);
+                setGraphic(this.statusView);
             }
         }
 
