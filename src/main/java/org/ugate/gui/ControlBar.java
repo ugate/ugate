@@ -33,9 +33,9 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
-import org.ugate.UGateListener;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.Digits;
@@ -75,6 +75,7 @@ public class ControlBar extends ToolBar {
 
 	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA, 
 			final BeanPathAdapter<RemoteNode> remoteNodePA) {
+		setId("control-bar");
 		this.stage = stage;
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;

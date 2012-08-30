@@ -37,7 +37,7 @@ public class AppFrame extends StackPane {
 	public static final double TOP_LEFT_WIDTH = 90;
 	public static final double TOP_RIGHT_WIDTH = 140;
 	public static final double TOP_BORDER_HEIGHT = 80;
-	public static final double TOP_BORDER_CONTENT_ADJUSTMENT = 10;
+	public static final double TOP_BORDER_CONTENT_ADJUSTMENT = 11;
 	public static final double BOTTOM_LEFT_WIDTH = 70;
 	public static final double BOTTOM_RIGHT_WIDTH = 70;
 	public static final double BOTTOM_BORDER_HEIGHT = 40;

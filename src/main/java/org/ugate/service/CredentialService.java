@@ -16,10 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.ugate.service.dao.CredentialDao;
+import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;
+import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.Role;
 
 /**
@@ -227,6 +229,22 @@ public class CredentialService {
 			final MailRecipient... mailRecipients) {
        credentialDao.mergeEntity(host);
        credentialDao.deleteEntitiesById("email", mailRecipients);
+	}
+
+	/**
+	 * Merges the {@linkplain Host}
+	 * 
+	 * @param host
+	 *            the {@linkplain Host} to merge
+	 * @param remoteNodes
+	 *            the {@linkplain RemoteNode}(s) to remove (if any)
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void mergeHost(final Host host,
+			final RemoteNode remoteNodes) {
+       credentialDao.mergeEntity(host);
+       credentialDao.deleteEntitiesById(
+    		   RemoteNodeType.WIRELESS_ADDRESS.getKey(), remoteNodes);
 	}
 
 	/**

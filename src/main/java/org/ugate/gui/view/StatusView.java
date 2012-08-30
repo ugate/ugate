@@ -21,7 +21,7 @@ import javafx.util.Duration;
  */
 public class StatusView extends VBox {
 	
-	public static final double RADIUS_MIN = 5;
+	public static final double RADIUS_MIN = 7;
 	public static final Color COLOR_NOT_SET = Color.web("#4977A3", 1);
 	public static final Color COLOR_ON = Color.web("#00FF00", 1);
 	public static final Color COLOR_OFF = Color.web("#FF0000", 1);

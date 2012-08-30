@@ -29,7 +29,8 @@
 	-fx-background-size: 90 80;
 }
 #title-bar {
-	-fx-background-color: transparent;
+/* 	-fx-background-color:  */
+/* 		linear-gradient(from 0% 0% to 0% 100%, transparent 50%, white); */
 	-fx-background-image: url("ugskin-tc1x80.png");
 	-fx-background-repeat: repeat-x;
 	/*-fx-background-position: bottom;*/
@@ -84,10 +85,14 @@
 	-fx-background-color: 
 		linear-gradient(from 0% 0% to 0% 100%, derive(-fx-base,-30%) 75%, rgba(114,131,148,0.9) 85%, derive(-fx-base,-95%) 95%, derive(-fx-base,-100%)),
 		radial-gradient(center 50% 75%, radius 50%, derive(-fx-base,-30%), derive(-fx-base,-90%));
+	-fx-padding: 0 0 0 0;
 }
 #center-view {
 	-fx-background-color: #ffffff;
 	-fx-text-fill: #000000;
+}
+#bottom-view {
+	-fx-padding: 0 50 0 50;
 }
 #taskbar {
     -fx-background-color:
@@ -97,11 +102,15 @@
 /*     -fx-padding: 2 70 0 5; */
 	-fx-alignment: CENTER;
 	-fx-spacing: 10 10 10 10;
+/* 	-fx-effect: dropshadow(two-pass-box, black, 15, .5, 0, -10); */
 }
 #connection-view {
-    -fx-background-color:
-		linear-gradient(from 0% 0% to 0% 100%, black, white 3%, white 97%, black);
+    -fx-background-color: white;
 	-fx-alignment: CENTER;
+}
+#control-bar {
+	-fx-background-insets: 0, 0 0 1 0;
+	-fx-effect: dropshadow(two-pass-box, black, 15, .5, 0, 3);
 }
 .section-pane {
 	-fx-text-fill: white;
@@ -134,35 +143,28 @@
 	-fx-vgap: 20;
 	-fx-alignment: center;
 }
-.remote-node-listview {
-/* 	-fx-background-color: transparent; */
-/* 	-fx-background: transparent; */
-/* 	-fx-cell-size: 100%; */
-}
-.list-view, .list-cell {
+.remote-node-listview, .remote-node-listcell {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background: transparent;
-    -fx-padding: 0;
-    -fx-spacing: 0;
+    -fx-padding: 0 2 0 1;
+    -fx-spacing: 1;
     -fx-border-width: 0;
     -fx-text-fill: white;
     -fx-font-size: 10px;
 }
-/* When the list-cell is selected and selected-hovered but not focused. 
-    Applied when the multiple items are selected but not focused */
-.list-view:focused .list-cell:selected, .list-cell:hover {
-    -fx-background-color: 
-        linear-gradient(black 0%, derive(black, 10%) 25%, derive(black, 20%) 75%, derive(black, 30%) 100%),
-        linear-gradient(#020b02, #3a3a3a),
-        linear-gradient(#9d9e9d 0%, #6b6a6b 20%, #343534 80%, #242424 100%),
-        linear-gradient(#8a8a8a 0%, #6b6a6b 20%, #343534 80%, #262626 100%),
-        linear-gradient(derive(black, 30%) 0%, derive(black, 20%) 50%, derive(black, 10%) 51%, black 100%),
-        radial-gradient(center 50% 0%, radius 25%, -fx-focus-color, rgba(255,255,255,0));
-	-fx-background-radius: 10 10 10 10;
-	-fx-border-width: 3;
-	-fx-border-radius: 8 8 8 8;
+.remote-node-listcell:selected, .remote-node-listcell:hover {
+	-fx-border-width: 1;
+	-fx-border-radius: 4 4 4 4;
 	-fx-border-color: -fx-focus-color;
+}
+.remote-node-listcell:hover {
+	-fx-border-color: yellow;
+}
+.remote-node-listcell:empty {
+	-fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 /* When the list-cell is selected and focused */
 /* .list-view:focused .list-cell:filled:focused:selected { */
@@ -185,7 +187,6 @@
 /*     -fx-background: transparent; */
 /*     -fx-background-color: transparent; */
 /*     -fx-background-insets: 0, 1, 2; */
-/*     -fx-text-fill: -fx-selection-bar-text;  */
 /*     -fx-text-fill: yellow; */
 /* } */
 /* .list-cell:empty { */
