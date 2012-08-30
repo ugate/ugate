@@ -5,18 +5,23 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
@@ -116,22 +121,7 @@ public class RemoteNodeToolBar extends ToolBar {
 				FunctionButton.Function.ADD, new Runnable() {
 					@Override
 					public void run() {
-						if (textField.getText().isEmpty()) {
-							return;
-						}
-						log.info("Attempting to add remote node at address: "
-								+ textField.getText());
-						final NodeStatusView nsv = getNodeStatusView(textField.getText());
-						if (nsv == null) {
-							final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(
-									controlBar.getActor().getHost());
-							rn.setAddress(textField.getText());
-							controlBar.getActor().getHost().getRemoteNodes().add(rn);
-							ServiceProvider.IMPL.getCredentialService().mergeHost(
-									controlBar.getActor().getHost());
-							log.info("Added remote node at address: "
-									+ textField.getText());
-						}
+						add(textField.getText());
 					}
 				});
 		controlBar.addHelpTextTrigger(addNodeButton,
@@ -140,27 +130,7 @@ public class RemoteNodeToolBar extends ToolBar {
 				FunctionButton.Function.REMOVE, new Runnable() {
 					@Override
 					public void run() {
-						if (textField.getText().isEmpty()) {
-							return;
-						}
-						log.info("Attempting to remove remote node at address: "
-								+ textField.getText());
-						if (controlBar.getActor().getHost().getRemoteNodes().size() > 1) {
-							RemoteNode rnr = null;
-							for (final RemoteNode rn : controlBar.getActor().getHost().getRemoteNodes()) {
-								if (textField.getText().equalsIgnoreCase(rn.getAddress())) {
-									rnr = rn;
-									break;
-								}
-							}
-							if (rnr != null) {
-								controlBar.getActor().getHost().getRemoteNodes().remove(rnr);
-								ServiceProvider.IMPL.getCredentialService().mergeHost(
-										controlBar.getActor().getHost());
-								log.info("Removed remote node at address: "
-										+ textField.getText());
-							}
-						}
+						removeSelected();
 					}
 				});
 		controlBar.addHelpTextTrigger(removeNodeButton,
@@ -173,37 +143,17 @@ public class RemoteNodeToolBar extends ToolBar {
             }
         });
 		HBox.setHgrow(rnListView, Priority.ALWAYS);
-		VBox.setVgrow(rnListView, Priority.ALWAYS);
-		//rnListView.getStyleClass().add("remote-node-listview");
-		rnListView.setPrefSize(USE_PREF_SIZE, USE_PREF_SIZE);
+		//VBox.setVgrow(rnListView, Priority.ALWAYS);
+		rnListView.getStyleClass().add("remote-node-listview");
+		rnListView.setPrefWidth(USE_PREF_SIZE);
+		rnListView.setPrefHeight(30d);
 		rnListView.getSelectionModel().selectedItemProperty()
 				.addListener(new ChangeListener<String>() {
 					@Override
 					public void changed(
 							final ObservableValue<? extends String> ov,
 							final String oldAddress, final String newAddress) {
-						for (final RemoteNode rn : controlBar.getActor()
-								.getHost().getRemoteNodes()) {
-							if (rn.getAddress().equalsIgnoreCase(newAddress)) {
-								controlBar.getRemoteNodePA().setBean(rn);
-								Platform.runLater(new Runnable() {
-									@Override
-									public void run() {
-										UGateKeeper.DEFAULT
-												.notifyListeners(new UGateEvent<RemoteNode, RemoteNode>(
-														rn,
-														UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED,
-														false,
-														null,
-														null,
-														rn,
-														controlBar
-																.getRemoteNode()));
-									}
-								});
-								break;
-							}
-						}
+						selectFromChange(newAddress);
 					}
 				});
 		controlBar.getActorPA().bindContentBidirectional(
@@ -212,6 +162,131 @@ public class RemoteNodeToolBar extends ToolBar {
 				rnListView.getItems(), String.class, null, null);
 		getItems().addAll(textField, addNodeButton, removeNodeButton,
 				new Separator(Orientation.VERTICAL), rnListView);
+		selectFromChange(null);
+	}
+
+	/**
+	 * Selects a {@linkplain RemoteNode#getAddress()}
+	 * 
+	 * @param address
+	 *            the {@linkplain RemoteNode#getAddress()} to select
+	 * @return true if selection is successful
+	 */
+	private boolean selectFromChange(final String address) {
+		if (address == null || address.isEmpty()) {
+			rnListView.getSelectionModel().select(
+					controlBar.getRemoteNode().getAddress());
+			return false;
+		} else if (controlBar.getRemoteNode().getAddress()
+				.equalsIgnoreCase(address)) {
+			return true;
+		}
+		for (final RemoteNode rn : controlBar.getActor().getHost()
+				.getRemoteNodes()) {
+			if (rn.getAddress().equalsIgnoreCase(address)) {
+				controlBar.getRemoteNodePA().setBean(rn);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						UGateKeeper.DEFAULT
+								.notifyListeners(new UGateEvent<RemoteNode, RemoteNode>(
+										rn,
+										UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED,
+										false, null, null, rn, controlBar
+												.getRemoteNode()));
+					}
+				});
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Adds a {@linkplain RemoteNode} based upon the given
+	 * {@linkplain RemoteNode#getAddress()}. The currently selected
+	 * {@linkplain RemoteNode} values will be used to initialize the new
+	 * {@linkplain RemoteNode}
+	 * 
+	 * @param address
+	 *            the {@linkplain RemoteNode#getAddress()} to add
+	 */
+	public void add(final String address) {
+		if (address == null || address.isEmpty()) {
+			return;
+		}
+		for (final RemoteNode rn : controlBar.getActor().getHost().getRemoteNodes()) {
+			if (rn.getAddress().equalsIgnoreCase(address)) {
+				return;
+			}
+		}
+		log.info("Attempting to add remote node at address: " + address);
+		final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(controlBar
+				.getActor().getHost(), controlBar.getRemoteNode());
+		rn.setAddress(address);
+		controlBar.getActor().getHost().getRemoteNodes().add(rn);
+		ServiceProvider.IMPL.getCredentialService().mergeHost(
+				controlBar.getActor().getHost());
+		log.info("Added remote node at address: " + address);
+	}
+
+	/**
+	 * Removes the selected {@linkplain RemoteNode}
+	 */
+	public void removeSelected() {
+		final String address = rnListView.getSelectionModel().getSelectedItem();
+		if (address == null || address.isEmpty()) {
+			return;
+		}
+		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(null, KEYS.APP_TITLE, 
+				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE), 
+				KEYS.SUBMIT, 550d, 300d, new Service<Void>() {
+			@Override
+			protected Task<Void> createTask() {
+				return new Task<Void>() {
+					@Override
+					protected Void call() throws Exception {
+						// if the dialog shouldn't be closed call super.cancel()
+						try {
+							log.info("Attempting to remove remote node at address: "
+									+ address);
+							if (controlBar.getActor().getHost().getRemoteNodes().size() > 1) {
+								RemoteNode rnr = null;
+								for (final RemoteNode rn : controlBar.getActor().getHost().getRemoteNodes()) {
+									if (address.equalsIgnoreCase(rn.getAddress())) {
+										rnr = rn;
+										break;
+									}
+								}
+								if (rnr != null) {
+									controlBar.getActor().getHost().getRemoteNodes().remove(rnr);
+									ServiceProvider.IMPL.getCredentialService().mergeHost(
+											controlBar.getActor().getHost(), rnr);
+									controlBar.getRemoteNodePA().setBean(
+											controlBar.getActor().getHost().getRemoteNodes().iterator().next());
+									selectFromChange(null);
+									log.info("Removed remote node at address: "
+											+ address);
+								}
+							}
+						} catch (final Throwable t) {
+							throw new RuntimeException();
+						}
+						return null;
+					}
+				};
+			}
+		}, Modality.APPLICATION_MODAL, closeBtn);
+		if (closeBtn != null) {
+			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(final MouseEvent event) {
+					dialogService.hide();
+				}
+			});	
+		}
+		dialogService.start();
 	}
 
 	/**
@@ -223,7 +298,10 @@ public class RemoteNodeToolBar extends ToolBar {
 	 * @return the {@linkplain NodeStatusView}
 	 */
 	public NodeStatusView getNodeStatusView(final String address) {
-		for (final Node node : getItems()) {
+		if (address == null || address.isEmpty()) {
+			return null;
+		}
+		for (final Node node : rnListView.getChildrenUnmodifiable()) {
 			if (node instanceof NodeStatusView
 					&& ((NodeStatusView) node).getAddress()
 							.equalsIgnoreCase(address)) {
@@ -254,11 +332,12 @@ public class RemoteNodeToolBar extends ToolBar {
 		 */
 		public NodeStatusView(final ControlBar controlBar) {
 			super();
+			getStyleClass().add("remote-node-listcell");
 			this.controlBar = controlBar;
 			this.statusView = new StatusView(controlBar, true, GuiUtil.COLOR_UNSELECTED, 
             		null, GuiUtil.COLOR_SELECTING);
 			this.helpTextStringProperty = new SimpleStringProperty();
-			setHelpText("");
+			setHelpText("LOADING...");
 			setCursor(Cursor.HAND);
 			controlBar.addHelpTextTrigger(this, this.helpTextStringProperty);
 		}
@@ -267,6 +346,14 @@ public class RemoteNodeToolBar extends ToolBar {
         public void updateItem(final String item, final boolean empty) {
             super.updateItem(item, empty);
             if (item != null) {
+				if (!isSelected()
+						&& item.equalsIgnoreCase(getListView()
+								.getSelectionModel().getSelectedItem())) {
+					// bug where selection is not made on the cell, but exists
+					// on the list (isSelected() will still be false immediately
+					// following the selection on the list
+					getListView().getSelectionModel().select(item);
+				}
             	this.address = item;
     			setText(this.address);
                 setGraphic(this.statusView);

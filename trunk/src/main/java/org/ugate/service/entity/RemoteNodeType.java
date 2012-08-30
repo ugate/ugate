@@ -73,42 +73,54 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	/**
 	 * @param host
 	 *            the relative {@linkplain Host} of the {@linkplain RemoteNode}
+	 * @param copyFrom
+	 *            the {@linkplain RemoteNode} to copy fields from
 	 * @return a new default {@linkplain RemoteNode}
 	 */
-	public static RemoteNode newDefaultRemoteNode(final Host host) {
+	public static RemoteNode newDefaultRemoteNode(final Host host, final RemoteNode copyFrom) {
 		if (host == null) {
 			throw new NullPointerException(Host.class.getName()
 					+ " cannot be null");
 		}
 		final RemoteNode rn = new RemoteNode();
 		rn.setHost(host);
-		rn.setAddress("3333");
+		rn.setAddress(copyFrom != null ? copyFrom.getAddress() : "3333");
+		rn.setWorkingDir(copyFrom != null ? copyFrom.getWorkingDir() : null);
 		rn.setCreatedDate(new Date());
-		rn.setCamAnglePan(90);
-		rn.setCamAngleTilt(90);
-		rn.setCamImgCaptureRetryCnt(3);
-		rn.setCamLaserTripAnglePan(181);
-		rn.setCamLaserTripAnglePriority(1);
-		rn.setCamLaserTripAngleTilt(181);
-		rn.setCamMwTripAnglePan(181);
-		rn.setCamMwTripAnglePriority(3);
-		rn.setCamMwTripAngleTilt(181);
-		rn.setCamPirTripAnglePan(181);
-		rn.setCamPirTripAnglePriority(2);
-		rn.setCamPirTripAngleTilt(181);
-		rn.setCamSonarTripAnglePan(181);
-		rn.setCamSonarTripAnglePriority(4);
-		rn.setCamSonarTripAngleTilt(181);
-		rn.setDeviceSoundsOn(1);
-		rn.setGateAccessOn(1);
-		rn.setLaserDistanceThresFeet(24);
-		rn.setMailAlertOn(1);
-		rn.setMwSpeedThresCyclesPerSec(10);
-		rn.setSonarDistanceThresFeet(7);
-		rn.setUniversalRemoteAccessCode1(1);
-		rn.setUniversalRemoteAccessCode2(2);
-		rn.setUniversalRemoteAccessCode3(3);
+		rn.setCamAnglePan(copyFrom != null ? copyFrom.getCamAnglePan() : 90);
+		rn.setCamAngleTilt(copyFrom != null ? copyFrom.getCamAngleTilt() : 90);
+		rn.setCamImgCaptureRetryCnt(copyFrom != null ? copyFrom.getCamImgCaptureRetryCnt() : 3);
+		rn.setCamLaserTripAnglePan(copyFrom != null ? copyFrom.getCamLaserTripAnglePan() : 181);
+		rn.setCamLaserTripAnglePriority(copyFrom != null ? copyFrom.getCamLaserTripAnglePriority() : 1);
+		rn.setCamLaserTripAngleTilt(copyFrom != null ? copyFrom.getCamLaserTripAngleTilt() : 181);
+		rn.setCamMwTripAnglePan(copyFrom != null ? copyFrom.getCamMwTripAnglePan() : 181);
+		rn.setCamMwTripAnglePriority(copyFrom != null ? copyFrom.getCamMwTripAnglePriority() : 3);
+		rn.setCamMwTripAngleTilt(copyFrom != null ? copyFrom.getCamMwTripAngleTilt() : 181);
+		rn.setCamPirTripAnglePan(copyFrom != null ? copyFrom.getCamPirTripAnglePan() : 181);
+		rn.setCamPirTripAnglePriority(copyFrom != null ? copyFrom.getCamPirTripAnglePriority() : 2);
+		rn.setCamPirTripAngleTilt(copyFrom != null ? copyFrom.getCamPirTripAngleTilt() : 181);
+		rn.setCamSonarTripAnglePan(copyFrom != null ? copyFrom.getCamSonarTripAnglePan() : 181);
+		rn.setCamSonarTripAnglePriority(copyFrom != null ? copyFrom.getCamSonarTripAnglePriority() : 4);
+		rn.setCamSonarTripAngleTilt(copyFrom != null ? copyFrom.getCamSonarTripAngleTilt() : 181);
+		rn.setDeviceSoundsOn(copyFrom != null ? copyFrom.getDeviceSoundsOn() : 1);
+		rn.setGateAccessOn(copyFrom != null ? copyFrom.getGateAccessOn() : 1);
+		rn.setLaserDistanceThresFeet(copyFrom != null ? copyFrom.getLaserDistanceThresFeet() : 24);
+		rn.setMailAlertOn(copyFrom != null ? copyFrom.getMailAlertOn() : 1);
+		rn.setMwSpeedThresCyclesPerSec(copyFrom != null ? copyFrom.getMwSpeedThresCyclesPerSec() : 10);
+		rn.setSonarDistanceThresFeet(copyFrom != null ? copyFrom.getSonarDistanceThresFeet() : 7);
+		rn.setUniversalRemoteAccessCode1(copyFrom != null ? copyFrom.getUniversalRemoteAccessCode1() : 1);
+		rn.setUniversalRemoteAccessCode2(copyFrom != null ? copyFrom.getUniversalRemoteAccessCode2() : 2);
+		rn.setUniversalRemoteAccessCode3(copyFrom != null ? copyFrom.getUniversalRemoteAccessCode3() : 3);
 		return rn;
+	}
+
+	/**
+	 * @param host
+	 *            the relative {@linkplain Host} of the {@linkplain RemoteNode}
+	 * @return a new default {@linkplain RemoteNode}
+	 */
+	public static RemoteNode newDefaultRemoteNode(final Host host) {
+		return newDefaultRemoteNode(host, null);
 	}
 
 	/**

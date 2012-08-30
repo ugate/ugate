@@ -148,7 +148,7 @@ public class GuiUtil {
 	public static Stage alert(final Stage parent, final double width, final double height, 
 			final Modality modality, final Node... children) {
 		final Stage stage = new Stage();
-		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.initModality(modality);
 		stage.initStyle(StageStyle.TRANSPARENT);
 		final StackPane root = new StackPane();
 		root.setPrefSize(width, height);
@@ -211,8 +211,9 @@ public class GuiUtil {
 	 */
 	public static DialogService dialogService(final Stage parent, final KEYS titleKey, final String headerText, 
 			final KEYS submitLabelKey, final double width, final double height, final Service<Void> submitService, 
-			final Node... children) {
+			final Modality modality, final Node... children) {
 		final Stage window = new Stage();
+		window.initModality(modality);
 		final Button submitBtn = ButtonBuilder.create().text(RS.rbLabel(submitLabelKey == null ? KEYS.SUBMIT : 
 			submitLabelKey)).defaultButton(true).onAction(new EventHandler<ActionEvent>() {
 			@Override

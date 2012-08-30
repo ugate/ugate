@@ -53,9 +53,9 @@ import javafx.stage.Stage;
 import javax.security.sasl.AuthenticationException;
 
 import org.slf4j.Logger;
-import org.ugate.UGateListener;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
@@ -198,7 +198,7 @@ public class UGateGUI extends Application {
 							}
 						};
 					}
-				}, errorDetails);
+				}, null, errorDetails);
 				dialogService.start();
 				notifyPreloader(new StateChangeNotification(
 						StateChangeNotification.Type.BEFORE_START));
@@ -258,16 +258,12 @@ public class UGateGUI extends Application {
 		connectionView.getChildren().addAll(wirelessConnectionView, createSeparator(Orientation.VERTICAL), mailConnectionView);
 
 		final VBox bottom = new VBox();
-		bottom.setPadding(new Insets(0, 50d, 0, 50d));
+		bottom.setId("bottom-view");
 		bottom.getChildren().addAll(taskbar, new RemoteNodeToolBar(controlBar, Orientation.HORIZONTAL));
-		content.setTop(bottom);
 
-		content.setTop(controlBar);
-		// content.setLeft(new RemoteNodeToolBar(controlBar,
-		// Orientation.VERTICAL));
 		content.setCenter(centerView);
-		// content.setBottom(taskbar);
 		content.setBottom(bottom);
+		content.setTop(controlBar);
 
 		taskbar.getChildren().add(createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEYS.APP_CONNECTION_DESC), 0, new Runnable() {
 			@Override
@@ -449,7 +445,7 @@ public class UGateGUI extends Application {
 					}
 				};
 			}
-		}, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify);
+		}, null, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify);
 		if (closeBtn != null) {
 			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
