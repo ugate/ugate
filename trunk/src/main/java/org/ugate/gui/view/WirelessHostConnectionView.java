@@ -16,6 +16,7 @@ import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.gui.ControlBar;
+import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.UGateComboBox;
 import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.resources.RS;
@@ -31,12 +32,14 @@ public class WirelessHostConnectionView extends StatusView {
 	public final UGateComboBox<Integer> baud;
 	public final UGateCtrlBox<Actor, Void, Void> hostAddress;
 	public final Button connect;
+	public final ControlBar cb;
 
 	/**
 	 * Creates the wireless connection view
 	 */
 	public WirelessHostConnectionView(final ControlBar controlBar) {
-		super(controlBar, false, 20);
+		super(false, 20, GuiUtil.COLOR_OFF);
+		this.cb = controlBar;
 		
 		final ImageView icon = RS.imgView(RS.IMG_WIRELESS_ICON);
 		
@@ -52,11 +55,12 @@ public class WirelessHostConnectionView extends StatusView {
 				if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECTING));
+					setFill(GuiUtil.COLOR_OPEN);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_RECONNECT));
 					log.debug("Turning ON email connection icon");
-					setStatusFill(true);
+					setFill(GuiUtil.COLOR_ON);
 					Platform.runLater(new Runnable() {
 						@Override
 						public void run() {
@@ -67,14 +71,16 @@ public class WirelessHostConnectionView extends StatusView {
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
+					setFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_DISCONNECTING));
+					setFill(GuiUtil.COLOR_OPEN);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
-					log.debug("Turning OFF email connection icon");
-					setStatusFill(false);
+					log.debug("Turning FILL_OFF email connection icon");
+					setFill(GuiUtil.COLOR_OFF);
 				}
 			}
 		});
