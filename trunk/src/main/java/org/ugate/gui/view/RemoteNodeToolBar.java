@@ -97,11 +97,13 @@ public class RemoteNodeToolBar extends ToolBar {
 							rn.setDeviceSynchronized(false);
 							ndto.getRemoteNode().setDeviceSynchronized(false);
 							final NodeStatusView nsv = getNodeStatusView(rn.getAddress());
-							// blink status to indicate the a remote device is out of sync
-							nsv.updateLastCommand(event.getCommand());
-							controlBar.setHelpText(RS.rbLabel(
-									KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
-									((RemoteNode) event.getSource()).getAddress()));
+							if (nsv != null) {
+								// blink status to indicate the a remote device is out of sync
+								nsv.updateLastCommand(event.getCommand());
+								controlBar.setHelpText(RS.rbLabel(
+										KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
+										((RemoteNode) event.getSource()).getAddress()));
+							}
 						}
 					}
 				}
