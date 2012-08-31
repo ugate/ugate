@@ -20,6 +20,7 @@ import org.ugate.UGateListener;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.gui.ControlBar;
+import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
 import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.resources.RS;
@@ -47,9 +48,11 @@ public class EmailHostConnectionView extends StatusView {
 	public final TextField recipient;
 	public final UGateCtrlBox<Actor, MailRecipient, String> recipients;
 	public final Button connect;
+	public final ControlBar cb;
 
 	public EmailHostConnectionView(final ControlBar controlBar) {
-		super(controlBar, false, 20);
+		super(false, 20, GuiUtil.COLOR_OFF);
+		this.cb = controlBar;
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
 		smtpHost = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_SMTP_HOST, UGateCtrlBox.Type.TEXT,
@@ -179,19 +182,21 @@ public class EmailHostConnectionView extends StatusView {
 				if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
+					setFill(GuiUtil.COLOR_OPEN);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 					connect.setDisable(false);
 					// connect.setText(RS.rbLabel("mail.reconnect"));
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
 					connect.setDisable(true);
-					setStatusFill(true);
+					setFill(GuiUtil.COLOR_ON);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
-					setStatusFill(false);
+					setFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_DISCONNECTING));
+					setFill(GuiUtil.COLOR_OPEN);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
 						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED) {
 					// run later in case the application is going to exit which
@@ -201,8 +206,8 @@ public class EmailHostConnectionView extends StatusView {
 						public void run() {
 							connect.setDisable(false);
 							connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
-							log.debug("Turning OFF email connection icon");
-							setStatusFill(false);
+							log.debug("Turning FILL_OFF email connection icon");
+							setFill(GuiUtil.COLOR_OFF);
 						}
 					});
 				}
@@ -263,7 +268,7 @@ public class EmailHostConnectionView extends StatusView {
 	/**
 	 * TODO : add validation framework implementation
 	 * 
-	 * @return true when all required fields are valid
+	 * @return true when ALL required fields are valid
 	 */
 	public boolean validate(final boolean notify) {
 		final boolean hsmtph = !cb.getActor().getHost().getMailSmtpHost().isEmpty();

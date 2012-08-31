@@ -1,5 +1,8 @@
 package org.ugate.gui.view;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -10,7 +13,6 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.ListCell;
@@ -265,6 +267,7 @@ public class RemoteNodeToolBar extends ToolBar {
 											controlBar.getActor().getHost(), rnr);
 									controlBar.getRemoteNodePA().setBean(
 											controlBar.getActor().getHost().getRemoteNodes().iterator().next());
+									NodeStatusView.remove(address);
 									selectFromChange(null);
 									log.info("Removed remote node at address: "
 											+ address);
@@ -301,14 +304,7 @@ public class RemoteNodeToolBar extends ToolBar {
 		if (address == null || address.isEmpty()) {
 			return null;
 		}
-		for (final Node node : rnListView.getChildrenUnmodifiable()) {
-			if (node instanceof NodeStatusView
-					&& ((NodeStatusView) node).getAddress()
-							.equalsIgnoreCase(address)) {
-				return (NodeStatusView) node;
-			}
-		}
-		return null;
+		return NodeStatusView.get(address);
 	}
 
 	/**
@@ -316,10 +312,14 @@ public class RemoteNodeToolBar extends ToolBar {
 	 */
 	protected static final class NodeStatusView extends ListCell<String> {
 
+		// TODO : there is no public API to access the ListCell from a ListView
+		// so ALL of them are maintained globally
+		private static final Map<String, NodeStatusView> ALL = new HashMap<>();
 		private final ControlBar controlBar;
 		private String address;
 		private final StatusView statusView;
 		private final StringProperty helpTextStringProperty;
+		private boolean isSet;
 		
 		/**
 		 * Constructor
@@ -334,14 +334,16 @@ public class RemoteNodeToolBar extends ToolBar {
 			super();
 			getStyleClass().add("remote-node-listcell");
 			this.controlBar = controlBar;
-			this.statusView = new StatusView(controlBar, true, GuiUtil.COLOR_UNSELECTED, 
-            		null, GuiUtil.COLOR_SELECTING);
+			this.statusView = new StatusView(true);
 			this.helpTextStringProperty = new SimpleStringProperty();
 			setHelpText("LOADING...");
 			setCursor(Cursor.HAND);
 			controlBar.addHelpTextTrigger(this, this.helpTextStringProperty);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
         @Override
         public void updateItem(final String item, final boolean empty) {
             super.updateItem(item, empty);
@@ -357,7 +359,33 @@ public class RemoteNodeToolBar extends ToolBar {
             	this.address = item;
     			setText(this.address);
                 setGraphic(this.statusView);
+                ALL.put(this.address, this);
+                isSet = true;
+            } else if (isSet) {
+            	ALL.remove(this.address);
             }
+        }
+
+		/**
+		 * Removes an {@linkplain RemoteNode#getAddress()} from the global cache
+		 * 
+		 * @param address
+		 *            the {@linkplain RemoteNode#getAddress()} key
+		 */
+        public static void remove(final String address) {
+        	ALL.remove(address);
+        }
+
+		/**
+		 * Gets a {@linkplain NodeStatusView} from the global cache using it's
+		 * {@linkplain RemoteNode#getAddress()}
+		 * 
+		 * @param address
+		 *            the {@linkplain RemoteNode#getAddress()} key
+		 * @return the {@linkplain NodeStatusView}
+		 */
+        public static NodeStatusView get(final String address) {
+        	return ALL.get(address);
         }
 
 		/**
@@ -385,8 +413,11 @@ public class RemoteNodeToolBar extends ToolBar {
 		 */
 		public void updateLastCommand(final Command command) {
 			setHelpText(command.toString());
-			this.statusView.blinkStart(getAddress().equalsIgnoreCase(
-					controlBar.getRemoteNode().getAddress()) ? 0 : 0);
+			this.statusView.blinkStart(
+					GuiUtil.COLOR_ON,
+					null,
+					getAddress().equalsIgnoreCase(
+							controlBar.getRemoteNode().getAddress()) ? 40 : 0);
 		}
 		
 		/**

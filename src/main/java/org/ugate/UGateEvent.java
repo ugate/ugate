@@ -61,13 +61,13 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 	 * @param fromRemote
 	 *            true when the event originated from a {@linkplain RemoteNode}
 	 * @param key
-	 *            the {@linkplain IModelType} (null when event is for all nodes)
+	 *            the {@linkplain IModelType} (null when event is for ALL nodes)
 	 * @param command
 	 *            the executing {@linkplain Command} (null when not applicable)
 	 * @param oldValue
-	 *            the old value (null when event is for all nodes)
+	 *            the old value (null when event is for ALL nodes)
 	 * @param newValue
-	 *            the new value (null when event is for all nodes)
+	 *            the new value (null when event is for ALL nodes)
 	 * @param messages
 	 *            messages (if any)
 	 */
@@ -87,13 +87,13 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 	 * @param fromRemote
 	 *            true when the event originated from a {@linkplain RemoteNode}
 	 * @param key
-	 *            the {@linkplain IModelType} (null when event is for all nodes)
+	 *            the {@linkplain IModelType} (null when event is for ALL nodes)
 	 * @param command
 	 *            the executing {@linkplain Command} (null when not applicable)
 	 * @param oldValue
-	 *            the old value (null when event is for all nodes)
+	 *            the old value (null when event is for ALL nodes)
 	 * @param newValue
-	 *            the new value (null when event is for all nodes)
+	 *            the new value (null when event is for ALL nodes)
 	 * @param messages
 	 *            messages (if any)
 	 */
