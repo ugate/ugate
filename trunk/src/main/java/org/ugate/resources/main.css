@@ -655,11 +655,15 @@
 .gauge-header Text {
     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 );
 }
-.gauge {
+.gauge, .gauge-text {
 	-fx-background: #000000;
 	-fx-alignment: CENTER_RIGHT;
 	-fx-spacing: 5;
 	-fx-padding: 4 4 4 4;
     -fx-background-color: 
     	linear-gradient(from 0% 0% to 0% 100%, #505050 10%, #303030 25%, #000000 95%, #DFDFDF 100%);
+}
+.readings-text {
+	-fx-text-fill: white;
+	-fx-font-size: 10px;
 }

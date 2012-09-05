@@ -8,6 +8,7 @@ import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
 
 /**
  * {@linkplain RemoteNode} DAO
@@ -30,6 +31,16 @@ public class RemoteNodeDao extends Dao {
 				"select rn from RemoteNode rn where rn.host.id = :hostId", RemoteNode.class);
 		q.setParameter("hostId", hostId);
 		return q.getResultList();
+	}
+
+	public List<RemoteNodeReading> findReadings(final RemoteNode remoteNode,
+			final int startPosition, final int maxResults) {
+		final TypedQuery<RemoteNodeReading> q = em
+				.createQuery(
+						"select rnr from RemoteNodeReading rnr where rnr.remoteNode.id = :id order by rnr.readDate desc",
+						RemoteNodeReading.class);
+		q.setParameter("id", remoteNode.getId());
+		return q.setFirstResult(startPosition).setMaxResults(maxResults).getResultList();
 	}
 
 	/**

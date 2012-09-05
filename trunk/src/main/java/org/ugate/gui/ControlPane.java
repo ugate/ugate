@@ -23,7 +23,7 @@ public abstract class ControlPane extends GridPane {
 	public static final String FORMAT_DELAY = "%03d";
 	public static final String FORMAT_ANGLE = "%03d";
 	public static final String FORMAT_SONAR = "%04.1f";
-	public static final String FORMAT_PIR = "%04.1f";
+	public static final String FORMAT_PIR = "%03d";
 	public static final String FORMAT_MW = "%03d";
 	public static final String FORMAT_LASER = "%04.1f";
 	public static final Color COLOR_SONAR = Color.CYAN;
@@ -38,6 +38,7 @@ public abstract class ControlPane extends GridPane {
 	public static final double DELAY_SIZE_SCALE = 0.54d;
 	public static final Color COLOR_CAM = Color.YELLOW;
 	public static final Color COLOR_MULTI = Color.ORANGE;
+	public static final Color COLOR_DATE = Color.WHITESMOKE;
 	protected final ControlBar controlBar;
 	
 	/**

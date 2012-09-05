@@ -57,6 +57,7 @@ import org.ugate.UGateEvent;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
+import org.ugate.UGateEvent.Type;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
@@ -479,6 +480,8 @@ public class UGateGUI extends Application {
 				actorPA.setBean(authActor);
 				remoteNodePA.setBean(authActor.getHost().getRemoteNodes()
 						.iterator().next());
+				UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
+						Type.APP_DATA_LOADED, false));
 			}
 		});
 	}

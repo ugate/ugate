@@ -19,24 +19,29 @@
 		<class>org.ugate.service.entity.jpa.Host</class>
 		<class>org.ugate.service.entity.jpa.MailRecipient</class>
 		<class>org.ugate.service.entity.jpa.RemoteNode</class>
-		<!-- properties maintained in spring -->
-<!-- 		<properties> -->
-<!-- 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/> -->
-<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/> -->
-<!-- 			<property name="openjpa.DynamicEnhancementAgent" value="false"/> -->
-<!-- 			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" /> -->
-<!-- 			<property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO, SQL=WARN"/> -->
-<!-- 			<property name="openjpa.ConnectionFactoryMode" value="managed" /> -->
-<!-- 			<property name="openjpa.TransactionMode" value="managed" /> -->
-<!-- 			<property name="openjpa.ManagedRuntime" -->
-<!-- 				value="jndi(TransactionManagerName=UserTransaction)" /> -->
-<!-- 			<property name="openjpa.ManagedRuntime" -->
-<!-- 				value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" /> -->
+		<class>org.ugate.service.entity.jpa.RemoteNodeReading</class>
+		<properties>
+			<property name="openjpa.Log" value="DefaultLevel=INFO, Tool=INFO, SQL=INFO"/>
+			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/>
+			
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction=add,ForeignKeys=true)"/>
+<!-- 			<property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/> -->
+			<property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+			<property name="openjpa.jdbc.DBDictionary" value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" />
+			<property name="openjpa.DynamicEnhancementAgent" value="false"/>
+			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
+			
+			<property name="openjpa.ConnectionFactoryMode" value="managed" />
+			<property name="openjpa.TransactionMode" value="managed" />
+			<property name="openjpa.ManagedRuntime"
+				value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" />
+<!-- 			<property name="openjpa.ManagedRuntime" value="jndi(TransactionManagerName=UserTransaction)" /> -->
+<!-- 			<property name="openjpa.jdbc.UpdateManager" value="operation-order" /> -->
 		<!-- use OpenJPA's built-in DataSource for unmanaged connections (can use non-jta-data-source for JNDI lookup instead) -->
-<!-- 			<property name="openjpa.Connection2URL" value="jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0" /> -->
-<!-- 			<property name="openjpa.Connection2DriverName" value="org.h2.Driver" /> -->
-<!-- 			<property name="openjpa.Connection2UserName" value="sa" /> -->
-<!-- 			<property name="openjpa.Connection2Password" value="sa" /> -->
-<!-- 		</properties> -->
+<!-- 		<property name="openjpa.Connection2URL" value="jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0" /> -->
+<!-- 		<property name="openjpa.Connection2DriverName" value="org.h2.Driver" /> -->
+<!-- 		<property name="openjpa.Connection2UserName" value="sa" /> -->
+<!-- 		<property name="openjpa.Connection2Password" value="sa" /> -->
+		</properties>
 	</persistence-unit>
 </persistence>

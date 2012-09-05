@@ -304,7 +304,7 @@ public class UGateCtrlBox<T, IT, IVT> extends VBox {
 							NUMERIC_STEPPER_EIGHTH_HEIGHT,
 							NUMERIC_STEPPER_QUARTER_HEIGHT),
 					NUMERIC_STEPPER_QUARTER_HEIGHT, 2, true,
-					numericStepperDigits, stepperBar);
+					0, 0, numericStepperDigits, stepperBar);
 			getChildren().addAll(label, digitsDisplay);
 			setValue(numericStepperDigits.getValue());
 			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
