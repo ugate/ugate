@@ -1,5 +1,8 @@
 package org.ugate.gui;
 
+import java.util.Calendar;
+import java.util.List;
+
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -25,6 +28,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -49,8 +53,9 @@ import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
 import org.ugate.wireless.data.RxTxRemoteNodeDTO;
-import org.ugate.wireless.data.RxTxSensorReadings;
+import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 /**
  * Main menu control bar
@@ -61,7 +66,12 @@ public class ControlBar extends ToolBar {
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
-	private final ReadOnlyObjectWrapper<RxTxSensorReadings> sensorReadingsPropertyWrapper;
+	private final Label readDate;
+	private final Digits sonarReading;
+	private final Digits pirReading;
+	private final Digits mwReading;
+	private final Digits laserReading;
+	private final ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO> sensorReadingsPropertyWrapper;
 	private final Timeline settingsSetTimeline;
 	
 	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
@@ -79,7 +89,7 @@ public class ControlBar extends ToolBar {
 		this.stage = stage;
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
-		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxSensorReadings>();
+		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO>();
 		final DropShadow dbDS = new DropShadow();
 		final DropShadow settingsDS = new DropShadow();
 		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
@@ -169,21 +179,26 @@ public class ControlBar extends ToolBar {
 		readingsGet.setEffect(ds);
 		
 		// add the readings view
+		// TODO : move read date/time to a more legible location 
+		readDate = new Label();
+		readDate.getStyleClass().add("readings-text");
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
-		final Digits sonarReading = new Digits(String.format(AlarmThresholds.FORMAT_SONAR, 0.0f),
+		sonarReading = new Digits(String.format(AlarmThresholds.FORMAT_SONAR, 0.0f),
 				0.15f, AlarmThresholds.COLOR_SONAR, null);
 		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
-		final Digits pirReading = new Digits(String.format(AlarmThresholds.FORMAT_PIR, 0.0f), 
+		pirReading = new Digits(String.format(AlarmThresholds.FORMAT_PIR, 0), 
 				0.15f, AlarmThresholds.COLOR_PIR, null);
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
-		final Digits mwReading = new Digits(String.format(AlarmThresholds.FORMAT_MW, 0), 0.15f, 
+		mwReading = new Digits(String.format(AlarmThresholds.FORMAT_MW, 0), 0.15f, 
 				AlarmThresholds.COLOR_MW, null);
 		final ImageView laserReadingLabel = RS.imgView(RS.IMG_LASER);
-		final Digits laserReading = new Digits(String.format(AlarmThresholds.FORMAT_LASER, 0.0f), 
+		laserReading = new Digits(String.format(AlarmThresholds.FORMAT_LASER, 0.0f), 
 				0.15f, AlarmThresholds.COLOR_LASER, null);
-		final Region readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10, true,
-				sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading, 
+		final GridPane readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10, true,
+				0, 1, sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading, 
 				laserReadingLabel, laserReading);
+		readingsGroup.setVgap(0);
+		readingsGroup.add(readDate, 0, 0, 7, 1);
 		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
 		
 		
@@ -199,7 +214,7 @@ public class ControlBar extends ToolBar {
 				new UGateToggleSwitchBox.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
 						RS.IMG_LASER_ALARM_OFF, RS.IMG_LASER_ALARM_ANY, null, false));
 		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
-				false, multiAlarmToggleSwitch);
+				false, 0, 0, multiAlarmToggleSwitch);
 		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel(KEYS.SENSOR_TRIP_MULTI));
 		
 		// add the menu items
@@ -238,16 +253,11 @@ public class ControlBar extends ToolBar {
 					}
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
-					if (event.getNewValue() instanceof RxTxSensorReadings && 
+					if (event.getNewValue() instanceof RxTxRemoteNodeReadingDTO && 
 							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
-						final RxTxSensorReadings sr = (RxTxSensorReadings) event.getNewValue();
+						final RxTxRemoteNodeReadingDTO sr = (RxTxRemoteNodeReadingDTO) event.getNewValue();
 						sensorReadingsPropertyWrapper.set(sr);
-						sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 
-								Double.parseDouble(sr.getSonarFeet() + "." + sr.getSonarInches())));
-						pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 
-								Double.parseDouble(sr.getIrFeet() + "." + sr.getIrInches())));
-						mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 
-								Math.round(sr.getSpeedMPH())));
+						remoteNodeReadingShow(sr.getRemoteNodeReading());
 					} else if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
 						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
 						if (!RemoteNodeType.remoteEquivalent(rn, ndto.getRemoteNode())) {
@@ -265,13 +275,70 @@ public class ControlBar extends ToolBar {
 							}
 						}
 					}
+				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED) {
+					remoteNodeReadingShow();
 				}
 			}
 		});
 		validateRemoteNodeSynchronization();
-//		sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 5.3f));
-//		pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 3.7f));
-//		mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 24L));
+	}
+
+	/**
+	 * Sets the {@linkplain RemoteNodeReading} values in the
+	 * {@linkplain ControlBar} to the last read from the device
+	 */
+	public void remoteNodeReadingShow() {
+		try {
+			final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
+					.getRemoteNodeService().findReadings(getRemoteNode(), 0, 1);
+			if (!rnrs.isEmpty()) {
+				remoteNodeReadingShow(rnrs.get(0));
+			}
+		} catch (final Throwable t) {
+			log.warn(String.format("Unable to get %1$s(s) for %2$s: %3$s", 
+					RemoteNodeReading.class.getName(), RemoteNode.class.getName(), 
+					getRemoteNode().getAddress()));
+		}
+	}
+
+	/**
+	 * Sets the {@linkplain RemoteNodeReading} values in the
+	 * {@linkplain ControlBar}
+	 * 
+	 * @param remoteNodeReading
+	 *            the {@linkplain RemoteNodeReading} to set
+	 */
+	public void remoteNodeReadingShow(final RemoteNodeReading remoteNodeReading) {
+		if (remoteNodeReading != null && 
+				getRemoteNode().getId() == remoteNodeReading.getRemoteNode().getId()) {
+			final Calendar cal = Calendar.getInstance();
+			cal.setTime(remoteNodeReading.getReadDate());
+			readDate.setText(UGateUtil.calFormat(cal));
+			pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 
+					remoteNodeReading.getPirIntensity()));
+			if (getActor().getHost().getUseMetric()) {
+				sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 
+						remoteNodeReading.getSonarMeters()));
+				laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 
+						remoteNodeReading.getLaserMeters()));
+				mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 
+						Math.round(remoteNodeReading.getMicrowaveSpeedMillimetersPerSec())));
+			} else {
+				sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 
+						Double.parseDouble(remoteNodeReading.getSonarFeet() + 
+								"." + remoteNodeReading.getSonarInches())));
+				laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 
+						Double.parseDouble(remoteNodeReading.getLaserFeet() + 
+								"." + remoteNodeReading.getLaserInches())));
+				mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 
+						Math.round(remoteNodeReading.getMicrowaveSpeedMPH())));
+			}
+		} else if (remoteNodeReading == null) {
+			pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 0));
+			sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 0d));
+			laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 0d));
+			mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 0));
+		}
 	}
 
 	/**
@@ -468,7 +535,7 @@ public class ControlBar extends ToolBar {
 	/**
 	 * @return the sensor readings property
 	 */
-	public ReadOnlyObjectProperty<RxTxSensorReadings> sensorReadingsProperty() {
+	public ReadOnlyObjectProperty<RxTxRemoteNodeReadingDTO> sensorReadingsProperty() {
 		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
 	}
 

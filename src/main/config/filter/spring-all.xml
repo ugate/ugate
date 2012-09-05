@@ -92,24 +92,22 @@
 				<property name="database" value="H2" />
 			</bean>
 		</property>
-		<property name="jpaPropertyMap">
-			<map>
-				<entry key="openjpa.jdbc.SynchronizeMappings"
-					value="buildSchema(SchemaAction=add,ForeignKeys=true)" />
-				<entry key="openjpa.Log" value="DefaultLevel=${ugate.log.level}, Tool=${ugate.log.level}, SQL=${ugate.log.level}" />
-				<!-- <entry key="openjpa.jdbc.UpdateManager" value="operation-order" /> -->
-				<entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
+<!-- 		<property name="jpaPropertyMap"> -->
+<!-- 			<map> -->
+<!-- 				<entry key="openjpa.jdbc.SynchronizeMappings" -->
+<!-- 					value="buildSchema(SchemaAction=add,ForeignKeys=true)" /> -->
+<!-- 				<entry key="openjpa.Log" value="DefaultLevel=${ugate.log.level}, Tool=${ugate.log.level}, SQL=${ugate.log.level}" /> -->
+<!-- 				<entry key="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" /> -->
 				
-				<entry key="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/>
-				<entry key="openjpa.jdbc.DBDictionary"
-					value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" />
-				<entry key="openjpa.ConnectionFactoryMode" value="managed" />
-				<entry key="openjpa.TransactionMode" value="managed" />
-<!-- 			<entry key="openjpa.ManagedRuntime" value="jndi(TransactionManagerName=UserTransaction)" /> -->
-				<entry key="openjpa.ManagedRuntime"
-					value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" />
-			</map>
- 		</property>
+<!-- 				<entry key="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/> -->
+<!-- 				<entry key="openjpa.jdbc.DBDictionary" -->
+<!-- 					value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" /> -->
+<!-- 				<entry key="openjpa.ConnectionFactoryMode" value="managed" /> -->
+<!-- 				<entry key="openjpa.TransactionMode" value="managed" /> -->
+<!-- 				<entry key="openjpa.ManagedRuntime" -->
+<!-- 					value="invocation(TransactionManagerMethod=com.atomikos.icatch.jta.TransactionManagerImp.getTransactionManager)" /> -->
+<!-- 			</map> -->
+<!--  		</property> -->
 		<property name="jpaDialect">
 			<bean class="org.springframework.orm.jpa.vendor.OpenJpaDialect" />
 		</property>

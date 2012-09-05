@@ -24,7 +24,7 @@ public class AppInfo implements Model {
 	@Column(nullable = false, length = 20)
 	private String version;
 
-	@Column(name = "CREATED_DATE")
+	@Column(name = "CREATED_DATE", nullable=false)
 	private Date createdDate;
 
 	public Date getCreatedDate() {

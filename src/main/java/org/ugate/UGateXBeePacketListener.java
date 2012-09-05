@@ -1,6 +1,7 @@
 package org.ugate;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
 import org.ugate.wireless.data.ImageCapture;
 import org.ugate.wireless.data.KeyCodes;
 import org.ugate.wireless.data.RxData;
@@ -18,7 +20,7 @@ import org.ugate.wireless.data.RxRawData;
 import org.ugate.wireless.data.RxTxImage;
 import org.ugate.wireless.data.RxTxJPEG;
 import org.ugate.wireless.data.RxTxRemoteNodeDTO;
-import org.ugate.wireless.data.RxTxSensorReadings;
+import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -218,9 +220,17 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 		} else if (command == Command.SENSOR_GET_READINGS) {
 			log.info("=== Sensor Readings received ===");
 			int i = 1;
-			final RxTxSensorReadings sr = new RxTxSensorReadings(rn, status, rxResponse.getRssi(), 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i], 
-					rxResponse.getData()[++i], rxResponse.getData()[++i], rxResponse.getData()[++i]);
+			final RemoteNodeReading rnr = new RemoteNodeReading();
+			rnr.setRemoteNode(rn);
+			rnr.setReadDate(new Date());
+			rnr.setSonarFeet(rxResponse.getData()[++i]);
+			rnr.setSonarInches(rxResponse.getData()[++i]);
+			rnr.setMicrowaveCycleCount(rxResponse.getData()[++i]);
+			rnr.setPirIntensity(rxResponse.getData()[++i]);
+			rnr.setLaserFeet(rxResponse.getData()[++i]);
+			rnr.setLaserInches(rxResponse.getData()[++i]);
+			rnr.setGateState(rxResponse.getData()[++i]);
+			final RxTxRemoteNodeReadingDTO sr = new RxTxRemoteNodeReadingDTO(rnr, status, rxResponse.getRssi());
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, sr, 
 					RS.rbLabel(KEYS.SERVICE_RX_READINGS, sr));
 		} else if (command == Command.SENSOR_GET_SETTINGS) {

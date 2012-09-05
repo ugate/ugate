@@ -1,6 +1,7 @@
 package org.ugate.service.entity.jpa;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
@@ -17,9 +19,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
+import org.ugate.UGateKeeper;
 import org.ugate.service.entity.Model;
 
 
@@ -176,6 +178,10 @@ public class RemoteNode implements Model {
 	@ManyToOne
 	@JoinColumn(name="HOST_ID", nullable=false)
 	private Host host;
+
+	//bi-directional many-to-one association to RemoteNodeReading
+	@OneToMany(mappedBy="remoteNode")
+	private Set<RemoteNodeReading> remoteNodeReadings;
 
 	/**
 	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
@@ -552,4 +558,11 @@ public class RemoteNode implements Model {
 		this.host = host;
 	}
 
+	public Set<RemoteNodeReading> getRemoteNodeReadings() {
+		return this.remoteNodeReadings;
+	}
+
+	public void setRemoteNodeReadings(Set<RemoteNodeReading> remoteNodeReadings) {
+		this.remoteNodeReadings = remoteNodeReadings;
+	}
 }

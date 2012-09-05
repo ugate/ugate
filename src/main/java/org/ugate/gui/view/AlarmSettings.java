@@ -22,7 +22,7 @@ import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
-import org.ugate.wireless.data.RxTxSensorReadings;
+import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 /**
  * Node configuration
@@ -159,14 +159,14 @@ public class AlarmSettings extends ControlPane {
 				}
 			}
 		});
-		controlBar.sensorReadingsProperty().addListener(new ChangeListener<RxTxSensorReadings>() {
+		controlBar.sensorReadingsProperty().addListener(new ChangeListener<RxTxRemoteNodeReadingDTO>() {
 			@Override
-			public void changed(final ObservableValue<? extends RxTxSensorReadings> observable, 
-					final RxTxSensorReadings oldValue, final RxTxSensorReadings newValue) {
+			public void changed(final ObservableValue<? extends RxTxRemoteNodeReadingDTO> observable, 
+					final RxTxRemoteNodeReadingDTO oldValue, final RxTxRemoteNodeReadingDTO newValue) {
 				// when a command is sent to a remote node to open/close a gate a response for
 				// sensor readings will be sent to the host where the gate state update is captured
-				gateToggleImgView.setImage(newValue.getGateState() == 1 ? RS.img(RS.IMG_GATE_OPENED) : 
-					RS.img(RS.IMG_GATE_CLOSED));
+				gateToggleImgView.setImage(newValue.getRemoteNodeReading().getGateState() == 1 ? 
+						RS.img(RS.IMG_GATE_OPENED) : RS.img(RS.IMG_GATE_CLOSED));
 				gateToggleBtn.setDisable(false);
 			}
 		});

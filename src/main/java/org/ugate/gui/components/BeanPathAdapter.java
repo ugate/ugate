@@ -278,25 +278,25 @@ public class BeanPathAdapter<B> {
 	/**
 	 * @see #bindBidirectional(String, Property, Class)
 	 */
-	public void bindBidirectional(final String fieldPath,
+	public FieldProperty<?, ?> bindBidirectional(final String fieldPath,
 			final BooleanProperty property) {
-		bindBidirectional(fieldPath, property, Boolean.class);
+		return bindBidirectional(fieldPath, property, Boolean.class);
 	}
 
 	/**
 	 * @see #bindBidirectional(String, Property, Class)
 	 */
-	public void bindBidirectional(final String fieldPath,
+	public FieldProperty<?, ?> bindBidirectional(final String fieldPath,
 			final StringProperty property) {
-		bindBidirectional(fieldPath, property, String.class);
+		return bindBidirectional(fieldPath, property, String.class);
 	}
 
 	/**
 	 * @see #bindBidirectional(String, Property, Class)
 	 */
-	public void bindBidirectional(final String fieldPath,
+	public FieldProperty<?, ?> bindBidirectional(final String fieldPath,
 			final Property<Number> property) {
-		bindBidirectional(fieldPath, property, null);
+		return bindBidirectional(fieldPath, property, null);
 	}
 
 	/**
@@ -335,8 +335,9 @@ public class BeanPathAdapter<B> {
 	 *            when binding to {@linkplain SelectionModel} items, this will
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
+	 * @return the generated {@linkplain FieldProperty}
 	 */
-	public <E> void bindContentBidirectional(final String fieldPath,
+	public <E> FieldProperty<?, ?> bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableList<E> list, final Class<E> listValueType,
 			final SelectionModel<E> selectionModel,
@@ -349,7 +350,7 @@ public class BeanPathAdapter<B> {
 					itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		getRoot().performOperation(fieldPath, list, listValueType,
+		return getRoot().performOperation(fieldPath, list, listValueType,
 				itemFieldPath, itemFieldPathType, selectionModel, itemMaster,
 				FieldBeanOperation.BIND);
 	}
@@ -390,8 +391,9 @@ public class BeanPathAdapter<B> {
 	 *            when binding to {@linkplain SelectionModel} items, this will
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
+	 * @return the generated {@linkplain FieldProperty}
 	 */
-	public <E> void bindContentBidirectional(final String fieldPath,
+	public <E> FieldProperty<?, ?> bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableSet<E> set, final Class<E> setValueType,
 			final SelectionModel<E> selectionModel,
@@ -404,7 +406,7 @@ public class BeanPathAdapter<B> {
 					itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		getRoot().performOperation(fieldPath, set, setValueType, itemFieldPath,
+		return getRoot().performOperation(fieldPath, set, setValueType, itemFieldPath,
 				itemFieldPathType, selectionModel, itemMaster,
 				FieldBeanOperation.BIND);
 	}
@@ -445,8 +447,9 @@ public class BeanPathAdapter<B> {
 	 *            when binding to {@linkplain SelectionModel} items, this will
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
+	 * @return the generated {@linkplain FieldProperty}
 	 */
-	public <K, V> void bindContentBidirectional(final String fieldPath,
+	public <K, V> FieldProperty<?, ?> bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableMap<K, V> map, final Class<V> mapValueType,
 			final SelectionModel<V> selectionModel,
@@ -459,7 +462,7 @@ public class BeanPathAdapter<B> {
 					itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		getRoot().performOperation(fieldPath, map, mapValueType, itemFieldPath,
+		return getRoot().performOperation(fieldPath, map, mapValueType, itemFieldPath,
 				itemFieldPathType, selectionModel, itemMaster,
 				FieldBeanOperation.BIND);
 	}
@@ -475,9 +478,10 @@ public class BeanPathAdapter<B> {
 	 *            the property
 	 * @param propertyType
 	 *            the class type of the {@linkplain Property} value
+	 * @return the generated {@linkplain FieldProperty}
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void bindBidirectional(final String fieldPath,
+	public <T> FieldProperty<?, ?> bindBidirectional(final String fieldPath,
 			final Property<T> property, final Class<T> propertyType) {
 		Class<T> clazz = propertyType != null ? propertyType
 				: propertyValueClass(property);
@@ -489,7 +493,7 @@ public class BeanPathAdapter<B> {
 					"Unable to determine property value class for %1$s "
 							+ "and declared type %2$s", property, propertyType));
 		}
-		getRoot().performOperation(fieldPath, property, clazz,
+		return getRoot().performOperation(fieldPath, property, clazz,
 				FieldBeanOperation.BIND);
 	}
 
@@ -1245,7 +1249,7 @@ public class BeanPathAdapter<B> {
 	 * @param <T>
 	 *            the field type
 	 */
-	protected static class FieldProperty<BT, T> extends
+	public static class FieldProperty<BT, T> extends
 			ObjectPropertyBase<String> implements ListChangeListener<Object>,
 			SetChangeListener<Object>, MapChangeListener<Object, Object> {
 
@@ -2035,7 +2039,7 @@ public class BeanPathAdapter<B> {
 		 * @param bean
 		 *            the target bean to bind to
 		 */
-		public void setTarget(final BT bean) {
+		protected void setTarget(final BT bean) {
 			isDirty = true;
 			fieldHandle.setTarget(bean);
 			setDerived();
@@ -2068,7 +2072,7 @@ public class BeanPathAdapter<B> {
 		/**
 		 * @return the {@linkplain FieldHandle#hasDefaultDerived()}
 		 */
-		public boolean hasDefaultDerived() {
+		protected boolean hasDefaultDerived() {
 			return fieldHandle.hasDefaultDerived();
 		}
 		/**
@@ -2099,7 +2103,7 @@ public class BeanPathAdapter<B> {
 		 * @return true when the {@linkplain FieldProperty} is bound to an
 		 *         {@linkplain ObservableList}
 		 */
-		public boolean isObservableList() {
+		protected boolean isObservableList() {
 			return isObservableList(getObservableCollection());
 		}
 
@@ -2107,7 +2111,7 @@ public class BeanPathAdapter<B> {
 		 * @return true when the {@linkplain FieldProperty} is bound to an
 		 *         {@linkplain ObservableSet}
 		 */
-		public boolean isObservableSet() {
+		protected boolean isObservableSet() {
 			return isObservableSet(getObservableCollection());
 		}
 
@@ -2115,7 +2119,7 @@ public class BeanPathAdapter<B> {
 		 * @return true when the {@linkplain FieldProperty} is bound to an
 		 *         {@linkplain ObservableMap}
 		 */
-		public boolean isObservableMap() {
+		protected boolean isObservableMap() {
 			return isObservableMap(getObservableCollection());
 		}
 
@@ -2125,7 +2129,7 @@ public class BeanPathAdapter<B> {
 		 * @return true when the {@linkplain Observable} is an
 		 *         {@linkplain ObservableList}
 		 */
-		public static boolean isObservableList(final Observable observable) {
+		protected static boolean isObservableList(final Observable observable) {
 			return observable != null
 					&& ObservableList.class.isAssignableFrom(observable
 							.getClass());
@@ -2137,7 +2141,7 @@ public class BeanPathAdapter<B> {
 		 * @return true when the {@linkplain Observable} is an
 		 *         {@linkplain ObservableSet}
 		 */
-		public static boolean isObservableSet(final Observable observable) {
+		protected static boolean isObservableSet(final Observable observable) {
 			return observable != null
 					&& ObservableSet.class.isAssignableFrom(observable
 							.getClass());
@@ -2149,7 +2153,7 @@ public class BeanPathAdapter<B> {
 		 * @return true when the {@linkplain Observable} is an
 		 *         {@linkplain ObservableMap}
 		 */
-		public static boolean isObservableMap(final Observable observable) {
+		protected static boolean isObservableMap(final Observable observable) {
 			return observable != null
 					&& ObservableMap.class.isAssignableFrom(observable
 							.getClass());
@@ -2192,7 +2196,7 @@ public class BeanPathAdapter<B> {
 		 *         collection/map for item selection or {@code null} when not a
 		 *         selection {@linkplain FieldProperty}
 		 */
-		public SelectionModel<Object> getCollectionSelectionModel() {
+		protected SelectionModel<Object> getCollectionSelectionModel() {
 			return collectionSelectionModel;
 		}
 
@@ -2203,7 +2207,7 @@ public class BeanPathAdapter<B> {
 		 *         collection has been garbage collected or the
 		 *         {@linkplain FieldProperty} does not represent a collection)
 		 */
-		public Observable getObservableCollection() {
+		protected Observable getObservableCollection() {
 			return this.collectionObservable.get();
 		}
 	}

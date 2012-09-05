@@ -300,6 +300,8 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 	public enum Type {
 		/** Event when the event is initializing */
 		INITIALIZE, 
+		/** Event when the data needed for the application has been loaded */
+		APP_DATA_LOADED, 
 		/** Event when a {@linkplain Host} has updated values that have been committed */
 		ACTOR_COMMITTED,
 		/** Event when a {@linkplain Host} has updated values that have been committed */

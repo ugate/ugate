@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.ugate.service.dao.RemoteNodeDao;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
 
 /**
  * {@linkplain RemoteNode} service
@@ -41,5 +42,24 @@ public class RemoteNodeService {
 	 */
 	public List<RemoteNode> findForHost(final int hostId) {
 		return remoteNodeDao.findByHostId(hostId);
+	}
+
+	/**
+	 * Gets the {@linkplain RemoteNodeReading}(s) for a given
+	 * {@linkplain RemoteNode#getId()} or {@linkplain RemoteNode#getAddress()}
+	 * 
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} to get the
+	 *            {@linkplain RemoteNodeReading}(s) for
+	 * @param startPosition
+	 *            the pagination starting position
+	 * @param maxResults
+	 *            the maximum number of {@linkplain RemoteNodeReading}(s) to
+	 *            return
+	 * @return the {@linkplain RemoteNodeReading}(s)
+	 */
+	public List<RemoteNodeReading> findReadings(final RemoteNode remoteNode, 
+			final int startPosition, final int maxResults) {
+		return remoteNodeDao.findReadings(remoteNode, startPosition, maxResults);
 	}
 }

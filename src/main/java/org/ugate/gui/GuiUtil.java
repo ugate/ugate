@@ -432,17 +432,24 @@ public class GuiUtil {
 	 *            the number of items per row
 	 * @param gaugeStyle
 	 *            true to style the children as gauges
+	 * @param startCol
+	 *            the column to start adding the {@linkplain Node}(s) to
+	 * @param startRow
+	 *            the row to start adding the {@linkplain Node}(s) to
 	 * @param nodes
 	 *            the {@linkplain Node}s to add to the display
 	 * @return the background display {@linkplain Region}
 	 */
-	public static final Region createBackgroundDisplay(final Insets padding, final double gapBetweenChildren, 
-			final int numItemsPerRow, final boolean gaugeStyle, final Node... nodes) {
+	public static final GridPane createBackgroundDisplay(final Insets padding, final double gapBetweenChildren, 
+			final int numItemsPerRow, final boolean gaugeStyle, final int startCol, final int startRow, 
+			final Node... nodes) {
 		final GridPane grid = new GridPane();
-		grid.setPadding(padding);
+		if (padding != null) {
+			grid.setPadding(padding);
+		}
 		grid.setHgap(gapBetweenChildren);
 		grid.setVgap(gapBetweenChildren);
-		int col = -1, row = 0;
+		int col = (startCol >= 0 ? startCol : 0)-1, row = startRow >= 0 ? startRow : 0;
 		for (final Node node : nodes) {
 			if (gaugeStyle) {
 				node.getStyleClass().add("gauge");
