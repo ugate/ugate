@@ -302,10 +302,16 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 		INITIALIZE, 
 		/** Event when the data needed for the application has been loaded */
 		APP_DATA_LOADED, 
+		/** Event when a {@linkplain Actor} has updated values that have not yet been committed */
+		ACTOR_COMMIT, 
 		/** Event when a {@linkplain Host} has updated values that have been committed */
 		ACTOR_COMMITTED,
+		/** Event when a {@linkplain Host} has updated values that have not yet been committed */
+		HOST_COMMIT,
 		/** Event when a {@linkplain Host} has updated values that have been committed */
 		HOST_COMMITTED,
+		/** Event when a {@linkplain RemoteNode} has updated values that have not yet been committed */
+		WIRELESS_REMOTE_NODE_COMMIT, 
 		/** Event when a {@linkplain RemoteNode} has updated values that have been committed, but not yet sent the {@linkplain RemoteNode}'s device */
 		WIRELESS_REMOTE_NODE_COMMITTED, 
 		/** Event when a {@linkplain RemoteNode} has changed {@linkplain UGateEvent#getOldValue()} will contain the old {@linkplain RemoteNode} and {@linkplain UGateEvent#getNewValue()} will contain the new {@linkplain RemoteNode} */

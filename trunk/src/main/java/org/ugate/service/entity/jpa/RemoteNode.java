@@ -15,10 +15,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
@@ -43,63 +46,55 @@ public class RemoteNode implements Model {
 
 	@Basic
 	@Column(name="CREATED_DATE", nullable=false)
+	@NotNull
 	private Date createdDate;
 
 	@Column(unique=true, nullable=false, length=100)
+	@Size(min=0, max=4)
+	@NotNull
 	private String address;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_ANGLE_PAN", nullable=false)
 	private int camAnglePan;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_ANGLE_TILT", nullable=false)
 	private int camAngleTilt;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_LASER_TRIP_ANGLE_PAN", nullable=false)
 	private int camLaserTripAnglePan;
 
-	@Min(value=0)
-	@Max(value=4)
+	@Size(min=0, max=4)
 	@Column(name="CAM_LASER_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camLaserTripAnglePriority;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_LASER_TRIP_ANGLE_TILT", nullable=false)
 	private int camLaserTripAngleTilt;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_MW_TRIP_ANGLE_PAN", nullable=false)
 	private int camMwTripAnglePan;
 
-	@Min(value=0)
-	@Max(value=4)
+	@Size(min=0, max=4)
 	@Column(name="CAM_MW_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camMwTripAnglePriority;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_MW_TRIP_ANGLE_TILT", nullable=false)
 	private int camMwTripAngleTilt;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_PIR_TRIP_ANGLE_PAN", nullable=false)
 	private int camPirTripAnglePan;
 
-	@Min(value=0)
-	@Max(value=4)
+	@Size(min=0, max=4)
 	@Column(name="CAM_PIR_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camPirTripAnglePriority;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_PIR_TRIP_ANGLE_TILT", nullable=false)
 	private int camPirTripAngleTilt;
 
@@ -107,18 +102,15 @@ public class RemoteNode implements Model {
 	@Column(name="CAM_RESOLUTION", nullable=false)
 	private int camResolution;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_SONAR_TRIP_ANGLE_PAN", nullable=false)
 	private int camSonarTripAnglePan;
 
-	@Min(value=0)
-	@Max(value=4)
+	@Size(min=0, max=4)
 	@Column(name="CAM_SONAR_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camSonarTripAnglePriority;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="CAM_SONAR_TRIP_ANGLE_TILT", nullable=false)
 	private int camSonarTripAngleTilt;
 
@@ -126,23 +118,19 @@ public class RemoteNode implements Model {
 	@Column(name="CAM_IMG_CAPTURE_RETRY_CNT", nullable=false)
 	private int camImgCaptureRetryCnt;
 
-	@Min(value=0)
-	@Max(value=1)
+	@Size(min=0, max=1)
 	@Column(name="DEVICE_SOUNDS_ON", nullable=false)
 	private int deviceSoundsOn;
 
-	@Min(value=0)
-	@Max(value=1)
+	@Size(min=0, max=1)
 	@Column(name="GATE_ACCESS_ON", nullable=false)
 	private int gateAccessOn;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="LASER_ANGLE_PAN", nullable=false)
 	private int laserAnglePan;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="LASER_ANGLE_TILT", nullable=false)
 	private int laserAngleTilt;
 
@@ -158,18 +146,15 @@ public class RemoteNode implements Model {
 	@Column(name="LASER_DISTANCE_THRES_INCHES", nullable=false)
 	private int laserDistanceThresInches;
 
-	@Min(value=0)
-	@Max(value=1)
+	@Size(min=0, max=1)
 	@Column(name="MAIL_ALERT_ON", nullable=false)
 	private int mailAlertOn;
 
-	@Min(value=0)
-	@Max(value=15)
+	@Size(min=0, max=15)
 	@Column(name="MULTI_ALARM_TRIP_STATE", nullable=false)
 	private int multiAlarmTripState;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="MW_ANGLE_PAN", nullable=false)
 	private int mwAnglePan;
 
@@ -197,46 +182,38 @@ public class RemoteNode implements Model {
 	@Column(name="SONAR_DISTANCE_THRES_INCHES", nullable=false)
 	private int sonarDistanceThresInches;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="SONAR_PIR_ANGLE_PAN", nullable=false)
 	private int sonarPirAnglePan;
 
-	@Min(value=0)
-	@Max(value=181)
+	@Size(min=0, max=181)
 	@Column(name="SONAR_PIR_ANGLE_TILT", nullable=false)
 	private int sonarPirAngleTilt;
 
-	@Min(value=0)
-	@Max(value=9)
+	@Size(min=0, max=9)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_1", nullable=false)
 	private int universalRemoteAccessCode1;
 
-	@Min(value=0)
-	@Max(value=9)
+	@Size(min=0, max=9)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_2", nullable=false)
 	private int universalRemoteAccessCode2;
 
-	@Min(value=0)
-	@Max(value=9)
+	@Size(min=0, max=9)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_3", nullable=false)
 	private int universalRemoteAccessCode3;
 
-	@Min(value=0)
-	@Max(value=1)
+	@Size(min=0, max=1)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_ON", nullable=false)
 	private int universalRemoteAccessOn;
 
 	@Column(name="WORKING_DIR", nullable=false, length=100)
 	private String workingDir;
 
-	@Min(value=0)
-	@Max(value=1)
+	@Size(min=0, max=1)
 	@Column(name="ALARMS_ON", nullable=false)
 	private int alarmsOn;
 
-	@Min(value=0)
-	@Max(value=1)
+	@Size(min=0, max=1)
 	@Column(name="REPORT_READINGS", nullable=false)
 	private int reportReadings;
 
@@ -249,6 +226,7 @@ public class RemoteNode implements Model {
 	//bi-directional many-to-one association to Host
 	@ManyToOne
 	@JoinColumn(name="HOST_ID", nullable=false)
+	@NotNull
 	private Host host;
 
 	//bi-directional many-to-one association to RemoteNodeReading
@@ -259,10 +237,21 @@ public class RemoteNode implements Model {
 	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
 	 * changes are committed
 	 */
+	@PrePersist
+	@PreUpdate
+	void notifyListenersPre() {
+		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
+				Type.WIRELESS_REMOTE_NODE_COMMIT, false));
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
+	 * changes are committed
+	 */
 	@PostPersist
 	@PostUpdate
 	@PostRemove
-	void notifyListeners() {
+	void notifyListenersPost() {
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
 				Type.WIRELESS_REMOTE_NODE_COMMITTED, false));
 	}

@@ -1,5 +1,11 @@
 package org.ugate.gui;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -41,6 +47,7 @@ import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.Model;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -50,6 +57,7 @@ import org.ugate.service.entity.jpa.RemoteNode;
  */
 public class ControlBar extends ToolBar {
 
+	private final ValidatorFactory validationFactory;
 	private final BeanPathAdapter<Actor> actorPA;
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
@@ -68,6 +76,7 @@ public class ControlBar extends ToolBar {
 
 	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA, 
 			final BeanPathAdapter<RemoteNode> remoteNodePA) {
+		validationFactory = Validation.buildDefaultValidatorFactory();
 		setId("control-bar");
 		this.stage = stage;
 		this.actorPA = actorPA;
@@ -171,7 +180,13 @@ public class ControlBar extends ToolBar {
 			@Override
 			public void handle(final UGateEvent<?, ?> event) {
 				setHelpText(event.getMessageString());
-				if (event.getType() == UGateEvent.Type.ACTOR_COMMITTED) {
+				if (event.getType() == UGateEvent.Type.ACTOR_COMMIT) {
+					validate(getActor());
+				} else if (event.getType() == UGateEvent.Type.HOST_COMMIT) {
+					validate(getActor().getHost());
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMIT) {
+					validate(getRemoteNode());
+				} else if (event.getType() == UGateEvent.Type.ACTOR_COMMITTED) {
 					// need to update the existing dirty actor
 					getActorPA().setBean((Actor) event.getSource());
 				} else if (event.getType() == UGateEvent.Type.HOST_COMMITTED) {
@@ -199,6 +214,25 @@ public class ControlBar extends ToolBar {
 			}
 		});
 		validateRemoteNodeSynchronization();
+	}
+
+	/**
+	 * Validates a {@linkplain Model} and displays any validation error messages
+	 * 
+	 * @param model
+	 *            the {@linkplain Model}
+	 */
+	public <T extends Model> void validate(final T model) {
+		final Set<ConstraintViolation<T>> cvs = validationFactory
+				.getValidator().validate(model);
+		String s = "";
+		for (final ConstraintViolation<T> cv : cvs) {
+			s += cv.getPropertyPath().toString()
+					+ ": "
+					+ (cv.getMessage() != null ? cv.getMessage() : cv
+							.getInvalidValue()) + '\n';
+		}
+		setHelpText(s);
 	}
 
 	/**
