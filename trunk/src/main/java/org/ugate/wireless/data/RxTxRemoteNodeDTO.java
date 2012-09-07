@@ -64,9 +64,9 @@ public class RxTxRemoteNodeDTO extends RxData {
 			if (rnt.canRemote()) {
 				try {
 					if (toData) {
-						data[i] = rnt.getRemoteValue(getRemoteNode());
+						data[i] = (int) rnt.getValue(getRemoteNode());
 					} else {
-						rnt.setRemoteValue(getRemoteNode(), data[i]);
+						rnt.setValue(getRemoteNode(), data[i]);
 					}
 				} catch (final Throwable t) {
 					throw new RuntimeException(

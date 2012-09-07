@@ -151,10 +151,11 @@ public class UGateUtil {
 	}
 	
 	/**
-	 * Formats a calendar to the application wide format
+	 * Formats a {@linkplain Calendar} to the application wide format
 	 * 
-	 * @param cal the calendar to format
-	 * @return the formated calendar
+	 * @param cal
+	 *            the {@linkplain Calendar} to format
+	 * @return the formated {@linkplain Calendar}
 	 */
 	public static String calFormat(final Calendar cal) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
@@ -162,7 +163,14 @@ public class UGateUtil {
 	}
 
 	/**
-	 * @return the formatted current calendar
+	 * @return a blank {@linkplain Calendar} format
+	 */
+	public static String calFormatBlank() {
+		return "0000-00-00 00:00:00";
+	}
+
+	/**
+	 * @return the formatted current {@linkplain Calendar}
 	 */
 	public static String calNow() {
 		return calFormat(Calendar.getInstance());
