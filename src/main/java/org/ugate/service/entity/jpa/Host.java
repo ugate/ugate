@@ -20,6 +20,8 @@ import javax.persistence.OrderBy;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
@@ -51,7 +53,7 @@ public class Host implements Model {
 	private String comAddress;
 
 	@Column(name="COM_BAUD")
-	@Digits(integer=6, fraction=0, message="valid.com.digits")
+	@Digits(integer=6, fraction=0)
 	private int comBaud;
 
 	@Column(name="COM_PORT", length=50)
@@ -67,7 +69,7 @@ public class Host implements Model {
 	private String mailInboxName;
 
 	@Column(name="MAIL_PASSWORD", length=100)
-	@Size(min=3, max=30, message="valid.password.length")
+	@Size(min=3, max=30)
 	private String mailPassword;
 
 	@Column(name="MAIL_SMTP_HOST", length=100)
@@ -120,10 +122,21 @@ public class Host implements Model {
 	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
 	 * changes are committed
 	 */
+	@PrePersist
+	@PreUpdate
+	void notifyListenersPre() {
+		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
+				Type.HOST_COMMIT, false));
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
+	 * changes are committed
+	 */
 	@PostPersist
 	@PostUpdate
 	@PostRemove
-	void notifyListeners() {
+	void notifyListenersPost() {
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
 				Type.HOST_COMMITTED, false));
 	}

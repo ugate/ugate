@@ -16,12 +16,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
+import org.ugate.UGateKeeper;
 import org.ugate.service.entity.Model;
 
 
@@ -41,14 +45,18 @@ public class Actor implements Model {
 	private int id;
 
 	@Column(unique=true, nullable=false, length=100)
+	@Size(min=4)
+	@NotNull
 	private String login;
 
 	@Column(nullable=false, length=64)
+	@Size(min=4)
 	private String pwd;
 	
 	//bi-directional many-to-one association to Host
     @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name="HOST_ID", nullable=false)
+    @NotNull
 	private Host host;
 
 	//bi-directional many-to-many association to Role
@@ -64,6 +72,16 @@ public class Actor implements Model {
 		)
 	private Set<Role> roles;
 
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
+	 * changes are committed
+	 */
+	@PrePersist
+	@PreUpdate
+	void notifyListenersPre() {
+		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
+				Type.ACTOR_COMMIT, false));
+	}
 
 	/**
 	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
@@ -72,7 +90,7 @@ public class Actor implements Model {
 	@PostPersist
 	@PostUpdate
 	@PostRemove
-	void notifyListeners() {
+	void notifyListenersPost() {
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
 				Type.ACTOR_COMMITTED, false));
 	}
