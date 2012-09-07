@@ -18,6 +18,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
@@ -47,126 +48,197 @@ public class RemoteNode implements Model {
 	@Column(unique=true, nullable=false, length=100)
 	private String address;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_ANGLE_PAN", nullable=false)
 	private int camAnglePan;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_ANGLE_TILT", nullable=false)
 	private int camAngleTilt;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_LASER_TRIP_ANGLE_PAN", nullable=false)
 	private int camLaserTripAnglePan;
 
+	@Min(value=0)
+	@Max(value=4)
 	@Column(name="CAM_LASER_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camLaserTripAnglePriority;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_LASER_TRIP_ANGLE_TILT", nullable=false)
 	private int camLaserTripAngleTilt;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_MW_TRIP_ANGLE_PAN", nullable=false)
 	private int camMwTripAnglePan;
 
+	@Min(value=0)
+	@Max(value=4)
 	@Column(name="CAM_MW_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camMwTripAnglePriority;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_MW_TRIP_ANGLE_TILT", nullable=false)
 	private int camMwTripAngleTilt;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_PIR_TRIP_ANGLE_PAN", nullable=false)
 	private int camPirTripAnglePan;
 
+	@Min(value=0)
+	@Max(value=4)
 	@Column(name="CAM_PIR_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camPirTripAnglePriority;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_PIR_TRIP_ANGLE_TILT", nullable=false)
 	private int camPirTripAngleTilt;
 
+	@Min(value=0)
 	@Column(name="CAM_RESOLUTION", nullable=false)
 	private int camResolution;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_SONAR_TRIP_ANGLE_PAN", nullable=false)
 	private int camSonarTripAnglePan;
 
+	@Min(value=0)
+	@Max(value=4)
 	@Column(name="CAM_SONAR_TRIP_ANGLE_PRIORITY", nullable=false)
 	private int camSonarTripAnglePriority;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="CAM_SONAR_TRIP_ANGLE_TILT", nullable=false)
 	private int camSonarTripAngleTilt;
-	
+
+	@Min(value=0)
 	@Column(name="CAM_IMG_CAPTURE_RETRY_CNT", nullable=false)
 	private int camImgCaptureRetryCnt;
 
+	@Min(value=0)
 	@Max(value=1)
 	@Column(name="DEVICE_SOUNDS_ON", nullable=false)
 	private int deviceSoundsOn;
 
+	@Min(value=0)
 	@Max(value=1)
 	@Column(name="GATE_ACCESS_ON", nullable=false)
 	private int gateAccessOn;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="LASER_ANGLE_PAN", nullable=false)
 	private int laserAnglePan;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="LASER_ANGLE_TILT", nullable=false)
 	private int laserAngleTilt;
 
+	@Min(value=0)
 	@Column(name="LASER_DELAY_BTWN_TRIPS", nullable=false)
 	private int laserDelayBtwnTrips;
 
+	@Min(value=0)
 	@Column(name="LASER_DISTANCE_THRES_FEET", nullable=false)
 	private int laserDistanceThresFeet;
 
+	@Min(value=0)
 	@Column(name="LASER_DISTANCE_THRES_INCHES", nullable=false)
 	private int laserDistanceThresInches;
 
+	@Min(value=0)
 	@Max(value=1)
 	@Column(name="MAIL_ALERT_ON", nullable=false)
 	private int mailAlertOn;
 
+	@Min(value=0)
+	@Max(value=15)
 	@Column(name="MULTI_ALARM_TRIP_STATE", nullable=false)
 	private int multiAlarmTripState;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="MW_ANGLE_PAN", nullable=false)
 	private int mwAnglePan;
 
+	@Min(value=0)
 	@Column(name="MW_DELAY_BTWN_TRIPS", nullable=false)
 	private int mwDelayBtwnTrips;
 
+	@Min(value=0)
 	@Column(name="MW_SPEED_THRES_CYCLES_PER_SEC", nullable=false)
 	private int mwSpeedThresCyclesPerSec;
 
+	@Min(value=0)
 	@Column(name="PIR_DELAY_BTWN_TRIPS", nullable=false)
 	private int pirDelayBtwnTrips;
 
+	@Min(value=0)
 	@Column(name="SONAR_DELAY_BTWN_TRIPS", nullable=false)
 	private int sonarDelayBtwnTrips;
 
+	@Min(value=0)
 	@Column(name="SONAR_DISTANCE_THRES_FEET", nullable=false)
 	private int sonarDistanceThresFeet;
 
+	@Min(value=0)
 	@Column(name="SONAR_DISTANCE_THRES_INCHES", nullable=false)
 	private int sonarDistanceThresInches;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="SONAR_PIR_ANGLE_PAN", nullable=false)
 	private int sonarPirAnglePan;
 
+	@Min(value=0)
+	@Max(value=181)
 	@Column(name="SONAR_PIR_ANGLE_TILT", nullable=false)
 	private int sonarPirAngleTilt;
 
+	@Min(value=0)
+	@Max(value=9)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_1", nullable=false)
 	private int universalRemoteAccessCode1;
 
+	@Min(value=0)
+	@Max(value=9)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_2", nullable=false)
 	private int universalRemoteAccessCode2;
 
+	@Min(value=0)
+	@Max(value=9)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_3", nullable=false)
 	private int universalRemoteAccessCode3;
 
+	@Min(value=0)
 	@Max(value=1)
 	@Column(name="UNIVERSAL_REMOTE_ACCESS_ON", nullable=false)
 	private int universalRemoteAccessOn;
 
 	@Column(name="WORKING_DIR", nullable=false, length=100)
 	private String workingDir;
+
+	@Min(value=0)
+	@Max(value=1)
+	@Column(name="ALARMS_ON", nullable=false)
+	private int alarmsOn;
+
+	@Min(value=0)
+	@Max(value=1)
+	@Column(name="REPORT_READINGS", nullable=false)
+	private int reportReadings;
 
 	@Column(name="DEVICE_AUTO_SYNCHRONIZE")
 	private boolean deviceAutoSynchronize;
@@ -532,6 +604,22 @@ public class RemoteNode implements Model {
 
 	public void setWorkingDir(String workingDir) {
 		this.workingDir = workingDir;
+	}
+
+	public int getAlarmsOn() {
+		return alarmsOn;
+	}
+
+	public void setAlarmsOn(int alarmsOn) {
+		this.alarmsOn = alarmsOn;
+	}
+
+	public int getReportReadings() {
+		return reportReadings;
+	}
+
+	public void setReportReadings(int reportReadings) {
+		this.reportReadings = reportReadings;
 	}
 
 	public boolean isDeviceAutoSynchronize() {

@@ -46,7 +46,7 @@ public class RemoteNodeService {
 
 	/**
 	 * Gets the {@linkplain RemoteNodeReading}(s) for a given
-	 * {@linkplain RemoteNode#getId()} or {@linkplain RemoteNode#getAddress()}
+	 * {@linkplain RemoteNode#getId()}
 	 * 
 	 * @param remoteNode
 	 *            the {@linkplain RemoteNode} to get the
@@ -58,8 +58,8 @@ public class RemoteNodeService {
 	 *            return
 	 * @return the {@linkplain RemoteNodeReading}(s)
 	 */
-	public List<RemoteNodeReading> findReadings(final RemoteNode remoteNode, 
+	public List<RemoteNodeReading> findReadingsById(final RemoteNode remoteNode, 
 			final int startPosition, final int maxResults) {
-		return remoteNodeDao.findReadings(remoteNode, startPosition, maxResults);
+		return remoteNodeDao.findReadingsById(remoteNode, startPosition, maxResults);
 	}
 }

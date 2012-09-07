@@ -3,6 +3,7 @@ package org.ugate.gui.view;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -40,11 +41,15 @@ public class AlarmSettings extends ControlPane {
 	private UGateCtrlBox<RemoteNode, Void, Void> accessKey2;
 	private UGateCtrlBox<RemoteNode, Void, Void> accessKey3;
 	private UGateToggleSwitchBox<RemoteNode> gateToggleSwitchView;
+	private AlarmMultistates alarmMultistates;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param controlBar the control bar
+	 * @param controlBar
+	 *            the {@linkplain ControlBar}
+	 * @param the
+	 *            {@linkplain SensorReadingsView}
 	 */
 	public AlarmSettings(final ControlBar controlBar) {
 		super(controlBar);
@@ -104,6 +109,7 @@ public class AlarmSettings extends ControlPane {
 		workingDir.label.getStyleClass().add("dialog-normal");
 		controlBar.addHelpTextTrigger(workingDir,
 				RS.rbLabel(KEYS.WIRELESS_WORKING_DIR_DESC));
+		alarmMultistates = new AlarmMultistates(controlBar, Orientation.HORIZONTAL);
 
 		universalRemoteAccessToggleSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(),
@@ -131,7 +137,7 @@ public class AlarmSettings extends ControlPane {
 	    final HBox accessKeysContainer = new HBox(5);
 	    accessKeysContainer.getChildren().addAll(accessKey1, accessKey2, accessKey3);
 	    
-		final Parent setupCell = createCell(nodeLabel, remoteAddress, workingDir, 
+		final Parent setupCell = createCell(nodeLabel, remoteAddress, workingDir, alarmMultistates,
 				univRemoteLabel, universalRemoteAccessToggleSwitch, accessKeysContainer);
 		add(setupCell, columnIndex, rowIndex);
 	}
@@ -159,17 +165,18 @@ public class AlarmSettings extends ControlPane {
 				}
 			}
 		});
-		controlBar.sensorReadingsProperty().addListener(new ChangeListener<RxTxRemoteNodeReadingDTO>() {
-			@Override
-			public void changed(final ObservableValue<? extends RxTxRemoteNodeReadingDTO> observable, 
-					final RxTxRemoteNodeReadingDTO oldValue, final RxTxRemoteNodeReadingDTO newValue) {
-				// when a command is sent to a remote node to open/close a gate a response for
-				// sensor readings will be sent to the host where the gate state update is captured
-				gateToggleImgView.setImage(newValue.getRemoteNodeReading().getGateState() == 1 ? 
-						RS.img(RS.IMG_GATE_OPENED) : RS.img(RS.IMG_GATE_CLOSED));
-				gateToggleBtn.setDisable(false);
-			}
-		});
+		controlBar.getSensorReadingsView().sensorReadingsProperty().addListener(
+				new ChangeListener<RxTxRemoteNodeReadingDTO>() {
+					@Override
+					public void changed(final ObservableValue<? extends RxTxRemoteNodeReadingDTO> observable, 
+							final RxTxRemoteNodeReadingDTO oldValue, final RxTxRemoteNodeReadingDTO newValue) {
+						// when a command is sent to a remote node to open/close a gate a response for
+						// sensor readings will be sent to the host where the gate state update is captured
+						gateToggleImgView.setImage(newValue.getRemoteNodeReading().getGateState() == 1 ? 
+								RS.img(RS.IMG_GATE_OPENED) : RS.img(RS.IMG_GATE_CLOSED));
+						gateToggleBtn.setDisable(false);
+					}
+				});
 		
 		final Parent cell = createCell(gateHeader, gateToggleSwitchView, 
 				gateCtrlHeader, gateToggleBtn);

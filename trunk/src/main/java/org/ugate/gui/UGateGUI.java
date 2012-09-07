@@ -54,17 +54,17 @@ import javax.security.sasl.AuthenticationException;
 
 import org.slf4j.Logger;
 import org.ugate.UGateEvent;
+import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
-import org.ugate.UGateEvent.Type;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.gui.components.UGateDirectory;
 import org.ugate.gui.view.EmailHostConnectionView;
-import org.ugate.gui.view.RemoteNodeToolBar;
+import org.ugate.gui.view.RemoteNodesView;
 import org.ugate.gui.view.WirelessHostConnectionView;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -260,7 +260,7 @@ public class UGateGUI extends Application {
 
 		final VBox bottom = new VBox();
 		bottom.setId("bottom-view");
-		bottom.getChildren().addAll(taskbar, new RemoteNodeToolBar(controlBar, Orientation.HORIZONTAL));
+		bottom.getChildren().addAll(taskbar, new RemoteNodesView(controlBar, Orientation.HORIZONTAL));
 
 		content.setCenter(centerView);
 		content.setBottom(bottom);

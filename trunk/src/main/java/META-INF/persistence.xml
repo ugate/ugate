@@ -20,6 +20,7 @@
 		<class>org.ugate.service.entity.jpa.MailRecipient</class>
 		<class>org.ugate.service.entity.jpa.RemoteNode</class>
 		<class>org.ugate.service.entity.jpa.RemoteNodeReading</class>
+		<validation-mode>CALLBACK</validation-mode>
 		<properties>
 			<property name="openjpa.Log" value="DefaultLevel=INFO, Tool=INFO, SQL=INFO"/>
 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/>

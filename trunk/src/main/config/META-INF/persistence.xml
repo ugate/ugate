@@ -20,6 +20,7 @@
 		<class>${ugate.db.jpa.package}.MailRecipient</class>
 		<class>${ugate.db.jpa.package}.RemoteNode</class>
 		<class>${ugate.db.jpa.package}.RemoteNodeReading</class>
+		<validation-mode>CALLBACK</validation-mode>
 		<properties>
 			<property name="openjpa.Log" value="DefaultLevel=${ugate.log.level}, Tool=${ugate.log.level}, SQL=${ugate.log.level}"/>
 			<property name="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/>

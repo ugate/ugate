@@ -14,7 +14,6 @@ import org.ugate.Command;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.UGateUtil;
-import org.ugate.UGateXBeePacketListener;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.dao.RemoteNodeDao;
@@ -23,6 +22,7 @@ import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.RxTxRemoteNodeDTO;
+import org.ugate.wireless.data.UGateXBeePacketListener;
 
 import com.rapplogic.xbee.api.AtCommand;
 import com.rapplogic.xbee.api.AtCommandResponse;

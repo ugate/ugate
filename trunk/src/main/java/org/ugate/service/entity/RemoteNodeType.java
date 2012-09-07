@@ -11,16 +11,18 @@ import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * {@linkplain RemoteNode} {@linkplain IModelType} related to an individual node
- * devices located in a remote locations. Each {@linkplain #ordinal()}
+ * devices located in a remote locations. <b>Each {@linkplain #ordinal()}
  * represents a the proper order that incoming data is received from remote node
- * devices.
+ * devices</b>.
  */
 public enum RemoteNodeType implements IModelType<RemoteNode> {
 	DEVICE_SOUNDS_ON("deviceSoundsOn", false), DEVICE_AUTO_SYNCHRONIZE(
 			"deviceAutoSynchronize", false), DEVICE_SYNCHRONIZED(
 			"deviceSynchronized", false), CAM_IMG_CAPTURE_RETRY_CNT(
-			"camImgCaptureRetryCnt", false), WIRELESS_ADDRESS("address", false), WIRELESS_WORKING_DIR_PATH(
-			"workingDir", false), MAIL_ALERT_ON("mailAlertOn", false), UNIVERSAL_REMOTE_ACCESS_ON(
+			"camImgCaptureRetryCnt", false), REPORT_READINGS("reportReadings",
+			false), WIRELESS_ADDRESS("address", false), WIRELESS_WORKING_DIR_PATH(
+			"workingDir", false), MAIL_ALERT_ON("mailAlertOn", false), ALARMS_ON(
+			"alarmsOn", true), UNIVERSAL_REMOTE_ACCESS_ON(
 			"universalRemoteAccessOn", true), UNIVERSAL_REMOTE_ACCESS_CODE_1(
 			"universalRemoteAccessCode1", true), UNIVERSAL_REMOTE_ACCESS_CODE_2(
 			"universalRemoteAccessCode2", true), UNIVERSAL_REMOTE_ACCESS_CODE_3(

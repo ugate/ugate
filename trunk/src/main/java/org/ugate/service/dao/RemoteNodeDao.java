@@ -33,7 +33,7 @@ public class RemoteNodeDao extends Dao {
 		return q.getResultList();
 	}
 
-	public List<RemoteNodeReading> findReadings(final RemoteNode remoteNode,
+	public List<RemoteNodeReading> findReadingsById(final RemoteNode remoteNode,
 			final int startPosition, final int maxResults) {
 		final TypedQuery<RemoteNodeReading> q = em
 				.createQuery(

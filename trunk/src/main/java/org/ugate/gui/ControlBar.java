@@ -1,14 +1,9 @@
 package org.ugate.gui;
 
-import java.util.Calendar;
-import java.util.List;
-
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,7 +23,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -42,20 +36,14 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
-import org.ugate.gui.components.Digits;
-import org.ugate.gui.components.UGateToggleSwitchBox;
-import org.ugate.gui.view.AlarmThresholds;
+import org.ugate.gui.view.SensorReadingsView;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
-import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
-import org.ugate.service.entity.jpa.RemoteNodeReading;
-import org.ugate.wireless.data.RxTxRemoteNodeDTO;
-import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 /**
  * Main menu control bar
@@ -66,13 +54,8 @@ public class ControlBar extends ToolBar {
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
 	private final Label helpText;
-	private final Label readDate;
-	private final Digits sonarReading;
-	private final Digits pirReading;
-	private final Digits mwReading;
-	private final Digits laserReading;
-	private final ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO> sensorReadingsPropertyWrapper;
 	private final Timeline settingsSetTimeline;
+	private final SensorReadingsView sensorReadingsView;
 	
 	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
 	public static final Color ATTENTION_COLOR = Color.YELLOW;
@@ -89,7 +72,6 @@ public class ControlBar extends ToolBar {
 		this.stage = stage;
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
-		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO>();
 		final DropShadow dbDS = new DropShadow();
 		final DropShadow settingsDS = new DropShadow();
 		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
@@ -177,51 +159,13 @@ public class ControlBar extends ToolBar {
 	    });
 		addHelpTextTrigger(readingsGet, RS.rbLabel(KEYS.SENSOR_READINGS_GET));
 		readingsGet.setEffect(ds);
-		
-		// add the readings view
-		// TODO : move read date/time to a more legible location 
-		readDate = new Label();
-		readDate.getStyleClass().add("readings-text");
-		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
-		sonarReading = new Digits(String.format(AlarmThresholds.FORMAT_SONAR, 0.0f),
-				0.15f, AlarmThresholds.COLOR_SONAR, null);
-		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
-		pirReading = new Digits(String.format(AlarmThresholds.FORMAT_PIR, 0), 
-				0.15f, AlarmThresholds.COLOR_PIR, null);
-		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
-		mwReading = new Digits(String.format(AlarmThresholds.FORMAT_MW, 0), 0.15f, 
-				AlarmThresholds.COLOR_MW, null);
-		final ImageView laserReadingLabel = RS.imgView(RS.IMG_LASER);
-		laserReading = new Digits(String.format(AlarmThresholds.FORMAT_LASER, 0.0f), 
-				0.15f, AlarmThresholds.COLOR_LASER, null);
-		final GridPane readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 10, true,
-				0, 1, sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, mwReadingLabel, mwReading, 
-				laserReadingLabel, laserReading);
-		readingsGroup.setVgap(0);
-		readingsGroup.add(readDate, 0, 0, 7, 1);
-		addHelpTextTrigger(readingsGroup, "Current sensors readings display");
-		
-		
-		// add the multi-alarm trip state
-		final UGateToggleSwitchBox<RemoteNode> multiAlarmToggleSwitch = new UGateToggleSwitchBox<>(
-				getRemoteNodePA(),RemoteNodeType.MULTI_ALARM_TRIP_STATE, 
-				new UGateToggleSwitchBox.ToggleItem(RS.IMG_SONAR_ALARM_MULTI, 
-						RS.IMG_SONAR_ALARM_OFF, RS.IMG_SONAR_ALARM_ANY, null, false),
-				new UGateToggleSwitchBox.ToggleItem(RS.IMG_PIR_ALARM_MULTI, 
-						RS.IMG_PIR_ALARM_OFF, RS.IMG_PIR_ALARM_ANY, null, false),
-				new UGateToggleSwitchBox.ToggleItem(RS.IMG_MICROWAVE_ALARM_MULTI,
-						RS.IMG_MICROWAVE_ALARM_OFF, RS.IMG_MICROWAVE_ALARM_ANY, null, false),
-				new UGateToggleSwitchBox.ToggleItem(RS.IMG_LASER_ALARM_MULTI, 
-						RS.IMG_LASER_ALARM_OFF, RS.IMG_LASER_ALARM_ANY, null, false));
-		final Region multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 0,
-				false, 0, 0, multiAlarmToggleSwitch);
-		addHelpTextTrigger(multiAlarmGroup, RS.rbLabel(KEYS.SENSOR_TRIP_MULTI));
+
+		sensorReadingsView = new SensorReadingsView(this, Orientation.HORIZONTAL);
 		
 		// add the menu items
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSave, settingsSet,
-				settingsGet, readingsGet, new Separator(Orientation.VERTICAL),
-				readingsGroup, new Separator(Orientation.VERTICAL),
-				multiAlarmGroup);
+				settingsGet, readingsGet, new Separator(Orientation.VERTICAL), 
+				sensorReadingsView);
 		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
@@ -251,94 +195,10 @@ public class ControlBar extends ToolBar {
 					if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						settingsSetTimeline.stop();
 					}
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
-					final RemoteNode rn = (RemoteNode) event.getSource();
-					if (event.getNewValue() instanceof RxTxRemoteNodeReadingDTO && 
-							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
-						final RxTxRemoteNodeReadingDTO sr = (RxTxRemoteNodeReadingDTO) event.getNewValue();
-						sensorReadingsPropertyWrapper.set(sr);
-						remoteNodeReadingShow(sr.getRemoteNodeReading());
-					} else if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
-						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
-						if (!RemoteNodeType.remoteEquivalent(rn, ndto.getRemoteNode())) {
-							// remote device values do not match the local device values
-							rn.setDeviceSynchronized(false);
-							ndto.getRemoteNode().setDeviceSynchronized(false);
-							if (rn.isDeviceAutoSynchronize()) {
-								// automatically send the changes to the remote node
-								// (consume event so no other notifications for the
-								// event will be processed)
-								event.setConsumed(true);
-								createCommandService(Command.SENSOR_SET_SETTINGS, true);
-							} else if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
-								validateRemoteNodeSynchronization();
-							}
-						}
-					}
-				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED) {
-					remoteNodeReadingShow();
 				}
 			}
 		});
 		validateRemoteNodeSynchronization();
-	}
-
-	/**
-	 * Sets the {@linkplain RemoteNodeReading} values in the
-	 * {@linkplain ControlBar} to the last read from the device
-	 */
-	public void remoteNodeReadingShow() {
-		try {
-			final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
-					.getRemoteNodeService().findReadings(getRemoteNode(), 0, 1);
-			if (!rnrs.isEmpty()) {
-				remoteNodeReadingShow(rnrs.get(0));
-			}
-		} catch (final Throwable t) {
-			log.warn(String.format("Unable to get %1$s(s) for %2$s: %3$s", 
-					RemoteNodeReading.class.getName(), RemoteNode.class.getName(), 
-					getRemoteNode().getAddress()));
-		}
-	}
-
-	/**
-	 * Sets the {@linkplain RemoteNodeReading} values in the
-	 * {@linkplain ControlBar}
-	 * 
-	 * @param remoteNodeReading
-	 *            the {@linkplain RemoteNodeReading} to set
-	 */
-	public void remoteNodeReadingShow(final RemoteNodeReading remoteNodeReading) {
-		if (remoteNodeReading != null && 
-				getRemoteNode().getId() == remoteNodeReading.getRemoteNode().getId()) {
-			final Calendar cal = Calendar.getInstance();
-			cal.setTime(remoteNodeReading.getReadDate());
-			readDate.setText(UGateUtil.calFormat(cal));
-			pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 
-					remoteNodeReading.getPirIntensity()));
-			if (getActor().getHost().getUseMetric()) {
-				sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 
-						remoteNodeReading.getSonarMeters()));
-				laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 
-						remoteNodeReading.getLaserMeters()));
-				mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 
-						Math.round(remoteNodeReading.getMicrowaveSpeedMillimetersPerSec())));
-			} else {
-				sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 
-						Double.parseDouble(remoteNodeReading.getSonarFeet() + 
-								"." + remoteNodeReading.getSonarInches())));
-				laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 
-						Double.parseDouble(remoteNodeReading.getLaserFeet() + 
-								"." + remoteNodeReading.getLaserInches())));
-				mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 
-						Math.round(remoteNodeReading.getMicrowaveSpeedMPH())));
-			}
-		} else if (remoteNodeReading == null) {
-			pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 0));
-			sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 0d));
-			laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 0d));
-			mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 0));
-		}
 	}
 
 	/**
@@ -533,10 +393,10 @@ public class ControlBar extends ToolBar {
 	}
 
 	/**
-	 * @return the sensor readings property
+	 * @return the {@linkplain SensorReadingsView}
 	 */
-	public ReadOnlyObjectProperty<RxTxRemoteNodeReadingDTO> sensorReadingsProperty() {
-		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
+	public SensorReadingsView getSensorReadingsView() {
+		return sensorReadingsView;
 	}
 
 	/**
