@@ -2304,7 +2304,7 @@ public class BeanPathAdapter<B> {
 		protected static MethodHandle buildAccessorWithLikelyPrefixes(
 				final Object target, final String fieldName) {
 			final MethodHandle mh = buildAccessor(target, fieldName, "get",
-					"is", "has");
+					"is", "has", "use");
 			if (mh == null) {
 				// throw new NoSuchMethodException(fieldName + " on " + target);
 				throw new IllegalArgumentException(fieldName + " on " + target);

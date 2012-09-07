@@ -117,8 +117,9 @@ public class SensorReadingsView extends Parent {
 							}
 						}
 					}
-				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED) {
-					remoteNodeReadingShow();
+				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED || 
+						event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED) {
+					remoteNodeReadingShow(true);
 				}
 			}
 		});
@@ -128,13 +129,18 @@ public class SensorReadingsView extends Parent {
 	/**
 	 * Sets the {@linkplain RemoteNodeReading} values in the
 	 * {@linkplain ControlBar} to the last read from the device
+	 * 
+	 * @param isReset
+	 *            true when the readings should be reset when no readings exist
 	 */
-	public void remoteNodeReadingShow() {
+	public void remoteNodeReadingShow(final boolean isReset) {
 		try {
 			final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
 					.getRemoteNodeService().findReadingsById(cb.getRemoteNode(), 0, 1);
 			if (!rnrs.isEmpty()) {
 				remoteNodeReadingShow(rnrs.get(0));
+			} else if (isReset) {
+				remoteNodeReadingShow(null);
 			}
 		} catch (final Throwable t) {
 			log.warn(String.format("Unable to get %1$s(s) for %2$s: %3$s", 
@@ -176,6 +182,7 @@ public class SensorReadingsView extends Parent {
 						Math.round(remoteNodeReading.getMicrowaveSpeedMPH())));
 			}
 		} else if (remoteNodeReading == null) {
+			readDate.setText(UGateUtil.calFormatBlank().replace(' ', '\n'));
 			pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 0));
 			sonarReading.setValue(String.format(AlarmThresholds.FORMAT_SONAR, 0d));
 			laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 0d));
