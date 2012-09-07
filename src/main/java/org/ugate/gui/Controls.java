@@ -35,37 +35,40 @@ public class Controls extends TabPane {
 	/**
 	 * Constructor
 	 * 
-	 * @param controlBar the control bar
+	 * @param controlBar
+	 *            the {@linkplain ControlBar}
 	 */
 	public Controls(final ControlBar controlBar) {
 		super();
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab tab1 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB1), AlarmSettings.class, controlBar);
-		final Tab tab2 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB2), AlarmThresholds.class, controlBar);
-		final Tab tab3 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB3), PositionSettings.class, controlBar);
+		final Tab tab1 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB1), 
+				new AlarmSettings(controlBar));
+		final Tab tab2 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB2), 
+				new AlarmThresholds(controlBar));
+		final Tab tab3 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB3), 
+				new PositionSettings(controlBar));
 		getTabs().addAll(tab1, tab2, tab3);
 	}
 	
 	/**
-	 * Creates a tab
+	 * Creates a {@linkplain Tab}
 	 * 
-	 * @param graphicFileName the optional graphic for the tab
-	 * @param text the text for the tab
-	 * @param cpc the class used for the tab content
-	 * @param controlBar the {@linkplain ControlBar} to pass to the constructor
-	 * @return the tab
+	 * @param graphicFileName
+	 *            the optional graphic for the tab
+	 * @param text
+	 *            the text for the {@linkplain Tab}
+	 * @param content
+	 *            the {@linkplain Tab} content
+	 * @return the {@linkplain Tab}
 	 */
-	protected <T extends ControlPane> Tab createTab(final String graphicFileName, final String text, 
-			final Class<T> cpc, final ControlBar controlBar) {
+	protected <T extends ControlPane> Tab createTab(
+			final String graphicFileName, final String text,
+			final T content) {
 		final Tab tab = new Tab(text);
 		tab.setClosable(false);
-		try {
-			tab.setContent((T) cpc.getConstructor(ControlBar.class).newInstance(controlBar));
-		} catch (final Throwable t) {
-			log.error("Unable to Instantiate " + cpc, t);
-		}
+		tab.setContent(content);
 		// TODO : dynamic tab content creation causes memory leaks
 		/*
 		//tab.setGraphic(RS.imgView(graphicFileName));
@@ -92,12 +95,17 @@ public class Controls extends TabPane {
 	}
 	
 	/**
-	 * Creates a controls web view. When the view is loaded the images will be updated with the ones provided
+	 * Creates a controls web view. When the view is loaded the images will be
+	 * updated with the ones provided
 	 * 
-	 * @param fileName the HTML file name to load
-	 * @param navResultImgSrc the navigation result image source
-	 * @param navImgSrc the navigation image source
-	 * @param isCam true if the web view is for the camera
+	 * @param fileName
+	 *            the HTML file name to load
+	 * @param navResultImgSrc
+	 *            the navigation result image source
+	 * @param navImgSrc
+	 *            the navigation image source
+	 * @param isCam
+	 *            true if the web view is for the camera
 	 * @return the web view
 	 */
 	protected WebView createWebView(final String fileName, final String navResultImgSrc, 
@@ -130,11 +138,15 @@ public class Controls extends TabPane {
 	}
 	
 	/**
-	 * Creates a color bar that will display a visual indicator when the node has focus
+	 * Creates a color bar that will display a visual indicator when the node
+	 * has focus
 	 * 
-	 * @param color the color of the bar
-	 * @param node the node associated with the color bar
-	 * @param otherColorBar other color bar(s)
+	 * @param color
+	 *            the color of the bar
+	 * @param node
+	 *            the node associated with the color bar
+	 * @param otherColorBar
+	 *            other color bar(s)
 	 * @return the color bar
 	 */
 	protected Separator createColorBar(final String color, final Node node, final Separator... otherColorBar) {
@@ -147,11 +159,15 @@ public class Controls extends TabPane {
 	}
 	
 	/**
-	 * Configures a color bar so that it will display a visual indicator when the node has focus
+	 * Configures a color bar so that it will display a visual indicator when
+	 * the node has focus
 	 * 
-	 * @param colorBar the color bar to configure
-	 * @param node the node associated with the color bar
-	 * @param otherColorBar other color bar(s)
+	 * @param colorBar
+	 *            the color bar to configure
+	 * @param node
+	 *            the node associated with the color bar
+	 * @param otherColorBar
+	 *            other color bar(s)
 	 */
 	protected void configColorBar(final Separator colorBar, final Node node, final Separator... otherColorBar) {
         if (otherColorBar != null) {
@@ -170,7 +186,8 @@ public class Controls extends TabPane {
 	/**
 	 * Creates a button that will reload the specified web view when clicked
 	 * 
-	 * @param webView the web view to reload
+	 * @param webView
+	 *            the web view to reload
 	 * @return the created button
 	 */
 	protected Button createReloadButton(final WebView webView) {

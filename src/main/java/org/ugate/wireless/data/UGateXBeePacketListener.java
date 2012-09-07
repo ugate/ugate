@@ -1,26 +1,21 @@
-package org.ugate;
+package org.ugate.wireless.data;
 
 import java.io.IOException;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.Command;
+import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
+import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
-import org.ugate.wireless.data.ImageCapture;
-import org.ugate.wireless.data.KeyCodes;
-import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.RxData.Status;
-import org.ugate.wireless.data.RxRawData;
-import org.ugate.wireless.data.RxTxImage;
-import org.ugate.wireless.data.RxTxJPEG;
-import org.ugate.wireless.data.RxTxRemoteNodeDTO;
-import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 import com.rapplogic.xbee.api.ErrorResponse;
 import com.rapplogic.xbee.api.PacketListener;
@@ -234,7 +229,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, sr, 
 					RS.rbLabel(KEYS.SERVICE_RX_READINGS, sr));
 		} else if (command == Command.SENSOR_GET_SETTINGS) {
-			// the number of response data and their order is important!
+			// the number of response data and their order is important!!!
 			int i = 1;
 			final int[] sd = new int[RemoteNodeType.canRemoteCount()];
 			for (int j = 0; j<RemoteNodeType.canRemoteCount(); j++) {

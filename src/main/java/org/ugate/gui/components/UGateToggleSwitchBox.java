@@ -35,7 +35,21 @@ public class UGateToggleSwitchBox<T> extends HBox {
 	private final List<ToggleItem> toggleItems;
 	private final IntegerProperty valueProperty;
 	private boolean toggleItemsNeedSelectionUpdates = true;
-	
+
+	/**
+	 * Constructor
+	 * 
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
+	 * @param key
+	 *            the {@linkplain IModelType#getKey()} for getting/saving the settings option as
+	 *            it's selected
+	 */
+	public UGateToggleSwitchBox(final BeanPathAdapter<T> beanPathAdapter,
+			final IModelType<T> modelKey) {
+		this(beanPathAdapter, modelKey, null, null);
+	}
+
 	/**
 	 * Constructor
 	 * 
@@ -110,12 +124,17 @@ public class UGateToggleSwitchBox<T> extends HBox {
 		// add the toggle items
 		this.toggleItems = new ArrayList<UGateToggleSwitchBox.ToggleItem>(toggleItems.length);
 		for (final ToggleItem item : toggleItems) {
+			if (item.imgOn == null && item.imgOff != null) {
+				throw new IllegalArgumentException("On image cannot be null while off image is provided");
+			}
+			if (item.imgOn != null && item.imgOff == null) {
+				throw new IllegalArgumentException("Off image cannot be null while on image is provided");
+			}
 			this.toggleItems.add(item);
 			item.toggleSwitch.selectedProperty().addListener(new ChangeListener<Boolean>() {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> observable,
 						Boolean oldValue, Boolean newValue) {
-					//item.toggleSwitchImageView.setImage(newValue ? item.imgOn : item.imgOff);
 					setValueNoSelectionUpdate(compositeBinaryValue(item, newValue));
 				}
 			});
@@ -179,8 +198,8 @@ public class UGateToggleSwitchBox<T> extends HBox {
 	 * @return the maximum allowed {@linkplain UGateToggleSwitchBox} value
 	 */
 	private int getMaxValue(final int numItems) {
-		int max = (int) Math.pow(numItems, 2);
-		return max <= 1 ? max : max - 2;
+		int max = (int) Math.pow(numItems, 2) - 1;
+		return max <= 0 ? 1 : max;
 	}
 	
 	/**
@@ -189,7 +208,14 @@ public class UGateToggleSwitchBox<T> extends HBox {
 	public int getMaxValue() {
 		return getMaxValue(toggleItems.size());
 	}
-	
+
+	/**
+	 * @return the minimum allowed {@linkplain UGateToggleSwitchBox} value
+	 */
+	public int getMinValue() {
+		return 0;
+	}
+
 	/**
 	 * @return the first toggle item
 	 */
@@ -203,22 +229,39 @@ public class UGateToggleSwitchBox<T> extends HBox {
 	public IntegerProperty valueProperty() {
 		return valueProperty;
 	}
-	
+
+	/**
+	 * Sets the {@linkplain #getMaxValue()} on {@linkplain #setValue(int)}
+	 */
+	public void setValueMax() {
+		setValue(getMaxValue());
+	}
+
+	/**
+	 * Sets the {@linkplain #getMinValue()} on {@linkplain #setValue(int)}
+	 */
+	public void setValueMin() {
+		setValue(getMinValue());
+	}
+
 	/**
 	 * Sets the {@linkplain UGateToggleSwitchBox} value (must be greater than
-	 * or equal to zero and less than or equal to
-	 * {@linkplain #getMaxValue()}
+	 * or equal to {@linkplain #getMinValue()} and less than or equal to
+	 * {@linkplain #getMaxValue()})
 	 * 
 	 * @param value
 	 *            the {@linkplain UGateToggleSwitchBox} value to set
 	 */
 	public void setValue(final int value) {
-		valueProperty().set(value);
+		final int maxValue = getMaxValue();
+		final int minValue = getMinValue();
+		final int finalValue = value > maxValue ? maxValue : value < minValue ? minValue : value;
+		valueProperty().set(finalValue);
 		for (final ToggleItem itemX : toggleItems) {
-			if ((itemX.imgNone != null && value == 0) || (itemX.imgAll != null && 
-					value == maxSelectionValue())) {
-				itemX.toggleSwitchImageView.setImage(value == 0 ? itemX.imgNone : itemX.imgAll);
-			} else {
+			if ((itemX.imgNone != null && finalValue == minValue) || (itemX.imgAll != null && 
+					finalValue == maxSelectionValue())) {
+				itemX.toggleSwitchImageView.setImage(finalValue == minValue ? itemX.imgNone : itemX.imgAll);
+			} else if (itemX.imgOn != null && itemX.imgOff != null) {
 				itemX.toggleSwitchImageView.setImage(itemX.toggleSwitch.selectedProperty().get() ? 
 						itemX.imgOn : itemX.imgOff);
 			}
@@ -326,8 +369,8 @@ public class UGateToggleSwitchBox<T> extends HBox {
 				final String noneImageFileName, final String allImageFileName,
 				final String onText, final String offText, 
 				final boolean isOn, final boolean showToggleSwitch) {
-			this.imgOn = RS.img(onImageFileName);
-			this.imgOff = RS.img(offImageFileName);
+			this.imgOn = onImageFileName != null ? RS.img(onImageFileName) : null;
+			this.imgOff = offImageFileName != null ? RS.img(offImageFileName) : null;
 			this.imgNone = noneImageFileName != null ? RS.img(noneImageFileName) : null;
 			this.imgAll = allImageFileName != null ? RS.img(allImageFileName) : null;
 			this.showToggleSwitch = showToggleSwitch;

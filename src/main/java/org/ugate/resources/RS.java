@@ -774,12 +774,13 @@ public class RS {
 				"app.dialog.required"), APP_HELP_DEFAULT("help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
 				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
 				"win.systray.tooltip"), LOADING("loading"), SELECT("select"), TODAY(
-				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), UPDATE(
-				"update"), SUBMIT("submit"), ERROR("error"), INVALID("invalid"), SENDING(
-				"sending"), CAM_PAN("cam.pan"), CAM_PAN_DESC("cam.pan.desc"), CAM_TILT(
-				"cam.tilt"), CAM_TILT_DESC("cam.pan.tilt.desc"), CAM_RES(
-				"cam.resolution"), CAM_RES_DESC("cam.resolution.desc"), CAM_RES_VGA(
-				"cam.resolution.vga"), CAM_RES_QVGA("cam.resolution.qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
+				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), ALL_OFF(
+				"all.off"), UPDATE("update"), SUBMIT("submit"), ERROR("error"), INVALID(
+				"invalid"), SENDING("sending"), CAM_PAN("cam.pan"), CAM_PAN_DESC(
+				"cam.pan.desc"), CAM_TILT("cam.tilt"), CAM_TILT_DESC(
+				"cam.pan.tilt.desc"), CAM_RES("cam.resolution"), CAM_RES_DESC(
+				"cam.resolution.desc"), CAM_RES_VGA("cam.resolution.vga"), CAM_RES_QVGA(
+				"cam.resolution.qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
 				"cam.trip.angle.priority.desc"), CAM_SONAR_TRIP_ANGLE_PRIORITY(
 				"cam.sonar.trip.angle.priority"), CAM_PIR_TRIP_ANGLE_PRIORITY(
 				"cam.pir.trip.angle.priority"), CAM_MW_TRIP_ANGLE_PRIORITY(
@@ -796,8 +797,8 @@ public class RS {
 				"cam.take.vga"), SETTINGS_SAVE("settings.save"), SETTINGS_SEND(
 				"settings.send"), SETTINGS_RECEIVE("settings.receive"), SETTINGS_SEND_FAILED(
 				"settings.send.failed"), SENSOR_READINGS_GET(
-				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_READINGS(
-				"sensors.readings"), SENSOR_READINGS_FAILED(
+				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_DESC(
+				"sensors.trip.multi.desc"), SENSOR_READINGS("sensors.readings"), SENSOR_READINGS_FAILED(
 				"sensors.readings.failed"), GATE_CONFIG("gate.conf"), GATE_TOGGLE(
 				"gate.toggle"), GATE_TOGGLE_FAILED("gate.toggle.failed"), GATE_TOGGLE_DESC(
 				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_GRAPH_DESC(
@@ -878,7 +879,10 @@ public class RS {
 				"wireless.node.remote.sync"), WIRELESS_REMOTE_SYNC_DESC(
 				"wireless.node.remote.sync.desc"), WIRELESS_REMOTE_SYNCD(
 				"wireless.node.remote.syncd"), WIRELESS_REMOTE_OUT_OF_SYNC(
-				"wireless.node.remote.outofsync"), WIRELESS_REMOTE_UNIVERSAL(
+				"wireless.node.remote.outofsync"), WIRELESS_REMOTE_READINGS_TIME(
+				"wireless.node.remote.readings.time"), WIRELESS_REMOTE_READINGS_SENSOR(
+				"wireless.node.remote.readings.sensor"), WIRELESS_REMOTE_READINGS_REPORT(
+				"wireless.node.remote.readings.report"), WIRELESS_REMOTE_UNIVERSAL(
 				"wireless.remote.universal"), WIRELESS_REMOTE_UNIVERSAL_DESC(
 				"wireless.remote.universal.desc"), WIRELESS_PORT(
 				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(
