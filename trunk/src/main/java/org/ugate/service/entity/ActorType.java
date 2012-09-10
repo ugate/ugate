@@ -1,19 +1,22 @@
 package org.ugate.service.entity;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.Role;
 
 /**
  * {@linkplain Actor} types that contain {@linkplain #getKey()}s that point to
  * field paths within an {@linkplain Actor}
  */
 public enum ActorType implements IModelType<Actor> {
-	USERNAME("login"),
-	PASSWORD("pwd"),
+	USERNAME("username"),
+	PASSWORD("password"),
 	USE_METRIC("host.useMetric"),
 	HOST_COM_ADDY("host.comAddress"),
 	HOST_COM_PORT("host.comPort"),
@@ -80,6 +83,28 @@ public enum ActorType implements IModelType<Actor> {
 	public static Actor newDefaultActor() {
 		final Actor actor = new Actor();
 		actor.setHost(newDefaultHost());
+		return actor;
+	}
+
+	/**
+	 * Creates a new {@linkplain Actor} with minimal information
+	 * 
+	 * @param username
+	 *            the {@linkplain Actor}'s login ID
+	 * @param password
+	 *            the {@linkplain Actor}'s password
+	 * @param host
+	 *            the {@linkplain Host} that will be associated with the
+	 *            {@linkplain Actor}
+	 * @return a new {@linkplain Actor}
+	 */
+	public static Actor newActor(final String username, final String password,
+			final Host host, final Role... roles) {
+		final Actor actor = new Actor();
+		actor.setHost(host == null ? newDefaultHost() : host);
+		actor.setUsername(username);
+		actor.setPassword(password);
+		actor.setRoles(new HashSet<Role>(Arrays.asList(roles)));
 		return actor;
 	}
 

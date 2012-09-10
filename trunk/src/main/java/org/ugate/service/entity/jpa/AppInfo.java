@@ -4,7 +4,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -27,6 +30,11 @@ public class AppInfo implements Model {
 	@Column(name = "CREATED_DATE", nullable=false)
 	private Date createdDate;
 
+	//bi-directional many-to-one association to Actor
+    @ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="DEFAULT_ACTOR_ID", nullable=true)
+	private Actor defaultActor;
+
 	public Date getCreatedDate() {
 		return createdDate;
 	}
@@ -41,6 +49,14 @@ public class AppInfo implements Model {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public Actor getDefaultActor() {
+		return defaultActor;
+	}
+
+	public void setDefaultActor(Actor defaultActor) {
+		this.defaultActor = defaultActor;
 	}
 
 	@Override

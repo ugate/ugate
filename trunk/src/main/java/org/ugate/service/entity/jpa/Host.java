@@ -25,11 +25,12 @@ import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
+import org.ugate.UGateKeeper;
 import org.ugate.service.entity.Email;
 import org.ugate.service.entity.Model;
 
@@ -62,6 +63,7 @@ public class Host implements Model {
 	@Column(name="MAIL_IMAP_HOST", length=100)
 	private String mailImapHost;
 
+	@Min(0)
 	@Column(name="MAIL_IMAP_PORT")
 	private int mailImapPort;
 
@@ -75,6 +77,7 @@ public class Host implements Model {
 	@Column(name="MAIL_SMTP_HOST", length=100)
 	private String mailSmtpHost;
 
+	@Min(0)
 	@Column(name="MAIL_SMTP_PORT")
 	private int mailSmtpPort;
 
@@ -87,7 +90,8 @@ public class Host implements Model {
 	
 	@Column(name="WEB_HOST")
 	private String webHost;
-	
+
+	@Min(0)
 	@Column(name="WEB_PORT")
 	private int webPort;
 	

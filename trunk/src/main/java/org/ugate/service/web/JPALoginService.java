@@ -44,7 +44,7 @@ public class JPALoginService extends MappedLoginService {
 		}
 		// The password should already be an MD5 hash using the same salt pattern as the 
 		// JPA provider
-		final Credential cred = Credential.getCredential(MD5.__TYPE + actor.getPwd());
+		final Credential cred = Credential.getCredential(MD5.__TYPE + actor.getPassword());
 		return putUser(username, cred, roles);
 	}
 

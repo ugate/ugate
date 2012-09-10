@@ -2,9 +2,7 @@ package org.ugate.service;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -22,7 +20,6 @@ import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;
 import org.ugate.service.entity.jpa.RemoteNode;
-import org.ugate.service.entity.jpa.Role;
 
 /**
  * Credential service
@@ -46,32 +43,37 @@ public class CredentialService {
 	 * 
 	 * @param version
 	 *            the {@linkplain AppInfo#getVersion()}
-	 * @return true when an {@linkplain AppInfo} with the supplied
+	 * @return the {@linkplain AppInfo} with the supplied
 	 *         {@linkplain AppInfo#getVersion()} was not found and had to be
-	 *         added
+	 *         added (null when it already exists)
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public boolean addAppInfoIfNeeded(final String version) {
+	public AppInfo addAppInfoIfNeeded(final String version) {
 		AppInfo appInfo = credentialDao.getAppInfo(version);
 		if (appInfo == null) {
 			appInfo = new AppInfo();
 			appInfo.setVersion(version);
 			appInfo.setCreatedDate(new Date());
-			addAppInfo(appInfo);
-			return true;
+			credentialDao.persistEntity(appInfo);
+			return appInfo;
 		}
-		return false;
+		return appInfo;
 	}
 
 	/**
-	 * Adds an {@linkplain AppInfo}
 	 * 
-	 * @param appInfo
-	 *            the {@linkplain AppInfo} to add
+	 * @param version
+	 *            the {@linkplain AppInfo#getVersion()}
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	protected void addAppInfo(final AppInfo appInfo) {
-		credentialDao.persistEntity(appInfo);
+	public boolean setDefaultActor(final Actor defaultActor, final String version) {
+		final AppInfo appInfo = credentialDao.getAppInfo(version);
+		if (appInfo != null) {
+			appInfo.setDefaultActor(defaultActor);
+			credentialDao.persistEntity(appInfo);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -89,29 +91,27 @@ public class CredentialService {
 	}
 
 	/**
-	 * Adds a user with the specified roles to a central data source
+	 * Adds an {@linkplain Actor} to a central data source
 	 * 
-	 * @param username
-	 *            the user's login ID
-	 * @param password
-	 *            the user's password
-	 * @param host
-	 *            the {@linkplain Host} that will be associated with the user
-	 * @param roles
-	 *            the {@linkplain Role}(s) that the user should have
+	 * @param actor
+	 *            the {@linkplain Actor} to add
+	 * @param appVersion
+	 *            the {@linkplain AppInfo#getVersion()} to tie the the added
+	 *            {@linkplain Actor} to and will be used as the default
+	 *            {@linkplain Actor} when the application is started- bypassing
+	 *            authentication (null when no designation should be made)
 	 * @return the newly persisted {@linkplain Actor}
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public Actor addUser(final String username, final String password,
-			final Host host, final Role... roles)
+	public Actor addUser(final Actor actor, final String appVersion)
 			throws UnsupportedOperationException {
-		final Actor actor = new Actor();
-		actor.setHost(host);
-		actor.setLogin(username);
-		String pwdHash = generateHash(username, password);
-		actor.setPwd(pwdHash);
-		actor.setRoles(new HashSet<Role>(Arrays.asList(roles)));
+		actor.setPassword(generateHash(actor.getUsername(), actor.getPassword()));
 		credentialDao.persistEntity(actor);
+		if (appVersion != null && appVersion.length() > 0) {
+			final AppInfo appInfo = credentialDao.getAppInfo(appVersion);
+			appInfo.setDefaultActor(actor);
+			credentialDao.persistEntity(actor);
+		}
 		return actor;
 	}
 
@@ -151,7 +151,7 @@ public class CredentialService {
 		try {
 			final Actor actor = credentialDao.getActor(username);
 			if (actor != null) {
-				if (hasDigestMatch(username, actor.getPwd(), password)) {
+				if (hasDigestMatch(username, actor.getPassword(), password)) {
 					return actor;
 				}
 			} else if (log.isDebugEnabled()) {
