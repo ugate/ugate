@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
@@ -26,6 +27,7 @@ import javax.validation.constraints.Size;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
+import org.ugate.service.entity.Email;
 import org.ugate.service.entity.Model;
 
 
@@ -45,19 +47,23 @@ public class Actor implements Model {
 	private int id;
 
 	@Column(unique=true, nullable=false, length=100)
-	@Size(min=4)
+	@Email
 	@NotNull
-	private String login;
+	private String username;
 
 	@Column(nullable=false, length=64)
 	@Size(min=4)
-	private String pwd;
+	private String password;
 	
 	//bi-directional many-to-one association to Host
     @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
 	@JoinColumn(name="HOST_ID", nullable=false)
     @NotNull
 	private Host host;
+
+	//bi-directional many-to-one association to AppInfo
+	@OneToMany(mappedBy="defaultActor")
+	private Set<AppInfo> appInfos;
 
 	//bi-directional many-to-many association to Role
     @ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
@@ -106,20 +112,20 @@ public class Actor implements Model {
 		this.id = id;
 	}
 
-	public String getLogin() {
-		return this.login;
+	public String getUsername() {
+		return this.username;
 	}
 
-	public void setLogin(String login) {
-		this.login = login;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
-	public String getPwd() {
-		return this.pwd;
+	public String getPassword() {
+		return this.password;
 	}
 
-	public void setPwd(String pwd) {
-		this.pwd = pwd;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	public Host getHost() {
@@ -128,6 +134,14 @@ public class Actor implements Model {
 
 	public void setHost(Host host) {
 		this.host = host;
+	}
+
+	public Set<AppInfo> getAppInfos() {
+		return appInfos;
+	}
+
+	public void setAppInfos(Set<AppInfo> appInfos) {
+		this.appInfos = appInfos;
 	}
 
 	public Set<Role> getRoles() {

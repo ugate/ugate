@@ -2,10 +2,6 @@ package org.ugate.gui;
 
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.ValidatorFactory;
-
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -34,6 +30,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
@@ -61,6 +61,7 @@ public class ControlBar extends ToolBar {
 	private final BeanPathAdapter<Actor> actorPA;
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
+	private final ImageView defaultUserImg;
 	private final Label helpText;
 	private final Timeline settingsSetTimeline;
 	private final SensorReadingsView sensorReadingsView;
@@ -74,6 +75,17 @@ public class ControlBar extends ToolBar {
 
 	private final Stage stage;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param stage
+	 *            the {@linkplain Stage}
+	 * @param actorPA
+	 *            the {@linkplain BeanPathAdapter} for the {@linkplain Actor}
+	 * @param remoteNodePA
+	 *            the {@linkplain BeanPathAdapter} for the
+	 *            {@linkplain RemoteNode}
+	 */
 	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA, 
 			final BeanPathAdapter<RemoteNode> remoteNodePA) {
 		validationFactory = Validation.buildDefaultValidatorFactory();
@@ -110,6 +122,18 @@ public class ControlBar extends ToolBar {
 			}
 		});
 		helpTextPane.setContent(helpText);
+		defaultUserImg = RS.imgView(RS.IMG_LOCK);
+		defaultUserImg.setCursor(Cursor.HAND);
+		defaultUserImg.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				if (GuiUtil.isPrimaryPress(event)) {
+					setDefaultActor(defaultUserImg.getImage() == RS
+							.img(RS.IMG_LOCK) ? true : false, true);
+				}
+			}
+		});
+		addHelpTextTrigger(defaultUserImg, RS.rbLabel(KEYS.APP_DIALOG_DEFAULT_USER));
 		
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
@@ -122,7 +146,7 @@ public class ControlBar extends ToolBar {
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSave = RS.imgView(RS.IMG_DB_SAVE);
 		settingsSave.setCursor(Cursor.HAND);
-		settingsSave.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
+		settingsSave.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
@@ -134,7 +158,7 @@ public class ControlBar extends ToolBar {
 		settingsSave.setEffect(dbDS);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
 		settingsSet.setCursor(Cursor.HAND);
-		settingsSet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
+		settingsSet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
@@ -146,7 +170,7 @@ public class ControlBar extends ToolBar {
 		settingsSet.setEffect(settingsDS);
 		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
 		settingsGet.setCursor(Cursor.HAND);
-		settingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
+		settingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
@@ -158,7 +182,7 @@ public class ControlBar extends ToolBar {
 		settingsGet.setEffect(ds);
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
 		readingsGet.setCursor(Cursor.HAND);
-		readingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>(){
+		readingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
@@ -221,8 +245,9 @@ public class ControlBar extends ToolBar {
 	 * 
 	 * @param model
 	 *            the {@linkplain Model}
+	 * @return any validation error messages
 	 */
-	public <T extends Model> void validate(final T model) {
+	public <T extends Model> String validate(final T model) {
 		final Set<ConstraintViolation<T>> cvs = validationFactory
 				.getValidator().validate(model);
 		String s = "";
@@ -233,6 +258,7 @@ public class ControlBar extends ToolBar {
 							.getInvalidValue()) + '\n';
 		}
 		setHelpText(s);
+		return s;
 	}
 
 	/**
@@ -246,8 +272,9 @@ public class ControlBar extends ToolBar {
 			settingsSetTimeline.play();
 		}
 	}
+
 	/**
-	 * @return the menu bar items related to the control bar
+	 * @return the menu bar items related to the {@linkplain ControlBar}
 	 */
 	public Region createTitleBarItems() {
 		final HBox menu = new HBox(10d);
@@ -270,17 +297,21 @@ public class ControlBar extends ToolBar {
 				}
 			}
 		});
-		menu.getChildren().addAll(helpButton, helpTextPane);
+		menu.getChildren().addAll(helpButton, helpTextPane, defaultUserImg);
 	    return menu;
 	}
 	
 	/**
-	 * Creates a service for the command that will show a progress indicator preventing
-	 * further action until the command execution has completed.
+	 * Creates a {@linkplain Service} for the {@linkplain Command} that will
+	 * show a progress indicator preventing further action until the command
+	 * execution has completed.
 	 * 
-	 * @param command the command
-	 * @param start true to start the service immediately after creating the service
-	 * @return the service
+	 * @param command
+	 *            the {@linkplain Command}
+	 * @param start
+	 *            true to start the {@linkplain Service} immediately after
+	 *            creation
+	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createCommandService(final Command command, final boolean start) {
 		if (!ServiceProvider.IMPL.getWirelessService().isConnected()) {
@@ -337,12 +368,15 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * Creates a wireless connection service that will show a progress indicator preventing
-	 * further action until the wireless connection has been established.
+	 * Creates a wireless connection {@linkplain Service} that will show a
+	 * progress indicator preventing further action until the wireless
+	 * connection has been established.
 	 * 
-	 * @param comPort the COM port to connect to
-	 * @param baudRate the baud rate to connect at
-	 * @return the service
+	 * @param comPort
+	 *            the {@linkplain Host#getComPort()} to connect to
+	 * @param baudRate
+	 *            the {@linkplain Host#getComBaud()} to connect at
+	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createWirelessConnectionService() {
 		setHelpText(null);
@@ -363,10 +397,11 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * Creates an email connection service that will show a progress indicator preventing
-	 * further action until the email connection has been established.
+	 * Creates an email connection {@linkplain Service} that will show a progress
+	 * indicator preventing further action until the email connection has been
+	 * established.
 	 * 
-	 * @return the service
+	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createEmailConnectionService() {
 		setHelpText(null);
@@ -386,20 +421,25 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * Adds the help from the {@linkplain StringProperty} text when the node is right clicked
+	 * Adds the help from the {@linkplain StringProperty} text when the
+	 * {@linkplain Node} is right clicked
 	 * 
-	 * @param node the node to trigger the text
-	 * @param stringProperty the {@linkplain StringProperty} to show as the text value
+	 * @param node
+	 *            the {@linkplain Node} to trigger the text
+	 * @param stringProperty
+	 *            the {@linkplain StringProperty} to show as the text value
 	 */
 	public void addHelpTextTrigger(final Node node, final StringProperty stringProperty) {
 		node.setOnMousePressed(new HelpTextMouseHandler(stringProperty, null));
 	}
 	
 	/**
-	 * Adds the help text when the node is right clicked
+	 * Adds the help text when the {@linkplain Node} is right clicked
 	 * 
-	 * @param node the node to trigger the text
-	 * @param text the text to show
+	 * @param node
+	 *            the {@linkplain Node} to trigger the text
+	 * @param text
+	 *            the text to show
 	 */
 	public void addHelpTextTrigger(final Node node, final String text) {
 		node.setOnMousePressed(new HelpTextMouseHandler(null, text));
@@ -415,7 +455,8 @@ public class ControlBar extends ToolBar {
 	/**
 	 * Sets the help text
 	 * 
-	 * @param text the help text to set
+	 * @param text
+	 *            the help text to set
 	 */
 	public void setHelpText(final String text) {
 		Platform.runLater(new Runnable() {
@@ -455,6 +496,29 @@ public class ControlBar extends ToolBar {
 	 */
 	public BeanPathAdapter<Actor> getActorPA() {
 		return actorPA;
+	}
+
+	/**
+	 * Sets the current {@linkplain Actor} as the default one (bypassing the
+	 * need for authentication when the application starts)
+	 * 
+	 * @param isDefault
+	 *            true when the current {@linkplain Actor} is the default one
+	 * @param persist
+	 *            true to persist the default option
+	 */
+	public void setDefaultActor(final boolean isDefault, final boolean persist) {
+		try {
+			if (persist) {
+				ServiceProvider.IMPL.getCredentialService().setDefaultActor(
+						isDefault ? getActor() : null,
+						RS.rbLabel(KEYS.APP_VERSION));
+			}
+			defaultUserImg.setImage(RS.img(isDefault ? RS.IMG_UNLOCK
+					: RS.IMG_LOCK));
+		} catch (final Throwable t) {
+			log.warn("Unable to set the default " + Actor.class.getName(), t);
+		}
 	}
 
 	/**
@@ -510,7 +574,8 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * Help text mouse handler that shows either the {@linkplain StringProperty} or text
+	 * Help text {@linkplain EventHandler} {@linkplain MouseEvent} that shows
+	 * either the {@linkplain StringProperty} or text
 	 */
 	private final class HelpTextMouseHandler implements EventHandler<MouseEvent> {
 		
@@ -520,8 +585,10 @@ public class ControlBar extends ToolBar {
 		/**
 		 * Constructor
 		 * 
-		 * @param stringProperty the {@linkplain StringProperty} to show as the text value
-		 * @param text the text to show
+		 * @param stringProperty
+		 *            the {@linkplain StringProperty} to show as the text value
+		 * @param text
+		 *            the text to show
 		 */
 		private HelpTextMouseHandler(final StringProperty stringProperty, final String text) {
 			this.stringProperty = stringProperty;

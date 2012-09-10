@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.ugate.service.entity.Model;
 
@@ -30,27 +32,37 @@ public class RemoteNodeReading implements Model {
 	@Column(unique=true, nullable=false)
 	private int id;
 
+	@Min(0)
+	@Max(1)
 	@Column(name="GATE_STATE")
 	private int gateState;
 
+	@Min(0)
 	@Column(name="LASER_FEET")
 	private int laserFeet;
 
+	@Min(0)
+	@Max(11)
 	@Column(name="LASER_INCHES")
 	private int laserInches;
 
+	@Min(0)
 	@Column(name="MICROWAVE_CYCLE_COUNT")
 	private int microwaveCycleCount;
 
+	@Min(0)
 	@Column(name="PIR_INTENSITY")
 	private int pirIntensity;
 
 	@Column(name="READ_DATE", nullable=false)
 	private Date readDate;
 
+	@Min(0)
 	@Column(name="SONAR_FEET")
 	private int sonarFeet;
 
+	@Min(0)
+	@Max(11)
 	@Column(name="SONAR_INCHES")
 	private int sonarInches;
 

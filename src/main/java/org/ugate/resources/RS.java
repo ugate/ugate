@@ -114,6 +114,8 @@ public class RS {
 	public static final String IMG_UNIVERSAL_REMOTE_OFF = "universal-remote-off.png";
 	public static final String IMG_CORNER_RESIZE = "ugskin-resize11x11.png";
 	public static final String IMG_DB_SAVE = "db-save.png";
+	public static final String IMG_LOCK = "pad-lock.png";
+	public static final String IMG_UNLOCK = "pad-unlock.png";
 	private static final String RB_GUI = "LabelsBundle";
 	public static final AudioClip mediaPlayerConfirm = RS.audioClip("x_confirm.wav");
 	public static final AudioClip mediaPlayerDoorBell = RS.audioClip("x_doorbell.wav");
@@ -771,7 +773,8 @@ public class RS {
 				"app.dialog.auth.error"), APP_DIALOG_USERNAME(
 				"app.dialog.username"), APP_DIALOG_PWD("app.dialog.password"), APP_DIALOG_PWD_VERIFY(
 				"app.dialog.password.verify"), APP_DIALOG_REQUIRED(
-				"app.dialog.required"), APP_HELP_DEFAULT("help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
+				"app.dialog.required"), APP_DIALOG_DEFAULT_USER(
+				"app.dialog.defaultuser"), APP_HELP_DEFAULT("help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
 				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
 				"win.systray.tooltip"), LOADING("loading"), SELECT("select"), TODAY(
 				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), ALL_OFF(

@@ -11,6 +11,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.ugate.service.entity.Email;
 import org.ugate.service.entity.Model;
 
 /**
@@ -29,6 +30,7 @@ public class MailRecipient implements Model {
 	private int id;
 
 	@Column(unique=true, nullable=false, length=100)
+	@Email
 	private String email;
 	
 	@Column(name="FIRST_NAME", length=100)

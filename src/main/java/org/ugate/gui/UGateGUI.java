@@ -29,6 +29,8 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckBoxBuilder;
 import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.PasswordFieldBuilder;
@@ -51,6 +53,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import javax.security.sasl.AuthenticationException;
+import javax.validation.ValidationException;
 
 import org.slf4j.Logger;
 import org.ugate.UGateEvent;
@@ -73,6 +76,7 @@ import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.ImageCapture;
@@ -351,8 +355,20 @@ public class UGateGUI extends Application {
 	 */
 	protected void afterStart(final Stage stage) {
 		final String appVersion = RS.rbLabel(KEYS.APP_VERSION);
-		if (ServiceProvider.IMPL.getCredentialService().addAppInfoIfNeeded(RS.rbLabel(KEYS.APP_VERSION))) {
-			log.info("Persisted new application information for version " + appVersion);
+		final AppInfo appInfo = ServiceProvider.IMPL.getCredentialService().addAppInfoIfNeeded(
+				appVersion);
+		if (appInfo.getDefaultActor() != null && appInfo.getDefaultActor().getId() > 0) {
+			log.info(String.format("Default %1$s (ID: %2$s) for application verion %3$s found",
+					Actor.class.getName(), appInfo.getDefaultActor().getId(),
+					appInfo.getVersion()));
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					showApplication(stage, appInfo.getDefaultActor());
+					controlBar.setDefaultActor(true, false);
+				}
+			});
+			return;
 		}
 		// if there are no users then the user needs to be prompted for a username/password
 		final boolean isAuth = ServiceProvider.IMPL.getCredentialService().getActorCount() > 0;
@@ -376,6 +392,7 @@ public class UGateGUI extends Application {
 		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_PWD)).build();
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
 				RS.rbLabel(KEYS.APP_DIALOG_PWD_VERIFY)).build();
+		final CheckBox autoActor = CheckBoxBuilder.create().text(RS.rbLabel(KEYS.APP_DIALOG_DEFAULT_USER)).build();
 		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
 		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 400d, new Service<Void>() {
 			@Override
@@ -409,12 +426,22 @@ public class UGateGUI extends Application {
 									host.getRemoteNodes().iterator().next().setAddress(wirelessRemoteNodeAddy.getText());
 									host.getRemoteNodes().iterator().next().setWorkingDir(
 											wirelessRemoteNodeDirBox.getTextField().getText());
-									actor = ServiceProvider.IMPL.getCredentialService().addUser(
-													username.getText(), password.getText(), host, 
-													RoleType.ADMIN.newRole());
+									final String hvm = controlBar.validate(host);
+									if (hvm != null && hvm.length() > 0) {
+										throw new ValidationException(hvm);
+									}
+									final Actor a = ActorType.newActor(username.getText(), password.getText(), 
+											host, RoleType.ADMIN.newRole());
+									final String avm = controlBar.validate(a);
+									if (avm != null && avm.length() > 0) {
+										throw new ValidationException(avm);
+									}
+									actor = ServiceProvider.IMPL.getCredentialService().addUser(a,
+													autoActor.isSelected() ? appVersion : null);
 									if (actor == null) {
 										throw new IllegalArgumentException("Unable to add user " + username.getText());
 									}
+									controlBar.setDefaultActor(autoActor.isSelected(), false);
 								}
 								Platform.runLater(new Runnable() {
 									@Override
@@ -424,7 +451,8 @@ public class UGateGUI extends Application {
 								});
 							} catch (final Throwable t) {
 								String errorMsg;
-								if (t instanceof AuthenticationException || t instanceof InputMismatchException) {
+								if (t instanceof AuthenticationException || t instanceof InputMismatchException || 
+										t instanceof ValidationException) {
 									errorMsg = t.getMessage();
 								} else {
 									errorMsg = RS.rbLabel(isAuth ? 
@@ -446,7 +474,8 @@ public class UGateGUI extends Application {
 					}
 				};
 			}
-		}, null, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify);
+		}, null, closeBtn, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, 
+		username, password, passwordVerify, autoActor);
 		if (closeBtn != null) {
 			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override

@@ -8,6 +8,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
+import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Role;
@@ -35,14 +36,14 @@ public class CredentialDao extends Dao {
 
 	public Actor getActor(final String login) {
 		final TypedQuery<Actor> q = em.createQuery(
-				"select a from Actor a where a.login = ?1", Actor.class);
+				"select a from Actor a where a." + ActorType.USERNAME.getKey() + " = ?1", Actor.class);
 		q.setParameter(1, login);
 		return q.getSingleResult();
 	}
 
 	public Actor getActorByPassword(final String password) {
 		final TypedQuery<Actor> q = em.createQuery(
-				"select a from Actor a where a.pwd = ?1", Actor.class);
+				"select a from Actor a where a." + ActorType.PASSWORD.getKey() + " = ?1", Actor.class);
 		q.setParameter(1, password);
 		return q.getSingleResult();
 	}

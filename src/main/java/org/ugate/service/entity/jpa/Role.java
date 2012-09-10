@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.ugate.service.entity.Model;
 
@@ -29,6 +30,7 @@ public class Role implements Model {
 	@Column(unique=true, nullable=false)
 	private int id;
 
+	@NotNull
 	@Column(nullable=false, length=100)
 	private String role;
 
