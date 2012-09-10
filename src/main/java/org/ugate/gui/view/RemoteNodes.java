@@ -46,9 +46,9 @@ import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 /**
  * {@linkplain ToolBar} for displaying the status of each of the {@linkplain RemoteNode}s
  */
-public class RemoteNodesView extends ToolBar {
+public class RemoteNodes extends ToolBar {
 
-	private static final Logger log = LoggerFactory.getLogger(RemoteNodesView.class);
+	private static final Logger log = LoggerFactory.getLogger(RemoteNodes.class);
 	protected final ControlBar controlBar;
 	private final TextField textField = new TextField();
 	private final ListView<String> rnListView = new ListView<>();
@@ -59,7 +59,7 @@ public class RemoteNodesView extends ToolBar {
 	 * @param controlBar the control bar
 	 * @param orientation the {@linkplain Orientation}
 	 */
-	public RemoteNodesView(final ControlBar controlBar, final Orientation orientation) {
+	public RemoteNodes(final ControlBar controlBar, final Orientation orientation) {
 		super();
 		getStyleClass().add("dialog-base");
 		setOrientation(orientation);

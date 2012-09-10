@@ -42,7 +42,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
-import org.ugate.gui.view.SensorReadingsView;
+import org.ugate.gui.view.SensorReading;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
@@ -64,7 +64,7 @@ public class ControlBar extends ToolBar {
 	private final ImageView defaultUserImg;
 	private final Label helpText;
 	private final Timeline settingsSetTimeline;
-	private final SensorReadingsView sensorReadingsView;
+	private final SensorReading sensorReading;
 	
 	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
 	public static final Color ATTENTION_COLOR = Color.YELLOW;
@@ -193,12 +193,12 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(readingsGet, RS.rbLabel(KEYS.SENSOR_READINGS_GET));
 		readingsGet.setEffect(ds);
 
-		sensorReadingsView = new SensorReadingsView(this, Orientation.HORIZONTAL);
+		sensorReading = new SensorReading(this, Orientation.HORIZONTAL);
 		
 		// add the menu items
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSave, settingsSet,
 				settingsGet, readingsGet, new Separator(Orientation.VERTICAL), 
-				sensorReadingsView);
+				sensorReading);
 		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
@@ -468,10 +468,10 @@ public class ControlBar extends ToolBar {
 	}
 
 	/**
-	 * @return the {@linkplain SensorReadingsView}
+	 * @return the {@linkplain SensorReading}
 	 */
-	public SensorReadingsView getSensorReadingsView() {
-		return sensorReadingsView;
+	public SensorReading getSensorReadingsView() {
+		return sensorReading;
 	}
 
 	/**

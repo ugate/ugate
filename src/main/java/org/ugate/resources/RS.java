@@ -836,8 +836,12 @@ public class RS {
 				"service.email.failed"), SERVICE_EMAIL_CMD_EXEC(
 				"service.email.commandexec"), SERVICE_EMAIL_CMD_EXEC_FAILED(
 				"service.email.commandexec.failed"), LABEL_GRAPH_AXIS_Y(
-				"graph.axis.y"), LABEL_GRAPH_SERIES_ALARM("graph.series.alarm"), LABEL_GRAPH_SERIES_ACTIVITY_MANUAL(
-				"graph.series.activity.manual"), MAIL_CONNECT_FAILED(
+				"graph.axis.y"), LABEL_GRAPH_SERIES_ALARM_LASER(
+				"graph.series.alarm.laser"), LABEL_GRAPH_SERIES_ALARM_SONAR(
+				"graph.series.alarm.sonar"), LABEL_GRAPH_SERIES_ALARM_MICROWAVE(
+				"graph.series.alarm.microwave"), LABEL_GRAPH_SERIES_ALARM_PIR(
+				"graph.series.alarm.pir"), LABEL_GRAPH_SERIES_ACTIVITY_READS(
+				"graph.series.activity.reads"), MAIL_CONNECT_FAILED(
 				"mail.connect.failed"), MAIL_CONNECT("mail.connect"), MAIL_CONNECTED(
 				"mail.connected"), MAIL_CONNECTING("mail.connecting"), MAIL_DISCONNECTING(
 				"mail.disconnecting"), MAIL_DISCONNECTED("mail.disconnected"), MAIL_CLOSED(

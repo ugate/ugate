@@ -32,6 +32,7 @@ public class UGateUtil {
 
 	//public static final ExecutorService EXEC_SRVC = Executors.newCachedThreadPool();
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd hh:mm:ss";
+	public static final String TIME_FORMAT = "hh:mm a";
 	
 	// byte sizes
 	private static final long K = 1024;
@@ -151,7 +152,8 @@ public class UGateUtil {
 	}
 	
 	/**
-	 * Formats a {@linkplain Calendar} to the application wide format
+	 * Formats a {@linkplain Calendar} to the application wide format for
+	 * date/time
 	 * 
 	 * @param cal
 	 *            the {@linkplain Calendar} to format
@@ -159,6 +161,18 @@ public class UGateUtil {
 	 */
 	public static String calFormat(final Calendar cal) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		return sdf.format(cal.getTime());
+	}
+
+	/**
+	 * Formats a {@linkplain Calendar} to the application wide format for time
+	 * 
+	 * @param cal
+	 *            the {@linkplain Calendar} to format
+	 * @return the formated {@linkplain Calendar}
+	 */
+	public static String calFormatTime(final Calendar cal) {
+		SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
 		return sdf.format(cal.getTime());
 	}
 
