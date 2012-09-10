@@ -35,9 +35,9 @@ import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 /**
  * {@linkplain RemoteNodeReading} view
  */
-public class SensorReadingsView extends Parent {
+public class SensorReading extends Parent {
 
-	private static final Logger log = LoggerFactory.getLogger(SensorReadingsView.class);
+	private static final Logger log = LoggerFactory.getLogger(SensorReading.class);
 	private final ControlBar cb;
 	private final Label readDate;
 	private final Digits sonarReading;
@@ -57,9 +57,9 @@ public class SensorReadingsView extends Parent {
 	 *            the {@linkplain ControlBar}
 	 * @param orientation
 	 *            the {@linkplain Orientation} of the
-	 *            {@linkplain SensorReadingsView}
+	 *            {@linkplain SensorReading}
 	 */
-	public SensorReadingsView(final ControlBar controlBar, final Orientation orientation) {
+	public SensorReading(final ControlBar controlBar, final Orientation orientation) {
 		super();
 		this.cb = controlBar;
 		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO>();

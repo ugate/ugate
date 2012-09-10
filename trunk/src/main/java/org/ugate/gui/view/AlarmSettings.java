@@ -49,7 +49,7 @@ public class AlarmSettings extends ControlPane {
 	 * @param controlBar
 	 *            the {@linkplain ControlBar}
 	 * @param the
-	 *            {@linkplain SensorReadingsView}
+	 *            {@linkplain SensorReading}
 	 */
 	public AlarmSettings(final ControlBar controlBar) {
 		super(controlBar);

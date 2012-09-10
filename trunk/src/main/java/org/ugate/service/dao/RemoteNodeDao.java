@@ -1,9 +1,11 @@
 package org.ugate.service.dao;
 
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
@@ -41,6 +43,21 @@ public class RemoteNodeDao extends Dao {
 						RemoteNodeReading.class);
 		q.setParameter("id", remoteNode.getId());
 		return q.setFirstResult(startPosition).setMaxResults(maxResults).getResultList();
+	}
+
+	public List<RemoteNodeReading> findReadingsByIdAndDate(final RemoteNode remoteNode,
+			final Calendar startInclusive, final Calendar endExclusive,
+			final boolean asc) {
+		final String orderBy = (asc ? "asc" : "desc");
+		final TypedQuery<RemoteNodeReading> q = em
+				.createQuery(
+						"select rnr from RemoteNodeReading rnr where rnr.remoteNode.id = :id and rnr.readDate >= :sd and rnr.readDate < :ed order by rnr.readDate "
+								+ orderBy + ", rnr.fromMultiState " + orderBy,
+						RemoteNodeReading.class);
+		q.setParameter("id", remoteNode.getId());
+		q.setParameter("sd", startInclusive.getTime(), TemporalType.TIMESTAMP);
+		q.setParameter("ed", endExclusive.getTime(), TemporalType.TIMESTAMP);
+		return q.getResultList();
 	}
 
 	/**

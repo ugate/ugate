@@ -1,5 +1,7 @@
 package org.ugate.service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -61,5 +63,34 @@ public class RemoteNodeService {
 	public List<RemoteNodeReading> findReadingsById(final RemoteNode remoteNode, 
 			final int startPosition, final int maxResults) {
 		return remoteNodeDao.findReadingsById(remoteNode, startPosition, maxResults);
+	}
+
+	/**
+	 * Gets the {@linkplain RemoteNodeReading}(s) for a given {@linkplain Date}
+	 * 
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} to get the
+	 *            {@linkplain RemoteNodeReading}(s) for
+	 * @param date
+	 *            the {@linkplain Date} to get the
+	 *            {@linkplain RemoteNodeReading}(s) for
+	 * @param asc
+	 *            true for results in ascending order, false for descending
+	 * @return the {@linkplain RemoteNodeReading}(s)
+	 */
+	public List<RemoteNodeReading> findReadingsByDate(
+			final RemoteNode remoteNode, final Calendar cal, 
+			final boolean asc) {
+		final Calendar sc = Calendar.getInstance();
+		sc.setTime(cal.getTime());
+		sc.set(Calendar.HOUR_OF_DAY, 0);
+		sc.set(Calendar.MINUTE, 0);
+		sc.set(Calendar.SECOND, 0);
+		sc.set(Calendar.MILLISECOND, 0);
+		final Calendar ec = Calendar.getInstance();
+		ec.setTime(sc.getTime());
+		ec.add(Calendar.DAY_OF_MONTH, 1);
+		//UGateUtil.PLAIN_LOGGER.info("Start : " + UGateUtil.calFormat(sc) + " End: " + UGateUtil.calFormat(ec));
+		return remoteNodeDao.findReadingsByIdAndDate(remoteNode, sc, ec, asc);
 	}
 }

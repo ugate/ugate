@@ -1,10 +1,7 @@
 package org.ugate.gui;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.InputMismatchException;
-import java.util.Random;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,15 +15,11 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.CheckBox;
@@ -64,11 +57,11 @@ import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
-import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.gui.components.UGateDirectory;
-import org.ugate.gui.view.EmailHostConnectionView;
-import org.ugate.gui.view.RemoteNodesView;
-import org.ugate.gui.view.WirelessHostConnectionView;
+import org.ugate.gui.view.EmailHostConnection;
+import org.ugate.gui.view.RemoteNodes;
+import org.ugate.gui.view.SensorReadingHistory;
+import org.ugate.gui.view.WirelessHostConnection;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
@@ -99,8 +92,8 @@ public class UGateGUI extends Application {
 	protected final HBox connectionView = new HBox(10d);
 	protected final TextArea loggingView = new TextArea();
 	protected ControlBar controlBar;
-	protected EmailHostConnectionView mailConnectionView;
-	protected WirelessHostConnectionView wirelessConnectionView;
+	protected EmailHostConnection mailConnectionView;
+	protected WirelessHostConnection wirelessConnectionView;
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
@@ -244,8 +237,8 @@ public class UGateGUI extends Application {
 
 		final Controls controls = new Controls(controlBar);
 
-		wirelessConnectionView = new WirelessHostConnectionView(controlBar);
-		mailConnectionView = new EmailHostConnectionView(controlBar);
+		wirelessConnectionView = new WirelessHostConnection(controlBar);
+		mailConnectionView = new EmailHostConnection(controlBar);
 
 		// change the center view back to the connection view when
 		// connections are lost
@@ -264,7 +257,7 @@ public class UGateGUI extends Application {
 
 		final VBox bottom = new VBox();
 		bottom.setId("bottom-view");
-		bottom.getChildren().addAll(taskbar, new RemoteNodesView(controlBar, Orientation.HORIZONTAL));
+		bottom.getChildren().addAll(taskbar, new RemoteNodes(controlBar, Orientation.HORIZONTAL));
 
 		content.setCenter(centerView);
 		content.setBottom(bottom);
@@ -292,49 +285,7 @@ public class UGateGUI extends Application {
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel(KEYS.LABEL_GRAPH_DESC), 3, new Runnable() {
 			@Override
 			public void run() {
-				NumberAxis xAxis = new NumberAxis();
-				NumberAxis yAxis = new NumberAxis();
-				LineChart<Number, Number> chart = new LineChart<Number, Number>(xAxis, yAxis);
-				chart.setTitle(RS.rbLabel(KEYS.LABEL_GRAPH_ALARM_NOTIFY));
-				xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
-				yAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_Y));
-				XYChart.Series<Number, Number> sonarTrippedSeries = new XYChart.Series<Number, Number>();
-				sonarTrippedSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM));
-				Random random = new Random();
-				for (int i = 0; i < 10 + random.nextInt(20); i++) {
-					sonarTrippedSeries.getData().add(new XYChart.Data<Number, Number>(10 * i + 10, random.nextDouble() * 150));
-				}
-				chart.getData().add(sonarTrippedSeries);
-				XYChart.Series<Number, Number> manualImageSeries = new XYChart.Series<Number, Number>();
-				manualImageSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ACTIVITY_MANUAL));
-				for (int i = 0; i < 10 + random.nextInt(20); i++) {
-					manualImageSeries.getData().add(new XYChart.Data<Number, Number>(10 * i + 10, random.nextDouble() * 150));
-				}
-				chart.getData().add(manualImageSeries);
-
-				SimpleCalendar simpleCalender = new SimpleCalendar();
-				simpleCalender.setMaxSize(100d, 20d);
-				final TextField dateField = new TextField(new SimpleDateFormat("MM/dd/yyyy").format(simpleCalender.dateProperty().get()));
-				dateField.setMaxSize(simpleCalender.getMaxWidth(), simpleCalender.getMaxHeight());
-				dateField.setEditable(false);
-				dateField.setDisable(true);
-				simpleCalender.dateProperty().addListener(new ChangeListener<Date>() {
-
-					@Override
-					public void changed(ObservableValue<? extends Date> ov, Date oldDate, Date newDate) {
-						dateField.setText(new SimpleDateFormat("MM/dd/yyyy").format(newDate));
-
-					}
-				});
-
-				final HBox dateBox = new HBox();
-				dateBox.setAlignment(Pos.BOTTOM_RIGHT);
-				dateBox.getChildren().addAll(dateField, simpleCalender);
-				final StackPane history = new StackPane();
-				history.setPadding(new Insets(10d));
-				history.setAlignment(Pos.BOTTOM_RIGHT);
-				history.getChildren().addAll(chart, dateBox);
-				changeCenterView(history, 3);
+				changeCenterView(new SensorReadingHistory(controlBar), 3);
 			}
 		}));
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel(KEYS.APP_LOGS_DESC), 4, new Runnable() {

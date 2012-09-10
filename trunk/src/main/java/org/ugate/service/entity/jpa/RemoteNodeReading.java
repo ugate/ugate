@@ -33,6 +33,11 @@ public class RemoteNodeReading implements Model {
 	private int id;
 
 	@Min(0)
+	@Max(15)
+	@Column(name="FROM_MULTI_STATE")
+	private int fromMultiState;
+
+	@Min(0)
 	@Max(1)
 	@Column(name="GATE_STATE")
 	private int gateState;
@@ -81,6 +86,14 @@ public class RemoteNodeReading implements Model {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getFromMultiState() {
+		return fromMultiState;
+	}
+
+	public void setFromMultiState(int fromMultiState) {
+		this.fromMultiState = fromMultiState;
 	}
 
 	public int getGateState() {

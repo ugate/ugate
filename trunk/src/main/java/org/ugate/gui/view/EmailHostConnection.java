@@ -34,10 +34,10 @@ import org.ugate.service.entity.jpa.MailRecipient;
 /**
  * Responsible for connecting to the mail service
  */
-public class EmailHostConnectionView extends StatusView {
+public class EmailHostConnection extends StatusView {
 
 	private static final Logger log = LoggerFactory
-			.getLogger(EmailHostConnectionView.class);
+			.getLogger(EmailHostConnection.class);
 	public final UGateCtrlBox<Actor, Void, Void> smtpHost;
 	public final UGateCtrlBox<Actor, Void, Void> smtpPort;
 	public final UGateCtrlBox<Actor, Void, Void> imapHost;
@@ -50,7 +50,7 @@ public class EmailHostConnectionView extends StatusView {
 	public final Button connect;
 	public final ControlBar cb;
 
-	public EmailHostConnectionView(final ControlBar controlBar) {
+	public EmailHostConnection(final ControlBar controlBar) {
 		super(false, 20, GuiUtil.COLOR_OFF);
 		this.cb = controlBar;
 		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);

@@ -25,9 +25,9 @@ import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.jpa.Actor;
 
-public class WirelessHostConnectionView extends StatusView {
+public class WirelessHostConnection extends StatusView {
 	
-	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnectionView.class);
+	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnection.class);
 	public final UGateComboBox<String> port;
 	public final UGateComboBox<Integer> baud;
 	public final UGateCtrlBox<Actor, Void, Void> hostAddress;
@@ -37,7 +37,7 @@ public class WirelessHostConnectionView extends StatusView {
 	/**
 	 * Creates the wireless connection view
 	 */
-	public WirelessHostConnectionView(final ControlBar controlBar) {
+	public WirelessHostConnection(final ControlBar controlBar) {
 		super(false, 20, GuiUtil.COLOR_OFF);
 		this.cb = controlBar;
 		
