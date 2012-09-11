@@ -460,6 +460,9 @@ public class UGateGUI extends Application {
 				actorPA.setBean(authActor);
 				remoteNodePA.setBean(authActor.getHost().getRemoteNodes()
 						.iterator().next());
+				// TODO : Add auto-start option for connections
+//				ServiceProvider.IMPL.connect(authActor.getHost(),
+//						remoteNodePA.getBean(), true);
 				UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
 						Type.APP_DATA_LOADED, false));
 			}

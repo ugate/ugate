@@ -24,7 +24,7 @@
 			dependencies. Possible solutions: https://forums.oracle.com/forums/thread.jspa?threadID=2307062 -->
 		<ugate.javafx.jar.path>C:\java\jdk\jre\lib\jfxrt.jar</ugate.javafx.jar.path>
 		<ugate.javafx.antjar.path>C:\java\jdk\lib\ant-javafx.jar</ugate.javafx.antjar.path>
-		<ugate.javafx.version>2.1.0</ugate.javafx.version>
+		<ugate.javafx.version>2.2</ugate.javafx.version>
 		<!-- RXTX will be automatically installed in the appropriate Java directories 
 			(if not already installed). To run from within IDE ensure the RXTX ZIP archive 
 			is added to the projects source path (along with the other dependencies). -->
@@ -34,7 +34,7 @@
 		<ugate.mail.version>1.4.5</ugate.mail.version>
 		<ugate.slf4j.version>1.6.6</ugate.slf4j.version>
 		<ugate.logback.version>1.0.6</ugate.logback.version>
-		<ugate.jetty.version>8.1.5.v20120716</ugate.jetty.version>
+		<ugate.jetty.version>8.1.6.v20120903</ugate.jetty.version>
 		<ugate.servlet.version>3.0.1</ugate.servlet.version>
 		<ugate.jta.version>1.1</ugate.jta.version>
 		<ugate.atomikos.version>3.8.0</ugate.atomikos.version>
@@ -44,7 +44,7 @@
 		<ugate.junit.version>4.9</ugate.junit.version>
 		<ugate.plugin.compiler.version>2.5</ugate.plugin.compiler.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
-		<ugate.plugin.shade.version>1.7.1</ugate.plugin.shade.version>
+		<ugate.plugin.shade.version>2.0</ugate.plugin.shade.version>
 		<ugate.plugin.dependency.version>2.5.1</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
@@ -180,6 +180,7 @@
 									<resource>META-INF/spring.schemas</resource>
 								</transformer>
 							</transformers>
+							<dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
 						</configuration>
 					</execution>
 				</executions>

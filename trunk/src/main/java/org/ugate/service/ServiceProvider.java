@@ -56,17 +56,17 @@ public enum ServiceProvider {
 	 * 
 	 * @param host
 	 *            the {@linkplain Host} to open the services for
-	 * @param remoteNodeIndex
-	 *            the index of the {@linkplain RemoteNode} in the
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} in the
 	 *            {@linkplain Host#getRemoteNodes()} used to open the services
 	 * @param startWebServer
 	 *            true to start the {@linkplain WebServer}
 	 * @return true when the {@linkplain WirelessService} successfully connected
 	 *         to the local device
 	 */
-	public boolean connect(final Host host, final int remoteNodeIndex,
+	public boolean connect(final Host host, final RemoteNode remoteNode,
 			final boolean startWebServer) {
-		return connect(host, remoteNodeIndex, startWebServer, null);
+		return connect(host, remoteNode, startWebServer, null);
 	}
 	
 	/**
@@ -74,8 +74,8 @@ public enum ServiceProvider {
 	 * 
 	 * @param host
 	 *            the {@linkplain Host} to open the services for
-	 * @param remoteNodeIndex
-	 *            the index of the {@linkplain RemoteNode} in the
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} in the
 	 *            {@linkplain Host#getRemoteNodes()} used to open the services
 	 * @param startWebServer
 	 *            true to start the {@linkplain WebServer}
@@ -85,7 +85,7 @@ public enum ServiceProvider {
 	 * @return true when the {@linkplain WirelessService} successfully connected
 	 *         to the local device (required for application to run)
 	 */
-	public boolean connect(final Host host, final int remoteNodeIndex,
+	public boolean connect(final Host host, final RemoteNode remoteNode,
 			final boolean startWebServer, final SignatureAlgorithm sa) {
 		try {
 			if (host == null && this.host == null) {
@@ -96,28 +96,26 @@ public enum ServiceProvider {
 			}
 			if (this.host.getRemoteNodes() == null) {
 				throw new NullPointerException(RemoteNode.class.getName() + " cannot be null");
-			} else if (remoteNodeIndex >= this.host.getRemoteNodes().size()) {
-				throw new IndexOutOfBoundsException(String.format(
-						"(%1$s) %2$s on %3$s for index %4$s", this.host
-								.getRemoteNodes().size(), RemoteNode.class
-								.getName(), Host.class.getName(),
-						remoteNodeIndex));
+			} else if (remoteNode == null) {
+				throw new NullPointerException(String.format(
+						"(%1$s) %2$s on %3$s", this.host.getRemoteNodes()
+								.size(), RemoteNode.class.getName(), Host.class
+								.getName()));
 			}
-			if (remoteNodeIndex >= 0) {
-				int i = -1;
-				RemoteNode rn;
-				for (Iterator<RemoteNode> rni = this.host.getRemoteNodes()
-						.iterator(); rni.hasNext();) {
-					rn = rni.next();
-					if (++i == remoteNodeIndex) {
-						this.remoteNode = rn;
-						break;
-					}
+			// validate that the remote node is part of the host
+			RemoteNode rn;
+			for (final Iterator<RemoteNode> rni = this.host.getRemoteNodes()
+					.iterator(); rni.hasNext();) {
+				rn = rni.next();
+				if (rn == remoteNode) {
+					this.remoteNode = remoteNode;
 				}
 			}
 			if (this.remoteNode == null) {
-				throw new IllegalStateException(RemoteNode.class.getName()
-						+ " is invalid at index " + remoteNodeIndex);
+				throw new IllegalStateException(String.format(
+						"%1$s is invalid at address %2$s for host ID %3$s",
+						RemoteNode.class.getName(), remoteNode.getAddress(),
+						host.getId()));
 			}
 			init();
 			if (!getWirelessService().connect(this.host, this.remoteNode)) {

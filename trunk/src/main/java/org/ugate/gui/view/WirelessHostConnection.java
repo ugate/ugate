@@ -85,14 +85,26 @@ public class WirelessHostConnection extends StatusView {
 			}
 		});
 	    
-	    connect = new Button();
+	    connect = new Button(RS.rbLabel(KEYS.WIRELESS_CONNECT));
 	    connect.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
 			@Override
 			public void handle(MouseEvent event) {
 				connect();
 			}
 	    });
-	    connect.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
+	    
+	    final Button webStartBtn = new Button(RS.rbLabel(KEYS.WIRELESS_WEB_START));
+		webStartBtn.addEventHandler(MouseEvent.MOUSE_PRESSED,
+				new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(MouseEvent event) {
+						if (GuiUtil.isPrimaryPress(event)) {
+							ServiceProvider.IMPL.startWebServer(controlBar.getActor().getHost(),
+									null);
+						}
+					}
+				});
+		controlBar.addHelpTextTrigger(webStartBtn, RS.rbLabel(KEYS.WIRELESS_WEB_START_DESC));
 	    
 	    final VBox portBaudView = new VBox(10d);
 	    portBaudView.setPadding(new Insets(30d, 0, 0, 0));
@@ -107,7 +119,7 @@ public class WirelessHostConnection extends StatusView {
 	    
 	    final VBox main = new VBox(10d);
 	    main.getChildren().addAll(iconGrid, hostAddress);
-	    getChildren().addAll(main, connect);
+	    getChildren().addAll(main, connect, webStartBtn);
 	}
 	
 	/**
