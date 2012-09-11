@@ -102,8 +102,6 @@
 <!-- 				<entry key="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/> -->
 <!-- 				<entry key="openjpa.jdbc.DBDictionary" -->
 <!-- 					value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" /> -->
-<!-- 				<entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/> -->
-<!-- 				<entry key="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/> -->
 <!-- 				<entry key="openjpa.ConnectionFactoryMode" value="managed" /> -->
 <!-- 				<entry key="openjpa.TransactionMode" value="managed" /> -->
 <!-- 				<entry key="openjpa.ManagedRuntime" -->

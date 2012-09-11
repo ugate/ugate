@@ -869,7 +869,10 @@ public class RS {
 				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
 				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
 				"laser.calibration.failed"), WIRELESS_TAB1("wireless.tab1"), WIRELESS_TAB2(
-				"wireless.tab2"), WIRELESS_TAB3("wireless.tab3"), WIRELESS_NODE_REMOTE_ADDY(
+				"wireless.tab2"), WIRELESS_TAB3("wireless.tab3"), WIRELESS_WEB_START(
+				"wireless.web.start"), WIRELESS_WEB_START_DESC(
+				"wireless.web.start.desc"), WIRELESS_WEB_STOP(
+				"wireless.web.stop"), WIRELESS_NODE_REMOTE_ADDY(
 				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
 				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
 				"wireless.node.remote.prompt"), WIRELESS_NODE_REMOTE_STATUS(
