@@ -376,7 +376,7 @@ public class UGateToggleSwitchBox<T> extends HBox {
 			this.showToggleSwitch = showToggleSwitch;
 			toggleSwitch = new ToggleSwitch(onText, offText, true);
 			toggleSwitch.selectedProperty().set(isOn);
-			toggleSwitchImageView = RS.imgView(isOn ? imgOn : imgOff);
+			toggleSwitchImageView = RS.imgView(isOn ? imgOn : imgOff, false);
 			toggleSwitchImageView.setCursor(Cursor.HAND);
 			toggleSwitchImageView.setOnMousePressed(new EventHandler<MouseEvent>() {
 				@Override

@@ -155,7 +155,7 @@ public class EmailAgent implements Runnable {
 		if (authEmails == null || authEmails.isEmpty()) {
 			throw new IllegalArgumentException("Authorized emails are required");
 		}
-		// connect using TLS
+		// wirelessBtn using TLS
 		this.props = new Properties();
 		props.put("mail.smtps.auth", "true");
 		props.put("mail.smtps.user", username);
@@ -267,7 +267,7 @@ public class EmailAgent implements Runnable {
 				}
 			} catch (final Exception e) {
 				if (runIt) {
-					log.warn("Unable to connect... attempting to reconnect...", e);
+					log.warn("Unable to wirelessBtn... attempting to reconnect...", e);
 				}
 			}
 		}
@@ -344,7 +344,7 @@ public class EmailAgent implements Runnable {
 			// mp.addBodyPart(mbp2);
 			msg.setContent(mp);
 			
-			// connect to SMTP transport and send message
+			// wirelessBtn to SMTP transport and send message
 			send(session, msg);
 		} catch (Exception e) {
 			log.error("Unable to send mail message", e);

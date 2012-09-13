@@ -14,18 +14,22 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateEvent.Type;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
 
 /**
- * Embedded web server
+ * Embedded web {@linkplain Server}
  */
 public class WebServer {
 
@@ -54,7 +58,7 @@ public class WebServer {
 	}
 
 	/**
-	 * Starts the web server in a new thread
+	 * Starts the {@linkplain WebServer} in a new {@linkplain Thread}
 	 * 
 	 * @param host
 	 *            the {@linkplain Host#getId()}
@@ -69,7 +73,11 @@ public class WebServer {
 				.getThreadGroup(), new Runnable() {
 			@Override
 			public void run() {
-				webServer.startServer();
+				try {
+					webServer.startServer();
+				} catch (final Throwable t) {
+					log.error("Failed to start web server", t);
+				}
 			}
 		}, WebServer.class.getSimpleName() + '-' + System.currentTimeMillis());
 		webServerAgent.setDaemon(true);
@@ -78,10 +86,12 @@ public class WebServer {
 	}
 
 	/**
-	 * Starts the web server
+	 * Starts the {@linkplain WebServer}
 	 */
 	protected final void startServer() {
 		try {
+			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+					Type.WEB_INITIALIZE, false));
 			// Get server from configuration file
 			// final Resource serverXml =
 			// Resource.newSystemResource("META-INF/jetty.xml");
@@ -92,6 +102,34 @@ public class WebServer {
 					.getHostById(getHostId());
 			
 			server = new Server();
+			server.addLifeCycleListener(new LifeCycle.Listener() {
+				@Override
+				public void lifeCycleStopping(final LifeCycle lifeCycle) {
+					UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+							Type.WEB_DISCONNECTING, false));
+				}
+				@Override
+				public void lifeCycleStopped(final LifeCycle lifeCycle) {
+					UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+							Type.WEB_DISCONNECTED, false));
+				}
+				@Override
+				public void lifeCycleStarting(final LifeCycle lifeCycle) {
+					UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+							Type.WEB_CONNECTING, false));
+				}
+				@Override
+				public void lifeCycleStarted(final LifeCycle lifeCycle) {
+					UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+							Type.WEB_CONNECTED, false));
+				}
+				@Override
+				public void lifeCycleFailure(final LifeCycle lifeCycle, final Throwable t) {
+					log.error(String.format("%1$s failure", LifeCycle.class.getName()), t);
+					UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+							Type.WEB_CONNECT_FAILED, false, t.getMessage()));
+				}
+			});
 			
 			// X.509 Setup
 			// TODO : Add password control to the key store
@@ -130,6 +168,8 @@ public class WebServer {
 			server.join();
 		} catch (final Throwable e) {
 			log.error("Unable to start web server", e);
+			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
+					Type.WEB_INITIALIZE_FAILED, false));
 		} finally {
 
 		}
@@ -199,7 +239,7 @@ public class WebServer {
 	}
 
 	/**
-	 * Stops the web server
+	 * Stops the {@linkplain WebServer}
 	 */
 	public final void stop() {
 		try {
@@ -208,9 +248,16 @@ public class WebServer {
 			}
 			server.destroy();
 			hostKeyStore = null;
-		} catch (final Exception e) {
-			log.error("Unable to shutdown", e);
+		} catch (final Throwable t) {
+			log.error("Unable to shutdown web server", t);
 		}
+	}
+
+	/**
+	 * @return {@linkplain Server#isRunning()}
+	 */
+	public final boolean isRunning() {
+		return server != null && server.isRunning();
 	}
 
 	/**

@@ -44,7 +44,7 @@ public class EmailService {
 //		if (true) {
 //			return;
 //		}
-		// connect to email
+		// wirelessBtn to email
 		//emailDisconnect();
 		if (host == null || host.getId() <= 0) {
 			return false;

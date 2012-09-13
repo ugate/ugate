@@ -52,6 +52,7 @@ public class GuiUtil {
 	public static final Color COLOR_ON = Color.web("#00FF00", 1);
 	public static final Color COLOR_OPEN = Color.YELLOW;
 	public static final Color COLOR_OFF = Color.RED;
+	public static final Color COLOR_CLOSED = Color.SLATEGRAY;
 	public static final Color COLOR_SELECTED = Color.DEEPSKYBLUE;
 	public static final Color COLOR_SELECTED_BLAND = Color.DEEPSKYBLUE.deriveColor(1d, 1d, 0.7d, 1d);
 	public static final Color COLOR_SELECTING = Color.YELLOW;
@@ -399,7 +400,7 @@ public class GuiUtil {
 	 *            the {@linkplain Timeline#getCycleCount()}
 	 * @return the {@linkplain Timeline}
 	 */
-	public static Timeline createDropShadowColorIndicatorTimline(final DropShadow ds, 
+	public static Timeline createDropShadowColorIndicatorTimeline(final DropShadow ds, 
 			final Color onColor, final Color offColor, final int cycleCount) {
 		ds.setColor(offColor);
 		final Timeline timeline = new Timeline();
@@ -420,7 +421,7 @@ public class GuiUtil {
 		timeline.getKeyFrames().add(kf);
 		return timeline;
 	}
-	
+
 	/**
 	 * Creates a background display {@linkplain Region}
 	 * 

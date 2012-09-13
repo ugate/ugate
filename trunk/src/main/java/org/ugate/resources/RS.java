@@ -68,6 +68,7 @@ public class RS {
 	public static final String IMG_PICS = "pics.png";
 	public static final String IMG_WIRELESS = "wireless-globe.png";
 	public static final String IMG_WIRELESS_ICON = "wireless-icon.png";
+	public static final String IMG_WEB_ICON = "web-icon.png";
 	public static final String IMG_GRAPH = "graph.png";
 	public static final String IMG_LOGS = "logs.png";
 	public static final String IMG_CAM_VGA = "cam-vga.png";
@@ -129,63 +130,93 @@ public class RS {
 	}
 	
 	/**
-	 * Creates an image view from a set of cached images
+	 * Creates an {@linkplain ImageView} from a set of cached {@linkplain Image}
+	 * s
 	 * 
-	 * @param fileName the image file name
-	 * @return the image view
+	 * @param fileName
+	 *            the {@linkplain Image} file name
+	 * @return the {@linkplain ImageView}
 	 */
 	public static ImageView imgView(final String fileName) {
-		return imgView(img(fileName));
+		return imgView(img(fileName), false);
 	}
-	
+
 	/**
-	 * Creates an image view from a set of cached images
+	 * Creates an {@linkplain ImageView} from a set of cached {@linkplain Image}
+	 * s
 	 * 
-	 * @param fileName the image file name
-	 * @param key the preferences key to associate the image with
-	 * @return the image view
+	 * @param fileName
+	 *            the {@linkplain Image} file name
+	 * @param requestedWidth
+	 *            {@linkplain Image#getRequestedWidth()}
+	 * @param requestedHeight
+	 *            {@linkplain Image#getRequestedHeight()}
+	 * @param preserveRatio
+	 *            {@linkplain Image#isPreserveRatio()}
+	 * @param smooth
+	 *            {@linkplain Image#isSmooth()}
+	 * @return the {@linkplain ImageView}
 	 */
-	public static ImageView imgView(final String fileName, final String key) {
-		return imgView(img(fileName), key);
+	public static ImageView imgView(final String fileName,
+			double requestedWidth, double requestedHeight,
+			boolean preserveRatio, boolean smooth) {
+		return imgView(img(fileName, requestedWidth, requestedHeight,
+				preserveRatio, smooth), smooth);
 	}
-	
+
 	/**
-	 * Creates an image view
+	 * Creates an {@linkplain ImageView}
 	 * 
-	 * @param image the image
-	 * @return the image view
+	 * @param image
+	 *            the {@linkplain Image}
+	 * @param smooth
+	 *            {@linkplain Image#isSmooth()}
+	 * @return the {@linkplain ImageView}
 	 */
-	public static ImageView imgView(final Image image) {
-		return imgView(image, null);
-	}
-	
-	/**
-	 * Creates an image view
-	 * 
-	 * @param image the image
-	 * @param key the preferences key to associate the image with
-	 * @return the image view
-	 */
-	public static ImageView imgView(final Image image, final String key) {
+	public static ImageView imgView(final Image image, final boolean smooth) {
 		final ImageView node = new ImageView(image);
-		node.setSmooth(false);
+		node.setSmooth(smooth);
 		node.setCache(true);
 		node.setCacheHint(CacheHint.SPEED);
 		return node;
 	}
-	
+
 	/**
-	 * Gets an image from a set of cached images
+	 * Gets an {@linkplain Image} from a set of cached {@linkplain Image}s
 	 * 
-	 * @param fileName the image file name
-	 * @return the image
+	 * @param fileName
+	 *            the image file name
+	 * @return the {@linkplain Image}
 	 */
 	public static Image img(final String fileName) {
-		if (IMGS.containsKey(fileName)) {
-			return IMGS.get(fileName);
+		return img(fileName, 0, 0, false, false);
+	}
+
+	/**
+	 * Gets an {@linkplain Image} from a set of cached {@linkplain Image}s
+	 * 
+	 * @param fileName
+	 *            the image file name
+	 * @param requestedWidth
+	 *            {@linkplain Image#getRequestedWidth()}
+	 * @param requestedHeight
+	 *            {@linkplain Image#getRequestedHeight()}
+	 * @param preserveRatio
+	 *            {@linkplain Image#isPreserveRatio()}
+	 * @param smooth
+	 *            {@linkplain Image#isSmooth()}
+	 * @return the {@linkplain Image}
+	 */
+	public static Image img(final String fileName, double requestedWidth,
+			double requestedHeight, boolean preserveRatio, boolean smooth) {
+		final String key = fileName + requestedWidth + 'x' + requestedHeight;
+		if (IMGS.containsKey(key)) {
+			return IMGS.get(key);
 		} else {
-			final Image img = new Image(path(fileName));
-			IMGS.put(fileName, img);
+			final Image img = requestedWidth <= 0 || requestedHeight <= 0 ? new Image(
+					path(fileName)) : new Image(path(fileName), requestedWidth,
+					requestedHeight, preserveRatio, smooth);
+			IMGS.put(key, img);
 			return img;
 		}
 	}
@@ -522,7 +553,7 @@ public class RS {
 	/**
 	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
 	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
-	 * {@link #connect(String)} or {@link #connect(String, int)} to open a Serial connection.
+	 * {@link #wirelessBtn(String)} or {@link #wirelessBtn(String, int)} to open a Serial connection.
 	 * 
 	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
 	 */
@@ -869,10 +900,9 @@ public class RS {
 				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
 				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
 				"laser.calibration.failed"), WIRELESS_TAB1("wireless.tab1"), WIRELESS_TAB2(
-				"wireless.tab2"), WIRELESS_TAB3("wireless.tab3"), WIRELESS_WEB_START(
-				"wireless.web.start"), WIRELESS_WEB_START_DESC(
-				"wireless.web.start.desc"), WIRELESS_WEB_STOP(
-				"wireless.web.stop"), WIRELESS_NODE_REMOTE_ADDY(
+				"wireless.tab2"), WIRELESS_TAB3("wireless.tab3"), WIRELESS_WEB_START_STOP(
+				"wireless.web.startstop"), WIRELESS_WEB_START_STOP_DESC(
+				"wireless.web.startstop.desc"), WIRELESS_NODE_REMOTE_ADDY(
 				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
 				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
 				"wireless.node.remote.prompt"), WIRELESS_NODE_REMOTE_STATUS(
