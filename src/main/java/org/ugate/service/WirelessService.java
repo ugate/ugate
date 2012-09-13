@@ -95,23 +95,24 @@ public class WirelessService {
 	 * Connects to the wireless network
 	 * 
 	 * @param host
-	 *            the {@linkplain Host} to connect to
+	 *            the {@linkplain Host} to wirelessBtn to
 	 */
 	public boolean connect(final Host host, final RemoteNode remoteNode) {
 		if (xbee == null) {
 			init();
 		}
-		if (!isListening()) {
-			xbee.addPacketListener(packetListener);
-			isListening = true;
-		} else {
+		if (isListening()) {
 			disconnect();
 		}
 		log.info("Connecting to local XBee");
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 				this, UGateEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
-			xbee.open(host.getComAddress(), host.getComBaud());
+			xbee.open(host.getComPort(), host.getComBaud());
+			if (!isListening()) {
+				xbee.addPacketListener(packetListener);
+				isListening = true;
+			}
 			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
 					host.getComAddress(), host.getComBaud()));
 			// XBee connection is blocking so notification can be sent here
@@ -119,8 +120,8 @@ public class WirelessService {
 					this, UGateEvent.Type.WIRELESS_HOST_CONNECTED, false));
 			return true;
 		} catch (final Throwable t) {
-			final String errorMsg = String.format("Unable to establish a connection to the local XBee using port %1$s and baud rate %2$s", 
-					host.getComAddress(), host.getComBaud());
+			final String errorMsg = String.format("Unable to establish a connection to the local XBee at address %1$s using port %2$s and baud rate %3$s", 
+					host.getComAddress(), host.getComPort(), host.getComBaud());
 			log.error(errorMsg, t);
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 					this, UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED, false, errorMsg, t.getMessage()));
@@ -436,7 +437,7 @@ public class WirelessService {
 	/**
 	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
 	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
-	 * {@link #connect(String)} or {@link #connect(String, int)} to open a Serial connection.
+	 * {@link #wirelessBtn(String)} or {@link #wirelessBtn(String, int)} to open a Serial connection.
 	 * 
 	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
 	 */

@@ -2,26 +2,26 @@ package org.ugate.gui.view;
 
 import java.util.Arrays;
 
+import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.UGateListener;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
+import org.ugate.UGateListener;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
+import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -34,7 +34,7 @@ import org.ugate.service.entity.jpa.MailRecipient;
 /**
  * Responsible for connecting to the mail service
  */
-public class EmailHostConnection extends StatusView {
+public class EmailHostConnection extends VBox {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(EmailHostConnection.class);
@@ -51,9 +51,10 @@ public class EmailHostConnection extends StatusView {
 	public final ControlBar cb;
 
 	public EmailHostConnection(final ControlBar controlBar) {
-		super(false, 20, GuiUtil.COLOR_OFF);
+		super(20);
 		this.cb = controlBar;
-		final ImageView icon = RS.imgView(RS.IMG_EMAIL_ICON);
+		final StatusIcon emailIcon = new StatusIcon(
+				RS.imgView(RS.IMG_EMAIL_ICON), GuiUtil.COLOR_OFF);
 		smtpHost = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_SMTP_HOST, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEYS.MAIL_SMTP_HOST), null);
@@ -96,7 +97,7 @@ public class EmailHostConnection extends StatusView {
 				new Runnable() {
 					@Override
 					public void run() {
-						if (recipient.getText().isEmpty() || !validate(true)) {
+						if (recipient.getText().isEmpty()) {
 							return;
 						}
 						final String raddy = recipient.getText();
@@ -123,7 +124,7 @@ public class EmailHostConnection extends StatusView {
 					@Override
 					public void run() {
 						if (recipients.getListView().getSelectionModel()
-								.getSelectedItems().isEmpty() || !validate(true)) {
+								.getSelectedItems().isEmpty()) {
 							return;
 						}
 						final MailRecipient[] ms = cb.getActor().getHost()
@@ -182,21 +183,25 @@ public class EmailHostConnection extends StatusView {
 				if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
-					setFill(GuiUtil.COLOR_OPEN);
+					emailIcon.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 					connect.setDisable(false);
-					// connect.setText(RS.rbLabel("mail.reconnect"));
+					// wirelessBtn.setText(RS.rbLabel("mail.reconnect"));
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
 					connect.setDisable(true);
-					setFill(GuiUtil.COLOR_ON);
+					emailIcon.setStatusFill(GuiUtil.COLOR_ON);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
-					setFill(GuiUtil.COLOR_OFF);
+					emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
 					connect.setDisable(true);
 					connect.setText(RS.rbLabel(KEYS.MAIL_DISCONNECTING));
-					setFill(GuiUtil.COLOR_OPEN);
+					emailIcon.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
 						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED) {
 					// run later in case the application is going to exit which
@@ -207,7 +212,7 @@ public class EmailHostConnection extends StatusView {
 							connect.setDisable(false);
 							connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
 							log.debug("Turning FILL_OFF email connection icon");
-							setFill(GuiUtil.COLOR_OFF);
+							emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
 						}
 					});
 				}
@@ -215,21 +220,15 @@ public class EmailHostConnection extends StatusView {
 		});
 
 		connect = new Button();
-		connect.addEventHandler(MouseEvent.MOUSE_CLICKED,
-				new EventHandler<MouseEvent>() {
-					@Override
-					public void handle(MouseEvent event) {
-						connect();
-					}
-				});
-		connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
+		cb.addServiceBehavior(connect, null, ServiceProvider.Type.EMAIL,
+				KEYS.MAIL_CONNECT);
 
 		final GridPane grid = new GridPane();
 		grid.setHgap(10d);
 		grid.setVgap(30d);
 
 		final VBox toggleView = new VBox(10d);
-		toggleView.getChildren().addAll(icon);
+		toggleView.getChildren().addAll(emailIcon);
 
 		final GridPane connectionGrid = new GridPane();
 		connectionGrid.setPadding(new Insets(20d, 5, 5, 5));
@@ -249,45 +248,5 @@ public class EmailHostConnection extends StatusView {
 		grid.add(connectionGrid, 1, 0);
 		grid.add(connect, 1, 1, 2, 1);
 		getChildren().add(grid);
-	}
-
-	/**
-	 * Establishes an email connection using internal parameters
-	 */
-	public void connect() {
-		if (validate(true)) {
-			log.debug("Connecting to email...");
-			ServiceProvider.IMPL.getCredentialService().mergeHost(
-					cb.getActor().getHost());
-			cb.createEmailConnectionService().start();
-		} else {
-			log.debug("Unable to connect to email due to blank values");
-		}
-	}
-
-	/**
-	 * TODO : add validation framework implementation
-	 * 
-	 * @return true when ALL required fields are valid
-	 */
-	public boolean validate(final boolean notify) {
-		final boolean hsmtph = !cb.getActor().getHost().getMailSmtpHost().isEmpty();
-		final boolean hsmtpp = cb.getActor().getHost().getMailSmtpPort() > 0;
-		final boolean himaph = !cb.getActor().getHost().getMailImapHost().isEmpty();
-		final boolean himpap = cb.getActor().getHost().getMailImapPort() > 0;
-		final boolean husern = !cb.getActor().getHost().getMailUserName().isEmpty();
-		final boolean huserp = cb.getActor().getHost().getMailPassword().length() >= 3;
-		if (hsmtph && hsmtpp && himaph && himpap && husern && huserp) {
-			return true;
-		} else if (notify) {
-			final String invalidFields = (!hsmtph ? smtpHost.getTextField().getPromptText() : "") + ' ' +
-					(!hsmtpp ? smtpPort.getTextField().getPromptText() : "") +
-					(!himaph ? imapHost.getTextField().getPromptText() : "") +
-					(!himpap ? imapPort.getTextField().getPromptText() : "") + 
-					(!husern ? username.getTextField().getPromptText() : "") + 
-					(!huserp ? password.getPasswordField().getPromptText() : "");
-			cb.setHelpText(RS.rbLabel(KEYS.INVALID, invalidFields));
-		}
-		return false;
 	}
 }

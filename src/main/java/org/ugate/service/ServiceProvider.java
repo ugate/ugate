@@ -25,7 +25,7 @@ public enum ServiceProvider {
 	private ClassPathXmlApplicationContext appContext;
 	private final WirelessService wirelessService;
 	private final EmailService emailService;
-	private WebServer webServer;
+	private final WebService webService;
 	private Host host;
 	private RemoteNode remoteNode;
 	
@@ -35,6 +35,7 @@ public enum ServiceProvider {
 	private ServiceProvider() {
 		wirelessService = new WirelessService();
 		emailService = new EmailService();
+		webService = new WebService();
 	}
 
 	/**
@@ -126,7 +127,7 @@ public enum ServiceProvider {
 				log.info("Host is not available for an automatic email connection");
 			}
 			if (startWebServer) {
-				startWebServer(this.host, sa);
+				getWebService().start(this.host, sa);
 			}
 			return true;
 		} catch (final Throwable t) {
@@ -142,7 +143,7 @@ public enum ServiceProvider {
 	 */
 	public void disconnect() {
 		try {
-			stopWebServer();
+			getWebService().stop();
 		} catch (final Exception e) {
 			log.error("Unable to stop web server", e);
 		}
@@ -164,38 +165,12 @@ public enum ServiceProvider {
 		log.info(String.format("%1$s closed", 
 				ServiceProvider.class.getSimpleName()));
 	}
-	
+
 	/**
-	 * Starts a {@linkplain WebServer}. If it has already been started it will
-	 * be stopped and restarted
-	 * 
-	 * @param host
-	 *            the {@linkplain Host#getId()}
-	 * @param sa
-	 *            the {@linkplain SignatureAlgorithm} to use when the
-	 *            {@linkplain X509Certificate} needs to be created/signed
-	 * @return true when started
+	 * @return the {@linkplain WebService}
 	 */
-	public boolean startWebServer(final Host host, final SignatureAlgorithm sa) {
-		if (host == null || host.getId() <= 0) {
-			return false;
-		}
-		if (webServer != null) {
-			webServer.stop();
-		}
-		webServer = WebServer.start(host.getId(), (sa != null ? sa
-				: SignatureAlgorithm.getDefault()));
-		return true;
-	}
-	
-	/**
-	 * Stops a {@linkplain WebServer} if it has been previously started
-	 */
-	public void stopWebServer() {
-		if (webServer != null) {
-			webServer.stop();
-			webServer = null;
-		}
+	public WebService getWebService() {
+		return webService;
 	}
 
 	/**
@@ -238,5 +213,12 @@ public enum ServiceProvider {
 	 */
 	protected ClassPathXmlApplicationContext getApplicationContext() {
 		return appContext;
+	}
+
+	/**
+	 * Types of services provided by the {@linkplain ServiceProvider}
+	 */
+	public static enum Type {
+		WIRELESS, WEB, EMAIL;
 	}
 }

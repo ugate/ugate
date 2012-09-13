@@ -3,6 +3,7 @@ package org.ugate.gui.view;
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -25,6 +26,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.util.Callback;
+import javafx.util.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,7 @@ import org.ugate.UGateListener;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
+import org.ugate.gui.components.StatusIcon;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
@@ -83,7 +86,7 @@ public class RemoteNodes extends ToolBar {
 					final NodeStatusView nsv = getNodeStatusView(rn.getAddress());
 					if (nsv != null) {
 						// blink status to indicate the a remote command has been received
-						nsv.updateLastCommand(event.getCommand());
+						nsv.updateLastCommand(event.getCommand(), false);
 						controlBar.setHelpText(RS.rbLabel(
 								KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
 								((RemoteNode) event.getSource()).getAddress()));
@@ -99,7 +102,7 @@ public class RemoteNodes extends ToolBar {
 							final NodeStatusView nsv = getNodeStatusView(rn.getAddress());
 							if (nsv != null) {
 								// blink status to indicate the a remote device is out of sync
-								nsv.updateLastCommand(event.getCommand());
+								nsv.updateLastCommand(event.getCommand(), true);
 								controlBar.setHelpText(RS.rbLabel(
 										KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
 										((RemoteNode) event.getSource()).getAddress()));
@@ -219,25 +222,30 @@ public class RemoteNodes extends ToolBar {
 		if (address == null || address.isEmpty()) {
 			return;
 		}
+		log.info("Attempting to add remote node at address: " + address);
+		// node may have been added, but the save failed
+		RemoteNode rnm = null;
 		for (final RemoteNode rn : controlBar.getActor().getHost().getRemoteNodes()) {
 			if (rn.getAddress().equalsIgnoreCase(address)) {
-				return;
+				rnm = rn;
+				break;
 			}
 		}
-		log.info("Attempting to add remote node at address: " + address);
-		final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(controlBar
-				.getActor().getHost(), controlBar.getRemoteNode());
-		rn.setAddress(address);
-		controlBar.getActor().getHost().getRemoteNodes().add(rn);
+		if (rnm == null) {
+			final RemoteNode rn = RemoteNodeType.newDefaultRemoteNode(controlBar
+					.getActor().getHost(), controlBar.getRemoteNode());
+			rn.setAddress(address);
+			controlBar.getActor().getHost().getRemoteNodes().add(rn);
+		}
 		ServiceProvider.IMPL.getCredentialService().mergeHost(
 				controlBar.getActor().getHost());
-		log.info("Added remote node at address: " + address);
 	}
 
 	/**
 	 * Removes the selected {@linkplain RemoteNode}
 	 */
 	public void removeSelected() {
+		// TODO : there may be an issue with removal when persistence fails the item will already be removed
 		final String address = rnListView.getSelectionModel().getSelectedItem();
 		if (address == null || address.isEmpty()) {
 			return;
@@ -319,7 +327,7 @@ public class RemoteNodes extends ToolBar {
 		private static final Map<String, NodeStatusView> ALL = new HashMap<>();
 		private final ControlBar controlBar;
 		private String address;
-		private final StatusView statusView;
+		private final StatusIcon statusIcon;
 		private final StringProperty helpTextStringProperty;
 		private boolean isSet;
 		
@@ -336,7 +344,7 @@ public class RemoteNodes extends ToolBar {
 			super();
 			getStyleClass().add("remote-node-listcell");
 			this.controlBar = controlBar;
-			this.statusView = new StatusView(true);
+			this.statusIcon = new StatusIcon(16d, 16d, GuiUtil.COLOR_CLOSED);
 			this.helpTextStringProperty = new SimpleStringProperty();
 			setHelpText("LOADING...");
 			setCursor(Cursor.HAND);
@@ -360,7 +368,7 @@ public class RemoteNodes extends ToolBar {
 				}
             	this.address = item;
     			setText(this.address);
-                setGraphic(this.statusView);
+                setGraphic(this.statusIcon);
                 ALL.put(this.address, this);
                 isSet = true;
             } else if (isSet) {
@@ -412,14 +420,18 @@ public class RemoteNodes extends ToolBar {
 		 * 
 		 * @param command
 		 *            the {@linkplain Command} to use in the help text
+		 * @param hasIssue
+		 *            true when there was an issue with the command or the
+		 *            {@linkplain RemoteNode} is out-of-sync
 		 */
-		public void updateLastCommand(final Command command) {
+		public void updateLastCommand(final Command command, final boolean hasIssue) {
 			setHelpText(command.toString());
-			this.statusView.blinkStart(
-					GuiUtil.COLOR_ON,
-					null,
-					getAddress().equalsIgnoreCase(
-							controlBar.getRemoteNode().getAddress()) ? 40 : 0);
+			final int cycleCount = getAddress().equalsIgnoreCase(
+					controlBar.getRemoteNode().getAddress()) ? 40
+					: Timeline.INDEFINITE;
+			this.statusIcon.setStatusFill(Duration.seconds(1),
+					hasIssue ? GuiUtil.COLOR_OPEN : GuiUtil.COLOR_ON,
+					GuiUtil.COLOR_CLOSED, cycleCount);
 		}
 		
 		/**
@@ -432,8 +444,8 @@ public class RemoteNodes extends ToolBar {
 		/**
 		 * @return the {@linkplain StatusView}
 		 */
-		public StatusView getStatusView() {
-			return statusView;
+		public StatusIcon getStatusIcon() {
+			return statusIcon;
 		}
 	}
 }

@@ -29,6 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -41,7 +42,9 @@ import org.ugate.UGateEvent;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
+import org.ugate.UGateEvent.Type;
 import org.ugate.gui.components.BeanPathAdapter;
+import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.view.SensorReading;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -62,11 +65,15 @@ public class ControlBar extends ToolBar {
 	private final BeanPathAdapter<RemoteNode> remoteNodePA;
 	private final ScrollPane helpTextPane;
 	private final ImageView defaultUserImg;
+	private final StatusIcon cnctStatusWireless;
+	private final StatusIcon cnctStatusWeb;
+	private final StatusIcon cnctStatusEmail;
 	private final Label helpText;
 	private final Timeline settingsSetTimeline;
 	private final SensorReading sensorReading;
 	
 	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
+	private static final double CONNECTION_STATUS_SIZE = 32d;
 	public static final Color ATTENTION_COLOR = Color.YELLOW;
 	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
 	public static final double CHILD_SPACING = 10d;
@@ -95,12 +102,12 @@ public class ControlBar extends ToolBar {
 		this.remoteNodePA = remoteNodePA;
 		final DropShadow dbDS = new DropShadow();
 		final DropShadow settingsDS = new DropShadow();
-		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
+		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimeline(
 				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
 		// help view
 		final DropShadow helpTextDropShadow = new DropShadow();
 		helpTextDropShadow.setRadius(50d);
-		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimline(
+		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimeline(
 				helpTextDropShadow, ATTENTION_COLOR, Color.BLACK.brighter(), HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
 		helpTextPane = new ScrollPane();
 		helpTextPane.getStyleClass().add("text-area-help");
@@ -134,15 +141,24 @@ public class ControlBar extends ToolBar {
 			}
 		});
 		addHelpTextTrigger(defaultUserImg, RS.rbLabel(KEYS.APP_DIALOG_DEFAULT_USER));
+	
+		cnctStatusWireless = new StatusIcon(RS.imgView(RS.IMG_WIRELESS_ICON,
+				CONNECTION_STATUS_SIZE, CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
+		addServiceBehavior(cnctStatusWireless, null, ServiceProvider.Type.WIRELESS, null);
+		cnctStatusWeb = new StatusIcon(RS.imgView(RS.IMG_WEB_ICON,
+				CONNECTION_STATUS_SIZE, CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
+		addServiceBehavior(cnctStatusWeb, null, ServiceProvider.Type.WEB, null);
+		cnctStatusEmail = new StatusIcon(RS.imgView(RS.IMG_EMAIL_ICON, CONNECTION_STATUS_SIZE,
+				CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
+		addServiceBehavior(cnctStatusEmail, null, ServiceProvider.Type.EMAIL, null);
 		
+		// TODO : need to set camera resolution before calling Command.CAM_TAKE_PIC?
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
-		addHelpTextTrigger(camTakeQvga, RS.rbLabel(KEYS.CAM_ACTION_QVGA));
-		camTakeQvga.setCursor(Cursor.HAND);
+		addServiceBehavior(camTakeQvga, Command.CAM_TAKE_PIC, null, KEYS.CAM_ACTION_QVGA);
 		camTakeQvga.setEffect(ds);
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
-		addHelpTextTrigger(camTakeVga, RS.rbLabel(KEYS.CAM_ACTION_VGA));
-		camTakeVga.setCursor(Cursor.HAND);
+		addServiceBehavior(camTakeVga, Command.CAM_TAKE_PIC, null, KEYS.CAM_ACTION_VGA);
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSave = RS.imgView(RS.IMG_DB_SAVE);
 		settingsSave.setCursor(Cursor.HAND);
@@ -157,40 +173,13 @@ public class ControlBar extends ToolBar {
 		addHelpTextTrigger(settingsSave, RS.rbLabel(KEYS.SETTINGS_SAVE));
 		settingsSave.setEffect(dbDS);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
-		settingsSet.setCursor(Cursor.HAND);
-		settingsSet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (GuiUtil.isPrimaryPress(event)) {
-					createCommandService(Command.SENSOR_SET_SETTINGS, true);
-				}
-			}
-	    });
-		addHelpTextTrigger(settingsSet, RS.rbLabel(KEYS.SETTINGS_SEND));
+		addServiceBehavior(settingsSet, Command.SENSOR_SET_SETTINGS, null, KEYS.SETTINGS_SEND);
 		settingsSet.setEffect(settingsDS);
 		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
-		settingsGet.setCursor(Cursor.HAND);
-		settingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (GuiUtil.isPrimaryPress(event)) {
-					createCommandService(Command.SENSOR_GET_SETTINGS, true);
-				}
-			}
-	    });
-		addHelpTextTrigger(settingsGet, RS.rbLabel(KEYS.SETTINGS_RECEIVE));
+		addServiceBehavior(settingsGet, Command.SENSOR_GET_SETTINGS, null, KEYS.SETTINGS_RECEIVE);
 		settingsGet.setEffect(ds);
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
-		readingsGet.setCursor(Cursor.HAND);
-		readingsGet.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (GuiUtil.isPrimaryPress(event)) {
-					createCommandService(Command.SENSOR_GET_READINGS, true);
-				}
-			}
-	    });
-		addHelpTextTrigger(readingsGet, RS.rbLabel(KEYS.SENSOR_READINGS_GET));
+		addServiceBehavior(readingsGet, Command.SENSOR_GET_READINGS, null, KEYS.SENSOR_READINGS_GET);
 		readingsGet.setEffect(ds);
 
 		sensorReading = new SensorReading(this, Orientation.HORIZONTAL);
@@ -234,10 +223,102 @@ public class ControlBar extends ToolBar {
 					if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						settingsSetTimeline.stop();
 					}
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTING) {
+					cnctStatusWireless.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
+					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_ON);
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
+					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
+					cnctStatusWireless.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTED) {
+					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
+					cnctStatusEmail.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
+					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_ON);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
+					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
+					cnctStatusEmail.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED || 
+						event.getType() == UGateEvent.Type.EMAIL_CLOSED) {
+					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.WEB_INITIALIZE) {
+					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_SELECTED, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.WEB_CONNECTING) {
+					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.WEB_CONNECTED) {
+					cnctStatusWeb.setStatusFill(GuiUtil.COLOR_ON);
+				} else if (event.getType() == UGateEvent.Type.WEB_CONNECT_FAILED || 
+						event.getType() == UGateEvent.Type.WEB_INITIALIZE_FAILED) {
+					cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.WEB_DISCONNECTING) {
+					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.WEB_DISCONNECTED) {
+					cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
 				}
 			}
 		});
 		validateRemoteNodeSynchronization();
+	}
+
+	/**
+	 * Adds a {@linkplain MouseEvent.MOUSE_PRESSED} listener to the
+	 * {@linkplain Node} that will execute a {@linkplain Command} and/or
+	 * {@linkplain ServiceProvider.Type}
+	 * 
+	 * @param node
+	 *            the {@linkplain Node} to add the listener to
+	 * @param command
+	 *            the optional {@linkplain Command} to execute
+	 * @param serviceType
+	 *            the optional {@linkplain ServiceProvider.Type} to execute
+	 * @param helpKey
+	 *            the optional {@linkplain KEYS} for the
+	 *            {@linkplain ControlBar#setHelpText(String)}
+	 */
+	public void addServiceBehavior(final Node node, final Command command,
+			final ServiceProvider.Type serviceType, final KEYS helpKey) {
+		if (command == null && serviceType == null) {
+			return;
+		}
+		node.setCursor(Cursor.HAND);
+		node.addEventHandler(MouseEvent.MOUSE_PRESSED,
+				new EventHandler<MouseEvent>() {
+					@Override
+					public void handle(final MouseEvent event) {
+						if (GuiUtil.isPrimaryPress(event)) {
+							if (command != null) {
+								createCommandService(command, true);
+							}
+							if (serviceType == ServiceProvider.Type.WIRELESS) {
+								createWirelessConnectionService().start();
+							} else if (serviceType == ServiceProvider.Type.WEB) {
+								createWebConnectionService().start();
+							} else if (serviceType == ServiceProvider.Type.EMAIL) {
+								createEmailConnectionService().start();
+							}
+						}
+					}
+				});
+		if (helpKey != null) {
+			addHelpTextTrigger(node, RS.rbLabel(helpKey));
+		}
 	}
 
 	/**
@@ -251,13 +332,17 @@ public class ControlBar extends ToolBar {
 		final Set<ConstraintViolation<T>> cvs = validationFactory
 				.getValidator().validate(model);
 		String s = "";
-		for (final ConstraintViolation<T> cv : cvs) {
-			s += cv.getPropertyPath().toString()
-					+ ": "
-					+ (cv.getMessage() != null ? cv.getMessage() : cv
-							.getInvalidValue()) + '\n';
+		if (!cvs.isEmpty()) {
+			for (final ConstraintViolation<T> cv : cvs) {
+				s += cv.getPropertyPath().toString()
+						+ ": "
+						+ (cv.getMessage() != null ? cv.getMessage() : cv
+								.getInvalidValue()) + '\n';
+			}
+			setHelpText(s);
+			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(cvs,
+					Type.VALIDATION_FAILED, false));
 		}
-		setHelpText(s);
 		return s;
 	}
 
@@ -297,7 +382,8 @@ public class ControlBar extends ToolBar {
 				}
 			}
 		});
-		menu.getChildren().addAll(helpButton, helpTextPane, defaultUserImg);
+		menu.getChildren().addAll(helpButton, helpTextPane, cnctStatusWireless, 
+				cnctStatusWeb, cnctStatusEmail, defaultUserImg);
 	    return menu;
 	}
 	
@@ -366,16 +452,43 @@ public class ControlBar extends ToolBar {
 		}
 		return service;
 	}
-	
+
+	/**
+	 * Creates a web server connection {@linkplain Service} that will show a
+	 * progress indicator preventing further action until the web server
+	 * connection has been established. When the web server is already connected
+	 * it will be disconnected.
+	 * 
+	 * @return the {@linkplain Service}
+	 */
+	public Service<Boolean> createWebConnectionService() {
+		setHelpText(null);
+		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+			@Override
+			protected Boolean call() throws Exception {
+				try {
+					if (ServiceProvider.IMPL.getWebService()
+							.isRunning()) {
+						ServiceProvider.IMPL.getWebService().stop();
+					} else {
+						ServiceProvider.IMPL.getWebService().start(
+								getActor().getHost(), null);
+					}
+				} catch (final Throwable t) {
+					setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
+					log.error("Unable to establish a wireless connection", t);
+				}
+				return false;
+			}
+		});
+	}
+
 	/**
 	 * Creates a wireless connection {@linkplain Service} that will show a
 	 * progress indicator preventing further action until the wireless
-	 * connection has been established.
+	 * connection has been established. When the wireless connection is already
+	 * connected an attempt will be made to reconnect.
 	 * 
-	 * @param comPort
-	 *            the {@linkplain Host#getComPort()} to connect to
-	 * @param baudRate
-	 *            the {@linkplain Host#getComBaud()} to connect at
 	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createWirelessConnectionService() {

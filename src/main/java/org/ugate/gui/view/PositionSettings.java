@@ -67,7 +67,7 @@ public class PositionSettings extends ControlPane {
 		// cam tilt
 		final Label tiltHeader = createLabel(KEYS.CAM_TILT);
 		grid.add(tiltHeader, 1, 0);
-		final ImageView tiltImgView = RS.imgView(camPanGauge.imageView.getImage());
+		final ImageView tiltImgView = RS.imgView(camPanGauge.imageView.getImage(), false);
 		tiltImgView.setRotate(90d);
 		final UGateGaugeBox<RemoteNode> camTiltGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_ANGLE_TILT,
@@ -88,7 +88,7 @@ public class PositionSettings extends ControlPane {
 		// sonar/pir tilt
 		final Label sonarPirTiltHeader = createLabel(KEYS.SONAR_PIR_TILT);
 		grid.add(sonarPirTiltHeader, 1, 2);
-		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage());
+		final ImageView sonarPirTiltImgView = RS.imgView(sonarPirPanGauge.imageView.getImage(), false);
 		sonarPirTiltImgView.setRotate(90d);
 		final UGateGaugeBox<RemoteNode> sonarPirTiltGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
@@ -150,7 +150,7 @@ public class PositionSettings extends ControlPane {
 		controlBar.addHelpTextTrigger(camSonarPanGauge, RS.rbLabel(KEYS.CAM_PAN_SONAR_DESC));
 		grid.add(camSonarPanGauge, 0, 2);
 		// cam sonar tilt
-		final ImageView camSonarTiltImgView = RS.imgView(camSonarPanGauge.imageView.getImage());
+		final ImageView camSonarTiltImgView = RS.imgView(camSonarPanGauge.imageView.getImage(), false);
 		camSonarTiltImgView.setRotate(90d);
 		final Label camSonarTiltHeader = createLabel(KEYS.CAM_TILT_SONAR);
 		grid.add(camSonarTiltHeader, 1, 1);

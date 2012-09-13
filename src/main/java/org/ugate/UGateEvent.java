@@ -298,8 +298,10 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 	 * The {@linkplain UGateEvent} types
 	 */
 	public enum Type {
-		/** Event when the event is initializing */
+		/** Event when the application is initializing */
 		INITIALIZE, 
+		/** Event when validation fails */
+		VALIDATION_FAILED, 
 		/** Event when the data needed for the application has been loaded */
 		APP_DATA_LOADED, 
 		/** Event when a {@linkplain Actor} has updated values that have not yet been committed */
@@ -320,7 +322,7 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 		WIRELESS_HOST_CONNECTING,
 		/** Event when a connection has been established with the local host wireless device */
 		WIRELESS_HOST_CONNECTED,
-		/** Event when a connection attempt has been made, but failed to connect */
+		/** Event when a connection attempt has been made, but failed to wirelessBtn */
 		WIRELESS_HOST_CONNECT_FAILED,
 		/** Event when disconnecting from the local host wireless device */
 		WIRELESS_HOST_DISCONNECTING,
@@ -377,7 +379,21 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 		/** Event triggered when disconnected from email */
 		EMAIL_DISCONNECTED,
 		/** Event triggered when the connection to email has been closed */
-		EMAIL_CLOSED;
+		EMAIL_CLOSED,
+		/** Event triggered when initializing the web server */
+		WEB_INITIALIZE,
+		/** Event triggered when initialization failed on the web server */
+		WEB_INITIALIZE_FAILED,
+		/** Event triggered when connecting to the web server */
+		WEB_CONNECTING,
+		/** Event triggered when connected to the web server */
+		WEB_CONNECTED,
+		/** Event triggered when connection to web server failed */
+		WEB_CONNECT_FAILED,
+		/** Event triggered when disconnecting from web server */
+		WEB_DISCONNECTING,
+		/** Event triggered when disconnected from web server */
+		WEB_DISCONNECTED;
 	}
 
 }

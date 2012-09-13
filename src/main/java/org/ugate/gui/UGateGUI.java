@@ -16,7 +16,6 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
@@ -24,7 +23,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckBoxBuilder;
-import javafx.scene.control.Control;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.PasswordFieldBuilder;
 import javafx.scene.control.Separator;
@@ -263,12 +261,12 @@ public class UGateGUI extends Application {
 		content.setBottom(bottom);
 		content.setTop(controlBar);
 
-		taskbar.getChildren().add(createConnectionStatusView(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEYS.APP_CONNECTION_DESC), 0, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEYS.APP_CONNECTION_DESC), 0, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(connectionView, 0);
 			}
-		})));
+		}));
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel(KEYS.APP_CONTROLS_DESC), 1, new Runnable() {
 			@Override
 			public void run() {
@@ -505,21 +503,6 @@ public class UGateGUI extends Application {
 		topSeparator.setHalignment(HPos.CENTER);
 		topSeparator.setValignment(VPos.CENTER);
 		return topSeparator;
-	}
-
-	private Node createConnectionStatusView(final Node connectionButton) {
-		final VBox node = new VBox();
-		node.setPrefHeight(TASKBAR_BUTTON_HEIGHT);
-		node.setMaxHeight(Control.USE_PREF_SIZE);
-		node.setCache(true);
-		final HBox statusNode = new HBox(10);
-		statusNode.setCache(true);
-		statusNode.setAlignment(Pos.CENTER);
-		statusNode.getChildren().add(wirelessConnectionView.statusIcon);
-		statusNode.getChildren().add(mailConnectionView.statusIcon);
-		node.getChildren().add(connectionButton);
-		node.getChildren().add(statusNode);
-		return node;
 	}
 
 	protected ImageView genTaskbarItem(final String iconName, final String helpText, final int index, final Runnable action) {
