@@ -117,26 +117,13 @@ public class EmailService {
 									RemoteNodeType.WIRELESS_ADDRESS, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
-						isEmailConnected = true;
-						msg = RS.rbLabel(KEYS.MAIL_CONNECTED);
-						log.info(msg);
-						UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, List<Command>>(
-								EmailService.this, UGateEvent.Type.EMAIL_CONNECTED, false, 
-								null, null, null, event.commands, msg));
+						notifyListeners(UGateEvent.Type.EMAIL_CONNECTED, KEYS.MAIL_CONNECTED, event.commands);
 					} else if (event.type == EmailEvent.Type.DISCONNECT) {
-						isEmailConnected = false;
-						msg = RS.rbLabel(KEYS.MAIL_DISCONNECTED);
-						log.info(msg);
-						UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, List<Command>>(
-								EmailService.this, UGateEvent.Type.EMAIL_DISCONNECTED, false, 
-								null, null, null, event.commands, msg));
+						notifyListeners(UGateEvent.Type.EMAIL_DISCONNECTED, KEYS.MAIL_DISCONNECTED, event.commands);
 					} else if (event.type == EmailEvent.Type.CLOSED) {
-						isEmailConnected = false;
-						msg = RS.rbLabel(KEYS.MAIL_CLOSED);
-						log.info(msg);
-						UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, List<Command>>(
-								EmailService.this, UGateEvent.Type.EMAIL_CLOSED, false,  
-								null, null, null, event.commands, msg));
+						notifyListeners(UGateEvent.Type.EMAIL_CLOSED, KEYS.MAIL_CLOSED, event.commands);
+					} else if (event.type == EmailEvent.Type.AUTH_FAILED) {
+						notifyListeners(UGateEvent.Type.EMAIL_AUTH_FAILED, KEYS.MAIL_AUTH_FAILED, event.commands);
 					}
 				}
 			});
@@ -158,6 +145,27 @@ public class EmailService {
 			UGateKeeper.DEFAULT.notifyListeners(event);
 			return false;
 		}
+	}
+
+	/**
+	 * General {@linkplain EmailService} notification for a
+	 * {@linkplain UGateEvent}
+	 * 
+	 * @param type
+	 *            the {@linkplain UGateEvent.Type}
+	 * @param messageKey
+	 *            the {@linkplain KEYS} for the message associated with the
+	 *            notification
+	 * @param commands
+	 *            any {@linkplain Command}s associated with the notification
+	 */
+	protected void notifyListeners(final UGateEvent.Type type,
+			final KEYS messageKey, final List<Command> commands) {
+		isEmailConnected = false;
+		final String msg = RS.rbLabel(messageKey);
+		log.info(msg);
+		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, List<Command>>(
+				this, type, false, null, null, null, commands, msg));
 	}
 
 	/**
