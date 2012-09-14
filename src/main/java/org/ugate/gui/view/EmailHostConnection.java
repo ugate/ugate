@@ -188,9 +188,7 @@ public class EmailHostConnection extends VBox {
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 					connect.setDisable(false);
-					// wirelessBtn.setText(RS.rbLabel("mail.reconnect"));
 					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
-					connect.setDisable(true);
 					emailIcon.setStatusFill(GuiUtil.COLOR_ON);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 					connect.setDisable(false);
@@ -203,7 +201,8 @@ public class EmailHostConnection extends VBox {
 							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
-						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED) {
+						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED || 
+						event.getType() == UGateEvent.Type.EMAIL_AUTH_FAILED) {
 					// run later in case the application is going to exit which
 					// will cause an issue with FX thread
 					Platform.runLater(new Runnable() {
@@ -211,7 +210,6 @@ public class EmailHostConnection extends VBox {
 						public void run() {
 							connect.setDisable(false);
 							connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
-							log.debug("Turning FILL_OFF email connection icon");
 							emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
 						}
 					});

@@ -39,10 +39,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.UGateEvent;
+import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
-import org.ugate.UGateEvent.Type;
 import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.view.SensorReading;
@@ -229,6 +229,7 @@ public class ControlBar extends ToolBar {
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
 					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_ON);
+					ServiceProvider.IMPL.getCredentialService().mergeHost(getActor().getHost());
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
@@ -250,7 +251,8 @@ public class ControlBar extends ToolBar {
 							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED || 
-						event.getType() == UGateEvent.Type.EMAIL_CLOSED) {
+						event.getType() == UGateEvent.Type.EMAIL_CLOSED || 
+						event.getType() == UGateEvent.Type.EMAIL_AUTH_FAILED) {
 					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.WEB_INITIALIZE) {
 					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
@@ -454,33 +456,36 @@ public class ControlBar extends ToolBar {
 	}
 
 	/**
-	 * Creates a web server connection {@linkplain Service} that will show a
-	 * progress indicator preventing further action until the web server
-	 * connection has been established. When the web server is already connected
-	 * it will be disconnected.
+	 * Creates a web server connection {@linkplain Service} that will start or
+	 * stop the web server in a background process.
 	 * 
 	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createWebConnectionService() {
 		setHelpText(null);
-		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+		return new Service<Boolean>() {
 			@Override
-			protected Boolean call() throws Exception {
-				try {
-					if (ServiceProvider.IMPL.getWebService()
-							.isRunning()) {
-						ServiceProvider.IMPL.getWebService().stop();
-					} else {
-						ServiceProvider.IMPL.getWebService().start(
-								getActor().getHost(), null);
+			protected Task<Boolean> createTask() {
+				return new Task<Boolean>() {
+					@Override
+					protected Boolean call() throws Exception {
+						try {
+							if (ServiceProvider.IMPL.getWebService()
+									.isRunning()) {
+								ServiceProvider.IMPL.getWebService().stop();
+							} else {
+								ServiceProvider.IMPL.getWebService().start(
+										getActor().getHost(), null);
+							}
+						} catch (final Throwable t) {
+							setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
+							log.error("Unable to establish a wireless connection", t);
+						}
+						return false;
 					}
-				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
-					log.error("Unable to establish a wireless connection", t);
-				}
-				return false;
+				};
 			}
-		});
+		};
 	}
 
 	/**
@@ -510,27 +515,31 @@ public class ControlBar extends ToolBar {
 	}
 	
 	/**
-	 * Creates an email connection {@linkplain Service} that will show a progress
-	 * indicator preventing further action until the email connection has been
-	 * established.
+	 * Creates an email connection {@linkplain Service} that will connect to an
+	 * email server in a background process.
 	 * 
 	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createEmailConnectionService() {
 		setHelpText(null);
-		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+		return new Service<Boolean>() {
 			@Override
-			protected Boolean call() throws Exception {
-				try {
-					// establish wireless connection (blocking)
-					ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
-				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel(KEYS.SERVICE_EMAIL_FAILED));
-					log.error("Unable to establish a wireless connection", t);
-				}
-				return false;
+			protected Task<Boolean> createTask() {
+				return new Task<Boolean>() {
+					@Override
+					protected Boolean call() throws Exception {
+						try {
+							// establish wireless connection (blocking)
+							ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
+						} catch (final Throwable t) {
+							setHelpText(RS.rbLabel(KEYS.SERVICE_EMAIL_FAILED));
+							log.error("Unable to establish a wireless connection", t);
+						}
+						return false;
+					}
+				};
 			}
-		});
+		};
 	}
 	
 	/**

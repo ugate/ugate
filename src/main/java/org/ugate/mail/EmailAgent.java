@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.Address;
+import javax.mail.AuthenticationFailedException;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.FolderClosedException;
@@ -265,10 +266,16 @@ public class EmailAgent implements Runnable {
 				if (runIt) {
 					log.info("Folder closed... attempting to reconnect...");
 				}
+				dispatchEmailEvent(EmailEvent.Type.FOLDER_CLOSED, e.getClass().getSimpleName());
+			} catch (final AuthenticationFailedException e) {
+				runIt = false;
+				log.warn(String.format("Unable to connect to email due to an %1$s", AuthenticationFailedException.class.getName()), e);
+				dispatchEmailEvent(EmailEvent.Type.AUTH_FAILED, e.getClass().getSimpleName());
 			} catch (final Exception e) {
 				if (runIt) {
-					log.warn("Unable to wirelessBtn... attempting to reconnect...", e);
+					log.warn("Unable to connect... attempting to reconnect...", e);
 				}
+				dispatchEmailEvent(EmailEvent.Type.GENERAL_EXCEPTION, e.getClass().getSimpleName());
 			}
 		}
 	}
@@ -506,7 +513,28 @@ public class EmailAgent implements Runnable {
 	private static String getThreadName(final String postfix) {
 		return EmailAgent.class.getSimpleName() + '-' + postfix;
 	}
-	
+
+	/**
+	 * Dispatches an email event
+	 * 
+	 * @param type the {@linkplain EmailEvent.Type}
+	 */
+	private void dispatchEmailEvent(final EmailEvent.Type type, final String threadName) {
+		new Thread(getThreadName(threadName)) {
+			@Override
+			public void run() {
+				try {
+					final EmailEvent event = new EmailEvent(type, null, null, null);
+					for (final IEmailListener listener : listeners) {
+						listener.handle(event);
+					}
+				} catch (final Throwable t) {
+					log.error(String.format("Unable to dispatch %1$s", EmailEvent.class.getName(), type), t);
+				}
+			}
+		}.start();
+	}
+
 	/**
 	 * Internal connection listener used to spawn new threads for external email listeners
 	 */
@@ -515,56 +543,19 @@ public class EmailAgent implements Runnable {
 		@Override
 		public void opened(final ConnectionEvent event) {
 			log.info("Mail Store/Folder opened: " + event.getType());
-			final Thread newThread = new Thread(getThreadName("opened")) {
-				
-				@Override
-				public void run() {
-					dispatchEmailEvent(EmailEvent.Type.CONNECT);
-				}
-			};
-			newThread.start();
+			dispatchEmailEvent(EmailEvent.Type.CONNECT, "opened");
 		}
 		
 		@Override
 		public void disconnected(final ConnectionEvent event) {
 			log.info("Mail Store/Folder disconnected unexpectedly: " + event.getType());
-			final Thread newThread = new Thread(getThreadName("disconnected")) {
-				
-				@Override
-				public void run() {
-					dispatchEmailEvent(EmailEvent.Type.DISCONNECT);
-				}
-			};
-			newThread.start();
+			dispatchEmailEvent(EmailEvent.Type.DISCONNECT, "disconnected");
 		}
 		
 		@Override
 		public void closed(final ConnectionEvent event) {
 			log.info("Mail Store/Folder disconnected: " + event.getType());
-			final Thread newThread = new Thread(getThreadName("closed")) {
-				
-				@Override
-				public void run() {
-					dispatchEmailEvent(EmailEvent.Type.CLOSED);
-				}
-			};
-			newThread.start();
-		}
-		
-		/**
-		 * Dispatches an email event
-		 * 
-		 * @param type the {@linkplain EmailEvent.Type}
-		 */
-		private void dispatchEmailEvent(final EmailEvent.Type type) {
-			try {
-				final EmailEvent event = new EmailEvent(type, null, null, null);
-				for (final IEmailListener listener : listeners) {
-					listener.handle(event);
-				}
-			} catch (final Throwable t) {
-				log.error(String.format("Unable to dispatch %1$s", EmailEvent.class.getName(), type), t);
-			}
+			dispatchEmailEvent(EmailEvent.Type.CLOSED, "closed");
 		}
 	};
 }

@@ -876,18 +876,18 @@ public class RS {
 				"mail.connect.failed"), MAIL_CONNECT("mail.connect"), MAIL_CONNECTED(
 				"mail.connected"), MAIL_CONNECTING("mail.connecting"), MAIL_DISCONNECTING(
 				"mail.disconnecting"), MAIL_DISCONNECTED("mail.disconnected"), MAIL_CLOSED(
-				"mail.closed"), MAIL_RECONNECT("mail.reconnect"), MAIL_SMTP_HOST(
-				"mail.smtp.host"), MAIL_SMTP_HOST_DESC("mail.smtp.host.desc"), MAIL_SMTP_PORT(
-				"mail.smtp.port"), MAIL_SMTP_PORT_DESC("mail.smtp.port.desc"), MAIL_IMAP_HOST(
-				"mail.imap.host"), MAIL_IMAP_HOST_DESC("mail.imap.host.desc"), MAIL_IMAP_PORT(
-				"mail.imap.port"), MAIL_IMAP_PORT_DESC("mail.imap.port.desc"), MAIL_USERNAME(
-				"mail.username"), MAIL_USERNAME_DESC("mail.username.desc"), MAIL_PASSWORD(
-				"mail.password"), MAIL_PASSWORD_DESC("mail.password.desc"), MAIL_FOLDER_NAME(
-				"mail.folder"), MAIL_FOLDER_DESC("mail.folder.desc"), SONAR_THRESHOLD(
-				"sonar.threshold"), SONAR_THRESHOLD_DESC("sonar.threshold.desc"), SONAR_PIR_PAN(
-				"sonarpir.pan"), SONAR_PIR_PAN_DESC("sonarpir.pan.desc"), SONAR_PIR_TILT(
-				"sonarpir.tilt"), SONAR_PIR_TILT_DESC("sonarpir.tilt.desc"), SONAR_ALARM_DELAY(
-				"sonar.alarm.delay"), SONAR_ALARM_DELAY_DESC(
+				"mail.closed"), MAIL_AUTH_FAILED("mail.auth.failed"), MAIL_RECONNECT(
+				"mail.reconnect"), MAIL_SMTP_HOST("mail.smtp.host"), MAIL_SMTP_HOST_DESC(
+				"mail.smtp.host.desc"), MAIL_SMTP_PORT("mail.smtp.port"), MAIL_SMTP_PORT_DESC(
+				"mail.smtp.port.desc"), MAIL_IMAP_HOST("mail.imap.host"), MAIL_IMAP_HOST_DESC(
+				"mail.imap.host.desc"), MAIL_IMAP_PORT("mail.imap.port"), MAIL_IMAP_PORT_DESC(
+				"mail.imap.port.desc"), MAIL_USERNAME("mail.username"), MAIL_USERNAME_DESC(
+				"mail.username.desc"), MAIL_PASSWORD("mail.password"), MAIL_PASSWORD_DESC(
+				"mail.password.desc"), MAIL_FOLDER_NAME("mail.folder"), MAIL_FOLDER_DESC(
+				"mail.folder.desc"), SONAR_THRESHOLD("sonar.threshold"), SONAR_THRESHOLD_DESC(
+				"sonar.threshold.desc"), SONAR_PIR_PAN("sonarpir.pan"), SONAR_PIR_PAN_DESC(
+				"sonarpir.pan.desc"), SONAR_PIR_TILT("sonarpir.tilt"), SONAR_PIR_TILT_DESC(
+				"sonarpir.tilt.desc"), SONAR_ALARM_DELAY("sonar.alarm.delay"), SONAR_ALARM_DELAY_DESC(
 				"sonar.alarm.delay.desc"), PIR_ALARM_DELAY("pir.alarm.delay"), PIR_ALARM_DELAY_DESC(
 				"pir.alarm.delay.desc"), MW_THRESHOLD("microwave.threshold"), MW_THRESHOLD_DESC(
 				"microwave.threshold.desc"), MW_ALARM_DELAY(

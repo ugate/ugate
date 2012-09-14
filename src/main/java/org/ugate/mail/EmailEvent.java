@@ -54,6 +54,8 @@ public class EmailEvent {
 	 * Email event types
 	 */
 	public enum Type {
+		/** Event triggered when authentication failed */
+		AUTH_FAILED,
 		/** Event triggered when executing a command from email */
 		EXECUTE_COMMAND,
 		/** Event triggered when connecting to email */
@@ -61,6 +63,10 @@ public class EmailEvent {
 		/** Event triggered when disconnecting from email */
 		DISCONNECT,
 		/** Event triggered when the connection to email has been closed */
-		CLOSED;
+		CLOSED,
+		/** Event triggered when the email folder that is being observed closed */
+		FOLDER_CLOSED,
+		/** Event triggered when the email agent unexpectedly threw an exception */
+		GENERAL_EXCEPTION;
 	}
 }

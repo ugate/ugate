@@ -378,6 +378,8 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 		EMAIL_DISCONNECTING,
 		/** Event triggered when disconnected from email */
 		EMAIL_DISCONNECTED,
+		/** Event triggered when authentication failed for email */
+		EMAIL_AUTH_FAILED,
 		/** Event triggered when the connection to email has been closed */
 		EMAIL_CLOSED,
 		/** Event triggered when initializing the web server */
