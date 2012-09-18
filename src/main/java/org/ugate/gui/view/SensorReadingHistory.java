@@ -9,8 +9,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TextField;
@@ -33,6 +33,7 @@ import org.ugate.service.entity.jpa.RemoteNodeReading;
 public class SensorReadingHistory extends StackPane {
 	
 	private static final Logger log = LoggerFactory.getLogger(SensorReadingHistory.class);
+	private static final Number DEFAULT_DATA_VALUE = 0;
 	private final ControlBar cb;
 	private final XYChart.Series<String, Number> laserSeries;
 	private final XYChart.Series<String, Number> sonarSeries;
@@ -50,25 +51,20 @@ public class SensorReadingHistory extends StackPane {
 		this.cb = controlBar;
 		CategoryAxis xAxis = new CategoryAxis();
 		NumberAxis yAxis = new NumberAxis();
-		final LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
+		final BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
 		chart.setTitle(RS.rbLabel(KEYS.LABEL_GRAPH_ALARM_NOTIFY));
 		xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
 		yAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_Y));
 		laserSeries = new XYChart.Series<>();
 		laserSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_LASER));
-		chart.getData().add(laserSeries);
 		sonarSeries = new XYChart.Series<>();
 		sonarSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_SONAR));
-		chart.getData().add(sonarSeries);
 		microwaveSeries = new XYChart.Series<>();
 		microwaveSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_MICROWAVE));
-		chart.getData().add(microwaveSeries);
 		pirSeries = new XYChart.Series<>();
 		pirSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_PIR));
-		chart.getData().add(pirSeries);
 		readTripsSeries = new XYChart.Series<>();
 		readTripsSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ACTIVITY_READS));
-		chart.getData().add(readTripsSeries);
 
 		final SimpleCalendar simpleCalender = new SimpleCalendar();
 		simpleCalender.setMaxSize(100d, 20d);
@@ -100,6 +96,12 @@ public class SensorReadingHistory extends StackPane {
 		final Calendar cal = Calendar.getInstance();
 		cal.setTime(simpleCalender.dateProperty().get());
 		updateAlarmSeries(cal);
+		
+		chart.getData().add(laserSeries);
+		chart.getData().add(sonarSeries);
+		chart.getData().add(microwaveSeries);
+		chart.getData().add(pirSeries);
+		chart.getData().add(readTripsSeries);
 	}
 
 	/**
@@ -109,87 +111,94 @@ public class SensorReadingHistory extends StackPane {
 	 * @param cal
 	 *            the {@linkplain Calendar} to get the
 	 *            {@linkplain RemoteNodeReading}(s) for (will not use time)
+	 * @return the number of {@linkplain RemoteNodeReading}s
 	 */
-	protected void updateAlarmSeries(final Calendar cal) {
+	protected int updateAlarmSeries(final Calendar cal) {
 		final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
 				.getRemoteNodeService().findReadingsByDate(cb.getRemoteNode(),
 						cal, true);
+		if (rnrs.size() <= 0) {
+			laserSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
+			sonarSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
+			microwaveSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
+			pirSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
+			readTripsSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
+			return 0;
+		}
 		// add zero plot for 24hr period for each series
-		final Calendar c24 = Calendar.getInstance();
-		c24.setTime(cal.getTime());
 		laserSeries.getData().clear();
 		sonarSeries.getData().clear();
 		microwaveSeries.getData().clear();
 		pirSeries.getData().clear();
 		String time;
+		Number l = 0, m = 0, p = 0, s = 0, r = 0;
 		for (final RemoteNodeReading rnr : rnrs) {
-			c24.setTime(rnr.getReadDate());
-			time = UGateUtil.calFormatTime(c24);
+			time = UGateUtil.dateFormatTime(rnr.getReadDate());
 			switch (rnr.getFromMultiState()) {
 			case 1:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 1));
+				l = 1;
 				break;
 			case 2:
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 1));
+				m = 1;
 				break;
 			case 3:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
+				l = 2;
+				m = 2;
 				break;
 			case 4:
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 1));
+				p = 1;
 				break;
 			case 5:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
+				l = 2;
+				p = 2;
 				break;
 			case 6:
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
+				m = 2;
+				p = 2;
 				break;
 			case 7:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
+				l = 3;
+				m = 3;
+				p = 3;
 				break;
 			case 8:
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 1));
+				s = 1;
 				break;
 			case 9:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
+				l = 2;
+				s = 2;
 				break;
 			case 10:
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
+				m = 2;
+				s = 2;
 				break;
 			case 11:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
+				l = 3;
+				m = 3;
+				s = 3;
 				break;
 			case 12:
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 2));
+				p = 2;
+				s = 2;
 				break;
 			case 13:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
+				l = 3;
+				p = 3;
+				s = 3;
 				break;
 			case 14:
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 3));
+				m = 3;
+				p = 3;
+				s = 3;
 				break;
 			case 15:
-				laserSeries.getData().add(new XYChart.Data<String, Number>(time, 4));
-				microwaveSeries.getData().add(new XYChart.Data<String, Number>(time, 4));
-				pirSeries.getData().add(new XYChart.Data<String, Number>(time, 4));
-				sonarSeries.getData().add(new XYChart.Data<String, Number>(time, 4));
+				l = 4;
+				m = 4;
+				p = 4;
+				s = 4;
 				break;
 			case 16:
-				readTripsSeries.getData().add(new XYChart.Data<String, Number>(time, 1));
+				r = 1;
 				break;
 			default:
 				log.warn(String.format(
@@ -197,6 +206,12 @@ public class SensorReadingHistory extends StackPane {
 						RemoteNodeReading.class.getName(), rnr.getId(),
 						rnr.getFromMultiState()));
 			}
+			laserSeries.getData().add(new XYChart.Data<>(time, l));
+			microwaveSeries.getData().add(new XYChart.Data<>(time, m));
+			pirSeries.getData().add(new XYChart.Data<>(time, p));
+			sonarSeries.getData().add(new XYChart.Data<>(time, s));
+			readTripsSeries.getData().add(new XYChart.Data<>(time, r));
 		}
+		return rnrs.size();
 	}
 }

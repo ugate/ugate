@@ -50,7 +50,6 @@ import org.slf4j.Logger;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
-import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.AppFrame;
 import org.ugate.gui.components.BeanPathAdapter;
@@ -70,7 +69,6 @@ import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.AppInfo;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
-import org.ugate.wireless.data.ImageCapture;
 
 /**
  * The main GUI application entry point
@@ -238,18 +236,6 @@ public class UGateGUI extends Application {
 		wirelessConnectionView = new WirelessHostConnection(controlBar);
 		mailConnectionView = new EmailHostConnection(controlBar);
 
-		// change the center view back to the connection view when
-		// connections are lost
-		UGateKeeper.DEFAULT.addListener(new UGateListener() {
-			@Override
-			public void handle(final UGateEvent<?, ?> event) {
-				try {
-					playSound(event);
-				} catch (final Exception e) {
-					log.warn("Unable to play sound", e);
-				}
-			}
-		});
 		connectionView.setId("connection-view");
 		connectionView.getChildren().addAll(wirelessConnectionView, createSeparator(Orientation.VERTICAL), mailConnectionView);
 
@@ -574,43 +560,5 @@ public class UGateGUI extends Application {
 	protected void changeCenterView(final Node node, final int index) {
 		centerView.getChildren().setAll(node);
 		taskBarSelectProperty.set(index);
-	}
-
-	/**
-	 * Plays a sound for predefined events if the
-	 * {@linkplain RemoteNode#getDeviceSoundsOn()} for the
-	 * {@linkplain UGateEvent#getSource()} (i.e. {@linkplain RemoteNode})
-	 * 
-	 * @param event
-	 *            the {@linkplain UGateEvent}
-	 */
-	protected void playSound(final UGateEvent<?, ?> event) {
-		if (!(event.getSource() instanceof RemoteNode)) {
-			return;
-		}
-		final RemoteNode rn = (RemoteNode) event.getSource();
-		if (rn == null || rn.getDeviceSoundsOn() != 1) {
-			return;
-		}
-		if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
-			RS.mediaPlayerConfirm.play();
-		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-			RS.mediaPlayerBlip.play();
-		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
-			RS.mediaPlayerError.play();
-		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
-			RS.mediaPlayerDoorBell.play();
-			// TODO : send email with image as attachment (only when the image
-			// is captured via alarm trip rather, but not from GUI)
-			// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
-			// trippedImage.toString(),
-			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
-			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
-			// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
-			// imageFile.filePath);
-			RS.mediaPlayerComplete.play();
-		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
-			RS.mediaPlayerCam.play();
-		}
 	}
 }

@@ -14,7 +14,6 @@ import javafx.scene.layout.GridPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.Command;
 import org.ugate.UGateEvent;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
@@ -29,7 +28,6 @@ import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
-import org.ugate.wireless.data.RxTxRemoteNodeDTO;
 import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 /**
@@ -100,22 +98,6 @@ public class SensorReading extends Parent {
 						final RxTxRemoteNodeReadingDTO sr = (RxTxRemoteNodeReadingDTO) event.getNewValue();
 						sensorReadingsPropertyWrapper.set(sr);
 						remoteNodeReadingShow(sr.getRemoteNodeReading());
-					} else if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
-						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
-						if (!RemoteNodeType.remoteEquivalent(rn, ndto.getRemoteNode())) {
-							// remote device values do not match the local device values
-							rn.setDeviceSynchronized(false);
-							ndto.getRemoteNode().setDeviceSynchronized(false);
-							if (rn.isDeviceAutoSynchronize()) {
-								// automatically send the changes to the remote node
-								// (consume event so no other notifications for the
-								// event will be processed)
-								event.setConsumed(true);
-								cb.createCommandService(Command.SENSOR_SET_SETTINGS, true);
-							} else if (rn.getAddress().equalsIgnoreCase(cb.getRemoteNode().getAddress())) {
-								cb.validateRemoteNodeSynchronization();
-							}
-						}
 					}
 				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED || 
 						event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED) {

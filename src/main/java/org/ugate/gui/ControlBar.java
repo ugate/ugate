@@ -1,5 +1,6 @@
 package org.ugate.gui;
 
+import java.util.Calendar;
 import java.util.Set;
 
 import javafx.animation.Timeline;
@@ -51,9 +52,15 @@ import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.Model;
+import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
+import org.ugate.wireless.data.ImageCapture;
+import org.ugate.wireless.data.RxData;
+import org.ugate.wireless.data.RxTxRemoteNodeDTO;
+import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 /**
  * Main menu control bar
@@ -223,60 +230,66 @@ public class ControlBar extends ToolBar {
 					if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						settingsSetTimeline.stop();
 					}
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTING) {
-					cnctStatusWireless.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
-					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_ON);
-					ServiceProvider.IMPL.getCredentialService().mergeHost(getActor().getHost());
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
-					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
-					cnctStatusWireless.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTED) {
-					cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
-					cnctStatusEmail.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
-					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_ON);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
-					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
-					cnctStatusEmail.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED || 
-						event.getType() == UGateEvent.Type.EMAIL_CLOSED || 
-						event.getType() == UGateEvent.Type.EMAIL_AUTH_FAILED) {
-					cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
-				} else if (event.getType() == UGateEvent.Type.WEB_INITIALIZE) {
-					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_SELECTED, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.WEB_CONNECTING) {
-					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.WEB_CONNECTED) {
-					cnctStatusWeb.setStatusFill(GuiUtil.COLOR_ON);
-				} else if (event.getType() == UGateEvent.Type.WEB_CONNECT_FAILED || 
-						event.getType() == UGateEvent.Type.WEB_INITIALIZE_FAILED) {
-					cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
-				} else if (event.getType() == UGateEvent.Type.WEB_DISCONNECTING) {
-					cnctStatusWeb.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.WEB_DISCONNECTED) {
-					cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS) {
+					final RemoteNode rn = (RemoteNode) event.getSource();
+					if (event.getNewValue() instanceof RxTxRemoteNodeReadingDTO) {
+						final RxTxRemoteNodeReadingDTO sr = (RxTxRemoteNodeReadingDTO) event.getNewValue();
+						ServiceProvider.IMPL.getRemoteNodeService().saveReading(sr.getRemoteNodeReading());
+					} else if (event.getNewValue() instanceof RxTxRemoteNodeDTO) {
+						final RxTxRemoteNodeDTO ndto = (RxTxRemoteNodeDTO) event.getNewValue();
+						if (!RemoteNodeType.remoteEquivalent(rn, ndto.getRemoteNode())) {
+							// remote device values do not match the local device values
+							rn.setDeviceSynchronized(false);
+							ndto.getRemoteNode().setDeviceSynchronized(false);
+							if (rn.isDeviceAutoSynchronize()) {
+								// automatically send the changes to the remote node
+								// (consume event so no other notifications for the
+								// event will be processed)
+								event.setConsumed(true);
+								createCommandService(Command.SENSOR_SET_SETTINGS, true);
+							} else if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
+								validateRemoteNodeSynchronization();
+							}
+						}
+					}
 				}
+				handleConnections(event);
+				handleSound(event);
 			}
 		});
 		validateRemoteNodeSynchronization();
+	}
+
+	/**
+	 * TODO : Temporary test method for adding random
+	 * {@linkplain RemoteNodeReading}s for today's date
+	 * 
+	 * @param numberOfRecords
+	 *            number of random {@linkplain RemoteNodeReading}s to add for
+	 *            today
+	 */
+	protected void addRandomReadingData(final int numberOfRecords) {
+		for (int i=0; i<numberOfRecords; i++) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, Double.valueOf(Math.random() * (24 - 1)).intValue());
+			cal.set(Calendar.MINUTE, Double.valueOf(Math.random() * (59 - 0)).intValue());
+
+			RemoteNodeReading sr = new RemoteNodeReading();
+			sr.setRemoteNode(getRemoteNode());
+			sr.setFromMultiState(Double.valueOf(Math.random() * (15 - 0)).intValue());
+			sr.setLaserFeet(Double.valueOf(Math.random() * (30 - 0)).intValue());
+			sr.setLaserInches(Double.valueOf(Math.random() * (11 - 0)).intValue());
+			sr.setSonarFeet(Double.valueOf(Math.random() * (10 - 0)).intValue());
+			sr.setSonarInches(Double.valueOf(Math.random() * (11 - 0)).intValue());
+			sr.setMicrowaveCycleCount(Double.valueOf(Math.random() * (50 - 0)).intValue());
+			sr.setPirIntensity(Double.valueOf(Math.random() * (25 - 0)).intValue());
+			sr.setReadDate(cal.getTime());
+			
+			final RxTxRemoteNodeReadingDTO srdto = new RxTxRemoteNodeReadingDTO(sr, RxData.Status.NORMAL, 0);
+			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<RemoteNode, RxTxRemoteNodeReadingDTO>(
+					srdto.getRemoteNode(), UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, true, null,
+					 Command.SENSOR_GET_READINGS, null, srdto));
+		}
 	}
 
 	/**
@@ -731,6 +744,105 @@ public class ControlBar extends ToolBar {
 				}
 				event.consume();
 			}
+		}
+	}
+
+	/**
+	 * Handles any connection updates that need to be made to the UI
+	 * 
+	 * @param event
+	 *            the {@linkplain UGateEvent} that will be evaluated for any
+	 *            connection changes
+	 */
+	public void handleConnections(final UGateEvent<?, ?> event) {
+		if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTING) {
+			cnctStatusWireless.setStatusFill(Duration.seconds(1),
+					GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED,
+					Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
+			cnctStatusWireless.setStatusFill(GuiUtil.COLOR_ON);
+			ServiceProvider.IMPL.getCredentialService().mergeHost(
+					getActor().getHost());
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
+			cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
+			cnctStatusWireless.setStatusFill(Duration.seconds(1),
+					GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED,
+					Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTED) {
+			cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
+		} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
+			cnctStatusEmail.setStatusFill(Duration.seconds(1),
+					GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED,
+					Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
+			cnctStatusEmail.setStatusFill(GuiUtil.COLOR_ON);
+		} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
+			cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
+		} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
+			cnctStatusEmail.setStatusFill(Duration.seconds(1),
+					GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED,
+					Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
+				|| event.getType() == UGateEvent.Type.EMAIL_CLOSED
+				|| event.getType() == UGateEvent.Type.EMAIL_AUTH_FAILED) {
+			cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
+		} else if (event.getType() == UGateEvent.Type.WEB_INITIALIZE) {
+			cnctStatusWeb.setStatusFill(Duration.seconds(1),
+					GuiUtil.COLOR_SELECTED, GuiUtil.COLOR_CLOSED,
+					Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.WEB_CONNECTING) {
+			cnctStatusWeb.setStatusFill(Duration.seconds(1),
+					GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED,
+					Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.WEB_CONNECTED) {
+			cnctStatusWeb.setStatusFill(GuiUtil.COLOR_ON);
+		} else if (event.getType() == UGateEvent.Type.WEB_CONNECT_FAILED
+				|| event.getType() == UGateEvent.Type.WEB_INITIALIZE_FAILED) {
+			cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
+		} else if (event.getType() == UGateEvent.Type.WEB_DISCONNECTING) {
+			cnctStatusWeb.setStatusFill(Duration.seconds(1), GuiUtil.COLOR_OFF,
+					GuiUtil.COLOR_CLOSED, Timeline.INDEFINITE);
+		} else if (event.getType() == UGateEvent.Type.WEB_DISCONNECTED) {
+			cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
+		}
+	}
+
+	/**
+	 * Plays a sound for predefined events if the
+	 * {@linkplain RemoteNode#getDeviceSoundsOn()} for the
+	 * {@linkplain UGateEvent#getSource()} (i.e. {@linkplain RemoteNode})
+	 * 
+	 * @param event
+	 *            the {@linkplain UGateEvent}
+	 */
+	public void handleSound(final UGateEvent<?, ?> event) {
+		if (!(event.getSource() instanceof RemoteNode)) {
+			return;
+		}
+		final RemoteNode rn = (RemoteNode) event.getSource();
+		if (rn == null || rn.getDeviceSoundsOn() != 1) {
+			return;
+		}
+		if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED) {
+			RS.mediaPlayerConfirm.play();
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
+			RS.mediaPlayerBlip.play();
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED) {
+			RS.mediaPlayerError.play();
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
+			RS.mediaPlayerDoorBell.play();
+			// TODO : send email with image as attachment (only when the image
+			// is captured via alarm trip rather, but not from GUI)
+			// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
+			// trippedImage.toString(),
+			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
+			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
+			// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
+			// imageFile.filePath);
+			RS.mediaPlayerComplete.play();
+		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
+			RS.mediaPlayerCam.play();
 		}
 	}
 }

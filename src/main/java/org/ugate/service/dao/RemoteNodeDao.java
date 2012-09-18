@@ -60,6 +60,18 @@ public class RemoteNodeDao extends Dao {
 		return q.getResultList();
 	}
 
+	public void deleteReadingsByIdAndDate(final RemoteNode remoteNode,
+			final Calendar startInclusive, final Calendar endExclusive) {
+		final TypedQuery<RemoteNodeReading> q = em
+				.createQuery(
+						"delete RemoteNodeReading where remoteNode.id = :id and readDate >= :sd and readDate < :ed ",
+						RemoteNodeReading.class);
+		q.setParameter("id", remoteNode.getId());
+		q.setParameter("sd", startInclusive.getTime(), TemporalType.TIMESTAMP);
+		q.setParameter("ed", endExclusive.getTime(), TemporalType.TIMESTAMP);
+		q.executeUpdate();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
