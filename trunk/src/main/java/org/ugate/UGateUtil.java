@@ -184,6 +184,18 @@ public class UGateUtil {
 	}
 
 	/**
+	 * Formats a {@linkplain Date} to the application wide format for time
+	 * 
+	 * @param date
+	 *            the {@linkplain Date} to format
+	 * @return the formated {@linkplain Date}
+	 */
+	public static String dateFormatTime(final Date date) {
+		SimpleDateFormat sdf = new SimpleDateFormat(TIME_FORMAT);
+		return sdf.format(date);
+	}
+
+	/**
 	 * @return the formatted current {@linkplain Calendar}
 	 */
 	public static String calNow() {

@@ -1,15 +1,12 @@
 package org.ugate.wireless.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
 
 /**
  * Sensor readings
  */
 public class RxTxRemoteNodeReadingDTO extends RxData  {
-	
-	private static final Logger log = LoggerFactory.getLogger(RxTxRemoteNodeReadingDTO.class);
+
 	private final RemoteNodeReading remoteNodeReading;
 
 	/**
@@ -26,7 +23,6 @@ public class RxTxRemoteNodeReadingDTO extends RxData  {
 			final Status status, final int signalStrength) {
 		super(remoteNodeReading.getRemoteNode(), status, signalStrength);
 		this.remoteNodeReading = remoteNodeReading;
-		log.debug("NEW " + this);
 	}
 	
 	/**

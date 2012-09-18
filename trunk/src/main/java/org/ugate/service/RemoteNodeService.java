@@ -93,4 +93,36 @@ public class RemoteNodeService {
 		//UGateUtil.PLAIN_LOGGER.info("Start : " + UGateUtil.calFormat(sc) + " End: " + UGateUtil.calFormat(ec));
 		return remoteNodeDao.findReadingsByIdAndDate(remoteNode, sc, ec, asc);
 	}
+
+	/**
+	 * Saves a new {@linkplain RemoteNodeReading}
+	 * 
+	 * @param remoteNodeReading
+	 *            the {@linkplain RemoteNodeReading} to save
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void saveReading(final RemoteNodeReading remoteNodeReading) {
+		remoteNodeDao.persistEntity(remoteNodeReading);
+	}
+
+	/**
+	 * Removes any {@linkplain RemoteNodeReading}(s) for a given
+	 * {@linkplain Date} range and {@linkplain RemoteNode}
+	 * 
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} to remove
+	 *            {@linkplain RemoteNodeReading}(s) for
+	 * @param startInclusive
+	 *            the {@linkplain Date} range to <i>start</i>
+	 *            {@linkplain RemoteNodeReading} removal at (inclusive)
+	 * @param startInclusive
+	 *            the {@linkplain Date} range to <i>end</i>
+	 *            {@linkplain RemoteNodeReading} removal at (exclusive)
+	 */
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public void removeReadingsByDateRange(final RemoteNode remoteNode,
+			final Calendar startInclusive, final Calendar endExclusive) {
+		remoteNodeDao.deleteReadingsByIdAndDate(remoteNode, startInclusive,
+				endExclusive);
+	}
 }
