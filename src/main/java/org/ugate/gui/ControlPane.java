@@ -7,7 +7,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -26,19 +25,12 @@ public abstract class ControlPane extends GridPane {
 	public static final String FORMAT_PIR = "%03d";
 	public static final String FORMAT_MW = "%03d";
 	public static final String FORMAT_LASER = "%04.1f";
-	public static final Color COLOR_SONAR = Color.CYAN;
-	public static final Color COLOR_PIR = Color.ORANGE.brighter();
-	public static final Color COLOR_MW = Color.CHARTREUSE;
-	public static final Color COLOR_LASER = Color.RED;
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 40d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	public static final double KNOB_SIZE_SCALE = 0.25d;
 	public static final double THRESHOLD_SIZE_SCALE = 0.85d;
 	public static final double DELAY_SIZE_SCALE = 0.54d;
-	public static final Color COLOR_CAM = Color.YELLOW;
-	public static final Color COLOR_MULTI = Color.ORANGE;
-	public static final Color COLOR_DATE = Color.WHITESMOKE;
 	protected final ControlBar controlBar;
 	
 	/**

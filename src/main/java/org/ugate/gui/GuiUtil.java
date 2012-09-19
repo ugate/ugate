@@ -59,12 +59,25 @@ public class GuiUtil {
 	public static final Color COLOR_SELECTING_BLAND = COLOR_SELECTING.deriveColor(1d, 1d, 0.7d, 1d);
 	public static final Color COLOR_UNSELECTED = Color.DARKSLATEGRAY;
 
+	public static final Color COLOR_SONAR = Color.CYAN;
+	public static final Color COLOR_PIR = Color.ORANGE.brighter();
+	public static final Color COLOR_MW = Color.CHARTREUSE;
+	public static final Color COLOR_LASER = Color.RED;
+	public static final Color COLOR_READ = Color.DARKBLUE.darker();
+	public static final Color[] COLORS_CHART = new Color[] {
+			GuiUtil.COLOR_SONAR, GuiUtil.COLOR_PIR, GuiUtil.COLOR_MW,
+			GuiUtil.COLOR_LASER, GuiUtil.COLOR_READ };
+
+	public static final Color COLOR_CAM = Color.YELLOW;
+	public static final Color COLOR_MULTI = Color.ORANGE;
+	public static final Color COLOR_DATE = Color.WHITESMOKE;
+
 	/**
 	 * Private utility constructor
 	 */
 	private GuiUtil() {
 	}
-	
+
 	/**
 	 * Creates a modal alert that shows a {@linkplain ProgressIndicator} display
 	 * 

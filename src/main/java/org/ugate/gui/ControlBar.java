@@ -276,7 +276,7 @@ public class ControlBar extends ToolBar {
 
 			RemoteNodeReading sr = new RemoteNodeReading();
 			sr.setRemoteNode(getRemoteNode());
-			sr.setFromMultiState(Double.valueOf(Math.random() * (15 - 0)).intValue());
+			sr.setFromMultiState(Double.valueOf(Math.random() * (15 - 1)).intValue());
 			sr.setLaserFeet(Double.valueOf(Math.random() * (30 - 0)).intValue());
 			sr.setLaserInches(Double.valueOf(Math.random() * (11 - 0)).intValue());
 			sr.setSonarFeet(Double.valueOf(Math.random() * (10 - 0)).intValue());
