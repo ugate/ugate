@@ -1,17 +1,20 @@
 package org.ugate.gui.view;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BarChart;
+import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -21,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 import org.ugate.gui.ControlBar;
+import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -31,10 +35,12 @@ import org.ugate.service.entity.jpa.RemoteNodeReading;
  * {@linkplain RemoteNodeReading} history
  */
 public class SensorReadingHistory extends StackPane {
-	
-	private static final Logger log = LoggerFactory.getLogger(SensorReadingHistory.class);
-	private static final Number DEFAULT_DATA_VALUE = 0;
+
+	private static final Logger log = LoggerFactory
+			.getLogger(SensorReadingHistory.class);
 	private final ControlBar cb;
+	private final CategoryAxis xAxis = new CategoryAxis();
+	private final NumberAxis yAxis = new NumberAxis();
 	private final XYChart.Series<String, Number> laserSeries;
 	private final XYChart.Series<String, Number> sonarSeries;
 	private final XYChart.Series<String, Number> microwaveSeries;
@@ -49,28 +55,24 @@ public class SensorReadingHistory extends StackPane {
 	 */
 	public SensorReadingHistory(final ControlBar controlBar) {
 		this.cb = controlBar;
-		CategoryAxis xAxis = new CategoryAxis();
-		NumberAxis yAxis = new NumberAxis();
-		final BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+		final StackedBarChart<String, Number> chart = new StackedBarChart<>(
+				xAxis, yAxis);
 		chart.setTitle(RS.rbLabel(KEYS.LABEL_GRAPH_ALARM_NOTIFY));
 		xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
+		xAxis.setCategories(FXCollections.<String> observableArrayList());
 		yAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_Y));
-		laserSeries = new XYChart.Series<>();
-		laserSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_LASER));
 		sonarSeries = new XYChart.Series<>();
-		sonarSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_SONAR));
-		microwaveSeries = new XYChart.Series<>();
-		microwaveSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_MICROWAVE));
 		pirSeries = new XYChart.Series<>();
-		pirSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_PIR));
+		microwaveSeries = new XYChart.Series<>();
+		laserSeries = new XYChart.Series<>();
 		readTripsSeries = new XYChart.Series<>();
-		readTripsSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ACTIVITY_READS));
 
 		final SimpleCalendar simpleCalender = new SimpleCalendar();
 		simpleCalender.setMaxSize(100d, 20d);
 		final TextField dateField = new TextField(new SimpleDateFormat(
 				"MM/dd/yyyy").format(simpleCalender.dateProperty().get()));
-		dateField.setMaxSize(simpleCalender.getMaxWidth(), simpleCalender.getMaxHeight());
+		dateField.setMaxSize(simpleCalender.getMaxWidth(),
+				simpleCalender.getMaxHeight());
 		dateField.setEditable(false);
 		dateField.setDisable(true);
 		simpleCalender.dateProperty().addListener(new ChangeListener<Date>() {
@@ -81,7 +83,7 @@ public class SensorReadingHistory extends StackPane {
 						.format(newDate));
 				final Calendar cal = Calendar.getInstance();
 				cal.setTime(newDate);
-				updateAlarmSeries(cal);
+				populateData(chart, cal);
 			}
 		});
 
@@ -93,15 +95,17 @@ public class SensorReadingHistory extends StackPane {
 		setAlignment(Pos.BOTTOM_RIGHT);
 		getChildren().addAll(chart, dateBox);
 
+		sonarSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_SONAR));
+		pirSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_PIR));
+		microwaveSeries.setName(RS
+				.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_MICROWAVE));
+		laserSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_LASER));
+		readTripsSeries.setName(RS
+				.rbLabel(KEYS.LABEL_GRAPH_SERIES_ACTIVITY_READS));
+
 		final Calendar cal = Calendar.getInstance();
 		cal.setTime(simpleCalender.dateProperty().get());
-		updateAlarmSeries(cal);
-		
-		chart.getData().add(laserSeries);
-		chart.getData().add(sonarSeries);
-		chart.getData().add(microwaveSeries);
-		chart.getData().add(pirSeries);
-		chart.getData().add(readTripsSeries);
+		populateData(chart, cal);
 	}
 
 	/**
@@ -113,105 +117,149 @@ public class SensorReadingHistory extends StackPane {
 	 *            {@linkplain RemoteNodeReading}(s) for (will not use time)
 	 * @return the number of {@linkplain RemoteNodeReading}s
 	 */
-	protected int updateAlarmSeries(final Calendar cal) {
+	protected int populateData(final XYChart<String, Number> chart,
+			final Calendar cal) {
 		final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
 				.getRemoteNodeService().findReadingsByDate(cb.getRemoteNode(),
 						cal, true);
-		if (rnrs.size() <= 0) {
-			laserSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
-			sonarSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
-			microwaveSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
-			pirSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
-			readTripsSeries.getData().add(new XYChart.Data<>("", DEFAULT_DATA_VALUE));
-			return 0;
-		}
 		// add zero plot for 24hr period for each series
-		laserSeries.getData().clear();
+		xAxis.getCategories().clear();
 		sonarSeries.getData().clear();
-		microwaveSeries.getData().clear();
 		pirSeries.getData().clear();
-		String time;
-		Number l = 0, m = 0, p = 0, s = 0, r = 0;
-		for (final RemoteNodeReading rnr : rnrs) {
-			time = UGateUtil.dateFormatTime(rnr.getReadDate());
-			switch (rnr.getFromMultiState()) {
-			case 1:
-				l = 1;
-				break;
-			case 2:
-				m = 1;
-				break;
-			case 3:
-				l = 2;
-				m = 2;
-				break;
-			case 4:
-				p = 1;
-				break;
-			case 5:
-				l = 2;
-				p = 2;
-				break;
-			case 6:
-				m = 2;
-				p = 2;
-				break;
-			case 7:
-				l = 3;
-				m = 3;
-				p = 3;
-				break;
-			case 8:
-				s = 1;
-				break;
-			case 9:
-				l = 2;
-				s = 2;
-				break;
-			case 10:
-				m = 2;
-				s = 2;
-				break;
-			case 11:
-				l = 3;
-				m = 3;
-				s = 3;
-				break;
-			case 12:
-				p = 2;
-				s = 2;
-				break;
-			case 13:
-				l = 3;
-				p = 3;
-				s = 3;
-				break;
-			case 14:
-				m = 3;
-				p = 3;
-				s = 3;
-				break;
-			case 15:
-				l = 4;
-				m = 4;
-				p = 4;
-				s = 4;
-				break;
-			case 16:
-				r = 1;
-				break;
-			default:
-				log.warn(String.format(
-						"%1$s for ID %2$s invalid for multi-state %3$s",
-						RemoteNodeReading.class.getName(), rnr.getId(),
-						rnr.getFromMultiState()));
+		microwaveSeries.getData().clear();
+		laserSeries.getData().clear();
+		readTripsSeries.getData().clear();
+		if (rnrs.size() > 0) {
+			String time;
+			final int d = 0;// Double.MIN_NORMAL;
+			Number l = d, m = d, p = d, s = d, r = d;
+			for (final RemoteNodeReading rnr : rnrs) {
+				l = m = p = s = r = d;
+				time = UGateUtil.dateFormatTime(rnr.getReadDate());
+				xAxis.getCategories().add(time);
+				switch (rnr.getFromMultiState()) {
+				case 1:
+					l = 1;
+					break;
+				case 2:
+					m = 1;
+					break;
+				case 3:
+					l = 2;
+					m = 2;
+					break;
+				case 4:
+					p = 1;
+					break;
+				case 5:
+					l = 2;
+					p = 2;
+					break;
+				case 6:
+					m = 2;
+					p = 2;
+					break;
+				case 7:
+					l = 3;
+					m = 3;
+					p = 3;
+					break;
+				case 8:
+					s = 1;
+					break;
+				case 9:
+					l = 2;
+					s = 2;
+					break;
+				case 10:
+					m = 2;
+					s = 2;
+					break;
+				case 11:
+					l = 3;
+					m = 3;
+					s = 3;
+					break;
+				case 12:
+					p = 2;
+					s = 2;
+					break;
+				case 13:
+					l = 3;
+					p = 3;
+					s = 3;
+					break;
+				case 14:
+					m = 3;
+					p = 3;
+					s = 3;
+					break;
+				case 15:
+					l = 4;
+					m = 4;
+					p = 4;
+					s = 4;
+					break;
+				case 16:
+					r = 1;
+					break;
+				default:
+					log.warn(String.format(
+							"%1$s for ID %2$s invalid for multi-state %3$s",
+							RemoteNodeReading.class.getName(), rnr.getId(),
+							rnr.getFromMultiState()));
+				}
+				int i = -1;
+				addData(sonarSeries, new XYChart.Data<>(time, s), ++i);
+				addData(pirSeries, new XYChart.Data<>(time, p), ++i);
+				addData(microwaveSeries, new XYChart.Data<>(time, m), ++i);
+				addData(laserSeries, new XYChart.Data<>(time, l), ++i);
+				addData(readTripsSeries, new XYChart.Data<>(time, r), ++i);
 			}
-			laserSeries.getData().add(new XYChart.Data<>(time, l));
-			microwaveSeries.getData().add(new XYChart.Data<>(time, m));
-			pirSeries.getData().add(new XYChart.Data<>(time, p));
-			sonarSeries.getData().add(new XYChart.Data<>(time, s));
-			readTripsSeries.getData().add(new XYChart.Data<>(time, r));
+			if (chart.getData().isEmpty()) {
+				chart.setData(FXCollections.observableArrayList(Arrays.asList(
+						sonarSeries, pirSeries, microwaveSeries, laserSeries,
+						readTripsSeries)));
+				chart.setLegendVisible(true);
+			}
+		} else {
+			if (!chart.getData().isEmpty()) {
+				chart.getData().clear();
+			}
+			chart.setLegendVisible(false);
 		}
 		return rnrs.size();
+	}
+
+	/**
+	 * Adds {@linkplain XYChart.Data} to a {@linkplain XYChart.Series} for a
+	 * specified index and sets the fill based upon the index.
+	 * 
+	 * @param series 
+	 * 				the {@linkplain XYChart.Series
+	 * @param data 
+	 * 				the {@linkplain XYChart.Data}
+	 * @param index 
+	 * 				the index
+	 */
+	private <X, Y> void addData(final XYChart.Series<X, Y> series,
+			final XYChart.Data<X, Y> data, final int index) {
+		series.getData().add(data);
+		final String color = GuiUtil.COLORS_CHART[index].toString();
+		final String colorHex = '#' + color.substring(2, color.length() - 2);
+		series.nodeProperty().addListener(new ChangeListener<Node>() {
+			@Override
+			public void changed(final ObservableValue<? extends Node> ob,
+					final Node oldNode, final Node newNode) {
+				series.getNode().setStyle("-fx-bar-fill: " + colorHex + ";}");
+			}
+		});
+		data.nodeProperty().addListener(new ChangeListener<Node>() {
+			@Override
+			public void changed(final ObservableValue<? extends Node> ob,
+					final Node oldNode, final Node newNode) {
+				newNode.setStyle("-fx-bar-fill: " + colorHex + ";}");
+			}
+		});
 	}
 }

@@ -61,7 +61,7 @@ public class PositionSettings extends ControlPane {
 		final UGateGaugeBox<RemoteNode> camPanGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_ANGLE_PAN,
 				null, IndicatorType.KNOB, KNOB_SIZE_SCALE, 10d, 0, 0d, 180d,
-				19, 0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_CAM);
+				19, 0, FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_CAM);
 		controlBar.addHelpTextTrigger(camPanGauge, RS.rbLabel(KEYS.CAM_PAN_DESC));
 		grid.add(camPanGauge, 0, 1);
 		// cam tilt
@@ -72,7 +72,7 @@ public class PositionSettings extends ControlPane {
 		final UGateGaugeBox<RemoteNode> camTiltGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.CAM_ANGLE_TILT,
 				null, IndicatorType.KNOB, KNOB_SIZE_SCALE, 10d, 0, 0, 180d, 19,
-				0, FORMAT_ANGLE, tiltImgView, COLOR_CAM);
+				0, FORMAT_ANGLE, tiltImgView, GuiUtil.COLOR_CAM);
 		controlBar.addHelpTextTrigger(camTiltGauge, RS.rbLabel(KEYS.CAM_TILT));
 		grid.add(camTiltGauge, 1, 1);
 		// sonar/pir pan
@@ -82,7 +82,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.SONAR_PIR_ANGLE_PAN, null, IndicatorType.KNOB,
 				KNOB_SIZE_SCALE, 10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE,
-				RS.IMG_PAN, COLOR_MULTI);
+				RS.IMG_PAN, GuiUtil.COLOR_MULTI);
 		controlBar.addHelpTextTrigger(sonarPirPanGauge, RS.rbLabel(KEYS.SONAR_PIR_PAN_DESC));
 		grid.add(sonarPirPanGauge, 0, 3);
 		// sonar/pir tilt
@@ -94,7 +94,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.SONAR_PIR_ANGLE_TILT, null, IndicatorType.KNOB,
 				KNOB_SIZE_SCALE, 10d, 0, 0, 180d, 19, 0, FORMAT_ANGLE,
-				sonarPirTiltImgView, COLOR_MULTI);
+				sonarPirTiltImgView, GuiUtil.COLOR_MULTI);
 		controlBar.addHelpTextTrigger(sonarPirTiltGauge, RS.rbLabel(KEYS.SONAR_PIR_TILT_DESC));
 		grid.add(sonarPirTiltGauge, 1, 3);
 		// microwave pan
@@ -103,7 +103,7 @@ public class PositionSettings extends ControlPane {
 		final UGateGaugeBox<RemoteNode> mwPanGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.MW_ANGLE_PAN,
 				null, IndicatorType.KNOB, KNOB_SIZE_SCALE, 10d, 0, 0, 180d, 19,
-				0, FORMAT_ANGLE, RS.IMG_PAN, COLOR_MW);
+				0, FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_MW);
 		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel(KEYS.MW_PAN_DESC));
 		grid.add(mwPanGauge, 0, 5);
 		// laser calibration
@@ -133,7 +133,7 @@ public class PositionSettings extends ControlPane {
 		//####### Sonar #######
 		sonarAnglePriority = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PRIORITY, PRIORITY_FORMAT,
-				COLOR_SONAR, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
+				GuiUtil.COLOR_SONAR, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
 				RS.rbLabel(KEYS.CAM_SONAR_TRIP_ANGLE_PRIORITY), null);
 		controlBar.addHelpTextTrigger(sonarAnglePriority, RS.rbLabel(KEYS.CAM_TRIP_ANGLE_PRIORITY_DESC,
 				RS.rbLabel(KEYS.CAM_SONAR_TRIP_ANGLE_PRIORITY)));
@@ -146,7 +146,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, RS.IMG_PAN, COLOR_SONAR);
+				FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_SONAR);
 		controlBar.addHelpTextTrigger(camSonarPanGauge, RS.rbLabel(KEYS.CAM_PAN_SONAR_DESC));
 		grid.add(camSonarPanGauge, 0, 2);
 		// cam sonar tilt
@@ -158,13 +158,13 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, camSonarTiltImgView, COLOR_SONAR);
+				FORMAT_ANGLE, camSonarTiltImgView, GuiUtil.COLOR_SONAR);
 		controlBar.addHelpTextTrigger(camSonarTiltGauge, RS.rbLabel(KEYS.CAM_TILT_SONAR_DESC));
 		grid.add(camSonarTiltGauge, 1, 2);
 		//####### PIR #######
 		pirAnglePriority = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PRIORITY, PRIORITY_FORMAT,
-				COLOR_PIR, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
+				GuiUtil.COLOR_PIR, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
 				RS.rbLabel(KEYS.CAM_PIR_TRIP_ANGLE_PRIORITY), null);
 		controlBar.addHelpTextTrigger(pirAnglePriority, RS.rbLabel(KEYS.CAM_TRIP_ANGLE_PRIORITY_DESC,
 				RS.rbLabel(KEYS.CAM_PIR_TRIP_ANGLE_PRIORITY)));
@@ -177,7 +177,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, RS.IMG_PAN, COLOR_PIR);
+				FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_PIR);
 		controlBar.addHelpTextTrigger(pirPanGauge, RS.rbLabel(KEYS.CAM_PAN_PIR_DESC));
 		grid.add(pirPanGauge, 0, 5);
 		// cam PIR tilt
@@ -187,7 +187,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, RS.IMG_PAN, COLOR_PIR);
+				FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_PIR);
 		controlBar.addHelpTextTrigger(pirTiltGauge, RS.rbLabel(KEYS.CAM_TILT_PIR_DESC));
 		grid.add(pirTiltGauge, 1, 5);
 		
@@ -200,7 +200,7 @@ public class PositionSettings extends ControlPane {
 		//####### Microwave #######
 		mwAnglePriority = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_MW_TRIP_ANGLE_PRIORITY, PRIORITY_FORMAT,
-				COLOR_MW, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
+				GuiUtil.COLOR_MW, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
 				RS.rbLabel(KEYS.CAM_MW_TRIP_ANGLE_PRIORITY), null);
 		controlBar.addHelpTextTrigger(mwAnglePriority, RS.rbLabel(KEYS.CAM_TRIP_ANGLE_PRIORITY_DESC,
 				RS.rbLabel(KEYS.CAM_MW_TRIP_ANGLE_PRIORITY)));
@@ -213,7 +213,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN, null, IndicatorType.KNOB,
 				KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0, FORMAT_ANGLE,
-				RS.IMG_PAN, COLOR_MW);
+				RS.IMG_PAN, GuiUtil.COLOR_MW);
 		controlBar.addHelpTextTrigger(mwPanGauge, RS.rbLabel(KEYS.CAM_PAN_MW_DESC));
 		grid.add(mwPanGauge, 0, 2);
 		// cam microwave tilt
@@ -223,13 +223,13 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, RS.IMG_PAN, COLOR_MW);
+				FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_MW);
 		controlBar.addHelpTextTrigger(mwTiltGauge, RS.rbLabel(KEYS.CAM_TILT_MW_DESC));
 		grid.add(mwTiltGauge, 1, 2);
 		//####### Laser #######
 		laserAnglePriority = new UGateCtrlBox<>(controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PRIORITY, PRIORITY_FORMAT,
-				COLOR_LASER, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
+				GuiUtil.COLOR_LASER, MIN_SENSOR_INDEX, MAX_SENSOR_INDEX,
 				RS.rbLabel(KEYS.CAM_LASER_TRIP_ANGLE_PRIORITY), null);
 		controlBar.addHelpTextTrigger(laserAnglePriority, RS.rbLabel(KEYS.CAM_TRIP_ANGLE_PRIORITY_DESC,
 				RS.rbLabel(KEYS.CAM_LASER_TRIP_ANGLE_PRIORITY)));
@@ -242,7 +242,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, RS.IMG_PAN, COLOR_LASER);
+				FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_LASER);
 		controlBar.addHelpTextTrigger(laserPanGauge, RS.rbLabel(KEYS.CAM_PAN_LASER_DESC));
 		grid.add(laserPanGauge, 0, 5);
 		// cam laser tilt
@@ -252,7 +252,7 @@ public class PositionSettings extends ControlPane {
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT, null,
 				IndicatorType.KNOB, KNOB_SIZE_SCALE, 10.7d, 0, 0, 180d, 18, 0,
-				FORMAT_ANGLE, RS.IMG_PAN, COLOR_LASER);
+				FORMAT_ANGLE, RS.IMG_PAN, GuiUtil.COLOR_LASER);
 		controlBar.addHelpTextTrigger(laserTiltGauge, RS.rbLabel(KEYS.CAM_TILT_LASER_DESC));
 		grid.add(laserTiltGauge, 1, 5);
 		

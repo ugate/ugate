@@ -66,19 +66,19 @@ public class SensorReading extends Parent {
 		cb.addHelpTextTrigger(readDate, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_TIME));
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
 		sonarReading = new Digits(String.format(AlarmThresholds.FORMAT_SONAR, 0.0f),
-				0.15f, AlarmThresholds.COLOR_SONAR, null);
+				0.15f, GuiUtil.COLOR_SONAR, null);
 		cb.addHelpTextTrigger(sonarReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
 		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
 		pirReading = new Digits(String.format(AlarmThresholds.FORMAT_PIR, 0), 
-				0.15f, AlarmThresholds.COLOR_PIR, null);
+				0.15f, GuiUtil.COLOR_PIR, null);
 		cb.addHelpTextTrigger(pirReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
 		mwReading = new Digits(String.format(AlarmThresholds.FORMAT_MW, 0), 0.15f, 
-				AlarmThresholds.COLOR_MW, null);
+				GuiUtil.COLOR_MW, null);
 		cb.addHelpTextTrigger(mwReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
 		final ImageView laserReadingLabel = RS.imgView(RS.IMG_LASER);
 		laserReading = new Digits(String.format(AlarmThresholds.FORMAT_LASER, 0.0f), 
-				0.15f, AlarmThresholds.COLOR_LASER, null);
+				0.15f, GuiUtil.COLOR_LASER, null);
 		cb.addHelpTextTrigger(laserReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
 		reportReadings = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.REPORT_READINGS);

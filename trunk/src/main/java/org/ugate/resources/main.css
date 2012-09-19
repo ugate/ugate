@@ -667,3 +667,28 @@
 	-fx-text-fill: white;
 	-fx-font-size: 10px;
 }
+
+/* .chart-bar { */
+/*     -fx-background-color: rgba(0,168,355,0.05); */
+/*     -fx-border-color: rgba(0,168,355,0.3) rgba(0,168,355,0.3)  */
+/*         transparent rgba(0,168,355,0.3); */
+/*     -fx-background-radius: 0; */
+/*     -fx-background-position: left center; */
+/* } */
+/* .data0.chart-bar { */
+/*     -fx-background-color: CYAN; */
+/* } */
+/* .data1.chart-bar { */
+/*     -fx-background-color: ORANGE; */
+/* } */
+/* .data2.chart-bar { */
+/*     -fx-background-color: CHARTREUSE; */
+/* } */
+/* .data3.chart-bar { */
+/*     -fx-background-color: RED; */
+/* } */
+/* .default-color0.chart-bar { -fx-bar-fill: CYAN; } */
+/* .default-color1.chart-bar { -fx-bar-fill: ORANGE; } */
+/* .default-color2.chart-bar { -fx-bar-fill: CHARTREUSE; } */
+/* .default-color3.chart-bar { -fx-bar-fill: RED; } */
+/* .default-color4.chart-bar { -fx-bar-fill: DARKVIOLET; } */
