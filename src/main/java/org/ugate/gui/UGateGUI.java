@@ -58,6 +58,7 @@ import org.ugate.gui.components.UGateDirectory;
 import org.ugate.gui.view.EmailHostConnection;
 import org.ugate.gui.view.RemoteNodes;
 import org.ugate.gui.view.SensorReadingHistory;
+import org.ugate.gui.view.WebBuilder;
 import org.ugate.gui.view.WirelessHostConnection;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
@@ -86,10 +87,11 @@ public class UGateGUI extends Application {
 
 	protected final HBox taskbar = new HBox(10d);
 	protected final HBox connectionView = new HBox(10d);
-	protected final TextArea loggingView = new TextArea();
 	protected ControlBar controlBar;
 	protected EmailHostConnection mailConnectionView;
 	protected WirelessHostConnection wirelessConnectionView;
+	protected SensorReadingHistory sensorReadingHistoryView;
+	protected WebBuilder webSetupView;
 	protected StackPane centerView;
 	protected AppFrame applicationFrame;
 	protected final IntegerProperty taskBarSelectProperty = new SimpleIntegerProperty(0);
@@ -102,7 +104,7 @@ public class UGateGUI extends Application {
 	 * Constructor
 	 */
 	public UGateGUI() {
-		// TextAreaAppender.setTextArea(loggingView);
+		// TextAreaAppender.setTextArea(webSetupView);
 		actorPA = new BeanPathAdapter<Actor>(ActorType.newDefaultActor());
 		remoteNodePA = new BeanPathAdapter<RemoteNode>(
 				RemoteNodeType
@@ -246,6 +248,9 @@ public class UGateGUI extends Application {
 		content.setCenter(centerView);
 		content.setBottom(bottom);
 		content.setTop(controlBar);
+		
+		sensorReadingHistoryView = new SensorReadingHistory(controlBar);
+		webSetupView = new WebBuilder(controlBar);
 
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEYS.APP_CONNECTION_DESC), 0, new Runnable() {
 			@Override
@@ -269,14 +274,13 @@ public class UGateGUI extends Application {
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel(KEYS.LABEL_GRAPH_DESC), 3, new Runnable() {
 			@Override
 			public void run() {
-				changeCenterView(new SensorReadingHistory(controlBar), 3);
+				changeCenterView(sensorReadingHistoryView, 3);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_LOGS, RS.rbLabel(KEYS.APP_LOGS_DESC), 4, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WEB, RS.rbLabel(KEYS.APP_WEB_TOOL_DESC), 4, new Runnable() {
 			@Override
 			public void run() {
-				loggingView.setEditable(false);
-				changeCenterView(loggingView, 4);
+				changeCenterView(webSetupView, 4);
 			}
 		}));
 		changeCenterView(connectionView, 0);

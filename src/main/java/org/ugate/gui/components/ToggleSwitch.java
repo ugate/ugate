@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.CacheHint;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -49,6 +50,7 @@ public class ToggleSwitch extends Group {
 	 * @param on the initial state of the toggle switch
 	 */
 	public ToggleSwitch(final String onText, final String offText, final boolean on) {
+		setCursor(Cursor.HAND);
 		setCache(true);
 		setCacheHint(CacheHint.SPEED);
 		this.onText = onText;

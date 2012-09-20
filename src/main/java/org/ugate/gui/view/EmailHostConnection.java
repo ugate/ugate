@@ -217,7 +217,7 @@ public class EmailHostConnection extends VBox {
 			}
 		});
 
-		connect = new Button();
+		connect = new Button(RS.rbLabel(KEYS.MAIL_CONNECT));
 		cb.addServiceBehavior(connect, null, ServiceProvider.Type.EMAIL,
 				KEYS.MAIL_CONNECT);
 

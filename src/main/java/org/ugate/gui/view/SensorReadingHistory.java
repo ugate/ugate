@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -17,6 +19,9 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
@@ -58,9 +63,13 @@ public class SensorReadingHistory extends StackPane {
 		final StackedBarChart<String, Number> chart = new StackedBarChart<>(
 				xAxis, yAxis);
 		chart.setTitle(RS.rbLabel(KEYS.LABEL_GRAPH_ALARM_NOTIFY));
-		xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
+		// xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
 		xAxis.setCategories(FXCollections.<String> observableArrayList());
 		yAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_Y));
+		yAxis.setMinorTickVisible(false);
+		yAxis.setAutoRanging(false);
+		yAxis.setUpperBound(16d);
+		yAxis.setTickUnit(1d);
 		sonarSeries = new XYChart.Series<>();
 		pirSeries = new XYChart.Series<>();
 		microwaveSeries = new XYChart.Series<>();
@@ -210,11 +219,13 @@ public class SensorReadingHistory extends StackPane {
 							rnr.getFromMultiState()));
 				}
 				int i = -1;
-				addData(sonarSeries, new XYChart.Data<>(time, s), ++i);
-				addData(pirSeries, new XYChart.Data<>(time, p), ++i);
-				addData(microwaveSeries, new XYChart.Data<>(time, m), ++i);
-				addData(laserSeries, new XYChart.Data<>(time, l), ++i);
-				addData(readTripsSeries, new XYChart.Data<>(time, r), ++i);
+				addData(chart, sonarSeries, new XYChart.Data<>(time, s), ++i);
+				addData(chart, pirSeries, new XYChart.Data<>(time, p), ++i);
+				addData(chart, microwaveSeries, new XYChart.Data<>(time, m),
+						++i);
+				addData(chart, laserSeries, new XYChart.Data<>(time, l), ++i);
+				addData(chart, readTripsSeries, new XYChart.Data<>(time, r),
+						++i);
 			}
 			if (chart.getData().isEmpty()) {
 				chart.setData(FXCollections.observableArrayList(Arrays.asList(
@@ -222,6 +233,19 @@ public class SensorReadingHistory extends StackPane {
 						readTripsSeries)));
 				chart.setLegendVisible(true);
 			}
+			// chart legend will not update using the data node style- need to
+			// set it here
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					final Set<Node> nodes = chart
+							.lookupAll(".chart-legend-item-symbol");
+					int i = -1;
+					for (final Node n : nodes) {
+						applyBarFillColorHex(n, getBarFillColorHex(++i));
+					}
+				}
+			});
 		} else {
 			if (!chart.getData().isEmpty()) {
 				chart.getData().clear();
@@ -235,6 +259,8 @@ public class SensorReadingHistory extends StackPane {
 	 * Adds {@linkplain XYChart.Data} to a {@linkplain XYChart.Series} for a
 	 * specified index and sets the fill based upon the index.
 	 * 
+	 * @param chart 
+	 * 				the {@linkplain XYChart}
 	 * @param series 
 	 * 				the {@linkplain XYChart.Series
 	 * @param data 
@@ -242,24 +268,58 @@ public class SensorReadingHistory extends StackPane {
 	 * @param index 
 	 * 				the index
 	 */
-	private <X, Y> void addData(final XYChart.Series<X, Y> series,
-			final XYChart.Data<X, Y> data, final int index) {
+	protected <X, Y> void addData(final XYChart<X, Y> chart,
+			final XYChart.Series<X, Y> series, final XYChart.Data<X, Y> data,
+			final int index) {
 		series.getData().add(data);
-		final String color = GuiUtil.COLORS_CHART[index].toString();
-		final String colorHex = '#' + color.substring(2, color.length() - 2);
+		final String colorHex = getBarFillColorHex(index);
 		series.nodeProperty().addListener(new ChangeListener<Node>() {
 			@Override
 			public void changed(final ObservableValue<? extends Node> ob,
 					final Node oldNode, final Node newNode) {
-				series.getNode().setStyle("-fx-bar-fill: " + colorHex + ";}");
+				applyBarFillColorHex(newNode, colorHex);
 			}
 		});
 		data.nodeProperty().addListener(new ChangeListener<Node>() {
 			@Override
 			public void changed(final ObservableValue<? extends Node> ob,
 					final Node oldNode, final Node newNode) {
-				newNode.setStyle("-fx-bar-fill: " + colorHex + ";}");
+				applyBarFillColorHex(newNode, colorHex);
 			}
 		});
+	}
+
+	/**
+	 * Gets the hexadecimal {@linkplain Color} used for items in the
+	 * {@linkplain XYChart}
+	 * 
+	 * @param index
+	 *            the index of the item
+	 * @return the hexadecimal {@linkplain Color}
+	 */
+	protected String getBarFillColorHex(final int index) {
+		final String color = GuiUtil.COLORS_CHART[index].toString();
+		return '#' + color.substring(2, color.length() - 2);
+	}
+
+	/**
+	 * Applies the hexadecimal {@linkplain Color} to a {@linkplain Node}
+	 * 
+	 * @param node
+	 *            the {@linkplain Node} to apply the hexadecimal
+	 *            {@linkplain Color} to
+	 * @param colorHex
+	 *            the hexadecimal {@linkplain Color}
+	 */
+	protected void applyBarFillColorHex(final Node node, final String colorHex) {
+		node.setStyle("-fx-bar-fill: " + colorHex + ";");
+		final DropShadow ds = new DropShadow();
+		ds.setOffsetX(3.0);
+		ds.setOffsetY(3.0);
+		final Lighting lighting = new Lighting();
+		lighting.setSurfaceScale(1d);
+		lighting.setLight(new Light.Distant());
+		ds.setInput(lighting);
+		node.setEffect(ds);
 	}
 }

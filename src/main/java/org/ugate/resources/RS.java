@@ -70,7 +70,7 @@ public class RS {
 	public static final String IMG_WIRELESS_ICON = "wireless-icon.png";
 	public static final String IMG_WEB_ICON = "web-icon.png";
 	public static final String IMG_GRAPH = "graph.png";
-	public static final String IMG_LOGS = "logs.png";
+	public static final String IMG_WEB = "web.png";
 	public static final String IMG_CAM_VGA = "cam-vga.png";
 	public static final String IMG_CAM_QVGA = "cam-qvga.png";
 	public static final String IMG_CAM_TOGGLE_VGA = "cam-toggle-vga.png";
@@ -796,7 +796,7 @@ public class RS {
 				"app.service.init.error"), APP_GATE_KEEPER_ERROR(
 				"app.gatekeeper.init.error"), APP_CONNECTION_DESC(
 				"app.connection.desc"), APP_CONTROLS_DESC("app.controls.desc"), APP_CAPTURE_DESC(
-				"app.capture.desc"), APP_LOGS_DESC("app.logs.desc"), APP_DIALOG_SETUP(
+				"app.capture.desc"), APP_WEB_TOOL_DESC("app.web.tool.desc"), APP_DIALOG_SETUP(
 				"app.dialog.setup"), APP_DIALOG_SETUP_ERROR(
 				"app.dialog.setup.error"), APP_DIALOG_SETUP_ERROR_PWD_MISMATCH(
 				"app.dialog.setup.error.password.mismatch"), APP_DIALOG_AUTH(

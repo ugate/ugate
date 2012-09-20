@@ -76,13 +76,6 @@ public class WirelessService {
 		packetListener = new UGateXBeePacketListener() {
 			@Override
 			protected <V extends RxData> void handleEvent(final UGateEvent<RemoteNode, V> event) {
-				// TODO : update the remote nodes history for incoming data
-//				if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS || 
-//						event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS) {
-//					for (final Map.Entry<Integer, String> ea : event.getNodeAddresses().entrySet()) {
-//						
-//					}
-//				}
 				UGateKeeper.DEFAULT.notifyListeners(event);
 			}
 		};

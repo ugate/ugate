@@ -502,29 +502,32 @@ public class ControlBar extends ToolBar {
 	}
 
 	/**
-	 * Creates a wireless connection {@linkplain Service} that will show a
-	 * progress indicator preventing further action until the wireless
-	 * connection has been established. When the wireless connection is already
-	 * connected an attempt will be made to reconnect.
+	 * Creates a wireless connection {@linkplain Service} that will connect to
+	 * the wireless host in a background process.
 	 * 
 	 * @return the {@linkplain Service}
 	 */
 	public Service<Boolean> createWirelessConnectionService() {
 		setHelpText(null);
-		return GuiUtil.alertProgress(stage, new Task<Boolean>() {
+		return new Service<Boolean>() {
 			@Override
-			protected Boolean call() throws Exception {
-				try {
-					// establish wireless connection (blocking)
-					ServiceProvider.IMPL.getWirelessService().connect(
-							getActor().getHost(), getRemoteNode());
-				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
-					log.error("Unable to establish a wireless connection", t);
-				}
-				return false;
+			protected Task<Boolean> createTask() {
+				return new Task<Boolean>() {
+					@Override
+					protected Boolean call() throws Exception {
+						try {
+							// establish wireless connection (blocking)
+							ServiceProvider.IMPL.getWirelessService().connect(
+									getActor().getHost(), getRemoteNode());
+						} catch (final Throwable t) {
+							setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
+							log.error("Unable to establish a wireless connection", t);
+						}
+						return false;
+					}
+				};
 			}
-		});
+		};
 	}
 	
 	/**
