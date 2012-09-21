@@ -52,7 +52,7 @@
 		<!-- see http://www.h2database.com/html/features.html -->
 		<ugate.db.version>1.3.168</ugate.db.version>
 <!-- 		<ugate.db.version>5.1.19</ugate.db.version> -->
-		<ugate.db.connection.url>jdbc:h2:~/${project.artifactId};AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</ugate.db.connection.url>
+		<ugate.db.connection.url>jdbc:h2:~/${project.artifactId}/${project.artifactId};AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</ugate.db.connection.url>
 <!-- 		<ugate.db.connection.url>jdbc:mysql://localhost:3306/test</ugate.db.connection.url> -->
 		<ugate.db.test.query>SELECT 1 and SELECT 1 FROM DUAL</ugate.db.test.query>
 <!-- 		<ugate.db.test.query>SELECT 1</ugate.db.test.query> -->

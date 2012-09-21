@@ -39,7 +39,7 @@
 <!-- 			<property name="openjpa.ManagedRuntime" value="jndi(TransactionManagerName=UserTransaction)" /> -->
 <!-- 			<property name="openjpa.jdbc.UpdateManager" value="operation-order" /> -->
 		<!-- use OpenJPA's built-in DataSource for unmanaged connections (can use non-jta-data-source for JNDI lookup instead) -->
-<!-- 			<property name="openjpa.Connection2URL" value="jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0" /> -->
+<!-- 			<property name="openjpa.Connection2URL" value="jdbc:h2:~/ugate/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0" /> -->
 <!-- 			<property name="openjpa.Connection2DriverName" value="org.h2.Driver" /> -->
 <!-- 			<property name="openjpa.Connection2UserName" value="sa" /> -->
 <!-- 			<property name="openjpa.Connection2Password" value="sa" /> -->

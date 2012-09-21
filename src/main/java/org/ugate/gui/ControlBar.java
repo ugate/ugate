@@ -195,7 +195,6 @@ public class ControlBar extends ToolBar {
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSave, settingsSet,
 				settingsGet, readingsGet, new Separator(Orientation.VERTICAL), 
 				sensorReading);
-		// show a visual indication that the settings need updated
 		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
 			public void handle(final UGateEvent<?, ?> event) {
