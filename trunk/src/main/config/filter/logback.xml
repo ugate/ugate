@@ -17,9 +17,9 @@
 	</appender>
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>^${user.home}/${project.build.finalName}.log</file>
+		<file>^${user.home}/${project.artifactId}/${project.build.finalName}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>${project.build.finalName}.%i.log.zip</fileNamePattern>
+			<fileNamePattern>^${user.home}/${project.artifactId}/${project.build.finalName}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>3</maxIndex>
 		</rollingPolicy>
@@ -32,6 +32,7 @@
 			</pattern>
 		</encoder>
 	</appender>
+	<logger name="com.atomikos" level="WARN"/>
 	<logger name="com.rapplogic" level="WARN"/>
 	<logger name="org.rxtx" level="WARN"/>
 	<logger name="${project.groupId}.UGateUtil" additivity="false">

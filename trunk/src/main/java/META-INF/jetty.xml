@@ -61,7 +61,7 @@
 				<Get name="xaProperties">
 					<Call name="setProperty">
 						<Arg>URL</Arg>
-						<Arg>jdbc:h2:~/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</Arg>
+						<Arg>jdbc:h2:~/ugate/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</Arg>
 					</Call>
 					<Call name="setProperty">
 						<Arg>user</Arg>

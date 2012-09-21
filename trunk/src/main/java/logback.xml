@@ -17,9 +17,9 @@
 	</appender>
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${user.home}/ugate-1.0.log</file>
+		<file>${user.home}/ugate/ugate-1.0.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>ugate-1.0.%i.log.zip</fileNamePattern>
+			<fileNamePattern>${user.home}/ugate/ugate-1.0.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>3</maxIndex>
 		</rollingPolicy>
@@ -32,6 +32,7 @@
 			</pattern>
 		</encoder>
 	</appender>
+	<logger name="com.atomikos" level="WARN"/>
 	<logger name="com.rapplogic" level="WARN"/>
 	<logger name="org.rxtx" level="WARN"/>
 	<logger name="org.ugate.UGateUtil" additivity="false">
