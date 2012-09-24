@@ -1,6 +1,7 @@
 package org.ugate.gui.view;
 
 import org.ugate.gui.ControlBar;
+import org.ugate.resources.RS;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -79,7 +80,14 @@ public class WebBuilder extends BorderPane {
 //				log.debug(event.getData());
 			}
 		});
-		//webView.getEngine().load("http://codiqa.com/embed/editor");
 		return webView;
+	}
+
+	/**
+	 * Loads the {@linkplain WebView} content
+	 */
+	public void load() {
+		//webView.getEngine().load("http://codiqa.com/embed/editor");
+		webView.getEngine().load(RS.path("nav.html"));
 	}
 }

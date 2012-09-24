@@ -280,6 +280,7 @@ public class UGateGUI extends Application {
 		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WEB, RS.rbLabel(KEYS.APP_WEB_TOOL_DESC), 4, new Runnable() {
 			@Override
 			public void run() {
+				webSetupView.load();
 				changeCenterView(webSetupView, 4);
 			}
 		}));
