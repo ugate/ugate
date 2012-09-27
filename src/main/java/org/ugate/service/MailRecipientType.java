@@ -19,6 +19,35 @@ public enum MailRecipientType implements IModelType<MailRecipient> {
 	}
 
 	/**
+	 * Gets a {@linkplain MailRecipient} value for a {@linkplain MailRecipientType}
+	 * 
+	 * @param mailRecipient
+	 *            the {@linkplain MailRecipient} to get the value from
+	 * @return the extracted {@linkplain MailRecipient} value
+	 * @throws Throwable
+	 *             any errors during extraction
+	 */
+	public Object getValue(final MailRecipient mailRecipient) throws Throwable {
+		return IModelType.ValueHelper.getValue(mailRecipient, this);
+	}
+
+	/**
+	 * Sets a {@linkplain MailRecipient} value for a {@linkplain MailRecipientType}.
+	 * 
+	 * @param mailRecipient
+	 *            the {@linkplain MailRecipient} to get the value from
+	 * @param value
+	 *            the value to set
+	 * @return the extracted {@linkplain MailRecipient} value
+	 * @throws Throwable
+	 *             any errors during extraction
+	 */
+	public void setValue(final MailRecipient mailRecipient, final Object value)
+			throws Throwable {
+		IModelType.ValueHelper.setValue(mailRecipient, this, value);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

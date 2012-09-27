@@ -3,6 +3,7 @@ package org.ugate.gui.view;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -23,22 +24,27 @@ import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.Model;
 import org.ugate.service.entity.jpa.Actor;
 
-public class WirelessHostConnection extends VBox {
+public class HostConnection extends VBox {
 	
-	private static final Logger log = LoggerFactory.getLogger(WirelessHostConnection.class);
+	private static final Logger log = LoggerFactory.getLogger(HostConnection.class);
 	public final UGateComboBox<String> port;
 	public final UGateComboBox<Integer> baud;
-	public final UGateCtrlBox<Actor, Void, Void> hostAddress;
+	public final UGateCtrlBox<Actor, Model, Void> hostAddress;
 	public final Button wirelessBtn;
+	public final UGateCtrlBox<Actor, Model, Void> webHost;
+	public final UGateCtrlBox<Actor, Model, Void> webPort;
+	public final UGateCtrlBox<Actor, Model, Void> webHostLocal;
+	public final UGateCtrlBox<Actor, Model, Void> webPortLocal;
 	public final Button webBtn;
 	public final ControlBar cb;
 
 	/**
 	 * Creates the wireless connection view
 	 */
-	public WirelessHostConnection(final ControlBar controlBar) {
+	public HostConnection(final ControlBar controlBar) {
 		super(20);
 		this.cb = controlBar;
 		
@@ -116,28 +122,32 @@ public class WirelessHostConnection extends VBox {
 				}
 			}
 		});
-	    
+		
+	    webHost = new UGateCtrlBox<>(cb.getActorPA(), ActorType.HOST_WEB_HOST, 
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_HOST), null);
+	    controlBar.addHelpTextTrigger(webHost, RS.rbLabel(KEYS.WEB_HOST_DESC));
+	    webPort = new UGateCtrlBox<>(cb.getActorPA(), ActorType.HOST_WEB_PORT, 
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_PORT), null);
+	    controlBar.addHelpTextTrigger(webPort, RS.rbLabel(KEYS.WEB_PORT_DESC));
+	    webHostLocal = new UGateCtrlBox<>(cb.getActorPA(), ActorType.HOST_WEB_HOST_LOCAL, 
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_HOST_LOCAL), null);
+	    controlBar.addHelpTextTrigger(webHostLocal, RS.rbLabel(KEYS.WEB_HOST_LOCAL_DESC));
+	    webPortLocal = new UGateCtrlBox<>(cb.getActorPA(), ActorType.HOST_WEB_PORT_LOCAL, 
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_PORT_LOCAL), null);
+	    controlBar.addHelpTextTrigger(webPortLocal, RS.rbLabel(KEYS.WEB_PORT_LOCAL_DESC));
 		wirelessBtn = new Button(RS.rbLabel(KEYS.WIRELESS_CONNECT));
+		controlBar.addHelpTextTrigger(wirelessBtn, RS.rbLabel(KEYS.WIRELESS_WEB_START_STOP_DESC));
 		cb.addServiceBehavior(wirelessBtn, null, ServiceProvider.Type.WIRELESS,
 				null);
 		webBtn = new Button(RS.rbLabel(KEYS.WIRELESS_WEB_START_STOP));
 		cb.addServiceBehavior(webBtn, null, ServiceProvider.Type.WEB,
 				KEYS.WIRELESS_WEB_START_STOP_DESC);
-	    
-	    final VBox portBaudView = new VBox(10d);
-	    portBaudView.setPadding(new Insets(30d, 0, 0, 0));
-	    portBaudView.getChildren().addAll(port, baud);
-	    
-	    final GridPane iconGrid = new GridPane();
-	    //iconGrid.setPadding(new Insets(20d, 0, 0, 0));
-		iconGrid.setHgap(5d);
-		iconGrid.setVgap(15d);
-		iconGrid.add(wirelessIcon, 0, 0);
-	    iconGrid.add(portBaudView, 1, 0);
-	    
-	    final VBox main = new VBox(10d);
-	    main.getChildren().addAll(iconGrid, hostAddress);
-	    getChildren().addAll(main, wirelessBtn, webIcon, webBtn);
+
+		getChildren().addAll(
+				createIconGrid(wirelessIcon, port, baud, hostAddress),
+				wirelessBtn,
+				createIconGrid(webIcon, webHost, webPort, webHostLocal,
+						webPortLocal), webBtn);
 	}
 	
 	/**
@@ -164,5 +174,31 @@ public class WirelessHostConnection extends VBox {
 		cb.bindTo(ActorType.HOST_BAUD_RATE, baud.getComboBox().valueProperty(),
 				Integer.class);
 		return baud;
+	}
+
+	/**
+	 * Creates a {@linkplain StatusIcon} view in a {@linkplain GridPane} layout
+	 * format
+	 * 
+	 * @param icon
+	 *            the {@linkplain StatusIcon}
+	 * @param nodes
+	 *            the {@linkplain Node}s that will appear adjacent to the
+	 *            {@linkplain StatusIcon}
+	 * @return the {@linkplain GridPane}
+	 */
+	protected GridPane createIconGrid(final StatusIcon icon, final Node... nodes) {
+	    final VBox iconNodes = new VBox(10d);
+	    iconNodes.setPadding(new Insets(30d, 0, 0, 0));
+	    iconNodes.getChildren().addAll(nodes);
+	    
+	    final GridPane iconGrid = new GridPane();
+	    //iconGrid.setPadding(new Insets(20d, 0, 0, 0));
+		iconGrid.setHgap(5d);
+		iconGrid.setVgap(15d);
+		iconGrid.add(icon, 0, 0);
+	    iconGrid.add(iconNodes, 1, 0);
+	    
+	    return iconGrid;
 	}
 }

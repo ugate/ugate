@@ -1,22 +1,46 @@
 package org.ugate.gui.view;
 
-import org.ugate.gui.ControlBar;
-import org.ugate.resources.RS;
+import java.io.StringWriter;
+
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
+
+import org.ugate.gui.ControlBar;
+import org.ugate.resources.RS;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.RemoteNodeType;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.html.HTMLBodyElement;
+import org.w3c.dom.html.HTMLDivElement;
+import org.w3c.dom.html.HTMLElement;
 
 /**
  * Web browser UI builder to build web browser content
  */
 public class WebBuilder extends BorderPane {
 
+	private final ToolBar toolBar;
 	private final WebView webView;
+	private final ControlBar cb;
+	private boolean isToolBarLoaded;
 
 	/**
 	 * Constructor
@@ -26,6 +50,10 @@ public class WebBuilder extends BorderPane {
 	 */
 	public WebBuilder(final ControlBar controlBar) {
 		webView = createWebView(null, null, null, false);
+		cb = controlBar;
+		toolBar = new ToolBar();
+		toolBar.setOrientation(Orientation.VERTICAL);
+		setLeft(toolBar);
 		setCenter(webView);
 	}
 
@@ -55,13 +83,20 @@ public class WebBuilder extends BorderPane {
 							State oldValue, State newValue) {
 						if (newValue == State.SUCCEEDED
 								&& webView.getEngine().getDocument() != null) {
-//							final Element navImg = webView.getEngine()
-//									.getDocument().getElementById("navImg");
+//							webView.getEngine().executeScript("complete()");
+//					        try {
+//						        final DocumentFragment frag =  webView.getEngine().getDocument().createDocumentFragment();
+//						        frag.setNodeValue(getContent(true));
+//								final HTMLElement html = (HTMLElement) webView.getEngine().getDocument().getElementsByTagName("body").item(0);
+//								html.appendChild(frag);
+//					        } catch (Throwable t) {
+//					            t.printStackTrace();
+//					        }
 //							/*
 //							 * link =item.getAttributes().getNamedItem("src").
 //							 * getTextContent();
 //							 */
-//							navImg.getAttributes().getNamedItem("src")
+//							body.getAttributes().getNamedItem("src")
 //									.setNodeValue(navImgSrc);
 //							final Element navResultImg = webView.getEngine()
 //									.getDocument()
@@ -69,6 +104,15 @@ public class WebBuilder extends BorderPane {
 //							navResultImg.getAttributes().getNamedItem("src")
 //									.setNodeValue(navResultImgSrc);
 						}
+					}
+				});
+		webView.getEngine().getLoadWorker().exceptionProperty()
+				.addListener(new ChangeListener<Throwable>() {
+					@Override
+					public void changed(
+							final ObservableValue<? extends Throwable> observableValue,
+							final Throwable oldThrowable, final Throwable newThrowable) {
+						System.out.println("Load exception: " + newThrowable);
 					}
 				});
 		webView.getEngine().setOnAlert(new EventHandler<WebEvent<String>>() {
@@ -87,7 +131,46 @@ public class WebBuilder extends BorderPane {
 	 * Loads the {@linkplain WebView} content
 	 */
 	public void load() {
-		//webView.getEngine().load("http://codiqa.com/embed/editor");
-		webView.getEngine().load(RS.path("nav.html"));
+		if (loadToolBar()) {
+			webView.getEngine().load(
+					"http://" + cb.getActor().getHost().getWebHostLocal() + ':'
+							+ cb.getActor().getHost().getWebPortLocal() + '/'
+							+ RS.WEB_PAGE_REMOTE_NODE_INDEX);
+		}
+	}
+
+	protected boolean loadToolBar() {
+		if (!ServiceProvider.IMPL.getWebService().isRunning()) {
+			toolBar.getItems().clear();
+			toolBar.getItems().add(new Label("Web server must be started to view/edit the web view"));
+			return false;
+		}
+		return true;
+	}
+
+	protected String getContent(final boolean justBodyContent) {
+		String content = RS.getEscapedResource(RS.WEB_PAGE_REMOTE_NODE_INDEX,
+				cb.getRemoteNode(), RemoteNodeType.values());
+		content = RS.getEscapedContent(content, cb.getActor(),
+				ActorType.values());
+		if (justBodyContent) {
+			content = RS.getHtmlBodyContent(content);
+		}
+		return content;
+	}
+	
+	protected String getCurrentPageSource() {
+        try {
+        	final DOMSource source = new DOMSource(webView.getEngine().getDocument());
+            try (final StringWriter stringWriter = new StringWriter()) {
+                final Result result = new StreamResult(stringWriter);
+                Transformer transformer = TransformerFactory.newInstance().newTransformer();
+                transformer.transform(source, result);
+                return stringWriter.getBuffer().toString();
+            }
+        } catch (final Throwable t) {
+            t.printStackTrace();
+            return null;
+        }
 	}
 }

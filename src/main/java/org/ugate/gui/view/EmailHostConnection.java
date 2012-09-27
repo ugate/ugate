@@ -28,6 +28,7 @@ import org.ugate.resources.RS.KEYS;
 import org.ugate.service.MailRecipientType;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.Model;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.MailRecipient;
 
@@ -38,13 +39,13 @@ public class EmailHostConnection extends VBox {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(EmailHostConnection.class);
-	public final UGateCtrlBox<Actor, Void, Void> smtpHost;
-	public final UGateCtrlBox<Actor, Void, Void> smtpPort;
-	public final UGateCtrlBox<Actor, Void, Void> imapHost;
-	public final UGateCtrlBox<Actor, Void, Void> imapPort;
-	public final UGateCtrlBox<Actor, Void, Void> username;
-	public final UGateCtrlBox<Actor, Void, Void> password;
-	public final UGateCtrlBox<Actor, Void, Void> inboxFolder;
+	public final UGateCtrlBox<Actor, Model, Void> smtpHost;
+	public final UGateCtrlBox<Actor, Model, Void> smtpPort;
+	public final UGateCtrlBox<Actor, Model, Void> imapHost;
+	public final UGateCtrlBox<Actor, Model, Void> imapPort;
+	public final UGateCtrlBox<Actor, Model, Void> username;
+	public final UGateCtrlBox<Actor, Model, Void> password;
+	public final UGateCtrlBox<Actor, Model, Void> inboxFolder;
 	public final TextField recipient;
 	public final UGateCtrlBox<Actor, MailRecipient, String> recipients;
 	public final Button connect;

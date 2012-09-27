@@ -1,9 +1,5 @@
 package org.ugate.service.entity;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -194,8 +190,7 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 *             any errors during extraction
 	 */
 	public Object getValue(final RemoteNode remoteNode) throws Throwable {
-		return buildAccessor(remoteNode, this, "get", "is", "has",
-				"use").invoke();
+		return IModelType.ValueHelper.getValue(remoteNode, this);
 	}
 
 	/**
@@ -211,69 +206,7 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 */
 	public void setValue(final RemoteNode remoteNode, final Object value)
 			throws Throwable {
-		final MethodHandle gmh = buildAccessor(remoteNode, this, "get", "is",
-				"has", "use");
-		final String setMethodName = buildMethodName("set", getKey());
-		final MethodHandle smh = MethodHandles
-				.lookup()
-				.findVirtual(
-						RemoteNode.class,
-						setMethodName,
-						MethodType.methodType(void.class, gmh.type()
-								.returnType())).bindTo(remoteNode);
-		smh.invoke(value);
-	}
-
-	/**
-	 * Builds a method name using a prefix and a field name
-	 * 
-	 * @param prefix
-	 *            the method's prefix
-	 * @param fieldName
-	 *            the method's field name
-	 * @return the method name
-	 */
-	private static String buildMethodName(final String prefix,
-			final String fieldName) {
-		return (fieldName.startsWith(prefix) ? fieldName : prefix
-				+ fieldName.substring(0, 1).toUpperCase()
-				+ fieldName.substring(1));
-	}
-
-	/**
-	 * Attempts to build a {@linkplain MethodHandle} accessor for the field
-	 * name using common prefixes used for methods to access a field
-	 * 
-	 * @param remoteNode
-	 *            the target object that the accessor is for
-	 * @param fieldName
-	 *            the field name that the accessor is for
-	 * @return the accessor {@linkplain MethodHandle}
-	 * @param fieldNamePrefix
-	 *            the prefix of the method for the field name
-	 * @return the accessor {@linkplain MethodHandle}
-	 */
-	private static MethodHandle buildAccessor(final RemoteNode remoteNode,
-			final RemoteNodeType remoteNodeType, final String... fieldNamePrefix) {
-		final String accessorName = buildMethodName(fieldNamePrefix[0],
-				remoteNodeType.getKey());
-		try {
-			return MethodHandles
-					.lookup()
-					.findVirtual(
-							remoteNode.getClass(),
-							accessorName,
-							MethodType.methodType(remoteNode.getClass()
-									.getMethod(accessorName)
-									.getReturnType())).bindTo(remoteNode);
-		} catch (final NoSuchMethodException e) {
-			return fieldNamePrefix.length <= 1 ? null : buildAccessor(
-					remoteNode, remoteNodeType, Arrays.copyOfRange(fieldNamePrefix,
-							1, fieldNamePrefix.length));
-		} catch (final Throwable t) {
-			throw new IllegalArgumentException(
-					"Unable to resolve accessor " + accessorName, t);
-		}
+		IModelType.ValueHelper.setValue(remoteNode, this, value);
 	}
 
 	/**

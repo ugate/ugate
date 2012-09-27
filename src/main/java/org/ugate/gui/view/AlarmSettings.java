@@ -21,6 +21,7 @@ import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
+import org.ugate.service.entity.Model;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
@@ -35,11 +36,11 @@ public class AlarmSettings extends ControlPane {
 	private UGateToggleSwitchBox<RemoteNode> emailToggleSwitch;
 	private UGateToggleSwitchBox<RemoteNode> imgResToggleSwitch;
 	private UGateToggleSwitchBox<RemoteNode> universalRemoteAccessToggleSwitch;
-	private UGateCtrlBox<RemoteNode, Void, Void> remoteAddress;
-	private UGateCtrlBox<RemoteNode, Void, Void> workingDir;
-	private UGateCtrlBox<RemoteNode, Void, Void> accessKey1;
-	private UGateCtrlBox<RemoteNode, Void, Void> accessKey2;
-	private UGateCtrlBox<RemoteNode, Void, Void> accessKey3;
+	private UGateCtrlBox<RemoteNode, Model, Void> remoteAddress;
+	private UGateCtrlBox<RemoteNode, Model, Void> workingDir;
+	private UGateCtrlBox<RemoteNode, Model, Void> accessKey1;
+	private UGateCtrlBox<RemoteNode, Model, Void> accessKey2;
+	private UGateCtrlBox<RemoteNode, Model, Void> accessKey3;
 	private UGateToggleSwitchBox<RemoteNode> gateToggleSwitchView;
 	private AlarmMultistates alarmMultistates;
 

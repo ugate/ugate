@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.application.Platform;
 import javafx.scene.CacheHint;
@@ -38,6 +41,8 @@ import javax.imageio.stream.ImageInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
+import org.ugate.service.entity.IModelType;
+import org.ugate.service.entity.Model;
 
 public class RS {
 
@@ -125,6 +130,9 @@ public class RS {
 	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
+	public static final String WEB_PAGE_REMOTE_NODE_INDEX = "remote-node-index.html";
+	public static final String WEB_PAGE_REMOTE_NODE = "remote-node.html";
+	private static final Pattern htmlBodyRegex = Pattern.compile("(.*)<body([^>]*)>(.*)</body>(.*)", Pattern.DOTALL);
 	
 	private RS() {
 	}
@@ -240,7 +248,69 @@ public class RS {
 	public static String path(final String fileName) {
 		return RS.class.getResource(fileName).toExternalForm();
 	}
-	
+
+	/**
+	 * Gets an escaped resource path
+	 * 
+	 * @param fileName the resource file name
+	 * @return the resource path
+	 */
+	@SafeVarargs
+	public static <T extends Model> String getEscapedResource(final String fileName, final T model, final IModelType<T>... types) {
+		try (final InputStream is = RS.class.getResourceAsStream(fileName)) {
+			try (final Scanner sr = new Scanner(is)) {
+				return getEscapedContent(sr.useDelimiter("\\A").next(), model, types);
+			}
+		} catch (final Throwable t) {
+			return null;
+		}
+	}
+
+	@SafeVarargs
+	public static <T extends Model> String getEscapedContent(final String content, final T model, final IModelType<T>... types) {
+		String str = content;
+		String rp = "", rv = "";
+		Object val;
+		for (final IModelType<T> type : types) {
+			//str = str.replaceAll("__.*__", "");
+			rp = "__" + type.name() + "__";
+			try {
+				val = type.getValue(model);
+				rv = val != null ? val.toString() : "";
+				str = str.replaceAll(rp, rv);
+				log.info(String.format(
+						"Replaced %1$s with extracted value %2$s from %3$s",
+						rp, rv, model));
+			} catch (final Throwable t) {
+				log.warn(String.format(
+								"Unable to replace %1$s with extracted value from %2$s due to %3$s: %4$s",
+								rp, model, t.getClass().getName(),
+								t.getMessage()));
+			}
+		}
+		return str;
+	}
+
+	/**
+	 * Gets the content of an HTML {@linkplain String}
+	 * 
+	 * @param html
+	 *            the HTML
+	 * @return the HTML content
+	 */
+	public static String getHtmlBodyContent(final String html) {
+		String content = null;
+		try {
+			final Matcher matcher = htmlBodyRegex.matcher(html);
+			if (matcher.find() && matcher.groupCount() >= 3) {
+				content = matcher.group(3);
+			}
+		} catch (final Throwable t) {
+			log.debug("Unable to extract HTML conent for: " + html, t);
+		}
+		return content == null || content.isEmpty() ? html : content;
+	}
+
 	/**
 	 * Creates an audio clip based on the file path
 	 * 
@@ -251,8 +321,6 @@ public class RS {
 	public static AudioClip audioClip(final String fileName) {
 		try {
 			return new AudioClip(RS.class.getResource(fileName).toExternalForm());
-//			return new AudioClip(RS.class.getResource(fileName).getPath()
-//					.replace("/C", "file"));
 		} catch (final Throwable t) {
 			log.error("Unable to get audio clip for resource named: " + fileName);
 		}
@@ -934,7 +1002,13 @@ public class RS {
 				"wireless.disconnecting"), WIRELESS_SYNC(
 				"wireless.synchronizing"), WIRELESS_WORKING_DIR(
 				"wireless.workingdir"), WIRELESS_WORKING_DIR_DESC(
-				"wireless.workingdir.desc"), MAIL_ALARM_NOTIFY(
+				"wireless.workingdir.desc"), WEB_HOST("wireless.web.host"), WEB_HOST_DESC(
+				"wireless.web.host.desc"), WEB_PORT("wireless.web.port"), WEB_PORT_DESC(
+				"wireless.web.port.desc"), WEB_HOST_LOCAL(
+				"wireless.web.host.local"), WEB_HOST_LOCAL_DESC(
+				"wireless.web.host.local.desc"), WEB_PORT_LOCAL(
+				"wireless.web.port.local"), WEB_PORT_LOCAL_DESC(
+				"wireless.web.port.local.desc"), MAIL_ALARM_NOTIFY(
 				"mail.alarm.notify"), MAIL_ALARM_NOTIFY_DESC(
 				"mail.alarm.notify.desc"), MAIL_ALARM_NOFITY_EMAILS(
 				"mail.alarm.notify.emails"), MAIL_ALARM_NOTIFY_EMAILS_DESC(

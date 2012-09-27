@@ -19,6 +19,7 @@ import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.entity.IModelType;
+import org.ugate.service.entity.Model;
 
 /**
  * Toggle switch view that shows an image as an indicator as to what is being
@@ -29,7 +30,7 @@ import org.ugate.service.entity.IModelType;
  * 
  * @see ToggleSwitch
  */
-public class UGateToggleSwitchBox<T> extends HBox {
+public class UGateToggleSwitchBox<T extends Model> extends HBox {
 	
 	public static final int TOGGLE_ITEM_START_INDEX = 0;
 	private final List<ToggleItem> toggleItems;

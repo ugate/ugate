@@ -12,6 +12,7 @@ import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.component.LifeCycle;
@@ -22,8 +23,8 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent.Type;
+import org.ugate.UGateKeeper;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
@@ -143,15 +144,18 @@ public class WebServer {
 			sslCnxt.setTrustAll(false);
 			final SslSelectChannelConnector sslCnct = new SslSelectChannelConnector(sslCnxt);
 			sslCnct.setPort(host.getWebPort());
+			sslCnct.setHost(host.getWebHost());
 //			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
 //			sslCnct.setPort(getHost().getWebPort());
-			// Do not use an HTTP channel selector in addition to the SSL or else 
+			// Do not use an HTTP channel selector in addition to the SslSocketConnector or else 
 			// requests will fail with "no cipher suites in common"
-//			final SelectChannelConnector httpCnct = new SelectChannelConnector();
-//			httpCnct.setPort(getPortNumber());
+			final SelectChannelConnector httpCnct = new SelectChannelConnector();
+			httpCnct.setPort(host.getWebPortLocal());
+			httpCnct.setHost(host.getWebHostLocal());
 			
-			server.setConnectors(new Connector[] { sslCnct });
+			server.setConnectors(new Connector[] { httpCnct, sslCnct });
 
+			// Serve via servlet
 			final EnumSet<DispatcherType> dispatchers = EnumSet.range(
 					DispatcherType.FORWARD, DispatcherType.ERROR);
 			final ServletContextHandler context = new ServletContextHandler(
@@ -159,6 +163,11 @@ public class WebServer {
 			context.setContextPath("/");
 			context.addFilter(GlobalFilter.class, "/*", dispatchers);
 			context.addServlet(DefaultAppServlet.class, "/");
+			
+			// Serve files from internal resource location
+//			final org.eclipse.jetty.webapp.WebAppContext context = new org.eclipse.jetty.webapp.WebAppContext();
+//		    final String webappDirInsideJar = this.getClass().getResource("webapp").toExternalForm();
+//		    context.setWar(webappDirInsideJar);
 
 			addAuthentication(context);
 			server.setHandler(context);

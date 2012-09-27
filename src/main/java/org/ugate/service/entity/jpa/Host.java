@@ -94,7 +94,14 @@ public class Host implements Model {
 	@Min(0)
 	@Column(name="WEB_PORT")
 	private int webPort;
-	
+
+	@Column(name="WEB_HOST_LOCAL")
+	private String webHostLocal;
+
+	@Min(0)
+	@Column(name="WEB_PORT_LOCAL")
+	private int webPortLocal;
+
 	@Lob
 	@Basic(fetch=FetchType.EAGER)
 	@Column(name="WEB_KEY_STORE")
@@ -274,6 +281,22 @@ public class Host implements Model {
 
 	public void setWebPort(int webPort) {
 		this.webPort = webPort;
+	}
+
+	public String getWebHostLocal() {
+		return webHostLocal;
+	}
+
+	public void setWebHostLocal(String webHostLocal) {
+		this.webHostLocal = webHostLocal;
+	}
+
+	public int getWebPortLocal() {
+		return webPortLocal;
+	}
+
+	public void setWebPortLocal(int webPortLocal) {
+		this.webPortLocal = webPortLocal;
 	}
 
 	public byte[] getWebKeyStore() {
