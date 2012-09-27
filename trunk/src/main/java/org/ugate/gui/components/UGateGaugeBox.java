@@ -18,12 +18,13 @@ import javafx.scene.text.Font;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.resources.RS;
 import org.ugate.service.entity.IModelType;
+import org.ugate.service.entity.Model;
 
 /**
  * A {@linkplain Label} followed by a 7-segment {@linkplain Digits} readout (padded using the format value) with
  * a {@linkplain Gauge} to adjust the value
  */
-public class UGateGaugeBox<T> extends VBox {
+public class UGateGaugeBox<T extends Model> extends VBox {
 	
 	public final HBox valueView;
 	public final Gauge gauge;

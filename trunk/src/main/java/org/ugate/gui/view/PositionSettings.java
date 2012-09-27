@@ -23,6 +23,7 @@ import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.gui.components.UGateGaugeBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
+import org.ugate.service.entity.Model;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 
@@ -34,10 +35,10 @@ public class PositionSettings extends ControlPane {
 	public static final int MIN_SENSOR_INDEX = 1;
 	public static final int MAX_SENSOR_INDEX = 4;
 	private final AtomicBoolean NUMERIC_STEPPER_CHANGING = new AtomicBoolean(false);
-	private UGateCtrlBox<RemoteNode, Void, Void> sonarAnglePriority;
-	private UGateCtrlBox<RemoteNode, Void, Void> pirAnglePriority;
-	private UGateCtrlBox<RemoteNode, Void, Void> mwAnglePriority;
-	private UGateCtrlBox<RemoteNode, Void, Void> laserAnglePriority;
+	private UGateCtrlBox<RemoteNode, Model, Void> sonarAnglePriority;
+	private UGateCtrlBox<RemoteNode, Model, Void> pirAnglePriority;
+	private UGateCtrlBox<RemoteNode, Model, Void> mwAnglePriority;
+	private UGateCtrlBox<RemoteNode, Model, Void> laserAnglePriority;
 	
 	/**
 	 * Constructor
@@ -269,7 +270,7 @@ public class PositionSettings extends ControlPane {
 	 *            the control to listen for priority number changes
 	 */
 	protected void addPriorityValueListener(
-			final UGateCtrlBox<RemoteNode, Void, Void> control) {
+			final UGateCtrlBox<RemoteNode, Model, Void> control) {
 		control.valueProperty().addListener(new ChangeListener<Object>() {
 			@Override
 			public void changed(final ObservableValue<? extends Object> observable, 
@@ -280,7 +281,7 @@ public class PositionSettings extends ControlPane {
 					return;
 				}
 				// swap old value 
-				final List<UGateCtrlBox<RemoteNode, Void, Void>> a = Arrays
+				final List<UGateCtrlBox<RemoteNode, Model, Void>> a = Arrays
 						.asList(sonarAnglePriority, pirAnglePriority,
 								mwAnglePriority, laserAnglePriority);
 		        final List<Integer> b = Arrays.asList(control == sonarAnglePriority ? null : 

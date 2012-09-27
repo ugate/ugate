@@ -22,6 +22,7 @@ import javafx.scene.shape.Shape;
 
 import org.ugate.gui.GuiUtil;
 import org.ugate.service.entity.IModelType;
+import org.ugate.service.entity.Model;
 
 /**
  * Wrapper for a {@linkplain Label} and {@linkplain TextField},
@@ -36,7 +37,7 @@ import org.ugate.service.entity.IModelType;
  * @param <IVT>
  *            the item type used in the {@linkplain ListView} (if used)
  */
-public class UGateCtrlBox<T, IT, IVT> extends VBox {
+public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 
 	public final Label label;
 	private final TextField textField;

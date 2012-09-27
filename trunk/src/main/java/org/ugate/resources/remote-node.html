@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
 <html lang="en">
 	<head>
-<!-- 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"> -->
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<title>UGate</title>
+<!-- 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> -->
+		<title>UGate Mobile</title>
 		<meta name="description" content="UGate Mobile Interface">
 		<meta name="keywords" content="ugate, ugate mobile">
 		<meta name="author" content="">
@@ -15,18 +15,15 @@
 		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png">
 		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png">
 		<link rel="apple-touch-icon" href="logo64x64.png">
-	
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
 		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 		<script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
-		
-		<title>UGate</title>
 		<style>
-
+	
 		</style>
 	</head>
 	<body>
-		<div data-role="page" id="one" data-title="Page Foo" data-theme="a" data-swatch="a">
+		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a">
 			<div class="ui-header ui-bar-a" data-swatch="a" data-theme="a"
 				data-form="ui-bar-a" data-role="header" role="banner" data-position="fixed">
 				<a
@@ -58,8 +55,8 @@
 				</a>
 			</div>
 			<div data-role="content">
-				<h2>Welcome {{USERNAME}}</h2>
-				<form action="nav.html?action=1" method="post" data-theme="c">
+				<h2>Welcome __USERNAME__. Below are the available settings/commands that can be executed for device at address __WIRELESS_ADDRESS__.</h2>
+				<form action="index.html?action=1" method="post" data-theme="c">
 					<div data-role="collapsible-set">
 						<div data-role="collapsible" data-theme="b" data-content-theme="c">
 							<h3>Actions/Commands</h3>
@@ -74,39 +71,35 @@
 						</div>
 					</div>
 				</form>
-				<form id="settingsForm" action="nav.html?save=1" method="post" data-theme="c">
+				<form id="settingsForm" action="index.html?save=1" method="post" data-theme="c">
 					<div data-role="collapsible-set">
 						<div data-role="collapsible" data-theme="b" data-content-theme="c">
 							<h3>General Settings</h3>
 							<div data-role="collapsible-set">
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>Alarm State</h3>
-									<select name="universalRemoteAccessOn" id="universalRemoteAccessOn" data-role="slider">
-										<option value="0">Off</option>
-										<option value="1">On</option>
-									</select>
 									<div data-role="fieldcontain">
 										<label for="MULTI_ALARM_TRIP_STATE">Multi-Alarm Trip State:</label>
-										<input type="range" name="MULTI_ALARM_TRIP_STATE" id="MULTI_ALARM_TRIP_STATE" value="0" min="0" max="15" data-highlight="true" />
+										<input type="range" name="MULTI_ALARM_TRIP_STATE" id="MULTI_ALARM_TRIP_STATE" value="__MULTI_ALARM_TRIP_STATE__" min="0" max="15" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>Universal Remote</h3>
-									<select name="universalRemoteAccessOn" id="universalRemoteAccessOn" data-role="slider">
+									<select name="UNIVERSAL_REMOTE_ACCESS_ON" id="UNIVERSAL_REMOTE_ACCESS_ON" data-role="slider">
 										<option value="0">Off</option>
-										<option value="1">On</option>
+										<option value="1" selected="__UNIVERSAL_REMOTE_ACCESS_ON__">On</option>
 									</select>
 									<div data-role="fieldcontain">
 										<label for="UNIVERSAL_REMOTE_ACCESS_CODE_1">Universal Remote Key 1:</label>
-										<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_1" id="UNIVERSAL_REMOTE_ACCESS_CODE_1" value="1" min="0" max="9" data-highlight="true" />
+										<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_1" id="UNIVERSAL_REMOTE_ACCESS_CODE_1" value="__UNIVERSAL_REMOTE_ACCESS_CODE_1__" min="0" max="9" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="UNIVERSAL_REMOTE_ACCESS_CODE_2">Universal Remote Key 2:</label>
-										<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="2" min="0" max="9" data-highlight="true" />
+										<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="__UNIVERSAL_REMOTE_ACCESS_CODE_1__" min="0" max="9" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="UNIVERSAL_REMOTE_ACCESS_CODE_3">Universal Remote Key 3:</label>
-										<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="3" min="0" max="9" data-highlight="true" />
+										<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="__UNIVERSAL_REMOTE_ACCESS_CODE_1__" min="0" max="9" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
@@ -115,14 +108,14 @@
 										<label for="DEVICE_SOUNDS_ON">Host Sound Alarm:</label>
 										<select name="DEVICE_SOUNDS_ON" id="DEVICE_SOUNDS_ON" data-role="slider">
 											<option value="0">Off</option>
-											<option value="1">On</option>
+											<option value="1" selected="__DEVICE_SOUNDS_ON__">On</option>
 										</select>
 									</div>
 									<div data-role="fieldcontain">
 										<label for="MAIL_ALERT_ON">Email Notifications:</label>
 										<select name="MAIL_ALERT_ON" id="MAIL_ALERT_ON" data-role="slider">
 											<option value="0">Off</option>
-											<option value="1">On</option>
+											<option value="1" selected="__MAIL_ALERT_ON__">On</option>
 										</select>
 									</div>
 								</div>
@@ -132,14 +125,14 @@
 										<label for="CAM_RESOLUTION">Camera Resolution:</label>
 										<select name="CAM_RESOLUTION" id="CAM_RESOLUTION" data-role="slider">
 											<option value="0">QVGA</option>
-											<option value="1">VGA</option>
+											<option value="1" selected="__CAM_RESOLUTION__">VGA</option>
 										</select>
 									</div>
 									<div data-role="fieldcontain">
 										<label for="DEVICE_AUTO_SYNCHRONIZE">Auto Synchronize:</label>
 										<select name="DEVICE_AUTO_SYNCHRONIZE" id="DEVICE_AUTO_SYNCHRONIZE" data-role="slider">
 											<option value="0">Off</option>
-											<option value="1">On</option>
+											<option value="1" selected="__DEVICE_AUTO_SYNCHRONIZE__">On</option>
 										</select>
 									</div>
 								</div>
@@ -149,7 +142,7 @@
 										<label for="GATE_ACCESS_ON">Gate Accessibility:</label>
 										<select name="GATE_ACCESS_ON" id="GATE_ACCESS_ON" data-role="slider">
 											<option value="0">Off</option>
-											<option value="1">On</option>
+											<option value="1" selected="__GATE_ACCESS_ON__">On</option>
 										</select>
 									</div>
 								</div>
@@ -162,48 +155,48 @@
 									<h3>Sonar</h3>
 									<div data-role="fieldcontain">
 										<label for="SONAR_DISTANCE_THRES_FEET">Sonar Distance Threshold (feet):</label>
-										<input type="range" name="SONAR_DISTANCE_THRES_FEET" id="SONAR_DISTANCE_THRES_FEET" value="7" min="0" max="10" data-highlight="true" />
+										<input type="range" name="SONAR_DISTANCE_THRES_FEET" id="SONAR_DISTANCE_THRES_FEET" value="__SONAR_DISTANCE_THRES_FEET__" min="0" max="10" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="SONAR_DISTANCE_THRES_INCHES">Sonar Distance Threshold (inches):</label>
-										<input type="range" name="SONAR_DISTANCE_THRES_INCHES" id="SONAR_DISTANCE_THRES_INCHES" value="0" min="0" max="11" data-highlight="true" />
+										<input type="range" name="SONAR_DISTANCE_THRES_INCHES" id="SONAR_DISTANCE_THRES_INCHES" value="__SONAR_DISTANCE_THRES_INCHES__" min="0" max="11" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="SONAR_DELAY_BTWN_TRIPS">Sonar Delay Between Trips (minutes):</label>
-										<input type="range" name="SONAR_DELAY_BTWN_TRIPS" id="SONAR_DELAY_BTWN_TRIPS" value="0" min="0" max="60" data-highlight="true" />
+										<input type="range" name="SONAR_DELAY_BTWN_TRIPS" id="SONAR_DELAY_BTWN_TRIPS" value="__SONAR_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>PIR</h3>
 									<div data-role="fieldcontain">
 										<label for="PIR_DELAY_BTWN_TRIPS">PIR Delay Between Trips (minutes):</label>
-										<input type="range" name="PIR_DELAY_BTWN_TRIPS" id="PIR_DELAY_BTWN_TRIPS" value="0" min="0" max="60" data-highlight="true" />
+										<input type="range" name="PIR_DELAY_BTWN_TRIPS" id="PIR_DELAY_BTWN_TRIPS" value="__PIR_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>Microwave</h3>
 									<div data-role="fieldcontain">
 										<label for="MW_SPEED_THRES_CYCLES_PER_SEC">Microwave Distance Threshold (cycles/second):</label>
-										<input type="range" name="MW_SPEED_THRES_CYCLES_PER_SEC" id="MW_SPEED_THRES_CYCLES_PER_SEC" value="10" min="2" max="50" data-highlight="true" />
+										<input type="range" name="MW_SPEED_THRES_CYCLES_PER_SEC" id="MW_SPEED_THRES_CYCLES_PER_SEC" value="__MW_SPEED_THRES_CYCLES_PER_SEC__" min="2" max="50" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="MW_DELAY_BTWN_TRIPS">Microwave Delay Between Trips (minutes):</label>
-										<input type="range" name="MW_DELAY_BTWN_TRIPS" id="MW_DELAY_BTWN_TRIPS" value="0" min="0" max="60" data-highlight="true" />
+										<input type="range" name="MW_DELAY_BTWN_TRIPS" id="MW_DELAY_BTWN_TRIPS" value="__MW_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>Laser</h3>
 									<div data-role="fieldcontain">
 										<label for="LASER_DISTANCE_THRES_FEET">Laser Distance Threshold (feet):</label>
-										<input type="range" name="LASER_DISTANCE_THRES_FEET" id="LASER_DISTANCE_THRES_FEET" value="24" min="0" max="32" data-highlight="true" />
+										<input type="range" name="LASER_DISTANCE_THRES_FEET" id="LASER_DISTANCE_THRES_FEET" value="__LASER_DISTANCE_THRES_FEET__" min="0" max="32" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="LASER_DISTANCE_THRES_INCHES">Laser Distance Threshold (inches):</label>
-										<input type="range" name="LASER_DISTANCE_THRES_INCHES" id="LASER_DISTANCE_THRES_INCHES" value="0" min="0" max="11" data-highlight="true" />
+										<input type="range" name="LASER_DISTANCE_THRES_INCHES" id="LASER_DISTANCE_THRES_INCHES" value="__LASER_DISTANCE_THRES_INCHES__" min="0" max="11" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="LASER_DELAY_BTWN_TRIPS">Laser Delay Between Trips (minutes):</label>
-										<input type="range" name="LASER_DELAY_BTWN_TRIPS" id="LASER_DELAY_BTWN_TRIPS" value="0" min="0" max="60" data-highlight="true" />
+										<input type="range" name="LASER_DELAY_BTWN_TRIPS" id="LASER_DELAY_BTWN_TRIPS" value="__LASER_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
 									</div>
 								</div>
 							</div>
@@ -215,29 +208,29 @@
 									<h3>Camera</h3>
 									<div data-role="fieldcontain">
 										<label for="CAM_ANGLE_PAN">Camera Pan Angle:</label>
-										<input type="range" name="CAM_ANGLE_PAN" id="CAM_ANGLE_PAN" value="90" min="0" max="180" data-highlight="true" />
+										<input type="range" name="CAM_ANGLE_PAN" id="CAM_ANGLE_PAN" value="__CAM_ANGLE_PAN__" min="0" max="180" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="CAM_ANGLE_TILT">Camera Tilt Angle:</label>
-										<input type="range" name="CAM_ANGLE_TILT" id="CAM_ANGLE_TILT" value="90" min="0" max="180" data-highlight="true" />
+										<input type="range" name="CAM_ANGLE_TILT" id="CAM_ANGLE_TILT" value="__CAM_ANGLE_TILT__" min="0" max="180" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>Sonar/PIR</h3>
 									<div data-role="fieldcontain">
 										<label for="SONAR_PIR_ANGLE_PAN">Sonar/PIR Pan Angle:</label>
-										<input type="range" name="SONAR_PIR_ANGLE_PAN" id="SONAR_PIR_ANGLE_PAN" value="90" min="0" max="180" data-highlight="true" />
+										<input type="range" name="SONAR_PIR_ANGLE_PAN" id="SONAR_PIR_ANGLE_PAN" value="__SONAR_PIR_ANGLE_PAN__" min="0" max="180" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label for="SONAR_PIR_ANGLE_TILT">Sonar/PIR Tilt Angle:</label>
-										<input type="range" name="SONAR_PIR_ANGLE_TILT" id="SONAR_PIR_ANGLE_TILT" value="90" min="0" max="180" data-highlight="true" />
+										<input type="range" name="SONAR_PIR_ANGLE_TILT" id="SONAR_PIR_ANGLE_TILT" value="__SONAR_PIR_ANGLE_TILT__" min="0" max="180" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3>Micorwave</h3>
 									<div data-role="fieldcontain">
 										<label for="MW_ANGLE_PAN">Micorwave Pan Angle:</label>
-										<input type="range" name="MW_ANGLE_PAN" id="MW_ANGLE_PAN" value="90" min="0" max="180" data-highlight="true" />
+										<input type="range" name="MW_ANGLE_PAN" id="MW_ANGLE_PAN" value="__MW_ANGLE_PAN__" min="0" max="180" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
@@ -260,46 +253,10 @@
 				<h4>UGate Mobile</h4>
 			</div>
 		</div>
-		<div data-role="page" id="two" data-title="Sensor Controls" data-theme="a">
-			<div data-role="header">
-				<h1>Two</h1>
-			</div>
-			<div data-role="content" data-theme="a">
-				<h2>Two</h2>
-				<p>I have an id of "two" on my page container. I'm the second
-					page container in this multi-page template.</p>
-				<p>
-					Notice that the theme is different for this page because we've added
-					a few
-					<code>data-theme</code>
-					swatch assigments here to show off how flexible it is. You can add
-					any content or widget to these pages, but we're keeping these
-					simple.
-				</p>
-				<p>
-					<a href="#one" data-direction="reverse" data-role="button"
-						data-theme="b">Back to page "one"</a>
-				</p>
-	
-			</div>
-			<!-- /content -->
-	
-			<div data-role="footer">
-				<h4>Page Footer</h4>
-			</div>
-			<!-- /footer -->
-		</div>
-		<!-- /page two -->
-	
-	
-		<!-- Start of third page: #popup -->
 		<div data-role="page" id="popup">
-	
 			<div data-role="header" data-theme="b">
 				<h1>Dialog</h1>
 			</div>
-			<!-- /header -->
-	
 			<div data-role="content" data-theme="d">
 				<h2>Popup</h2>
 				<p>
@@ -312,24 +269,31 @@
 					styled as a normal page.
 				</p>
 				<p>
-					<a href="#one" data-rel="back" data-role="button" data-inline="true"
-						data-icon="back">Back to page "one"</a>
+					<a href="#mainPage" data-rel="back" data-role="button" data-inline="true"
+						data-icon="back">Back to page "mainPage"</a>
 				</p>
 			</div>
-			<!-- /content -->
-	
 			<div data-role="footer">
 				<h4>Page Footer</h4>
 			</div>
-			<!-- /footer -->
 		</div>
 		<script type="text/javascript">
 			function execCommand(command) {
-				var loc = 'nav.html?command=' + command;
+				var loc = 'index.html?command=' + command;
 			}
 			$("#settingsForm").submit(function() {
 				return true;
 			});
+			function switchToMainPage() {
+				$.mobile.loading('hide');
+				$.mobile.changePage($("#mainPage"));
+			}
+// 			$(document).ready(function () {
+// 				$.mobile.loading('show');
+// 			});
+// 			$(document).ready(function () {
+// 				$('head').append('<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />');
+// 			});
 		</script>
 	</body>
 </html>

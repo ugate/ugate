@@ -10,6 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.resources.RS;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.RemoteNodeType;
+import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * {@linkplain DefaultServlet} for root context calls. <a
@@ -21,32 +27,110 @@ public class DefaultAppServlet extends DefaultServlet {
 
 	private static final long serialVersionUID = 6841946295927734658L;
 	private static final Logger log = LoggerFactory.getLogger(DefaultAppServlet.class);
+	private static final String SA_ACTOR = "actor";
+	private static final String SA_REMOTENODE = "remoteNode";
 	
 	public DefaultAppServlet() {
 		super();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void process(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		try {
-			response.getWriter().println("<h1>RESULTS</h1>");
-			// TODO : Implement web GUI
-//	        final Message msg = new Message("Hello Persistence! " + System.currentTimeMillis());
-//	        ServiceProvider.IMPL.getRemoteNodeService().saveMessage(msg);
-//	        log.info("NEW Message ID: " + msg.getId());
-//	        // Go through each of the entities and print out each of their
-//	        // messages, as well as the date on which it was created 
-//	        for (Message m : ServiceProvider.IMPL.getRemoteNodeService().getAllMessages()) { // (List<Message>) q.getResultList()) {
-//	            UGateUtil.PLAIN_LOGGER.info(m.getMessage() + " (created on: " + m.getCreated() + ')');
-//	            response.getWriter().println("<h3>" + m.getMessage() + " (created on: " + m.getCreated() + ')' + "</h3>");
-//	        }
+			Actor actor = null;
+			if (request.getSession().getAttribute(SA_ACTOR) instanceof Actor) {
+				actor = (Actor) request.getSession().getAttribute(SA_ACTOR);
+			} else {
+				String username = null;
+				if (request.getRemoteUser() != null && !request.getRemoteUser().toString().isEmpty()) {
+					username = request.getRemoteUser().toString();
+				} else if (request.getParameter(ActorType.USERNAME.name()) != null && 
+						!request.getParameter(ActorType.USERNAME.name()).isEmpty()) {
+					username = request.getParameter(ActorType.USERNAME.name());
+				}
+				if (username != null) {
+					actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
+					if (actor == null) {
+						response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+						return;
+					}
+					request.getSession().setAttribute(SA_ACTOR, actor);
+				} else {
+					// TODO : show list of actors to choose from
+				}
+			}
+			final String remoteNodeId = request.getParameter(SA_REMOTENODE);
+			if (remoteNodeId != null && !remoteNodeId.isEmpty()) {
+				RemoteNode srn = null;
+				for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
+					if (rn.getId() == Integer.parseInt(remoteNodeId)) {
+						srn = rn;
+						break;
+					}
+				}
+				if (srn != null) {
+					// proceed to main remote node content
+					String content = RS.getEscapedResource(RS.WEB_PAGE_REMOTE_NODE, actor,
+							ActorType.values());
+					content = RS.getEscapedContent(content, srn, RemoteNodeType.values());
+					response.getWriter().print(content);
+					response.setStatus(HttpServletResponse.SC_OK);
+					return;
+				}
+			}
+			// show remote node selection content
+			String content = RS.getEscapedResource(RS.WEB_PAGE_REMOTE_NODE_INDEX, actor,
+					ActorType.values());
+			String rno = "";
+			int i = 0;
+			for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
+				rno += "<input type=\"radio\" name=\"" + SA_REMOTENODE + "\" id=\"" + SA_REMOTENODE + i + "\" value=\"" + rn.getId() + "\"/>";
+				rno += "<label for=\"" + SA_REMOTENODE + i + "\">" + rn.getAddress() + "</label>";
+				i++;
+			}
+			content = content.replace(ActorType.REMOTE_NODES.name(), rno);
+			response.getWriter().print(content);
 	        response.setStatus(HttpServletResponse.SC_OK);
 		} catch (final Throwable t) {
 			log.error("JPA error: ", t);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
+	}
+
+	@Override
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
+	}
+
+	@Override
+	protected void doHead(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
+	}
+	
+	@Override
+	protected void doPut(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
+	}
+	
+	@Override
+	protected void doDelete(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
+	}
+
+	@Override
+	protected void doOptions(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
+	}
+	
+	@Override
+	protected void doTrace(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+		process(request, response);
 	}
 }

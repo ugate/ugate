@@ -34,14 +34,14 @@ public class GlobalFilter implements Filter {
 				log.debug(String.format("Entering filter from remote address %1$s", 
 						request.getRemoteAddr()));
 			}
-			response.setContentType("text/html;charset=utf-8");
-			response.getWriter().println("<html><body><button onclick=\"header('HTTP/1.1 401 Unauthorized');\">Logout</button>");
-			response.getWriter().println("<h1>" + RS.rbLabel(KEYS.APP_TITLE) + "</h1>");
-
-			// delegate the request to the next filter, and eventually to the target servlet or JSP
+//			response.setContentType("text/html;charset=utf-8");
+//			response.getWriter().println("<html><body><button onclick=\"header('HTTP/1.1 401 Unauthorized');\">Logout</button>");
+//			response.getWriter().println("<h1>" + RS.rbLabel(KEYS.APP_TITLE) + "</h1>");
+//
+//			// delegate the request to the next filter, and eventually to the target servlet or JSP
 			chain.doFilter(request, response);
-
-			response.getWriter().println("</body></html>");
+//
+//			response.getWriter().println("</body></html>");
 		} catch (final Throwable t) {
 			log.error("Unable to process " + GlobalFilter.class.getSimpleName(), t);
 		}

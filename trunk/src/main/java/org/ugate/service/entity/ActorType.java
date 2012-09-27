@@ -30,8 +30,10 @@ public enum ActorType implements IModelType<Actor> {
 	MAIL_INBOX_NAME("host.mailInboxName"),
 	MAIL_USERNAME("host.mailUserName"),
 	MAIL_PASSWORD("host.mailPassword"),
-	WEB_HOST("host.webHost"),
-	WEB_PORT("host.webPort");
+	HOST_WEB_HOST("host.webHost"),
+	HOST_WEB_PORT("host.webPort"),
+	HOST_WEB_HOST_LOCAL("host.webHostLocal"),
+	HOST_WEB_PORT_LOCAL("host.webPortLocal");
 	
 	public static final String MAIL_COMMAND_DELIMITER = ";";
 	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
@@ -52,6 +54,34 @@ public enum ActorType implements IModelType<Actor> {
 		this.key = key;
 	}
 
+	/**
+	 * Gets a {@linkplain Actor} value for a {@linkplain ActorType}
+	 * 
+	 * @param actor
+	 *            the {@linkplain Actor} to get the value from
+	 * @return the extracted {@linkplain Actor} value
+	 * @throws Throwable
+	 *             any errors during extraction
+	 */
+	public Object getValue(final Actor actor) throws Throwable {
+		return IModelType.ValueHelper.getValue(actor, this);
+	}
+
+	/**
+	 * Sets a {@linkplain Actor} value for a {@linkplain ActorType}.
+	 * 
+	 * @param actor
+	 *            the {@linkplain Actor} to get the value from
+	 * @param value
+	 *            the value to set
+	 * @return the extracted {@linkplain Actor} value
+	 * @throws Throwable
+	 *             any errors during extraction
+	 */
+	public void setValue(final Actor actor, final Object value)
+			throws Throwable {
+		IModelType.ValueHelper.setValue(actor, this, value);
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -134,8 +164,10 @@ public enum ActorType implements IModelType<Actor> {
 		host.setMailImapPort(993);
 		host.setMailUserName("myemail@gmail.com");
 		host.setMailInboxName("Inbox");
-		host.setWebHost("localhost");
+		host.setWebHost("0.0.0.0");
 		host.setWebPort(443);
+		host.setWebHostLocal("127.0.0.1");
+		host.setWebPort(80);
 		host.setMailRecipients(mailRecipients);
 		host.setRemoteNodes(remoteNodes);
 		return host;

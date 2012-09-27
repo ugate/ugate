@@ -59,7 +59,7 @@ import org.ugate.gui.view.EmailHostConnection;
 import org.ugate.gui.view.RemoteNodes;
 import org.ugate.gui.view.SensorReadingHistory;
 import org.ugate.gui.view.WebBuilder;
-import org.ugate.gui.view.WirelessHostConnection;
+import org.ugate.gui.view.HostConnection;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.ServiceProvider;
@@ -89,7 +89,7 @@ public class UGateGUI extends Application {
 	protected final HBox connectionView = new HBox(10d);
 	protected ControlBar controlBar;
 	protected EmailHostConnection mailConnectionView;
-	protected WirelessHostConnection wirelessConnectionView;
+	protected HostConnection wirelessConnectionView;
 	protected SensorReadingHistory sensorReadingHistoryView;
 	protected WebBuilder webSetupView;
 	protected StackPane centerView;
@@ -235,7 +235,7 @@ public class UGateGUI extends Application {
 
 		final Controls controls = new Controls(controlBar);
 
-		wirelessConnectionView = new WirelessHostConnection(controlBar);
+		wirelessConnectionView = new HostConnection(controlBar);
 		mailConnectionView = new EmailHostConnection(controlBar);
 
 		connectionView.setId("connection-view");

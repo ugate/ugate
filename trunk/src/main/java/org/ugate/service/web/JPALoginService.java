@@ -34,18 +34,27 @@ public class JPALoginService extends MappedLoginService {
 	 */
 	@Override
 	protected UserIdentity loadUser(final String username) {
-		// get the user and roles from JPA (roles should be eagerly fetched or pre-fetched
-		// or a null pointer will be thrown)
-		final Actor actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
-		final String[] roles = new String[actor.getRoles().size()];
-		int i = -1;
-		for (final Role role : actor.getRoles()) {
-			roles[++i] = role.getRole();
+		try {
+			// get the user and roles from JPA (roles should be eagerly fetched or pre-fetched
+			// or a null pointer will be thrown)
+			final Actor actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
+			final String[] roles = new String[actor.getRoles().size()];
+			int i = -1;
+			for (final Role role : actor.getRoles()) {
+				roles[++i] = role.getRole();
+			}
+			// The password should already be an MD5 hash using the same salt pattern as the 
+			// JPA provider
+			final Credential cred = Credential.getCredential(MD5.__TYPE + actor.getPassword());
+			return putUser(username, cred, roles);
+		} catch (final Throwable t) {
+			if (log.isDebugEnabled()) {
+				log.debug(String.format("Unable to authenticate %1$s", username), t);
+			} else if (log.isInfoEnabled()) {
+				log.info(String.format("Unable to authenticate %1$s Message: %2$s", username, t.getMessage()));
+			}
+			return null;
 		}
-		// The password should already be an MD5 hash using the same salt pattern as the 
-		// JPA provider
-		final Credential cred = Credential.getCredential(MD5.__TYPE + actor.getPassword());
-		return putUser(username, cred, roles);
 	}
 
 	/**
