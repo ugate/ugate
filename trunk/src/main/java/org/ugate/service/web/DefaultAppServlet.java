@@ -27,8 +27,9 @@ public class DefaultAppServlet extends DefaultServlet {
 
 	private static final long serialVersionUID = 6841946295927734658L;
 	private static final Logger log = LoggerFactory.getLogger(DefaultAppServlet.class);
+	private static final String CTRL_CHAR = "___";
 	private static final String SA_ACTOR = "actor";
-	private static final String SA_REMOTENODE = "remoteNode";
+	private static final String SA_REMOTENODE = "remoteNodeId";
 	
 	public DefaultAppServlet() {
 		super();
@@ -58,28 +59,23 @@ public class DefaultAppServlet extends DefaultServlet {
 					// TODO : show list of actors to choose from
 				}
 			}
+			// capture remote node
 			final String remoteNodeId = request.getParameter(SA_REMOTENODE);
+			RemoteNode remoteNode = null;
 			if (remoteNodeId != null && !remoteNodeId.isEmpty()) {
-				RemoteNode srn = null;
 				for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
 					if (rn.getId() == Integer.parseInt(remoteNodeId)) {
-						srn = rn;
+						remoteNode = rn;
 						break;
 					}
 				}
-				if (srn != null) {
-					// proceed to main remote node content
-					String content = RS.getEscapedResource(RS.WEB_PAGE_REMOTE_NODE, actor,
-							ActorType.values());
-					content = RS.getEscapedContent(content, srn, RemoteNodeType.values());
-					response.getWriter().print(content);
-					response.setStatus(HttpServletResponse.SC_OK);
-					return;
-				}
 			}
 			// show remote node selection content
-			String content = RS.getEscapedResource(RS.WEB_PAGE_REMOTE_NODE_INDEX, actor,
+			String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, actor,
 					ActorType.values());
+			content = content.replaceAll(CTRL_CHAR + "NODE_SELECT_DISPLAY" + CTRL_CHAR, remoteNode != null ? "none" : "block");
+			content = content.replaceAll(CTRL_CHAR + "NODE_DETAIL_DISPLAY" + CTRL_CHAR, remoteNode == null ? "none" : "block");
+			// remote node selection
 			String rno = "";
 			int i = 0;
 			for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
@@ -87,11 +83,16 @@ public class DefaultAppServlet extends DefaultServlet {
 				rno += "<label for=\"" + SA_REMOTENODE + i + "\">" + rn.getAddress() + "</label>";
 				i++;
 			}
-			content = content.replace(ActorType.REMOTE_NODES.name(), rno);
+			content = content.replace(CTRL_CHAR + ActorType.REMOTE_NODES.name() + CTRL_CHAR, rno);
+			// remote node values
+			if (remoteNode != null) {
+				content = RS.getEscapedContent(content, remoteNode, RemoteNodeType.values());
+			}
+			// print results
 			response.getWriter().print(content);
 	        response.setStatus(HttpServletResponse.SC_OK);
 		} catch (final Throwable t) {
-			log.error("JPA error: ", t);
+			log.error("Error: ", t);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}

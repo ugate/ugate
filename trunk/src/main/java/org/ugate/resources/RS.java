@@ -130,8 +130,7 @@ public class RS {
 	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
-	public static final String WEB_PAGE_REMOTE_NODE_INDEX = "remote-node-index.html";
-	public static final String WEB_PAGE_REMOTE_NODE = "remote-node.html";
+	public static final String WEB_PAGE_INDEX = "index.html";
 	private static final Pattern htmlBodyRegex = Pattern.compile("(.*)<body([^>]*)>(.*)</body>(.*)", Pattern.DOTALL);
 	
 	private RS() {
@@ -873,7 +872,11 @@ public class RS {
 				"app.dialog.username"), APP_DIALOG_PWD("app.dialog.password"), APP_DIALOG_PWD_VERIFY(
 				"app.dialog.password.verify"), APP_DIALOG_REQUIRED(
 				"app.dialog.required"), APP_DIALOG_DEFAULT_USER(
-				"app.dialog.defaultuser"), APP_HELP_DEFAULT("help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
+				"app.dialog.defaultuser"), APP_SERVICE_STARTUP_DESC(
+				"app.service.startup.desc"), APP_SERVICE_STARTUP_AUTO(
+				"app.service.startup.auto"), APP_SERVICE_STARTUP_MANUAL(
+				"app.service.startup.manual"), APP_HELP_DEFAULT(
+				"help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
 				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
 				"win.systray.tooltip"), LOADING("loading"), SELECT("select"), TODAY(
 				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), ALL_OFF(

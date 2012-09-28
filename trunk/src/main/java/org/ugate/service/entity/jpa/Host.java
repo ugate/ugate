@@ -25,6 +25,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.Digits;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
@@ -50,6 +51,11 @@ public class Host implements Model {
 	@Column(unique=true, nullable=false)
 	private int id;
 
+	@Min(0)
+	@Max(1)
+	@Column(name="COM_ON_AT_APP_STARTUP", nullable=false)
+	private int comOnAtAppStartup;
+
 	@Column(name="COM_ADDRESS", length=100)
 	private String comAddress;
 
@@ -59,6 +65,11 @@ public class Host implements Model {
 
 	@Column(name="COM_PORT", length=50)
 	private String comPort;
+
+	@Min(0)
+	@Max(1)
+	@Column(name="MAIL_ON_AT_COM_STARTUP", nullable=false)
+	private int mailOnAtComStartup;
 
 	@Column(name="MAIL_IMAP_HOST", length=100)
 	private String mailImapHost;
@@ -87,7 +98,12 @@ public class Host implements Model {
 
 	@Column(name="USE_METRIC", nullable=false)
 	private boolean useMetric;
-	
+
+	@Min(0)
+	@Max(1)
+	@Column(name="WEB_ON_AT_COM_STARTUP", nullable=false)
+	private int webOnAtComStartup;
+
 	@Column(name="WEB_HOST")
 	private String webHost;
 
@@ -163,6 +179,14 @@ public class Host implements Model {
 		this.id = id;
 	}
 
+	public int getComOnAtAppStartup() {
+		return comOnAtAppStartup;
+	}
+
+	public void setComOnAtAppStartup(int comOnAtAppStartup) {
+		this.comOnAtAppStartup = comOnAtAppStartup;
+	}
+
 	public String getComAddress() {
 		return this.comAddress;
 	}
@@ -185,6 +209,14 @@ public class Host implements Model {
 
 	public void setComPort(String comPort) {
 		this.comPort = comPort;
+	}
+
+	public int getMailOnAtComStartup() {
+		return mailOnAtComStartup;
+	}
+
+	public void setMailOnAtComStartup(int mailOnAtComStartup) {
+		this.mailOnAtComStartup = mailOnAtComStartup;
 	}
 
 	public String getMailImapHost() {
@@ -265,6 +297,14 @@ public class Host implements Model {
 
 	public void setMailRecipients(LinkedHashSet<MailRecipient> mailRecipients) {
 		this.mailRecipients = mailRecipients;
+	}
+
+	public int getWebOnAtComStartup() {
+		return webOnAtComStartup;
+	}
+
+	public void setWebOnAtComStartup(int webOnAtComStartup) {
+		this.webOnAtComStartup = webOnAtComStartup;
 	}
 
 	public String getWebHost() {

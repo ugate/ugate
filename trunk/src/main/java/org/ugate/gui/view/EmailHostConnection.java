@@ -23,6 +23,7 @@ import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
 import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.components.UGateCtrlBox;
+import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEYS;
 import org.ugate.service.MailRecipientType;
@@ -48,7 +49,8 @@ public class EmailHostConnection extends VBox {
 	public final UGateCtrlBox<Actor, Model, Void> inboxFolder;
 	public final TextField recipient;
 	public final UGateCtrlBox<Actor, MailRecipient, String> recipients;
-	public final Button connect;
+	public final UGateToggleSwitchBox<Actor> emailOnAtStartSwitch;
+	public final Button emailConnectBtn;
 	public final ControlBar cb;
 
 	public EmailHostConnection(final ControlBar controlBar) {
@@ -94,78 +96,10 @@ public class EmailHostConnection extends VBox {
 		recipient = new TextField();
 		HBox.setHgrow(recipient, Priority.ALWAYS);
 		recipient.setPromptText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD_DESC));
-		final FunctionButton recipientAdd = new FunctionButton(FunctionButton.Function.ADD, 
-				new Runnable() {
-					@Override
-					public void run() {
-						if (recipient.getText().isEmpty()) {
-							return;
-						}
-						final String raddy = recipient.getText();
-						recipients.getListView().getItems().add(raddy);
-						try {
-							ServiceProvider.IMPL.getCredentialService().mergeHost(
-									cb.getActor().getHost());
-						} catch (final Throwable e) {
-							for (Throwable t = e.getCause(); t != null; t = t.getCause()) {
-							    log.info("Exception:" + t);
-							}
-							log.info(String.format(
-									"Unable to add mail recipient \"%1$s\" in host with ID = %2$s",
-									raddy, cb.getActor().getHost().getId()), e);
-							controlBar.setHelpText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED));
-							recipients.getListView().getItems().remove(raddy);
-						}
-					}
-				});
+		final FunctionButton recipientAdd = createRecipientAddBtn();
 		controlBar.addHelpTextTrigger(recipientAdd,
 				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD));
-		final FunctionButton recipientRem = new FunctionButton(FunctionButton.Function.REMOVE, 
-				new Runnable() {
-					@Override
-					public void run() {
-						if (recipients.getListView().getSelectionModel()
-								.getSelectedItems().isEmpty()) {
-							return;
-						}
-						final MailRecipient[] ms = cb.getActor().getHost()
-								.getMailRecipients()
-								.toArray(new MailRecipient[] {});
-						final Object[] rmaddyi = recipients.getListView()
-								.getSelectionModel().getSelectedIndices()
-								.toArray(new Object[] {});
-						final java.util.List<String> rmaddys = recipients
-								.getListView()
-								.getSelectionModel()
-								.getSelectedItems()
-								.subList(
-										0,
-										recipients.getListView()
-												.getSelectionModel()
-												.getSelectedItems().size());
-						try {
-							recipients.getListView().getItems()
-									.removeAll(rmaddys);
-							// need to manually remove the mail recipients due
-							// to many-to-many relationship
-							final MailRecipient[] mrr = new MailRecipient[rmaddyi.length];
-							for (final Object i : rmaddyi) {
-								mrr[mrr.length - 1] = ms[(int) i];
-							}
-							ServiceProvider.IMPL.getCredentialService().mergeHost(
-									cb.getActor().getHost(), mrr);
-						} catch (final Throwable e) {
-							log.info(String.format(
-									"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
-									rmaddys, cb.getActor().getHost().getId()), e);
-							controlBar.setHelpText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
-							cb.getActor().getHost().getMailRecipients().clear();
-							cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));
-							cb.getActorPA().setBean(cb.getActor());
-							
-						}
-					}
-				});
+		final FunctionButton recipientRem = createRecipientRemovalBtn();
 		controlBar.addHelpTextTrigger(recipientRem,
 				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_REMOVE));
 		final HBox recipientFuncBox = new HBox(5);
@@ -177,50 +111,19 @@ public class EmailHostConnection extends VBox {
 		controlBar.addHelpTextTrigger(recipients,
 				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_DESC));
 
-		// update the status when email connections are made/lost
-		UGateKeeper.DEFAULT.addListener(new UGateListener() {
-			@Override
-			public void handle(final UGateEvent<?, ?> event) {
-				if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
-					connect.setDisable(true);
-					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
-					emailIcon.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
-					connect.setDisable(false);
-					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
-					emailIcon.setStatusFill(GuiUtil.COLOR_ON);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
-					connect.setDisable(false);
-					connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
-					emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
-					connect.setDisable(true);
-					connect.setText(RS.rbLabel(KEYS.MAIL_DISCONNECTING));
-					emailIcon.setStatusFill(Duration.seconds(1), 
-							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
-							Timeline.INDEFINITE);
-				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
-						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED || 
-						event.getType() == UGateEvent.Type.EMAIL_AUTH_FAILED) {
-					// run later in case the application is going to exit which
-					// will cause an issue with FX thread
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							connect.setDisable(false);
-							connect.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
-							emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
-						}
-					});
-				}
-			}
-		});
+		listenForAppEvents(emailIcon);
 
-		connect = new Button(RS.rbLabel(KEYS.MAIL_CONNECT));
-		cb.addServiceBehavior(connect, null, ServiceProvider.Type.EMAIL,
+		final HBox emailBtnView = new HBox();
+		emailOnAtStartSwitch = new UGateToggleSwitchBox<>(
+				controlBar.getActorPA(), ActorType.MAIL_ON_AT_COM_STARTUP, null,
+				null, RS.rbLabel(KEYS.APP_SERVICE_STARTUP_AUTO),
+				RS.rbLabel(KEYS.APP_SERVICE_STARTUP_MANUAL));
+		controlBar.addHelpTextTrigger(emailOnAtStartSwitch,
+				RS.rbLabel(KEYS.APP_SERVICE_STARTUP_DESC));
+		emailConnectBtn = new Button(RS.rbLabel(KEYS.MAIL_CONNECT));
+		cb.addServiceBehavior(emailConnectBtn, null, ServiceProvider.Type.EMAIL,
 				KEYS.MAIL_CONNECT);
+		emailBtnView.getChildren().addAll(emailConnectBtn, emailOnAtStartSwitch);
 
 		final GridPane grid = new GridPane();
 		grid.setHgap(10d);
@@ -245,7 +148,133 @@ public class EmailHostConnection extends VBox {
 
 		grid.add(toggleView, 0, 0);
 		grid.add(connectionGrid, 1, 0);
-		grid.add(connect, 1, 1, 2, 1);
+		grid.add(emailBtnView, 1, 1, 2, 1);
 		getChildren().add(grid);
+	}
+
+	/**
+	 * Listens for any incoming {@linkplain UGateEvent}s and handles
+	 * {@linkplain EmailHostConnection} related tasks
+	 * 
+	 * @param emailIcon
+	 *            the {@linkplain StatusIcon} for email
+	 */
+	private void listenForAppEvents(final StatusIcon emailIcon) {
+		// update the status when email connections are made/lost
+		UGateKeeper.DEFAULT.addListener(new UGateListener() {
+			@Override
+			public void handle(final UGateEvent<?, ?> event) {
+				if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
+					emailConnectBtn.setDisable(true);
+					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
+					emailIcon.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
+					emailConnectBtn.setDisable(false);
+					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
+					emailIcon.setStatusFill(GuiUtil.COLOR_ON);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
+					emailConnectBtn.setDisable(false);
+					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
+					emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
+					emailConnectBtn.setDisable(true);
+					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_DISCONNECTING));
+					emailIcon.setStatusFill(Duration.seconds(1), 
+							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
+							Timeline.INDEFINITE);
+				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTED
+						|| event.getType() == UGateEvent.Type.EMAIL_CLOSED || 
+						event.getType() == UGateEvent.Type.EMAIL_AUTH_FAILED) {
+					// run later in case the application is going to exit which
+					// will cause an issue with FX thread
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							emailConnectBtn.setDisable(false);
+							emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
+							emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
+						}
+					});
+				}
+			}
+		});
+	}
+
+	protected FunctionButton createRecipientRemovalBtn() {
+		return new FunctionButton(FunctionButton.Function.REMOVE, 
+				new Runnable() {
+			@Override
+			public void run() {
+				if (recipients.getListView().getSelectionModel()
+						.getSelectedItems().isEmpty()) {
+					return;
+				}
+				final MailRecipient[] ms = cb.getActor().getHost()
+						.getMailRecipients()
+						.toArray(new MailRecipient[] {});
+				final Object[] rmaddyi = recipients.getListView()
+						.getSelectionModel().getSelectedIndices()
+						.toArray(new Object[] {});
+				final java.util.List<String> rmaddys = recipients
+						.getListView()
+						.getSelectionModel()
+						.getSelectedItems()
+						.subList(
+								0,
+								recipients.getListView()
+										.getSelectionModel()
+										.getSelectedItems().size());
+				try {
+					recipients.getListView().getItems()
+							.removeAll(rmaddys);
+					// need to manually remove the mail recipients due
+					// to many-to-many relationship
+					final MailRecipient[] mrr = new MailRecipient[rmaddyi.length];
+					for (final Object i : rmaddyi) {
+						mrr[mrr.length - 1] = ms[(int) i];
+					}
+					ServiceProvider.IMPL.getCredentialService().mergeHost(
+							cb.getActor().getHost(), mrr);
+				} catch (final Throwable e) {
+					log.info(String.format(
+							"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
+							rmaddys, cb.getActor().getHost().getId()), e);
+					cb.setHelpText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
+					cb.getActor().getHost().getMailRecipients().clear();
+					cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));
+					cb.getActorPA().setBean(cb.getActor());
+					
+				}
+			}
+		});
+	}
+	
+	protected FunctionButton createRecipientAddBtn() {
+		return new FunctionButton(FunctionButton.Function.ADD, 
+				new Runnable() {
+			@Override
+			public void run() {
+				if (recipient.getText().isEmpty()) {
+					return;
+				}
+				final String raddy = recipient.getText();
+				recipients.getListView().getItems().add(raddy);
+				try {
+					ServiceProvider.IMPL.getCredentialService().mergeHost(
+							cb.getActor().getHost());
+				} catch (final Throwable e) {
+					for (Throwable t = e.getCause(); t != null; t = t.getCause()) {
+					    log.info("Exception:" + t);
+					}
+					log.info(String.format(
+							"Unable to add mail recipient \"%1$s\" in host with ID = %2$s",
+							raddy, cb.getActor().getHost().getId()), e);
+					cb.setHelpText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED));
+					recipients.getListView().getItems().remove(raddy);
+				}
+			}
+		});
 	}
 }
