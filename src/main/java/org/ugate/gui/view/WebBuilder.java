@@ -135,7 +135,7 @@ public class WebBuilder extends BorderPane {
 			webView.getEngine().load(
 					"http://" + cb.getActor().getHost().getWebHostLocal() + ':'
 							+ cb.getActor().getHost().getWebPortLocal() + '/'
-							+ RS.WEB_PAGE_REMOTE_NODE_INDEX);
+							+ RS.WEB_PAGE_INDEX);
 		}
 	}
 
@@ -149,7 +149,7 @@ public class WebBuilder extends BorderPane {
 	}
 
 	protected String getContent(final boolean justBodyContent) {
-		String content = RS.getEscapedResource(RS.WEB_PAGE_REMOTE_NODE_INDEX,
+		String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX,
 				cb.getRemoteNode(), RemoteNodeType.values());
 		content = RS.getEscapedContent(content, cb.getActor(),
 				ActorType.values());

@@ -195,6 +195,15 @@ public class ControlBar extends ToolBar {
 		getItems().addAll(camTakeQvga, camTakeVga, settingsSave, settingsSet,
 				settingsGet, readingsGet, new Separator(Orientation.VERTICAL), 
 				sensorReading);
+		listenForAppEvents();
+		validateRemoteNodeSynchronization();
+	}
+
+	/**
+	 * Listens for any incoming {@linkplain UGateEvent}s and handles
+	 * {@linkplain ControlBar} related tasks
+	 */
+	private void listenForAppEvents() {
 		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
 			public void handle(final UGateEvent<?, ?> event) {
@@ -251,14 +260,17 @@ public class ControlBar extends ToolBar {
 							}
 						}
 					}
+				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED || 
+						event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED) {
+					if (getActor().getHost().getComOnAtAppStartup() == 1) {
+						createWirelessConnectionService().start();
+					}
 				}
 				handleConnections(event);
 				handleSound(event);
 			}
 		});
-		validateRemoteNodeSynchronization();
 	}
-
 	/**
 	 * TODO : Temporary test method for adding random
 	 * {@linkplain RemoteNodeReading}s for today's date
@@ -765,6 +777,13 @@ public class ControlBar extends ToolBar {
 			cnctStatusWireless.setStatusFill(GuiUtil.COLOR_ON);
 			ServiceProvider.IMPL.getCredentialService().mergeHost(
 					getActor().getHost());
+			// attempt to start/restart services
+			if (getActor().getHost().getWebOnAtComStartup() == 1) {
+				createWebConnectionService().start();
+			}
+			if (getActor().getHost().getMailOnAtComStartup() == 1) {
+				createEmailConnectionService().start();
+			}
 		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 			cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);
 		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {

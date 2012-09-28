@@ -14,7 +14,7 @@
 .root {
 	-fx-accent: #95B9C7;
 	-fx-focus-color: #95B9C7;
-	-fx-font-family: "Verdana";
+/* 	-fx-font-family: "Arial"; */
 }
 .scene {
     -fx-dark-text-color: black;
@@ -611,7 +611,6 @@
 /*     -fx-padding: 15 30 15 30; */
 /*     -fx-font-size: 18px; */
 /*     -fx-font-weight: bold; */
-/*     -fx-font-family: "Verdana"; */
 /*     -fx-text-fill: white; */
     -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1)
 }
