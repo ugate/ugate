@@ -252,7 +252,7 @@ public class RemoteNodes extends ToolBar {
 		}
 		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
 		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(null, KEYS.APP_TITLE, 
-				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE), 
+				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE, address), 
 				KEYS.SUBMIT, 550d, 300d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {

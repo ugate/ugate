@@ -130,6 +130,8 @@ public class RS {
 	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
+	public static final String WEB_PAGE_LOGIN = "login.html";
+	public static final String WEB_PAGE_LOGIN_ERROR = "login-error.html";
 	public static final String WEB_PAGE_INDEX = "index.html";
 	private static final Pattern htmlBodyRegex = Pattern.compile("(.*)<body([^>]*)>(.*)</body>(.*)", Pattern.DOTALL);
 	
@@ -268,23 +270,25 @@ public class RS {
 	@SafeVarargs
 	public static <T extends Model> String getEscapedContent(final String content, final T model, final IModelType<T>... types) {
 		String str = content;
-		String rp = "", rv = "";
-		Object val;
-		for (final IModelType<T> type : types) {
-			//str = str.replaceAll("__.*__", "");
-			rp = "__" + type.name() + "__";
-			try {
-				val = type.getValue(model);
-				rv = val != null ? val.toString() : "";
-				str = str.replaceAll(rp, rv);
-				log.info(String.format(
-						"Replaced %1$s with extracted value %2$s from %3$s",
-						rp, rv, model));
-			} catch (final Throwable t) {
-				log.warn(String.format(
-								"Unable to replace %1$s with extracted value from %2$s due to %3$s: %4$s",
-								rp, model, t.getClass().getName(),
-								t.getMessage()));
+		if (model != null) {
+			String rp = "", rv = "";
+			Object val;
+			for (final IModelType<T> type : types) {
+				//str = str.replaceAll("__.*__", "");
+				rp = "__" + type.name() + "__";
+				try {
+					val = type.getValue(model);
+					rv = val != null ? val.toString() : "";
+					str = str.replaceAll(rp, rv);
+					log.info(String.format(
+							"Replaced %1$s with extracted value %2$s from %3$s",
+							rp, rv, model));
+				} catch (final Throwable t) {
+					log.warn(String.format(
+									"Unable to replace %1$s with extracted value from %2$s due to %3$s: %4$s",
+									rp, model, t.getClass().getName(),
+									t.getMessage()));
+				}
 			}
 		}
 		return str;

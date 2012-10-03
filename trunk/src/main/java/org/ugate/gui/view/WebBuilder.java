@@ -8,6 +8,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -16,8 +17,12 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.web.PopupFeatures;
+import javafx.scene.web.PromptData;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
+import javafx.util.Callback;
 
 import org.ugate.gui.ControlBar;
 import org.ugate.resources.RS;
@@ -83,6 +88,7 @@ public class WebBuilder extends BorderPane {
 							State oldValue, State newValue) {
 						if (newValue == State.SUCCEEDED
 								&& webView.getEngine().getDocument() != null) {
+							getCurrentPageSource();
 //							webView.getEngine().executeScript("complete()");
 //					        try {
 //						        final DocumentFragment frag =  webView.getEngine().getDocument().createDocumentFragment();
@@ -115,9 +121,24 @@ public class WebBuilder extends BorderPane {
 						System.out.println("Load exception: " + newThrowable);
 					}
 				});
+		webView.getEngine().setCreatePopupHandler(new Callback<PopupFeatures, WebEngine>() {
+			@Override
+			public WebEngine call(PopupFeatures popupFeatures) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		});
+		webView.getEngine().setPromptHandler(new Callback<PromptData, String>() {
+			@Override
+			public String call(final PromptData promptData) {
+				//promptData.
+				return null;
+			}
+		});
 		webView.getEngine().setOnAlert(new EventHandler<WebEvent<String>>() {
 			@Override
 			public void handle(WebEvent<String> event) {
+				return;
 //				if (event.getData().indexOf(NAVIGATE_JS) > -1) {
 //
 //				}
@@ -134,8 +155,7 @@ public class WebBuilder extends BorderPane {
 		if (loadToolBar()) {
 			webView.getEngine().load(
 					"http://" + cb.getActor().getHost().getWebHostLocal() + ':'
-							+ cb.getActor().getHost().getWebPortLocal() + '/'
-							+ RS.WEB_PAGE_INDEX);
+							+ cb.getActor().getHost().getWebPortLocal());
 		}
 	}
 

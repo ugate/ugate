@@ -247,8 +247,10 @@ public class RemoteNode implements Model {
 	@Column(name="REPORT_READINGS", nullable=false)
 	private int reportReadings;
 
+	@Min(0)
+	@Max(1)
 	@Column(name="DEVICE_AUTO_SYNCHRONIZE")
-	private boolean deviceAutoSynchronize;
+	private int deviceAutoSynchronize;
 
 	@Column(name="DEVICE_SYNCHRONIZED")
 	private boolean deviceSynchronized;
@@ -641,11 +643,11 @@ public class RemoteNode implements Model {
 		this.reportReadings = reportReadings;
 	}
 
-	public boolean isDeviceAutoSynchronize() {
+	public int getDeviceAutoSynchronize() {
 		return deviceAutoSynchronize;
 	}
 
-	public void setDeviceAutoSynchronize(boolean deviceAutoSynchronize) {
+	public void setDeviceAutoSynchronize(int deviceAutoSynchronize) {
 		this.deviceAutoSynchronize = deviceAutoSynchronize;
 	}
 

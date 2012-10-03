@@ -1,8 +1,10 @@
 <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
 <html lang="en">
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta charset="UTF-8">
+		<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
+		<meta http-equiv="EXPIRES" content="Mon, 01 Jan 2000 00:00:01 GMT" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<title>UGate Mobile</title>
 		<meta name="description" content="UGate Mobile Interface">
@@ -15,78 +17,64 @@
 		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png">
 		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png">
 		<link rel="apple-touch-icon" href="logo64x64.png">
-		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
-		<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-		<script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 		<style>
 	
 		</style>
 	</head>
 	<body>
-		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a">
+		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a" class="page-no-cache">
 			<div class="ui-header ui-bar-a" data-swatch="a" data-theme="a"
 				data-form="ui-bar-a" data-role="header" role="banner" data-position="fixed">
-				<a
-					class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a"
+				<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a"
 					data-iconpos="notext" data-theme="a" data-role="button"
-					data-icon="home" title=" Home "> <span
-					class="ui-btn-inner ui-btn-corner-all"> <span
-						class="ui-btn-text"> Home </span> <span data-form="ui-icon"
-						class="ui-icon ui-icon-home ui-icon-shadow"></span>
+					data-icon="home" title=" Home " href="/">
+					<span class="ui-btn-inner ui-btn-corner-all">
+						<span class="ui-btn-text"> Home </span>
+						<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span>
 				</span>
 				</a>
 				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">Welcome __USERNAME__</h1>
-				<a
-					class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a"
-					data-iconpos="notext" data-theme="a" data-role="button"
-					data-icon="grid" title=" Navigation "> <span
-					class="ui-btn-inner ui-btn-corner-all"> <span
-						class="ui-btn-text"> Navigation </span> <span data-form="ui-icon"
-						class="ui-icon ui-icon-grid ui-icon-shadow"></span>
-				</span>
-				</a>
-<!-- 				<a data-theme="b" data-iconpos="right" data-icon="arrow-r" href="javascript:submitForm()"  -->
-<!-- 					class="ui-btn-right ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-right ui-btn-up-b"  -->
-<!-- 					data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" -->
-<!-- 					data-transition="flip"> -->
-<!-- 					<span class="ui-btn-inner ui-btn-corner-all"> -->
-<!-- 						<span class="ui-btn-text">Save</span> -->
-<!-- 						<span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span> -->
-<!-- 					</span> -->
+<!-- 				<a -->
+<!-- 					class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" -->
+<!-- 					data-iconpos="notext" data-theme="a" data-role="button" -->
+<!-- 					data-icon="grid" title=" Navigation "> <span -->
+<!-- 					class="ui-btn-inner ui-btn-corner-all"> <span -->
+<!-- 						class="ui-btn-text"> Navigation </span> <span data-form="ui-icon" -->
+<!-- 						class="ui-icon ui-icon-grid ui-icon-shadow"></span> -->
+<!-- 				</span> -->
 <!-- 				</a> -->
+				<a data-theme="b" data-iconpos="right" data-icon="arrow-r" href="/?logout=1" 
+					class="ui-btn-right ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-right ui-btn-up-b" 
+					data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span"
+					data-transition="flip">
+					<span class="ui-btn-inner ui-btn-corner-all">
+						<span class="ui-btn-text">Logout</span>
+						<span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span>
+					</span>
+				</a>
 			</div>
 			<div data-role="content">
 <!-- 				<h2>Welcome __USERNAME__</h2> -->
-				<div id="rnSelect" style="display: ___NODE_SELECT_DISPLAY___">
-					<div data-role="header" data-theme="d">
-						<h1>Device Address</h1>
-					</div>
-					<div class="ui-body ui-body-d">
-						<form id="rnSelectForm" action="index.html" method="post" data-transition="flip">
-							<fieldset data-role="controlgroup">
-								___REMOTE_NODES___
-							</fieldset>
-						</form>
-					</div>
+				<div data-role="header" data-theme="d">
+					<h1>Device Address</h1>
+				</div>
+				<div class="ui-body ui-body-d">
+					<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" data-inset="true" data-role="listview">
+						___REMOTE_NODES___
+					</ul>
 				</div>
 				<div id="rnDetail" style="display: ___NODE_DETAIL_DISPLAY___">
-					<div data-role="header" data-theme="d">
-						<h1>Device Address</h1>
-					</div>
-					<div class="ui-body ui-body-d">
-						<fieldset data-role="controlgroup">
-							<input type="radio" name="remoteNodeIdReselect" id="remoteNodeIdReselect0" value="__WIRELESS_ADDRESS__" checked="checked"/>
-							<label for="remoteNodeIdReselect0">__WIRELESS_ADDRESS__ (click to change)</label>
-						</fieldset>
-					</div>
-					<form id="rnCommandForm" action="index.html?action=1" method="post" data-theme="c" data-transition="flip">
+					<form id="rnCommandForm" action="/?action=1" method="post" data-theme="c" data-transition="flip">
 						<div data-role="collapsible-set" data-transition="pop">
 							<div data-role="collapsible" data-theme="b" data-content-theme="c">
 								<h3>Actions/Commands</h3>
 								<div data-role="fieldcontain">
 									<label for="GATE_TOGGLE_OPEN_CLOSE">Gate State (open/close):</label>
 									<select name="GATE_TOGGLE_OPEN_CLOSE" id="GATE_TOGGLE_OPEN_CLOSE" data-role="slider"
-										onchange="execCommand('GATE_TOGGLE_OPEN_CLOSE')">
+										onchange="execCommand('GATE_TOGGLE_OPEN_CLOSE')" data-value="0">
 										<option value="0">Close</option>
 										<option value="1">Open</option>
 									</select>
@@ -94,7 +82,7 @@
 							</div>
 						</div>
 					</form>
-					<form id="settingsForm" action="index.html?save=1" method="post" data-theme="c" data-transition="flip">
+					<form id="settingsForm" action="/?save=1" method="post" data-theme="c" data-transition="flip">
 						<div data-role="collapsible-set">
 							<div data-role="collapsible" data-theme="b" data-content-theme="c">
 								<h3>General Settings</h3>
@@ -108,9 +96,9 @@
 									</div>
 									<div data-role="collapsible" data-theme="c" data-content-theme="c">
 										<h3>Universal Remote</h3>
-										<select name="UNIVERSAL_REMOTE_ACCESS_ON" id="UNIVERSAL_REMOTE_ACCESS_ON" data-role="slider">
-											<option value="0">Off</option>
-											<option value="1" selected="__UNIVERSAL_REMOTE_ACCESS_ON__">On</option>
+										<select name="UNIVERSAL_REMOTE_ACCESS_ON" id="UNIVERSAL_REMOTE_ACCESS_ON" data-role="slider" data-value="__UNIVERSAL_REMOTE_ACCESS_ON__">
+											<option value="0" selected="selected">Off</option>
+											<option value="1">On</option>
 										</select>
 										<div data-role="fieldcontain">
 											<label for="UNIVERSAL_REMOTE_ACCESS_CODE_1">Universal Remote Key 1:</label>
@@ -118,27 +106,27 @@
 										</div>
 										<div data-role="fieldcontain">
 											<label for="UNIVERSAL_REMOTE_ACCESS_CODE_2">Universal Remote Key 2:</label>
-											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="__UNIVERSAL_REMOTE_ACCESS_CODE_1__" min="0" max="9" data-highlight="true" />
+											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="__UNIVERSAL_REMOTE_ACCESS_CODE_2__" min="0" max="9" data-highlight="true" />
 										</div>
 										<div data-role="fieldcontain">
 											<label for="UNIVERSAL_REMOTE_ACCESS_CODE_3">Universal Remote Key 3:</label>
-											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="__UNIVERSAL_REMOTE_ACCESS_CODE_1__" min="0" max="9" data-highlight="true" />
+											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="__UNIVERSAL_REMOTE_ACCESS_CODE_3__" min="0" max="9" data-highlight="true" />
 										</div>
 									</div>
 									<div data-role="collapsible" data-theme="c" data-content-theme="c">
 										<h3>Notifications</h3>
 										<div data-role="fieldcontain">
 											<label for="DEVICE_SOUNDS_ON">Host Sound Alarm:</label>
-											<select name="DEVICE_SOUNDS_ON" id="DEVICE_SOUNDS_ON" data-role="slider">
+											<select name="DEVICE_SOUNDS_ON" id="DEVICE_SOUNDS_ON" data-role="slider" data-value="__DEVICE_SOUNDS_ON__">
 												<option value="0">Off</option>
-												<option value="1" selected="__DEVICE_SOUNDS_ON__">On</option>
+												<option value="1">On</option>
 											</select>
 										</div>
 										<div data-role="fieldcontain">
 											<label for="MAIL_ALERT_ON">Email Notifications:</label>
-											<select name="MAIL_ALERT_ON" id="MAIL_ALERT_ON" data-role="slider">
+											<select name="MAIL_ALERT_ON" id="MAIL_ALERT_ON" data-role="slider" data-value="__MAIL_ALERT_ON__">
 												<option value="0">Off</option>
-												<option value="1" selected="__MAIL_ALERT_ON__">On</option>
+												<option value="1">On</option>
 											</select>
 										</div>
 									</div>
@@ -146,16 +134,16 @@
 										<h3>Other</h3>
 										<div data-role="fieldcontain">
 											<label for="CAM_RESOLUTION">Camera Resolution:</label>
-											<select name="CAM_RESOLUTION" id="CAM_RESOLUTION" data-role="slider">
+											<select name="CAM_RESOLUTION" id="CAM_RESOLUTION" data-role="slider" data-value="__CAM_RESOLUTION__">
 												<option value="0">QVGA</option>
-												<option value="1" selected="__CAM_RESOLUTION__">VGA</option>
+												<option value="1">VGA</option>
 											</select>
 										</div>
 										<div data-role="fieldcontain">
 											<label for="DEVICE_AUTO_SYNCHRONIZE">Auto Synchronize:</label>
-											<select name="DEVICE_AUTO_SYNCHRONIZE" id="DEVICE_AUTO_SYNCHRONIZE" data-role="slider">
+											<select name="DEVICE_AUTO_SYNCHRONIZE" id="DEVICE_AUTO_SYNCHRONIZE" data-role="slider" data-value="__DEVICE_AUTO_SYNCHRONIZE__">
 												<option value="0">Off</option>
-												<option value="1" selected="__DEVICE_AUTO_SYNCHRONIZE__">On</option>
+												<option value="1">On</option>
 											</select>
 										</div>
 									</div>
@@ -163,9 +151,9 @@
 										<h3>Gate</h3>
 										<div data-role="fieldcontain">
 											<label for="GATE_ACCESS_ON">Gate Accessibility:</label>
-											<select name="GATE_ACCESS_ON" id="GATE_ACCESS_ON" data-role="slider">
+											<select name="GATE_ACCESS_ON" id="GATE_ACCESS_ON" data-role="slider" data-value="__GATE_ACCESS_ON__">
 												<option value="0">Off</option>
-												<option value="1" selected="__GATE_ACCESS_ON__">On</option>
+												<option value="1">On</option>
 											</select>
 										</div>
 									</div>
@@ -274,19 +262,17 @@
 			</div>
 		</div>
 		<script type="text/javascript">
+			$.mobile.ajaxEnabled = false;
+			$.mobile.page.prototype.options.domCache = false;
 			function execCommand(command) {
-				var loc = 'index.html?command=' + command;
-			}
-			function selectRemoteNode() {
-				$('#rnDetail').css('display', 'none');
-				$('#rnSelect').css('display', 'block');
+				var loc = '/?command=' + command;
 			}
 			function submitForm(isNodeSelect) {
 				if (isNodeSelect) {
 					var rnId = $("input[name=remoteNodeId]:checked").val();
 					if (rnId) {
 						$('#rnSelectForm').submit();
-						//$.mobile.changePage("/index.html?remoteNode=" + id);
+						//$.mobile.changePage("/?remoteNode=" + id);
 					}
 				} else if($('#rnSelect').style.display != 'none') {
 					$('#rnSelectForm').submit();
@@ -294,20 +280,43 @@
 					$('#settingsForm').submit();
 				}
 			}
-			$("#settingsForm").submit(function() {
-				return true;
-			});
+// 			$("#settingsForm").submit(function() {
+// 				return true;
+// 			});
 			function switchToMainPage() {
 				$.mobile.loading('hide');
 				$.mobile.changePage($("#mainPage"));
 			}
+			$('[data-role=page]').live('pagebeforecreate', function (event, ui) {
+				// update the toggle switches based upon the data-value attribute
+				try {
+					$('select').each(function() {
+						var id = $(this).attr("id");
+						var v = $(this).attr("data-value");
+						//alert("select value = " + v);
+						if (v) {
+							var ops = this.getElementsByTagName("option");
+							for (var i=0; i<ops.length; i++) {
+								var ov = $(ops[i]).attr("value");
+								if (ov && v.toString() == ov.toString()) {
+									$(ops[i]).attr("selected", "selected");
+									//alert("select " + id + " value = " + v + " option " + i + " selected = " + $(ops[i]).attr("selected"));
+								}
+							}
+						}
+						return true;
+					});
+				} catch (e) {
+					alert(e);
+				}
+			});
 			$(document).ready(function () {
-				$(":input[@name='remoteNodeId']").live('change mousedown',function(event) { 
-					submitForm(true);
-				});
-				$(":input[@name='remoteNodeIdReselect']").live('change mousedown',function(event) { 
-					selectRemoteNode();
-				});
+// 				$(":input[@name='remoteNodeId']").live('change mousedown',function(event) { 
+// 					submitForm(true);
+// 				});
+// 				$(":input[@name='remoteNodeIdReselect']").live('change mousedown',function(event) { 
+// 					submitForm();
+// 				});
 				//$.mobile.loading('show');
 			});
 // 			$(document).ready(function () {

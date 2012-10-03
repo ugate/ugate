@@ -43,7 +43,7 @@ public class SensorReading extends Parent {
 	private final Digits mwReading;
 	private final Digits laserReading;
 	private final UGateToggleSwitchBox<RemoteNode> reportReadings;
-	private final ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO> sensorReadingsPropertyWrapper;
+	private final ReadOnlyObjectWrapper<RemoteNodeReading> sensorReadingsPropertyWrapper;
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 5d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, CHILD_PADDING, CHILD_PADDING);
@@ -60,7 +60,7 @@ public class SensorReading extends Parent {
 	public SensorReading(final ControlBar controlBar, final Orientation orientation) {
 		super();
 		this.cb = controlBar;
-		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RxTxRemoteNodeReadingDTO>();
+		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RemoteNodeReading>();
 		readDate = new Label();
 		readDate.getStyleClass().add("readings-text");
 		cb.addHelpTextTrigger(readDate, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_TIME));
@@ -96,7 +96,6 @@ public class SensorReading extends Parent {
 					if (event.getNewValue() instanceof RxTxRemoteNodeReadingDTO && 
 							rn.getAddress().equalsIgnoreCase(cb.getRemoteNode().getAddress())) {
 						final RxTxRemoteNodeReadingDTO sr = (RxTxRemoteNodeReadingDTO) event.getNewValue();
-						sensorReadingsPropertyWrapper.set(sr);
 						remoteNodeReadingShow(sr.getRemoteNodeReading());
 					}
 				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED || 
@@ -143,6 +142,7 @@ public class SensorReading extends Parent {
 				cb.getRemoteNode().getId() == remoteNodeReading.getRemoteNode().getId()) {
 			final Calendar cal = Calendar.getInstance();
 			cal.setTime(remoteNodeReading.getReadDate());
+			//sensorReadingsPropertyWrapper.set(arg0)
 			readDate.setText(UGateUtil.calFormat(cal).replace(' ', '\n'));
 			pirReading.setValue(String.format(AlarmThresholds.FORMAT_PIR, 
 					remoteNodeReading.getPirIntensity()));
@@ -170,12 +170,13 @@ public class SensorReading extends Parent {
 			laserReading.setValue(String.format(AlarmThresholds.FORMAT_LASER, 0d));
 			mwReading.setValue(String.format(AlarmThresholds.FORMAT_MW, 0));
 		}
+		sensorReadingsPropertyWrapper.set(remoteNodeReading);
 	}
 
 	/**
 	 * @return the {@linkplain RemoteNodeReading} property
 	 */
-	public ReadOnlyObjectProperty<RxTxRemoteNodeReadingDTO> sensorReadingsProperty() {
+	public ReadOnlyObjectProperty<RemoteNodeReading> sensorReadingsProperty() {
 		return sensorReadingsPropertyWrapper.getReadOnlyProperty();
 	}
 }

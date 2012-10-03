@@ -9,6 +9,7 @@ import javax.servlet.DispatcherType;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
+import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
+import org.ugate.resources.RS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
@@ -41,6 +43,8 @@ public class WebServer {
 	private final int hostId;
 	private Server server;
 	private HostKeyStore hostKeyStore;
+	public static final String CTRL_CHAR = "___";
+	public static final String RA_LOGOUT = "logout";
 	private final SignatureAlgorithm sa;
 
 	/**
@@ -159,7 +163,15 @@ public class WebServer {
 			final EnumSet<DispatcherType> dispatchers = EnumSet.range(
 					DispatcherType.FORWARD, DispatcherType.ERROR);
 			final ServletContextHandler context = new ServletContextHandler(
-					ServletContextHandler.SESSIONS);
+					ServletContextHandler.SESSIONS | ServletContextHandler.SECURITY);
+			
+//		    final SessionIdManager idManager = new HashSessionIdManager();
+//		    final SessionManager sessionManager = new HashSessionManager();
+//		    SessionHandler sessionHandler = new SessionHandler(sessionManager);
+//		    sessionManager.setSessionIdManager(idManager);
+//		    sessionManager.setSessionHandler(sessionHandler);
+//		    context.setSessionHandler(sessionHandler);
+			
 			context.setContextPath("/");
 			context.addFilter(GlobalFilter.class, "/*", dispatchers);
 			context.addServlet(DefaultAppServlet.class, "/");
@@ -221,7 +233,7 @@ public class WebServer {
 	 */
 	protected void addAuthentication(final HandlerWrapper handler) {
 		final Constraint constraint = new Constraint();
-		constraint.setName(Constraint.__DIGEST_AUTH);
+		constraint.setName(Constraint.__FORM_AUTH);
 		constraint.setRoles(RoleType.names());
 		constraint.setAuthenticate(true);
 
@@ -230,7 +242,9 @@ public class WebServer {
 		cm.setConstraint(constraint);
 
 		final ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
-		sh.setAuthenticator(new DigestAuthenticator());
+		final FormAuthenticator fa = new FormAuthenticator(RS.WEB_PAGE_LOGIN, RS.WEB_PAGE_LOGIN_ERROR, false);
+		sh.setAuthenticator(fa);
+//		sh.setAuthenticator(new DigestAuthenticator());
 		sh.setConstraintMappings(Arrays.asList(new ConstraintMapping[] { cm }));
 
 //		final JDBCLoginService loginService = new JDBCLoginService();

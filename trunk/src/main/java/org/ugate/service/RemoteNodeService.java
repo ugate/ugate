@@ -66,7 +66,8 @@ public class RemoteNodeService {
 	}
 
 	/**
-	 * Gets the {@linkplain RemoteNodeReading}(s) for a given {@linkplain Date}
+	 * Gets the {@linkplain RemoteNodeReading}(s) for a given
+	 * {@linkplain RemoteNode#getId()} and {@linkplain Date}
 	 * 
 	 * @param remoteNode
 	 *            the {@linkplain RemoteNode} to get the
