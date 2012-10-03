@@ -8,11 +8,12 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
 
 /**
  * {@linkplain Filter} to wrap common output for {@linkplain Servlet}s. <a
@@ -28,29 +29,39 @@ public class GlobalFilter implements Filter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) {
+	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) {
+		final HttpServletRequest request = (HttpServletRequest) req;
+		final HttpServletResponse response = (HttpServletResponse) res;
 		try {
 			if (log.isDebugEnabled()) {
 				log.debug(String.format("Entering filter from remote address %1$s", 
-						request.getRemoteAddr()));
+						req.getRemoteAddr()));
 			}
-//			response.setContentType("text/html;charset=utf-8");
-//			response.getWriter().println("<html><body><button onclick=\"header('HTTP/1.1 401 Unauthorized');\">Logout</button>");
-//			response.getWriter().println("<h1>" + RS.rbLabel(KEYS.APP_TITLE) + "</h1>");
-//
-//			// delegate the request to the next filter, and eventually to the target servlet or JSP
-			chain.doFilter(request, response);
-//
-//			response.getWriter().println("</body></html>");
+			final String logout = request.getParameter(WebServer.RA_LOGOUT);
+			final boolean isLogout = logout != null && !logout.isEmpty();
+			if (isLogout || request.getRemoteUser() == null || request.getRemoteUser().isEmpty()) {
+				if (isLogout) {
+					request.getSession().invalidate();
+				}
+				// write login error page
+				String errorHtml = "";
+				if (request.getRequestURI().indexOf(RS.WEB_PAGE_LOGIN_ERROR) > -1) {
+					errorHtml = "<h2 style=\"color: red\">Authentication Failed</h2>";
+				}
+				// write login page
+				String content = RS.getEscapedResource(RS.WEB_PAGE_LOGIN, null);
+				content = content.replace(WebServer.CTRL_CHAR + "ERROR_MSG" + WebServer.CTRL_CHAR, errorHtml);
+				response.getWriter().print(content);
+//			} else if (request.getRequestURI().indexOf("j_security_check") > -1) {
+//				request.getRequestDispatcher("/").forward(request, response);
+			} else {
+				// delegate the request to the next filter, and eventually to the target servlet or JSP
+				chain.doFilter(request, response);
+			}	
 		} catch (final Throwable t) {
 			log.error("Unable to process " + GlobalFilter.class.getSimpleName(), t);
 		}
 	}
-	// TODO : add logout feature for digest
-//	private String getLogoutJS(final ServletRequest request) {
-//        return "header('HTTP/1.1 401 Unauthorized');" +
-//        "header('WWW-Authenticate: Digest realm=\"'" + request.get.getUserPrincipal().getName() + "'\",qop="auth",nonce="'.$_SESSION['http_digest_nonce'].'",opaque="'.md5($realm).'"');
-//	}
 
 	/**
 	 * {@inheritDoc}

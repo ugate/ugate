@@ -30,14 +30,25 @@ public class JPALoginService extends MappedLoginService {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Loads an {@linkplain Actor} either by authentication or by login ID
+	 * 
+	 * @param username
+	 *            the login ID
+	 * @param credentials
+	 *            the password
+	 * @return the {@linkplain UserIdentity}
 	 */
-	@Override
-	protected UserIdentity loadUser(final String username) {
+	protected UserIdentity loadActor(final String username, final Object credentials) {
 		try {
 			// get the user and roles from JPA (roles should be eagerly fetched or pre-fetched
 			// or a null pointer will be thrown)
-			final Actor actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
+			final Actor actor = credentials != null ? ServiceProvider.IMPL
+					.getCredentialService().authenticate(username,
+							credentials.toString()) : ServiceProvider.IMPL
+					.getCredentialService().getActor(username);
+			if (actor == null) {
+				throw new NullPointerException(Actor.class.getName());
+			}
 			final String[] roles = new String[actor.getRoles().size()];
 			int i = -1;
 			for (final Role role : actor.getRoles()) {
@@ -48,13 +59,26 @@ public class JPALoginService extends MappedLoginService {
 			final Credential cred = Credential.getCredential(MD5.__TYPE + actor.getPassword());
 			return putUser(username, cred, roles);
 		} catch (final Throwable t) {
+			final String msg = String.format("Unable to %1$s %2$s",
+					(credentials == null ? "load" : "authenticate"), username);
 			if (log.isDebugEnabled()) {
-				log.debug(String.format("Unable to authenticate %1$s", username), t);
+				log.debug(msg, t);
 			} else if (log.isInfoEnabled()) {
-				log.info(String.format("Unable to authenticate %1$s Message: %2$s", username, t.getMessage()));
+				log.info(String.format(msg + " Message: %1$s", t.getMessage()));
 			}
 			return null;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected UserIdentity loadUser(final String username) {
+		if (log.isDebugEnabled()) {
+			log.debug("Attempting to load user for " + username);
+		}
+		return loadActor(username, null);
 	}
 
 	/**
@@ -76,7 +100,7 @@ public class JPALoginService extends MappedLoginService {
 		if (log.isDebugEnabled()) {
 			log.debug("Attempting login for " + username);
 		}
-		return super.login(username, credentials);
+		return loadActor(username, credentials);
 	}
 
 	/**

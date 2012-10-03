@@ -27,9 +27,7 @@ public class DefaultAppServlet extends DefaultServlet {
 
 	private static final long serialVersionUID = 6841946295927734658L;
 	private static final Logger log = LoggerFactory.getLogger(DefaultAppServlet.class);
-	private static final String CTRL_CHAR = "___";
-	private static final String SA_ACTOR = "actor";
-	private static final String SA_REMOTENODE = "remoteNodeId";
+	private static final String RA_REMOTENODE = "remoteNodeId";
 	
 	public DefaultAppServlet() {
 		super();
@@ -38,56 +36,42 @@ public class DefaultAppServlet extends DefaultServlet {
 	protected void process(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		try {
 			Actor actor = null;
-			if (request.getSession().getAttribute(SA_ACTOR) instanceof Actor) {
-				actor = (Actor) request.getSession().getAttribute(SA_ACTOR);
-			} else {
-				String username = null;
-				if (request.getRemoteUser() != null && !request.getRemoteUser().toString().isEmpty()) {
-					username = request.getRemoteUser().toString();
-				} else if (request.getParameter(ActorType.USERNAME.name()) != null && 
-						!request.getParameter(ActorType.USERNAME.name()).isEmpty()) {
-					username = request.getParameter(ActorType.USERNAME.name());
-				}
-				if (username != null) {
-					actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
-					if (actor == null) {
-						response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-						return;
-					}
-					request.getSession().setAttribute(SA_ACTOR, actor);
-				} else {
-					// TODO : show list of actors to choose from
-				}
+			String username = null;
+			if (request.getRemoteUser() != null && !request.getRemoteUser().toString().isEmpty()) {
+				username = request.getRemoteUser().toString();
+			} else if (request.getParameter(ActorType.USERNAME.name()) != null && 
+					!request.getParameter(ActorType.USERNAME.name()).isEmpty()) {
+				username = request.getParameter(ActorType.USERNAME.name());
 			}
-			// capture remote node
-			final String remoteNodeId = request.getParameter(SA_REMOTENODE);
-			RemoteNode remoteNode = null;
-			if (remoteNodeId != null && !remoteNodeId.isEmpty()) {
-				for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
-					if (rn.getId() == Integer.parseInt(remoteNodeId)) {
-						remoteNode = rn;
-						break;
-					}
+			if (username != null) {
+				actor = ServiceProvider.IMPL.getCredentialService().getActor(username);
+				if (actor == null) {
+					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+					return;
 				}
+			} else {
+				// TODO : show list of actors to choose from
+			}
+			String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, actor, ActorType.values());
+			// capture remote node
+			final String remoteNodeId = request.getParameter(RA_REMOTENODE);
+			RemoteNode remoteNode = null;
+			String rni = "";
+			String rns = "";
+			for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
+				if (remoteNodeId != null && !remoteNodeId.isEmpty() && rn.getId() == Integer.parseInt(remoteNodeId)) {
+					// remote node values
+					remoteNode = rn;
+					content = RS.getEscapedContent(content, remoteNode, RemoteNodeType.values());
+					// add random sequence to ensure the request is not cached
+					rni = "<li><a href=\"/?seq=" + rn.getId() + '_' + Math.random() + "\" data-transition=\"flip\">" + rn.getAddress() + " (select to change)</a></li>";
+				}
+				// remote node selection
+				rns += "<li><a href=\"/?" + RA_REMOTENODE + "=" + rn.getId() + "\" data-transition=\"flip\">" + rn.getAddress() + "</a></li>";
 			}
 			// show remote node selection content
-			String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, actor,
-					ActorType.values());
-			content = content.replaceAll(CTRL_CHAR + "NODE_SELECT_DISPLAY" + CTRL_CHAR, remoteNode != null ? "none" : "block");
-			content = content.replaceAll(CTRL_CHAR + "NODE_DETAIL_DISPLAY" + CTRL_CHAR, remoteNode == null ? "none" : "block");
-			// remote node selection
-			String rno = "";
-			int i = 0;
-			for (final RemoteNode rn : actor.getHost().getRemoteNodes()) {
-				rno += "<input type=\"radio\" name=\"" + SA_REMOTENODE + "\" id=\"" + SA_REMOTENODE + i + "\" value=\"" + rn.getId() + "\"/>";
-				rno += "<label for=\"" + SA_REMOTENODE + i + "\">" + rn.getAddress() + "</label>";
-				i++;
-			}
-			content = content.replace(CTRL_CHAR + ActorType.REMOTE_NODES.name() + CTRL_CHAR, rno);
-			// remote node values
-			if (remoteNode != null) {
-				content = RS.getEscapedContent(content, remoteNode, RemoteNodeType.values());
-			}
+			content = content.replaceAll(WebServer.CTRL_CHAR + "NODE_DETAIL_DISPLAY" + WebServer.CTRL_CHAR, remoteNode == null ? "none" : "block");
+			content = content.replace(WebServer.CTRL_CHAR + ActorType.REMOTE_NODES.name() + WebServer.CTRL_CHAR, remoteNode != null ? rni : rns);
 			// print results
 			response.getWriter().print(content);
 	        response.setStatus(HttpServletResponse.SC_OK);

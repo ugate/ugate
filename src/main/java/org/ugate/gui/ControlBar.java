@@ -223,7 +223,7 @@ public class ControlBar extends ToolBar {
 					getActorPA().setBean(getActor());
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
-					if (!rn.isDeviceSynchronized() && rn.isDeviceAutoSynchronize()) {
+					if (!rn.isDeviceSynchronized() && rn.getDeviceAutoSynchronize() == 1) {
 						// automatically send the changes to the remote node
 						// (consume event so no other notifications for the
 						// event will be processed)
@@ -249,7 +249,7 @@ public class ControlBar extends ToolBar {
 							// remote device values do not match the local device values
 							rn.setDeviceSynchronized(false);
 							ndto.getRemoteNode().setDeviceSynchronized(false);
-							if (rn.isDeviceAutoSynchronize()) {
+							if (rn.getDeviceAutoSynchronize() == 1) {
 								// automatically send the changes to the remote node
 								// (consume event so no other notifications for the
 								// event will be processed)
@@ -260,8 +260,10 @@ public class ControlBar extends ToolBar {
 							}
 						}
 					}
-				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED || 
-						event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_CHANGED) {
+					ServiceProvider.IMPL.getCredentialService().mergeHost(
+							getActor().getHost());
+				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED) {
 					if (getActor().getHost().getComOnAtAppStartup() == 1) {
 						createWirelessConnectionService().start();
 					}
