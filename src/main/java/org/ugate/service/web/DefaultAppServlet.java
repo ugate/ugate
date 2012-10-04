@@ -27,6 +27,7 @@ public class DefaultAppServlet extends DefaultServlet {
 
 	private static final long serialVersionUID = 6841946295927734658L;
 	private static final Logger log = LoggerFactory.getLogger(DefaultAppServlet.class);
+	private static final String RA_SAVE = "save";
 	private static final String RA_REMOTENODE = "remoteNodeId";
 	
 	public DefaultAppServlet() {
@@ -52,6 +53,7 @@ public class DefaultAppServlet extends DefaultServlet {
 			} else {
 				// TODO : show list of actors to choose from
 			}
+			String feedbackMessage = request.getRemoteUser();
 			String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, actor, ActorType.values());
 			// capture remote node
 			final String remoteNodeId = request.getParameter(RA_REMOTENODE);
@@ -63,15 +65,27 @@ public class DefaultAppServlet extends DefaultServlet {
 					// remote node values
 					remoteNode = rn;
 					content = RS.getEscapedContent(content, remoteNode, RemoteNodeType.values());
-					// add random sequence to ensure the request is not cached
-					rni = "<li><a href=\"/?seq=" + rn.getId() + '_' + Math.random() + "\" data-transition=\"flip\">" + rn.getAddress() + " (select to change)</a></li>";
+					rni = "<li><a href=\"/node/select\" data-transition=\"flip\">" + rn.getAddress() + " (select to change)</a></li>";
 				}
 				// remote node selection
-				rns += "<li><a href=\"/?" + RA_REMOTENODE + "=" + rn.getId() + "\" data-transition=\"flip\">" + rn.getAddress() + "</a></li>";
+				rns += "<li><a href=\"/node/" + rn.getAddress() + "/?" + RA_REMOTENODE + "=" + rn.getId() + "\" data-transition=\"flip\">" + rn.getAddress() + "</a></li>";
+			}
+			// attempt to save remote node (if needed)
+			try {
+				if (saveRemoteNode(request, remoteNode)) {
+					feedbackMessage = "<span style=\"color: red;\">(Updated " + remoteNode.getAddress() + ")</span>";
+				}
+			} catch (final Throwable t) {
+				log.error("Unable to save " + remoteNode, t);
 			}
 			// show remote node selection content
 			content = content.replaceAll(WebServer.CTRL_CHAR + "NODE_DETAIL_DISPLAY" + WebServer.CTRL_CHAR, remoteNode == null ? "none" : "block");
 			content = content.replace(WebServer.CTRL_CHAR + ActorType.REMOTE_NODES.name() + WebServer.CTRL_CHAR, remoteNode != null ? rni : rns);
+			content = content.replace(WebServer.CTRL_CHAR + "REMOTE_NODE_ID" + WebServer.CTRL_CHAR, remoteNode != null ? 
+					String.valueOf(remoteNode.getId()) : "");
+			content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_FEEDBACK_MSG + WebServer.CTRL_CHAR, feedbackMessage);
+			content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_JS_INCLUDE + WebServer.CTRL_CHAR, 
+					RS.getEscapedResource(RS.WEB_JS_INCLUDE, null));
 			// print results
 			response.getWriter().print(content);
 	        response.setStatus(HttpServletResponse.SC_OK);
@@ -79,6 +93,39 @@ public class DefaultAppServlet extends DefaultServlet {
 			log.error("Error: ", t);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * When a valid {@linkplain RemoteNode} and
+	 * {@linkplain HttpServletRequest#getParameter(String)} contains
+	 * {@linkplain #RA_SAVE} the {@linkplain RemoteNode} will be saved using the
+	 * {@linkplain RemoteNodeType#name()} to extract the {@linkplain RemoteNode}
+	 * values from the {@linkplain HttpServletRequest#getParameter(String)}
+	 * 
+	 * @param request
+	 *            the {@linkplain HttpServletRequest}
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} to be saved
+	 * @return false when the save operation failed, true when a save action
+	 *         shouldn't take place or it successfully completed
+	 * @throws Throwable
+	 *             when an error occurs
+	 */
+	protected boolean saveRemoteNode(final HttpServletRequest request,
+			final RemoteNode remoteNode) throws Throwable {
+		final String save = request.getParameter(RA_SAVE);
+		if (save != null && !save.isEmpty() && remoteNode != null) {
+			String value;
+			for (final RemoteNodeType rnt : RemoteNodeType.values()) {
+				value = request.getParameter(rnt.name());
+				if (value != null) {
+					rnt.setValue(remoteNode, value);
+				}
+			}
+			ServiceProvider.IMPL.getRemoteNodeService().merge(remoteNode);
+			return true;
+		}
+		return false;
 	}
 
 	/**

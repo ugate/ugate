@@ -31,6 +31,7 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -264,6 +265,7 @@ import javafx.util.StringConverter;
 public class BeanPathAdapter<B> {
 
 	private FieldBean<Void, B> root;
+	private ReadOnlyObjectWrapper<FieldChange<?, ?>> fieldChangeWrapper = new ReadOnlyObjectWrapper<>();
 
 	/**
 	 * Constructor
@@ -582,6 +584,50 @@ public class BeanPathAdapter<B> {
 			}
 		}
 		return clazz;
+	}
+
+	/**
+	 * A referent change from a {@linkplain BeanPathAdapter}
+	 * 
+	 * @param <T>
+	 *            the {@linkplain FieldHandle#getTarget()} type
+	 * @param <F>
+	 *            the {@linkplain FieldHandle#getDeclaredFieldType()} type
+	 */
+	public static class FieldChange<T, F> {
+
+		private final WeakReference<FieldHandle<T, F>> fieldHandle;
+		private final WeakReference<String> path;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param fieldHandle
+		 *            the {@linkplain #getFieldHandle()}
+		 * @param path
+		 *            the {@linkplain #getPath()}
+		 */
+		public FieldChange(final FieldHandle<T, F> fieldHandle,
+				final String path) {
+			this.fieldHandle = new WeakReference<FieldHandle<T, F>>(fieldHandle);
+			this.path = new WeakReference<String>(path);
+		}
+
+		/**
+		 * @return the {@linkplain FieldHandle} that changed
+		 */
+		public WeakReference<FieldHandle<T, F>> getFieldHandle() {
+			return fieldHandle;
+		}
+
+		/**
+		 * @return the <strong>.</strong> delimited path from the
+		 *         {@linkplain BeanPathAdapter#getBean()} to the changed
+		 *         {@linkplain #getFieldHandle()}
+		 */
+		public WeakReference<String> getPath() {
+			return path;
+		}
 	}
 
 	/**
@@ -1186,6 +1232,7 @@ public class BeanPathAdapter<B> {
 			}
 			return cv;
 		}
+
 		/**
 		 * Attempts to coerce a value into the specified class
 		 * 
@@ -2224,8 +2271,18 @@ public class BeanPathAdapter<B> {
 	 */
 	protected static class FieldHandle<T, F> {
 
-		private static final Map<Class<?>, MethodHandle> VALUE_OF_MAP = new HashMap<>(
-				1);
+		private static final Map<Class<?>, Class<?>> PRIMS = new HashMap<>();
+		static {
+			PRIMS.put(boolean.class, Boolean.class);
+			PRIMS.put(char.class, Character.class);
+			PRIMS.put(double.class, Double.class);
+			PRIMS.put(float.class, Float.class);
+			PRIMS.put(long.class, Long.class);
+			PRIMS.put(int.class, Integer.class);
+			PRIMS.put(short.class, Short.class);
+			PRIMS.put(long.class, Long.class);
+			PRIMS.put(byte.class, Byte.class);
+		}
 		private static final Map<Class<?>, Object> DFLTS = new HashMap<>();
 		static {
 			DFLTS.put(Boolean.class, Boolean.FALSE);
@@ -2378,27 +2435,6 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * Puts a <code>valueOf</code> {@linkplain MethodHandle} value using the
-		 * target class as a key
-		 * 
-		 * @param target
-		 *            the target object that the <code>valueOf</code> is for
-		 */
-		protected static void putValueOf(final Class<?> target) {
-			if (VALUE_OF_MAP.containsKey(target)) {
-				return;
-			}
-			try {
-				final MethodHandle mh1 = MethodHandles.lookup().findStatic(
-						target, "valueOf",
-						MethodType.methodType(target, String.class));
-				VALUE_OF_MAP.put(target, mh1);
-			} catch (final Throwable t) {
-				// class doesn't support it- do nothing
-			}
-		}
-
-		/**
 		 * Attempts to invoke a <code>valueOf</code> using the
 		 * {@linkplain #getDeclaredFieldType()} class
 		 * 
@@ -2426,12 +2462,18 @@ public class BeanPathAdapter<B> {
 			if (value != null && String.class.isAssignableFrom(valueOfClass)) {
 				return (VT) value.toString();
 			}
-			if (!VALUE_OF_MAP.containsKey(valueOfClass)) {
-				putValueOf(valueOfClass);
+			final Class<?> clazz = PRIMS.containsKey(valueOfClass) ? PRIMS.get(valueOfClass) : valueOfClass;
+			MethodHandle mh1 = null;
+			try {
+				mh1 = MethodHandles.lookup().findStatic(
+						clazz, "valueOf",
+						MethodType.methodType(clazz, String.class));
+			} catch (final Throwable t) {
+				// class doesn't support it- do nothing
 			}
-			if (VALUE_OF_MAP.containsKey(valueOfClass)) {
+			if (mh1 != null) {
 				try {
-					return (VT) VALUE_OF_MAP.get(valueOfClass).invoke(value);
+					return (VT) mh1.invoke(value);
 				} catch (final Throwable t) {
 					throw new IllegalArgumentException(String.format(
 							"Unable to invoke valueOf on %1$s using %2$s",
