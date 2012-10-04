@@ -1,31 +1,26 @@
 <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
 <html lang="en">
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta charset="UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta charset="UTF-8"/>
 		<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
 		<meta http-equiv="EXPIRES" content="Mon, 01 Jan 2000 00:00:01 GMT" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 		<title>UGate Mobile</title>
-		<meta name="description" content="UGate Mobile Interface">
-		<meta name="keywords" content="ugate, ugate mobile">
-		<meta name="author" content="">
-		<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no">
-		<link rel="icon" href="logo16x16.png">
-		<link rel="apple-touch-icon" size="144x144" href="logo128x128.png">
-		<link rel="apple-touch-icon" size="114x114" href="logo128x128.png">
-		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png">
-		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png">
-		<link rel="apple-touch-icon" href="logo64x64.png">
+		<meta name="description" content="UGate Mobile Interface"/>
+		<meta name="keywords" content="ugate, ugate mobile"/>
+		<meta name="author" content=""/>
+		<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
+		<link rel="icon" href="logo16x16.png"/>
+		<link rel="apple-touch-icon" size="144x144" href="logo128x128.png"/>
+		<link rel="apple-touch-icon" size="114x114" href="logo128x128.png"/>
+		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png"/>
+		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png"/>
+		<link rel="apple-touch-icon" href="logo64x64.png"/>
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
-		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
-		<style>
-	
-		</style>
 	</head>
 	<body>
-		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a" class="page-no-cache">
+		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a" data-dom-cache="false">
 			<div class="ui-header ui-bar-a" data-swatch="a" data-theme="a"
 				data-form="ui-bar-a" data-role="header" role="banner" data-position="fixed">
 				<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a"
@@ -36,7 +31,7 @@
 						<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span>
 				</span>
 				</a>
-				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">Welcome __USERNAME__</h1>
+				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">___FEEDBACK_MSG___</h1>
 <!-- 				<a -->
 <!-- 					class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" -->
 <!-- 					data-iconpos="notext" data-theme="a" data-role="button" -->
@@ -57,7 +52,6 @@
 				</a>
 			</div>
 			<div data-role="content">
-<!-- 				<h2>Welcome __USERNAME__</h2> -->
 				<div data-role="header" data-theme="d">
 					<h1>Device Address</h1>
 				</div>
@@ -82,7 +76,7 @@
 							</div>
 						</div>
 					</form>
-					<form id="settingsForm" action="/?save=1" method="post" data-theme="c" data-transition="flip">
+					<form id="settingsForm" action="/node/?save=1&remoteNodeId=___REMOTE_NODE_ID___" method="post" data-theme="c" data-transition="flip">
 						<div data-role="collapsible-set">
 							<div data-role="collapsible" data-theme="b" data-content-theme="c">
 								<h3>General Settings</h3>
@@ -254,6 +248,7 @@
 								</div>
 							</div>
 						</div>
+						<button class="btnLogin" type="submit" data-theme="a">Save Settings</button>
 					</form>
 				</div>
 			</div>
@@ -261,67 +256,10 @@
 				<h4>UGate Mobile</h4>
 			</div>
 		</div>
+		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 		<script type="text/javascript">
-			$.mobile.ajaxEnabled = false;
-			$.mobile.page.prototype.options.domCache = false;
-			function execCommand(command) {
-				var loc = '/?command=' + command;
-			}
-			function submitForm(isNodeSelect) {
-				if (isNodeSelect) {
-					var rnId = $("input[name=remoteNodeId]:checked").val();
-					if (rnId) {
-						$('#rnSelectForm').submit();
-						//$.mobile.changePage("/?remoteNode=" + id);
-					}
-				} else if($('#rnSelect').style.display != 'none') {
-					$('#rnSelectForm').submit();
-				} else {
-					$('#settingsForm').submit();
-				}
-			}
-// 			$("#settingsForm").submit(function() {
-// 				return true;
-// 			});
-			function switchToMainPage() {
-				$.mobile.loading('hide');
-				$.mobile.changePage($("#mainPage"));
-			}
-			$('[data-role=page]').live('pagebeforecreate', function (event, ui) {
-				// update the toggle switches based upon the data-value attribute
-				try {
-					$('select').each(function() {
-						var id = $(this).attr("id");
-						var v = $(this).attr("data-value");
-						//alert("select value = " + v);
-						if (v) {
-							var ops = this.getElementsByTagName("option");
-							for (var i=0; i<ops.length; i++) {
-								var ov = $(ops[i]).attr("value");
-								if (ov && v.toString() == ov.toString()) {
-									$(ops[i]).attr("selected", "selected");
-									//alert("select " + id + " value = " + v + " option " + i + " selected = " + $(ops[i]).attr("selected"));
-								}
-							}
-						}
-						return true;
-					});
-				} catch (e) {
-					alert(e);
-				}
-			});
-			$(document).ready(function () {
-// 				$(":input[@name='remoteNodeId']").live('change mousedown',function(event) { 
-// 					submitForm(true);
-// 				});
-// 				$(":input[@name='remoteNodeIdReselect']").live('change mousedown',function(event) { 
-// 					submitForm();
-// 				});
-				//$.mobile.loading('show');
-			});
-// 			$(document).ready(function () {
-// 				$('head').append('<link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />');
-// 			});
+			___JS_INCLUDE___
 		</script>
+		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 	</body>
 </html>

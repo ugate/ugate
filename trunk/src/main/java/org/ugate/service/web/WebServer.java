@@ -45,6 +45,8 @@ public class WebServer {
 	private HostKeyStore hostKeyStore;
 	public static final String CTRL_CHAR = "___";
 	public static final String RA_LOGOUT = "logout";
+	public static final String RP_FEEDBACK_MSG = "FEEDBACK_MSG";
+	public static final String RP_JS_INCLUDE = "JS_INCLUDE";
 	private final SignatureAlgorithm sa;
 
 	/**
@@ -242,7 +244,7 @@ public class WebServer {
 		cm.setConstraint(constraint);
 
 		final ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
-		final FormAuthenticator fa = new FormAuthenticator(RS.WEB_PAGE_LOGIN, RS.WEB_PAGE_LOGIN_ERROR, false);
+		final FormAuthenticator fa = new FormAuthenticator(RS.WEB_PAGE_LOGIN, RS.WEB_PAGE_LOGIN_ERROR, true);
 		sh.setAuthenticator(fa);
 //		sh.setAuthenticator(new DigestAuthenticator());
 		sh.setConstraintMappings(Arrays.asList(new ConstraintMapping[] { cm }));

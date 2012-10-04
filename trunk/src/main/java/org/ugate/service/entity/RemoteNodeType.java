@@ -181,29 +181,17 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 
 	/**
-	 * Gets a {@linkplain RemoteNode} value for a {@linkplain RemoteNodeType}
-	 * 
-	 * @param remoteNode
-	 *            the {@linkplain RemoteNode} to get the value from
-	 * @return the extracted {@linkplain RemoteNode} value
-	 * @throws Throwable
-	 *             any errors during extraction
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Object getValue(final RemoteNode remoteNode) throws Throwable {
 		return IModelType.ValueHelper.getValue(remoteNode, this);
 	}
 
 	/**
-	 * Sets a {@linkplain RemoteNode} value for a {@linkplain RemoteNodeType}.
-	 * 
-	 * @param remoteNode
-	 *            the {@linkplain RemoteNode} to get the value from
-	 * @param value
-	 *            the value to set
-	 * @return the extracted {@linkplain RemoteNode} value
-	 * @throws Throwable
-	 *             any errors during extraction
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void setValue(final RemoteNode remoteNode, final Object value)
 			throws Throwable {
 		IModelType.ValueHelper.setValue(remoteNode, this, value);

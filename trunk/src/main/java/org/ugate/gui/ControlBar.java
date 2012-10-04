@@ -223,6 +223,10 @@ public class ControlBar extends ToolBar {
 					getActorPA().setBean(getActor());
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
+					// TODO : validate that the remote node is not dirty from another process that updated it (web page)
+					for (final RemoteNode rni : getActor().getHost().getRemoteNodes()) {
+						
+					}
 					if (!rn.isDeviceSynchronized() && rn.getDeviceAutoSynchronize() == 1) {
 						// automatically send the changes to the remote node
 						// (consume event so no other notifications for the

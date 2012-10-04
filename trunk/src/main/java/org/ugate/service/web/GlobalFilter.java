@@ -50,14 +50,16 @@ public class GlobalFilter implements Filter {
 				}
 				// write login page
 				String content = RS.getEscapedResource(RS.WEB_PAGE_LOGIN, null);
-				content = content.replace(WebServer.CTRL_CHAR + "ERROR_MSG" + WebServer.CTRL_CHAR, errorHtml);
+				content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_FEEDBACK_MSG + WebServer.CTRL_CHAR, errorHtml);
+				content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_JS_INCLUDE + WebServer.CTRL_CHAR, 
+						RS.getEscapedResource(RS.WEB_JS_INCLUDE, null));
 				response.getWriter().print(content);
 //			} else if (request.getRequestURI().indexOf("j_security_check") > -1) {
 //				request.getRequestDispatcher("/").forward(request, response);
 			} else {
 				// delegate the request to the next filter, and eventually to the target servlet or JSP
 				chain.doFilter(request, response);
-			}	
+			}
 		} catch (final Throwable t) {
 			log.error("Unable to process " + GlobalFilter.class.getSimpleName(), t);
 		}

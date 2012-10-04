@@ -130,6 +130,7 @@ public class RS {
 	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
+	public static final String WEB_JS_INCLUDE = "index.js";
 	public static final String WEB_PAGE_LOGIN = "login.html";
 	public static final String WEB_PAGE_LOGIN_ERROR = "login-error.html";
 	public static final String WEB_PAGE_INDEX = "index.html";
