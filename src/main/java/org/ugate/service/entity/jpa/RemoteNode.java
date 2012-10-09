@@ -16,6 +16,7 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -25,8 +26,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.ugate.UGateEvent;
-import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
+import org.ugate.UGateEvent.Type;
 import org.ugate.service.entity.Model;
 
 
@@ -266,26 +267,78 @@ public class RemoteNode implements Model {
 	private Set<RemoteNodeReading> remoteNodeReadings;
 
 	/**
-	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
-	 * changes are committed
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PrePersist}
 	 */
 	@PrePersist
-	@PreUpdate
-	void notifyListenersPre() {
-		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
-				Type.WIRELESS_REMOTE_NODE_COMMIT, false));
+	void notifyListenersPrePresist() {
+		notifyListeners(true, null, this);
 	}
 
 	/**
-	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
-	 * changes are committed
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PostPersist}
 	 */
 	@PostPersist
+	void notifyListenersPostPersist() {
+		notifyListeners(false, null, this);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PreUpdate}
+	 */
+	@PreUpdate
+	void notifyListenersPreUpdate() {
+		notifyListeners(true, this, this);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PostUpdate}
+	 */
 	@PostUpdate
+	void notifyListenersPostUpdate() {
+		notifyListeners(false, this, this);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PreRemove}
+	 */
+	@PreRemove
+	void notifyListenersPreRemove() {
+		notifyListeners(true, this, null);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PostRemove}
+	 */
 	@PostRemove
-	void notifyListenersPost() {
+	void notifyListenersPostRemove() {
+		notifyListeners(false, this, null);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PrePersist}, {@linkplain PostPersist}, {@linkplain PreUpdate}
+	 * , {@linkplain PostUpdate}, {@linkplain PreRemove}, and
+	 * {@linkplain PostRemove}
+	 * 
+	 * @param isPre
+	 *            true when prior to operation, false for after
+	 * @param oldValue
+	 *            the old {@linkplain RemoteNode}
+	 * @param newValue
+	 *            the new {@linkplain RemoteNode}
+	 */
+	private void notifyListeners(final boolean isPre,
+			final RemoteNode oldValue, final RemoteNode newValue) {
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
-				Type.WIRELESS_REMOTE_NODE_COMMITTED, false));
+				isPre ? Type.WIRELESS_REMOTE_NODE_COMMIT
+						: Type.WIRELESS_REMOTE_NODE_COMMITTED, false, oldValue,
+				newValue));
 	}
 
 	public RemoteNode() {

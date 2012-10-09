@@ -251,25 +251,33 @@ public class RS {
 		return RS.class.getResource(fileName).toExternalForm();
 	}
 
+	public static <T extends Model> String getEscapedResource(
+			final String fileName) {
+		return getEscapedResource(fileName, null, null, null);
+	}
 	/**
 	 * Gets an escaped resource path
 	 * 
 	 * @param fileName the resource file name
 	 * @return the resource path
 	 */
-	@SafeVarargs
-	public static <T extends Model> String getEscapedResource(final String fileName, final T model, final IModelType<T>... types) {
+	public static <T extends Model> String getEscapedResource(
+			final String fileName, final String replaceWithContent,
+			final T model, final IModelType<T>[] types) {
 		try (final InputStream is = RS.class.getResourceAsStream(fileName)) {
 			try (final Scanner sr = new Scanner(is)) {
-				return getEscapedContent(sr.useDelimiter("\\A").next(), model, types);
+				return getEscapedContent(sr.useDelimiter("\\A").next(),
+						replaceWithContent, model, types);
 			}
 		} catch (final Throwable t) {
 			return null;
 		}
 	}
 
-	@SafeVarargs
-	public static <T extends Model> String getEscapedContent(final String content, final T model, final IModelType<T>... types) {
+
+	public static <T extends Model> String getEscapedContent(
+			final String content, final String replaceWithContent,
+			final T model, final IModelType<T>[] types) {
 		String str = content;
 		if (model != null) {
 			String rp = "", rv = "";

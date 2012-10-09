@@ -1,6 +1,7 @@
 package org.ugate.gui;
 
 import java.util.Calendar;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javafx.animation.Timeline;
@@ -222,19 +223,39 @@ public class ControlBar extends ToolBar {
 					getActor().setHost((Host) event.getSource());
 					getActorPA().setBean(getActor());
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
+					// need to update the existing dirty remote node
 					final RemoteNode rn = (RemoteNode) event.getSource();
-					// TODO : validate that the remote node is not dirty from another process that updated it (web page)
+					final boolean isViewNode = rn.getAddress()
+							.equalsIgnoreCase(getRemoteNode().getAddress());
+					final LinkedHashSet<RemoteNode> rns = new LinkedHashSet<>(
+							getActor().getHost().getRemoteNodes().size());
 					for (final RemoteNode rni : getActor().getHost().getRemoteNodes()) {
-						
+						if (rn.getAddress().equalsIgnoreCase(rni.getAddress())) {
+							// only include the node when it hasn't been removed
+							if (event.getNewValue() != null) {
+								rns.add(rn);
+							}
+						} else {
+							rns.add(rni);
+						}
 					}
+					getActor().getHost().setRemoteNodes(rns);
+					getActorPA().setBean(getActor());
+					if (isViewNode && event.getNewValue() == null) {
+						// node removed- show another node
+						getRemoteNodePA().setBean(
+								getActor().getHost().getRemoteNodes()
+										.iterator().next());
+					} else if (isViewNode) {
+						// update performed- refresh node
+						getRemoteNodePA().setBean(rn);
+					}
+					setHelpText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL, rn.getAddress()));
+					// synchronize the remote node with the remote device
 					if (!rn.isDeviceSynchronized() && rn.getDeviceAutoSynchronize() == 1) {
-						// automatically send the changes to the remote node
-						// (consume event so no other notifications for the
-						// event will be processed)
-						event.setConsumed(true);
+						// automatically send the changes to the remote node device
 						createCommandService(Command.SENSOR_SET_SETTINGS, true);
-					} else if (!rn.isDeviceSynchronized() && 
-							rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
+					} else if (!rn.isDeviceSynchronized() && isViewNode) {
 						validateRemoteNodeSynchronization();
 					}
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
