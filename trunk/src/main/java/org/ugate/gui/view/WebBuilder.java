@@ -169,9 +169,9 @@ public class WebBuilder extends BorderPane {
 	}
 
 	protected String getContent(final boolean justBodyContent) {
-		String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX,
+		String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, null,
 				cb.getRemoteNode(), RemoteNodeType.values());
-		content = RS.getEscapedContent(content, cb.getActor(),
+		content = RS.getEscapedContent(content, null, cb.getActor(),
 				ActorType.values());
 		if (justBodyContent) {
 			content = RS.getHtmlBodyContent(content);

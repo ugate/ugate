@@ -36,6 +36,12 @@ public class DefaultAppServlet extends DefaultServlet {
 	
 	protected void process(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		try {
+			if (request.getRequestURI().indexOf(".jsp") > -1) {
+				request.getRequestDispatcher(RS.path("test.jsp")).forward(request, response);
+			}
+			if (request.getRequestURI().indexOf(".html") <= -1) {
+				response.sendError(404);
+			}
 			Actor actor = null;
 			String username = null;
 			if (request.getRemoteUser() != null && !request.getRemoteUser().toString().isEmpty()) {
@@ -54,7 +60,7 @@ public class DefaultAppServlet extends DefaultServlet {
 				// TODO : show list of actors to choose from
 			}
 			String feedbackMessage = request.getRemoteUser();
-			String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, actor, ActorType.values());
+			String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, null, actor, ActorType.values());
 			// capture remote node
 			final String remoteNodeId = request.getParameter(RA_REMOTENODE);
 			RemoteNode remoteNode = null;
@@ -64,7 +70,7 @@ public class DefaultAppServlet extends DefaultServlet {
 				if (remoteNodeId != null && !remoteNodeId.isEmpty() && rn.getId() == Integer.parseInt(remoteNodeId)) {
 					// remote node values
 					remoteNode = rn;
-					content = RS.getEscapedContent(content, remoteNode, RemoteNodeType.values());
+					content = RS.getEscapedContent(content, null, remoteNode, RemoteNodeType.values());
 					rni = "<li><a href=\"/node/select\" data-transition=\"flip\">" + rn.getAddress() + " (select to change)</a></li>";
 				}
 				// remote node selection
@@ -85,7 +91,7 @@ public class DefaultAppServlet extends DefaultServlet {
 					String.valueOf(remoteNode.getId()) : "");
 			content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_FEEDBACK_MSG + WebServer.CTRL_CHAR, feedbackMessage);
 			content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_JS_INCLUDE + WebServer.CTRL_CHAR, 
-					RS.getEscapedResource(RS.WEB_JS_INCLUDE, null));
+					RS.getEscapedResource(RS.WEB_JS_INCLUDE));
 			// print results
 			response.getWriter().print(content);
 	        response.setStatus(HttpServletResponse.SC_OK);

@@ -49,10 +49,10 @@ public class GlobalFilter implements Filter {
 					errorHtml = "<h2 style=\"color: red\">Authentication Failed</h2>";
 				}
 				// write login page
-				String content = RS.getEscapedResource(RS.WEB_PAGE_LOGIN, null);
+				String content = RS.getEscapedResource(RS.WEB_PAGE_LOGIN);
 				content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_FEEDBACK_MSG + WebServer.CTRL_CHAR, errorHtml);
 				content = content.replace(WebServer.CTRL_CHAR + WebServer.RP_JS_INCLUDE + WebServer.CTRL_CHAR, 
-						RS.getEscapedResource(RS.WEB_JS_INCLUDE, null));
+						RS.getEscapedResource(RS.WEB_JS_INCLUDE));
 				response.getWriter().print(content);
 //			} else if (request.getRequestURI().indexOf("j_security_check") > -1) {
 //				request.getRequestDispatcher("/").forward(request, response);

@@ -50,7 +50,29 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 	public UGateEvent(final S source, final Type type, final boolean fromRemote, final String... messages) {
 		this(source, type, fromRemote, null, null, null, null, messages);
 	}
-	
+
+	/**
+	 * Constructor
+	 * 
+	 * @param source
+	 *            the source of the event
+	 * @param type
+	 *            the {@linkplain Type} type
+	 * @param fromRemote
+	 *            true when the event is initialized from a remote source
+	 * @param oldValue
+	 *            the old value (null when event is for ALL nodes)
+	 * @param newValue
+	 *            the new value (null when event is for ALL nodes)
+	 * @param messages
+	 *            messages (if any)
+	 */
+	public UGateEvent(final S source, final Type type,
+			final boolean fromRemote, final V oldValue, final V newValue,
+			final String... messages) {
+		this(source, type, fromRemote, null, null, oldValue, newValue, messages);
+	}
+
 	/**
 	 * Constructor
 	 * 

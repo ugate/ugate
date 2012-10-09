@@ -21,6 +21,7 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -146,26 +147,77 @@ public class Host implements Model {
 	private LinkedHashSet<RemoteNode> remoteNodes;
 
 	/**
-	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
-	 * changes are committed
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PrePersist}
 	 */
 	@PrePersist
-	@PreUpdate
-	void notifyListenersPre() {
-		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
-				Type.HOST_COMMIT, false));
+	void notifyListenersPrePresist() {
+		notifyListeners(true, null, this);
 	}
 
 	/**
-	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} when any
-	 * changes are committed
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PostPersist}
 	 */
 	@PostPersist
+	void notifyListenersPostPersist() {
+		notifyListeners(false, null, this);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PreUpdate}
+	 */
+	@PreUpdate
+	void notifyListenersPreUpdate() {
+		notifyListeners(true, this, this);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PostUpdate}
+	 */
 	@PostUpdate
+	void notifyListenersPostUpdate() {
+		notifyListeners(false, this, this);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PreRemove}
+	 */
+	@PreRemove
+	void notifyListenersPreRemove() {
+		notifyListeners(true, this, null);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PostRemove}
+	 */
 	@PostRemove
-	void notifyListenersPost() {
+	void notifyListenersPostRemove() {
+		notifyListeners(false, this, null);
+	}
+
+	/**
+	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
+	 * {@linkplain PrePersist}, {@linkplain PostPersist}, {@linkplain PreUpdate}
+	 * , {@linkplain PostUpdate}, {@linkplain PreRemove}, and
+	 * {@linkplain PostRemove}
+	 * 
+	 * @param isPre
+	 *            true when prior to operation, false for after
+	 * @param oldValue
+	 *            the old {@linkplain Host}
+	 * @param newValue
+	 *            the new {@linkplain Host}
+	 */
+	private void notifyListeners(final boolean isPre, final Host oldValue,
+			final Host newValue) {
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
-				Type.HOST_COMMITTED, false));
+				isPre ? Type.HOST_COMMIT : Type.HOST_COMMITTED, false,
+				oldValue, newValue));
 	}
 
     public Host() {

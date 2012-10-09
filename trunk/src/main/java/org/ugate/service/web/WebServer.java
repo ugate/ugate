@@ -6,6 +6,9 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
+import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
+import org.apache.wicket.protocol.http.WicketFilter;
+import org.apache.wicket.protocol.http.WicketServlet;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
@@ -15,7 +18,10 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
@@ -30,6 +36,9 @@ import org.ugate.resources.RS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.web.ui.IndexPage;
+import org.ugate.service.web.ui.LoginPage;
+import org.ugate.service.web.ui.WicketApplication;
 
 /**
  * Embedded web {@linkplain Server}
@@ -175,15 +184,20 @@ public class WebServer {
 //		    context.setSessionHandler(sessionHandler);
 			
 			context.setContextPath("/");
-			context.addFilter(GlobalFilter.class, "/*", dispatchers);
-			context.addServlet(DefaultAppServlet.class, "/");
+			final FilterHolder fh = new FilterHolder(WicketFilter.class);
+			fh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, WicketApplication.class.getName());
+			fh.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, "/*");
+			context.addFilter(fh, "/*", dispatchers);
+			final ServletHolder sh = new ServletHolder(DefaultServlet.class);
+			sh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, WicketApplication.class.getName());
+			context.addServlet(sh, "/*");
 			
 			// Serve files from internal resource location
 //			final org.eclipse.jetty.webapp.WebAppContext context = new org.eclipse.jetty.webapp.WebAppContext();
 //		    final String webappDirInsideJar = this.getClass().getResource("webapp").toExternalForm();
 //		    context.setWar(webappDirInsideJar);
 
-			addAuthentication(context);
+			//addAuthentication(context);
 			server.setHandler(context);
 
 			// server.setDumpAfterStart(true);
@@ -244,7 +258,9 @@ public class WebServer {
 		cm.setConstraint(constraint);
 
 		final ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
-		final FormAuthenticator fa = new FormAuthenticator(RS.WEB_PAGE_LOGIN, RS.WEB_PAGE_LOGIN_ERROR, true);
+		final FormAuthenticator fa = new FormAuthenticator('/'
+				+ LoginPage.class.getSimpleName() + ".html", '/'
+				+ LoginPage.class.getSimpleName() + ".html", true);
 		sh.setAuthenticator(fa);
 //		sh.setAuthenticator(new DigestAuthenticator());
 		sh.setConstraintMappings(Arrays.asList(new ConstraintMapping[] { cm }));
