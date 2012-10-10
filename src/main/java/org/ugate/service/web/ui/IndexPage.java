@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.list.Loop;
@@ -13,10 +14,12 @@ import org.apache.wicket.markup.html.list.LoopItem;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
 
 /**
  * Landing {@linkplain BasePage}
@@ -33,7 +36,6 @@ public class IndexPage extends BasePage {
 	 */
 	public IndexPage(final PageParameters parameters) {
 		super(parameters);
-		setVersioned(false);
 		final Actor actor = findActor(parameters);
 		add(new Label("deviceAddy", "Device Address"));
 		final RemoteNode rn = getRemoteNode(actor, parameters.get("remoteNodeId").toString());
@@ -70,40 +72,65 @@ public class IndexPage extends BasePage {
         add(loop);
         if (rn != null) {
         	final Fragment frag = new Fragment("detail", "rnDetail", null);
-        	addFormValues(frag, rn);
+        	addFormValues(parameters, frag, rn);
         	add(frag);
         } else {
         	add(new Fragment("detail", "rnNoDetail", null));
         }
 	}
 
-	private void addFormValues(final Fragment frag, final RemoteNode rn) {
+	private void addFormValues(final PageParameters parameters, final Fragment frag, final RemoteNode rn) {
+		final RemoteNodeReading rnr = getLastRemoteNodeReading(rn);
 		final Map<Integer, String> camRes = new HashMap<Integer, String>(2);
 		camRes.put(0, "QVGA");
 		camRes.put(1, "VGA");
 		final Map<Integer, String> onOff = new HashMap<Integer, String>(2);
 		onOff.put(0, "Off");
 		onOff.put(1, "On");
-		final StatelessForm<Void> cmdForm = new StatelessForm<Void>("rnCommandForm") {
+		final Map<Integer, String> openClose = new HashMap<Integer, String>(2);
+		openClose.put(0, "Close");
+		openClose.put(1, "Open");
+		final HiddenField<String> cmd = new HiddenField<>("command", new Model<String>());
+		final StatelessForm<String> cmdForm = new StatelessForm<String>("rnCommandForm") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit() {
-				// TODO Auto-generated method stub
 				super.onSubmit();
+				final String cmdStr = cmd.getModelObject();
+				try {
+					final Command command = cmdStr != null ? Command.valueOf(cmdStr) : null;
+					if (command != null) {
+						ServiceProvider.IMPL.getWirelessService().sendData(rn,
+								command, true);
+					}
+				} catch (final Throwable t) {
+					internalError(new RuntimeException(String.format(
+							"Unable to execute command %1$s, ERROR: %2$s ",
+							cmdStr, t.getMessage())));
+				}
 			}
 		};
-		cmdForm.add(new Label("actionsCommands", "Actions/Commands"));
-//		addSelect(cmdForm, RemoteNodeType.GATE_ACCESS_ON, rn, "Gate State (open/close):", onOff);
+		cmdForm.add(cmd);
 		frag.add(cmdForm);
-		final StatelessForm<RemoteNode> sForm = new StatelessForm<RemoteNode>("rnSettingsForm", new Model<RemoteNode>(rn)) {
+		frag.add(new Label("actionsCommands", "Actions/Commands"));
+		addSelect(frag, Command.GATE_TOGGLE_OPEN_CLOSE, rnr != null ? rnr.getGateState() : 0, 
+				"Gate State:", openClose);
+		final StatelessForm<RemoteNode> sForm = new StatelessForm<RemoteNode>(
+				"rnSettingsForm", new Model<RemoteNode>(rn)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit() {
 				super.onSubmit();
-				ServiceProvider.IMPL.getRemoteNodeService().merge(
-						getModel().getObject());
+				try {
+					ServiceProvider.IMPL.getRemoteNodeService().merge(
+							getModel().getObject());
+				} catch (final Throwable t) {
+					internalError(new RuntimeException(String.format(
+							"Unable to save settings, ERROR: %1$s ",
+							t.getMessage())));
+				}
 			}
 		};
 		sForm.add(new Label("generalSettings", "General Settings"));
@@ -146,6 +173,22 @@ public class IndexPage extends BasePage {
 		sForm.add(new Label("microwave2", "Micorwave"));
 		addRange(sForm, RemoteNodeType.MW_ANGLE_PAN, rn, 0, 181, "Microwave Pan Angle:");
 		frag.add(sForm);
+	}
+
+	/**
+	 * Gets the last {@linkplain RemoteNodeReading}
+	 * 
+	 * @param rn
+	 *            the {@linkplain RemoteNode}
+	 * @return the {@linkplain RemoteNodeReading} or null when none exists
+	 */
+	private RemoteNodeReading getLastRemoteNodeReading(final RemoteNode rn) {
+		final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
+				.getRemoteNodeService().findReadingsById(rn, 0, 1);
+		if (rnrs != null && !rnrs.isEmpty()) {
+			return rnrs.get(0);
+		}
+		return null;
 	}
 
 	/**

@@ -217,12 +217,17 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode} to send the data to
 	 * @param command
 	 *            the executing {@linkplain Command}
+	 * @param throwRuntimeException
+	 *            true to throw any {@linkplain Throwable} as a
+	 *            {@linkplain RuntimeException}
 	 * @param data
 	 *            the data string to send
 	 * @return true when successful
 	 */
-	public boolean sendData(final RemoteNode remoteNode, final Command command, final String data) {
-		return sendData(remoteNode, command, ByteUtils.stringToIntArray(data));
+	public boolean sendData(final RemoteNode remoteNode, final Command command,
+			final boolean throwRuntimeException, final String data) {
+		return sendData(remoteNode, command, throwRuntimeException,
+				ByteUtils.stringToIntArray(data));
 	}
 	
 	/**
@@ -233,16 +238,20 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode} to send the data to
 	 * @param command
 	 *            the executing {@linkplain Command}
+	 * @param throwRuntimeException
+	 *            true to throw any {@linkplain Throwable} as a
+	 *            {@linkplain RuntimeException}
 	 * @param data
 	 *            the data string to send
 	 * @return true when successful
 	 */
-	public boolean sendData(final RemoteNode remoteNode, final Command command, final List<Integer> data) {
+	public boolean sendData(final RemoteNode remoteNode, final Command command,
+			final boolean throwRuntimeException, final List<Integer> data) {
 		int[] dataInts = new int[data.size()];
-		for(int i=0; i<data.size(); i++) {
+		for (int i = 0; i < data.size(); i++) {
 			dataInts[i] = data.get(i);
 		}
-		return sendData(remoteNode, command, dataInts);
+		return sendData(remoteNode, command, throwRuntimeException, dataInts);
 	}
 	
 	/**
@@ -252,15 +261,18 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode} to send the data to
 	 * @param command
 	 *            the executing {@linkplain Command}
+	 * @param throwRuntimeException
+	 *            true to throw any {@linkplain Throwable} as a
+	 *            {@linkplain RuntimeException}
 	 * @param data
 	 *            the data to send
 	 * @return true when successful
 	 */
 	public boolean sendData(final RemoteNode remoteNode, final Command command,
-			final int... data) {
+			final boolean throwRuntimeException, final int... data) {
 		return sendData(new UGateEvent<RemoteNode, int[]>(remoteNode,
-				UGateEvent.Type.INITIALIZE, false, null, command, null,
-				data));
+				UGateEvent.Type.INITIALIZE, false, null, command, null, data),
+				throwRuntimeException);
 	}
 	
 	/**
@@ -271,9 +283,12 @@ public class WirelessService {
 	 *            send {@linkplain UGateEvent#getNewValue()}, the
 	 *            {@linkplain UGateEvent#getCommand()}, and
 	 *            {@linkplain UGateEvent#getSource()} to send the data to
+	 * @param throwRuntimeException
+	 *            true to throw any {@linkplain Throwable} as a
+	 *            {@linkplain RuntimeException}
 	 * @return true when successful
 	 */
-	private boolean sendData(final UGateEvent<RemoteNode, int[]> event) {
+	private boolean sendData(final UGateEvent<RemoteNode, int[]> event, final boolean throwRuntimeException) {
 		if (event.getSource() == null) {
 			throw new NullPointerException("No wireless node addresses to send data to");
 		}
@@ -305,18 +320,30 @@ public class WirelessService {
 				// packet was not delivered
 				failureCount++;
 				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_FAILED, bytes, event.getSource().getAddress(), response.getStatus());
-				log.error(message);
+				if (throwRuntimeException) {
+					throw new RuntimeException(message);
+				} else {
+					log.error(message);
+				}
 				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_ACK_FAILED, i, message));
 			}
 		} catch (XBeeTimeoutException e) {
 			failureCount++;
 			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_TIMEOUT, event.getSource().getAddress());
-			log.error(message, e);
+			if (throwRuntimeException) {
+				throw new RuntimeException(message, e);
+			} else {
+				log.error(message, e);
+			}
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
 		} catch (final Throwable t) {
 			failureCount++;
 			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_FAILED, event.getSource().getAddress());
-			log.error(message, t);
+			if (throwRuntimeException) {
+				throw new RuntimeException(message, t);
+			} else {
+				log.error(message, t);
+			}
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
 		}
 		if (failureCount <= 0) {
@@ -400,9 +427,15 @@ public class WirelessService {
 	/**
 	 * Synchronizes the locally hosted settings with the remote wireless node(s)
 	 * 
+	 * @param throwRuntimeException
+	 *            true to throw any {@linkplain Throwable} as a
+	 *            {@linkplain RuntimeException}
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode}(s) to send the settings to
 	 * @return true when all node(s) have been updated successfully
 	 */
-	public boolean sendSettings(final RemoteNode... remoteNode) {
+	public boolean sendSettings(final boolean throwRuntimeException,
+			final RemoteNode... remoteNode) {
 		boolean allSuccess = false;
 		if (!isConnected()) {
 			return allSuccess;
@@ -416,13 +449,19 @@ public class WirelessService {
 						rn, UGateEvent.Type.INITIALIZE,
 						false, null, Command.SENSOR_SET_SETTINGS, null,
 						sendData);
-				if (sendData(event)) {
+				if (sendData(event, throwRuntimeException)) {
 					log.info(String.format("Settings sent to %1$s", rn.getAddress()));
 					allSuccess = true;
 				}
 			}
 		} catch (final Throwable t) {
-			log.error("Error while sending settings", t);
+			if (throwRuntimeException && t instanceof RuntimeException) {
+				throw (RuntimeException) t;
+			} else if (throwRuntimeException) {
+				throw new RuntimeException("Error while sending settings", t);
+			} else {
+				log.error("Error while sending settings", t);
+			}
 		}
 		return allSuccess;
 	}

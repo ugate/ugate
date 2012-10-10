@@ -184,7 +184,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 						rxTxAttempts++;
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED_RETRYING, command, ic, 
 								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxAttempts, retries));
-						ServiceProvider.IMPL.getWirelessService().sendData(rn, command);
+						ServiceProvider.IMPL.getWirelessService().sendData(rn, command, false);
 					} else {
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
 								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxAttempts));
@@ -241,6 +241,8 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					rxResponse.getRssi(), sd);
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, dto, 
 					RS.rbLabel(KEYS.SERVICE_RX_SETTINGS, dto));
+		} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
+			
 		} else {
 			log.error("Unrecognized command: " + command);
 		}
