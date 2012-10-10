@@ -9,6 +9,8 @@ import org.apache.wicket.protocol.http.WebApplication;
  */
 public class WicketApplication extends WebApplication {
 
+	public static final String SA_LAST_ERROR_MSG = "lastErrorMessage";
+
 	/**
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
@@ -24,6 +26,8 @@ public class WicketApplication extends WebApplication {
 	public void init() {
 		super.init();
 		getMarkupSettings().setStripWicketTags(true);
+		getPageSettings().setVersionPagesByDefault(false);
+		getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
         setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
 //        getRootRequestMapperAsCompound().add(
 //			new MountMapper("/", new PackageMapper(

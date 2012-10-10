@@ -8,7 +8,7 @@
 			<div class="ui-body ui-body-d">
 				<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" data-inset="true" data-role="listview">
 					<li wicket:id="remoteNodesLI" >
-						<a wicket:id="remoteNodeItem" href="IndexPage.html" data-transition="flip">
+						<a wicket:id="remoteNodeItem" href="/" data-transition="flip">
 							<span wicket:id="remoteNodeItemLabel"></span>
 						</a>
 					</li>
@@ -17,25 +17,25 @@
 			<div id="rnDetail" wicket:id="detail" />
 			<wicket:fragment wicket:id="rnDetail">
 				<form id="rnCommandForm" wicket:id="rnCommandForm" action="/" method="post" data-theme="c" data-transition="flip">
-<!-- 					<div data-role="collapsible-set" data-transition="pop"> -->
-<!-- 						<div data-role="collapsible" data-theme="b" data-content-theme="c"> -->
-<!-- 							<h3 wicket:id="actionsCommands">Label Goes Here</h3> -->
-<!-- 							<div data-role="fieldcontain"> -->
-<!-- 								<label wicket:id="GATE_TOGGLE_OPEN_CLOSE_LABEL" for="GATE_TOGGLE_OPEN_CLOSE">Label Goes Here</label> -->
-<!-- 								<select wicket:id="GATE_TOGGLE_OPEN_CLOSE" name="GATE_TOGGLE_OPEN_CLOSE" id="GATE_TOGGLE_OPEN_CLOSE" data-role="slider" -->
-<!-- 									onchange="window.location.h"> -->
-<!-- 									<option value="0">Close</option> -->
-<!-- 									<option value="1">Open</option> -->
-<!-- 								</select> -->
-<!-- 							</div> -->
+					<input wicket:id="command" id="command" type="hidden" value="" />
+				</form>
+				<div data-role="collapsible-set" data-transition="pop">
+					<div data-role="collapsible" data-theme="b" data-content-theme="c">
+						<h3 wicket:id="actionsCommands">Label Goes Here</h3>
+						<div data-role="fieldcontain">
+							<label wicket:id="GATE_TOGGLE_OPEN_CLOSE_LABEL" for="GATE_TOGGLE_OPEN_CLOSE">Label Goes Here</label>
+							<select wicket:id="GATE_TOGGLE_OPEN_CLOSE" name="GATE_TOGGLE_OPEN_CLOSE" id="GATE_TOGGLE_OPEN_CLOSE" 
+								data-role="slider" onchange="$('#command').val('GATE_TOGGLE_OPEN_CLOSE');$('#rnCommandForm').submit();">
+								<option value="0">Label Goes Here</option>
+							</select>
+						</div>
 <!-- 							<div data-role="fieldcontain"> -->
 <!-- 								<a wicket:id="SERVO_LASER_CALIBRATE" href="/" data-transition="flip"> -->
 <!-- 									<span wicket:id="SERVO_LASER_CALIBRATE_LABEL">Label Goes Here</span> -->
 <!-- 								</a> -->
 <!-- 							</div> -->
-<!-- 						</div> -->
-<!-- 					</div> -->
-				</form>
+					</div>
+				</div>
 				<form id="settingsForm" wicket:id="rnSettingsForm" action="/" method="post" data-theme="c" data-transition="flip">
 					<div data-role="collapsible-set">
 						<div data-role="collapsible" data-theme="b" data-content-theme="c">
