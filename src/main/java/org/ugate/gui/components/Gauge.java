@@ -84,7 +84,7 @@ public class Gauge extends Parent {
 	public final double minorTickMarkHeight;
 	public final double tickValueScale;
 	public final double tickValueZeroOffset;
-	public final DecimalFormat tickValueFormat;
+	public final String tickValueFormat;
 	public final double indicatorWidth;
 	public final double indicatorHeight;
 	public final double indicatorPointDistance;
@@ -120,26 +120,37 @@ public class Gauge extends Parent {
 	public final BooleanProperty snapToTicksProperty;
 	
 	public Gauge() {
-		this(null, 0, 0, 0);
+		this(null, 0, 0, null, 0);
 	}
-	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
+
+	public Gauge(final IndicatorType indicatorType, final double sizeScale,
+			final double tickValueScale, final String tickValueFormat,
 			final int tickValueZeroOffset) {
-		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, 0, 0, -1, -1);
+		this(indicatorType, sizeScale, tickValueScale, tickValueFormat,
+				tickValueZeroOffset, 0, 0, -1, -1);
 	}
-	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
-			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
+
+	public Gauge(final IndicatorType indicatorType, final double sizeScale,
+			final double tickValueScale, final String tickValueFormat,
+			final int tickValueZeroOffset, final double startAngle,
+			final double angleLength, final int numberOfMajorTickMarks,
 			final int numberOfMinorTickMarksPerMajorTick) {
-		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numberOfMinorTickMarksPerMajorTick, -1, 0, null, null);
+		this(indicatorType, sizeScale, tickValueScale, tickValueFormat,
+				tickValueZeroOffset, startAngle, angleLength,
+				numberOfMajorTickMarks, numberOfMinorTickMarksPerMajorTick, -1,
+				0, null, null);
 	}
-	
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale,
-			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks,
-			final int numberOfMinorTickMarksPerMajorTick, final Font tickValueFont) {
-		this(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, angleLength, numberOfMajorTickMarks, 
-				numberOfMinorTickMarksPerMajorTick, -1, 0, null, tickValueFont);
+
+	public Gauge(final IndicatorType indicatorType, final double sizeScale,
+			final double tickValueScale, final String tickValueFormat,
+			final int tickValueZeroOffset, final double startAngle,
+			final double angleLength, final int numberOfMajorTickMarks,
+			final int numberOfMinorTickMarksPerMajorTick,
+			final Font tickValueFont) {
+		this(indicatorType, sizeScale, tickValueScale, tickValueFormat,
+				tickValueZeroOffset, startAngle, angleLength,
+				numberOfMajorTickMarks, numberOfMinorTickMarksPerMajorTick, -1,
+				0, null, tickValueFont);
 	}
 	
 	/**
@@ -148,6 +159,7 @@ public class Gauge extends Parent {
 	 * @param indicatorType the indicator/hand type
 	 * @param sizeScale the size scale factor that will be used to size the control without quality degradation
 	 * @param tickValueScale the tick value scale that will be used as a multiplier when converting the angle to a tick mark value
+	 * @param tickValueFormat the tick value format that will be used to display the value
 	 * @param tickValueZeroOffset the number of major tick marks that will appear before the zero tick 
 	 * @param startAngle the starting arc angle of the gauge
 	 * @param angleLength the angle length of the gauge
@@ -162,7 +174,7 @@ public class Gauge extends Parent {
 	 * 		medium, or intense.
 	 * @param tickValueFont the font used for the tick value display and tick mark labels
 	 */
-	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, 
+	public Gauge(final IndicatorType indicatorType, final double sizeScale, final double tickValueScale, final String tickValueFormat, 
 			final int tickValueZeroOffset, final double startAngle, final double angleLength, final int numberOfMajorTickMarks, 
 			final int numberOfMinorTickMarksPerMajorTick, final int dialNumberOfSides, 
 			final double dialCenterOuterRadius, final IntensityIndicatorRegions intensityRegions, 
@@ -185,7 +197,7 @@ public class Gauge extends Parent {
 		this.minorTickMarkHeight = this.majorTickMarkHeight;
 		this.tickValueScale = tickValueScale == 0 ? 1d : tickValueScale;
 		this.tickValueZeroOffset = tickValueZeroOffset;
-		this.tickValueFormat = createTickValueFormat();
+		this.tickValueFormat = tickValueFormat;
 		this.indicatorWidth = this.outerRadius / 1.1d;
 		this.indicatorHeight = (this.indicatorType == IndicatorType.KNOB ? 30d : 24d) * this.sizeScale;
 		this.indicatorPointDistance = 12d * this.sizeScale;
@@ -214,7 +226,7 @@ public class Gauge extends Parent {
 		this.tickValueProperty = new SimpleDoubleProperty() {
 			@Override
 			public final void set(final double v) {
-				double ntv = Double.parseDouble(tickValueFormat.format(v));
+				double ntv = tickValueFormat != null ? Double.parseDouble(getFormatedTickValue(v, false)) : v;
 				ntv = snapToTicksProperty.get() ? closestTickMarkValue(ntv) : ntv;
 				super.set(ntv);
 				final double nav = getViewingAngle(ntv);
@@ -323,7 +335,7 @@ public class Gauge extends Parent {
 			final ObjectProperty<Paint> backgroundFillProperty, 
 			final ObjectProperty<Paint> textFillProperty) {
 		final StackPane valContainer = new StackPane();
-		final Text val = new Text(getTickValueLabel());
+		final Text val = new Text(getTickValueLabel(false));
 		val.setFont(tickValueFont);
 		final DropShadow outerGlow = new DropShadow();
 		outerGlow.setOffsetX(0);
@@ -337,7 +349,7 @@ public class Gauge extends Parent {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, 
 					Number oldValue, Number newValue) {
-				val.setText(getTickValueLabel());//newValue.doubleValue()));
+				val.setText(getTickValueLabel(false));//newValue.doubleValue()));
 			}
 		});
 		final double rimThickness = outerRadius - innerRadius;
@@ -753,7 +765,7 @@ public class Gauge extends Parent {
 			tickGroup.getChildren().add(tick);
 			if (addMajorTickLabel && (i != numOfMajorTickMarks || !isCircular())) {
 				// TODO : adjust position to accommodate for number of digits in guage label
-				label = getTickValueLabel(angle); // 180d - ((angleLength / numOfMarks) * index) - angleStart
+				label = getTickValueLabel(angle, true); // 180d - ((angleLength / numOfMarks) * index) - angleStart
 				labelAngle = positiveAngle(angle - (majorTickMarkHeight / 2d) - 180d);
 				labelRadius = indicatorType == IndicatorType.KNOB ? outerRadius : 
 					innerRadius - majorTickMarkWidth * 2d;
@@ -1403,25 +1415,57 @@ public class Gauge extends Parent {
     	tickValueProperty.set(tickValue);
     }
     
-    /**
-     * Gets the tick value {@linkplain #getTickValue(double)} for the supplied angle formated for display
-     * 
-     * @param viewingAngle the angle to get the tick value for
-     * @return the formated tick value
-     */
-    public String getTickValueLabel(final double viewingAngle) {
+	/**
+	 * Gets the tick value {@linkplain #getTickValue(double)} for the supplied
+	 * angle formated for display
+	 * 
+	 * @param viewingAngle
+	 *            the angle to get the tick value for
+	 * @param truncateWholeNumbers
+	 *            true to truncate tick value when dealing with whole numbers
+	 * @return the formated tick value
+	 */
+    public String getTickValueLabel(final double viewingAngle, final boolean truncateWholeNumbers) {
     	double tickValue = getTickValue(viewingAngle);
-    	return tickValueFormat.format(tickValue);
+    	return getFormatedTickValue(tickValue, truncateWholeNumbers);
+    }
+
+	/**
+	 * Gets a formated {@linkplain #getTickValue(double)} using the
+	 * {@linkplain #tickValueFormat} (when null no formatting will take place)
+	 * 
+	 * @param tickValue
+	 *            the tick value to format
+	 * @param truncateWholeNumbers
+	 *            true to truncate tick value when dealing with whole numbers
+	 * @return the formatted tick value
+	 */
+    public String getFormatedTickValue(final Number tickValue, final boolean truncateWholeNumbers) {
+    	if (tickValueFormat != null) {
+    		if (tickValueFormat.indexOf("d") > -1) {
+    			return String.format(tickValueFormat, tickValue.intValue());
+    		} else {
+    			final String fv = String.format(tickValueFormat, tickValue.floatValue());
+    			if (tickValue.floatValue() % 1 == 0) {
+    			    return String.valueOf(tickValue.intValue());
+    			}
+    			return fv;
+    		}
+    	}
+    	return String.valueOf(tickValue);
     }
     
-    /**
-     * Gets the current tick value {@linkplain #getTickValue()} formated for display
-     * 
-     * @return the formated tick value
-     */
-    public String getTickValueLabel() {
-    	return getTickValueLabel(angleProperty.get());
-    }
+	/**
+	 * Gets the current tick value {@linkplain #getTickValue()} formated for
+	 * display
+	 * 
+	 * @param truncateWholeNumbers
+	 *            true to truncate tick value when dealing with whole numbers
+	 * @return the formated tick value
+	 */
+	public String getTickValueLabel(final boolean truncateWholeNumbers) {
+		return getTickValueLabel(angleProperty.get(), truncateWholeNumbers);
+	}
     
     /**
      * @return a tick value format that will be used for tick value labels

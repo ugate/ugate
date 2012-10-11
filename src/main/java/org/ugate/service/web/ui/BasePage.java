@@ -98,6 +98,7 @@ public abstract class BasePage extends WebPage {
 						return options.get(value);
 					}
 				});
+		ddc.setOutputMarkupId(true);
 		parent.add(new Label(command.name() + LABEL_POSTFIX, label));
 		parent.add(ddc);
 		return ddc;
@@ -144,6 +145,7 @@ public abstract class BasePage extends WebPage {
 						return options.get(value);
 					}
 				});
+		ddc.setOutputMarkupId(true);
 		parent.add(new Label(type.name() + LABEL_POSTFIX, label));
 		parent.add(ddc);
 		return ddc;
@@ -184,6 +186,7 @@ public abstract class BasePage extends WebPage {
 		if (maximum != null) {
 			tf.setMaximum(maximum);
 		}
+		tf.setOutputMarkupId(true);
 		parent.add(new Label(type.name() + LABEL_POSTFIX, label));
 		parent.add(tf);
 		return tf;
