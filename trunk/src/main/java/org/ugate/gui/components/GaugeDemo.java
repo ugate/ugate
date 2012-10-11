@@ -28,7 +28,7 @@ public class GaugeDemo extends Application {
 		
 		ToolBar root = new ToolBar();
 		root.setOrientation(Orientation.VERTICAL);
-		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 1d, 0.5d, 0, 0d, 180d, 10, 4);
+		final Gauge gauge = new Gauge(IndicatorType.NEEDLE, 1d, 0.5d, "%04.2f", 0, 0d, 180d, 10, 4);
 		//gauge.setTickValue(1d);
 		//gauge.intensityIndicatorRegionsProperty.setValue(new Gauge.IntensityIndicatorRegions(10d, 80d, 10d));
 		//gauge.snapToTicksProperty.set(true);
@@ -47,13 +47,13 @@ public class GaugeDemo extends Application {
 		final VBox col1 = new VBox();
 		col1.getChildren().addAll(gauge, gaugeIntensitySliders);
 		
-		final Gauge gauge2 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, -2, 45d, 90d, 5, 0);
+		final Gauge gauge2 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, null, -2, 45d, 90d, 5, 0);
 		gauge2.setTickValue(0);
-		final Gauge gauge4 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 2, 135d, 90d, 9, 4);
+		final Gauge gauge4 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, "%03d", 2, 135d, 90d, 9, 4);
 		final VBox col2 = new VBox();
 		col2.getChildren().addAll(gauge2, gauge4);
 
-		final Gauge gauge5 = new Gauge(IndicatorType.KNOB, 1d, 1d, 0, 0d, 360d, 20, 0);
+		final Gauge gauge5 = new Gauge(IndicatorType.KNOB, 1d, 1d, "%04.2f", 0, 0d, 360d, 20, 0);
 		gauge5.setTickValue(11.5d);
 		final VBox col3 = new VBox();
 		col3.getChildren().addAll(gauge5);
@@ -62,8 +62,8 @@ public class GaugeDemo extends Application {
 		row1.getChildren().addAll(col1, col2, col3);
 		
 		final HBox row2 = new HBox();
-		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, 0, 0d, 360d, 20, 1);
-		final Gauge gauge6 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, 0, 250d, 310d, 10, 0);
+		final Gauge gauge3 = new Gauge(IndicatorType.NEEDLE, 0.5d, 0.5d, "%04.2f", 0, 0d, 360d, 20, 1);
+		final Gauge gauge6 = new Gauge(IndicatorType.NEEDLE, 0.5d, 1d, "%04.2f", 0, 250d, 310d, 10, 0);
 		row2.getChildren().addAll(gauge3, gauge6);
 		
 		root.getItems().addAll(row1, row2);
@@ -72,7 +72,7 @@ public class GaugeDemo extends Application {
 	}
 	
 	private Gauge createRegionKnob(final Color color, final double percentValue) {
-		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, 0, 0d, 180d, 11, 4, -1, 0, null, 
+		final Gauge gaugeRegion = new Gauge(IndicatorType.KNOB, 0.3d, 10d, "%04.2f", 0, 0d, 180d, 11, 4, -1, 0, null, 
 				Font.font("Verdina", 7d));
 		gaugeRegion.indicatorFillProperty.set(color);
 		gaugeRegion.tickMarkLabelFillProperty.set(Color.TRANSPARENT);

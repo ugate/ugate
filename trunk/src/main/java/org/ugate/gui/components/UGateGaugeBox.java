@@ -375,7 +375,7 @@ public class UGateGaugeBox<T extends Model> extends VBox {
 		//setPadding(new Insets(20d, 10d, 20d, 10d));
 		
 		// create the gauge
-		gauge = new Gauge(indicatorType, sizeScale, tickValueScale, tickValueZeroOffset, startAngle, 
+		gauge = new Gauge(indicatorType, sizeScale, tickValueScale, format, tickValueZeroOffset, startAngle, 
 				angleLength, numberOfMajorTickMarks, numOfMinorTickMarksPerMajorTick, tickValueFont);
 		gauge.tickMarkLabelFillProperty.set(Color.TRANSPARENT);
 		if (indicatorType == IndicatorType.KNOB) {
@@ -443,10 +443,9 @@ public class UGateGaugeBox<T extends Model> extends VBox {
 		try {
 			isInternalUpdate = true;
 			final boolean useInt = format.indexOf("d") > -1;
-			final double val1 = (double) wholeNumProperty.get();
-			final double val2 = fractionProperty != null ? (double) fractionProperty
-					.get() : 0d;
-			final Double newVal = val1 + val2;
+			final int val1 = wholeNumProperty.get();
+			final int val2 = fractionProperty != null ? fractionProperty.get() : 0;
+			final Double newVal = Double.valueOf(val1 + "." + val2);
 			final String newValStr = useInt ? String.format(format,
 					newVal.intValue()) : String.format(format, newVal.floatValue());
 			if (gaugeDigits == null) {

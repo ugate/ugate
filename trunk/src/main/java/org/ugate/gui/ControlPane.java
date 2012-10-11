@@ -21,15 +21,15 @@ public abstract class ControlPane extends GridPane {
 	public static final String PRIORITY_FORMAT = "%01d";
 	public static final String FORMAT_DELAY = "%03d";
 	public static final String FORMAT_ANGLE = "%03d";
-	public static final String FORMAT_SONAR = "%04.1f";
+	public static final String FORMAT_SONAR = "%04.2f";
 	public static final String FORMAT_PIR = "%03d";
 	public static final String FORMAT_MW = "%03d";
-	public static final String FORMAT_LASER = "%04.1f";
+	public static final String FORMAT_LASER = "%04.2f";
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 40d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 	public static final double KNOB_SIZE_SCALE = 0.25d;
-	public static final double THRESHOLD_SIZE_SCALE = 0.85d;
+	public static final double THRESHOLD_SIZE_SCALE = 0.80d;
 	public static final double DELAY_SIZE_SCALE = 0.54d;
 	protected final ControlBar controlBar;
 	
