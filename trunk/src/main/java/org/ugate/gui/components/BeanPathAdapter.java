@@ -250,6 +250,28 @@ import javafx.util.StringConverter;
  * </pre>
  * 
  * </li>
+ * <li>
+ * <b>{@linkplain javafx.scene.control.TableView} binding:</b>
+ * 
+ * <pre>
+ * // Assuming &quot;name&quot;/&quot;description&quot; are a java.lang.String fields in Hobby
+ * // and &quot;hobbies&quot; is a List/Set/Map in Person
+ * final Person person = new Person();
+ * final BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * TableView&lt;Hobby&gt; table = new TableView&lt;&gt;();
+ * TableColumn&lt;Hobby, String&gt; nameCol = new TableColumn&lt;&gt;(&quot;Hobby Name&quot;);
+ * nameCol.setMinWidth(100);
+ * nameCol.setCellValueFactory(new PropertyValueFactory&lt;Hobby, String&gt;(&quot;name&quot;));
+ * TableColumn&lt;Hobby, String&gt; descCol = new TableColumn&lt;&gt;(&quot;Hobby Desc&quot;);
+ * descCol.setMinWidth(100);
+ * descCol.setCellValueFactory(new PropertyValueFactory&lt;Hobby, String&gt;(
+ * 		&quot;description&quot;));
+ * table.getColumns().addAll(nameCol, descCol);
+ * personPA.bindContentBidirectional(&quot;hobbies&quot;, null, String.class,
+ * 		table.getItems(), Hobby.class, null, null);
+ * </pre>
+ * 
+ * </li>
  * </ol>
  * 
  * @see #bindBidirectional(String, Property)
