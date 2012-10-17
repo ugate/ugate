@@ -16,6 +16,7 @@ import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
+import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
@@ -41,6 +42,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import javax.security.sasl.AuthenticationException;
@@ -56,12 +58,12 @@ import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.DisplayShelf;
 import org.ugate.gui.components.UGateDirectory;
 import org.ugate.gui.view.EmailHostConnection;
+import org.ugate.gui.view.HostConnection;
 import org.ugate.gui.view.RemoteNodes;
 import org.ugate.gui.view.SensorReadingHistory;
 import org.ugate.gui.view.WebBuilder;
-import org.ugate.gui.view.HostConnection;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
@@ -78,8 +80,8 @@ public class UGateGUI extends Application {
 
 	private static final Logger log = UGateUtil.getLogger(UGateGUI.class);
 
-	public static final double APPLICATION_WIDTH = 920d;
-	public static final double APPLICATION_HEIGHT = 800d;
+	public static final double APPLICATION_WIDTH = 1000d;
+	public static final double APPLICATION_HEIGHT = 825d;
 
 	private static final double TASKBAR_HEIGHT = 130d;
 	private static final double TASKBAR_BUTTON_WIDTH = 100d;
@@ -138,14 +140,14 @@ public class UGateGUI extends Application {
 			notifyPreloader(new ProgressNotification(0.3d));
 			if (!ServiceProvider.IMPL.init() && 
 					ServiceProvider.IMPL.getWirelessService().isRequiresRestart()) {
-				initErrorHeader = RS.rbLabel(KEYS.APP_TITLE_ACTION_REQUIRED);
-				addInitError(RS.rbLabel(KEYS.APP_SERVICE_COM_RESTART_REQUIRED));
+				initErrorHeader = RS.rbLabel(KEY.APP_TITLE_ACTION_REQUIRED);
+				addInitError(RS.rbLabel(KEY.APP_SERVICE_COM_RESTART_REQUIRED));
 			}
 			// Text.setFontSmoothingType(FontSmoothingType.LCD);
 		} catch (final Throwable t) {
 			log.error("Unable to start services", t);
 			try {
-				addInitError(RS.rbLabel(KEYS.APP_SERVICE_INIT_ERROR), t.getMessage());
+				addInitError(RS.rbLabel(KEY.APP_SERVICE_INIT_ERROR), t.getMessage());
 			} catch (final Throwable t2) {
 				log.error("Unable notify user that services failed to start", t2);
 			}
@@ -180,10 +182,10 @@ public class UGateGUI extends Application {
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
 				if (initErrorHeader == null) {
-					initErrorHeader = RS.rbLabel(KEYS.APP_TITLE_ERROR);
+					initErrorHeader = RS.rbLabel(KEY.APP_TITLE_ERROR);
 				}
-				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, initErrorHeader, 
-						KEYS.CLOSE, 550d, 300d, new Service<Void>() {
+				final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEY.APP_TITLE, initErrorHeader, 
+						KEY.CLOSE, 550d, 300d, new Service<Void>() {
 					@Override
 					protected Task<Void> createTask() {
 						return new Task<Void>() {
@@ -218,13 +220,17 @@ public class UGateGUI extends Application {
 	protected void mainStageStart(final Stage stage) {
 		notifyPreloader(new ProgressNotification(0.9d));
 		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
-		stage.setTitle(RS.rbLabel(KEYS.APP_TITLE));
+		stage.setTitle(RS.rbLabel(KEY.APP_TITLE));
 
 		controlBar = new ControlBar(stage, actorPA, remoteNodePA);
 		final BorderPane content = new BorderPane();
 		content.setId("main-content");
 		content.setEffect(new InnerShadow());
-		applicationFrame = new AppFrame(stage, content, APPLICATION_WIDTH, APPLICATION_HEIGHT, APPLICATION_WIDTH + 10d, APPLICATION_HEIGHT + 10d, false, new String[] { RS.path(RS.CSS_MAIN), RS.path(RS.CSS_DISPLAY_SHELF) }, controlBar.createTitleBarItems());
+		
+		final Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+		final double appWidth = Math.min(bounds.getWidth(), APPLICATION_WIDTH);
+		final double appHeight = Math.min(bounds.getHeight(), APPLICATION_HEIGHT);
+		applicationFrame = new AppFrame(stage, content, appWidth, appHeight, appWidth + 10d, appHeight + 10d, false, new String[] { RS.path(RS.CSS_MAIN), RS.path(RS.CSS_DISPLAY_SHELF) }, controlBar.createTitleBarItems());
 
 		taskbar.setId("taskbar");
 		taskbar.setCache(true);
@@ -252,32 +258,32 @@ public class UGateGUI extends Application {
 		sensorReadingHistoryView = new SensorReadingHistory(controlBar);
 		webSetupView = new WebBuilder(controlBar);
 
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEYS.APP_CONNECTION_DESC), 0, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_CONNECT, RS.rbLabel(KEY.APP_CONNECTION_DESC), 0, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(connectionView, 0);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel(KEYS.APP_CONTROLS_DESC), 1, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WIRELESS, RS.rbLabel(KEY.APP_CONTROLS_DESC), 1, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(controls, 1);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_PICS, RS.rbLabel(KEYS.APP_CAPTURE_DESC), 2, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_PICS, RS.rbLabel(KEY.APP_CAPTURE_DESC), 2, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(new DisplayShelf(new File(controlBar.getRemoteNode().getWorkingDir()), 350, 350, 0.25, 45, 80, 
-						DisplayShelf.TOOLBAR_POSITION_TOP, RS.rbLabel(KEYS.LABEL_DISPLAYSHELF_FULLSIZE_DESC)), 2);
+						DisplayShelf.TOOLBAR_POSITION_TOP, RS.rbLabel(KEY.LABEL_DISPLAYSHELF_FULLSIZE_DESC)), 2);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel(KEYS.LABEL_GRAPH_DESC), 3, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_GRAPH, RS.rbLabel(KEY.LABEL_GRAPH_DESC), 3, new Runnable() {
 			@Override
 			public void run() {
 				changeCenterView(sensorReadingHistoryView, 3);
 			}
 		}));
-		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WEB, RS.rbLabel(KEYS.APP_WEB_TOOL_DESC), 4, new Runnable() {
+		taskbar.getChildren().add(genTaskbarItem(RS.IMG_WEB, RS.rbLabel(KEY.APP_WEB_TOOL_DESC), 4, new Runnable() {
 			@Override
 			public void run() {
 				webSetupView.load();
@@ -294,7 +300,7 @@ public class UGateGUI extends Application {
 	 * @param stage the primary {@linkplain Stage}
 	 */
 	protected void afterStart(final Stage stage) {
-		final String appVersion = RS.rbLabel(KEYS.APP_VERSION);
+		final String appVersion = RS.rbLabel(KEY.APP_VERSION);
 		final AppInfo appInfo = ServiceProvider.IMPL.getCredentialService().addAppInfoIfNeeded(
 				appVersion);
 		if (appInfo.getDefaultActor() != null && appInfo.getDefaultActor().getId() > 0) {
@@ -314,27 +320,27 @@ public class UGateGUI extends Application {
 		final boolean isAuth = ServiceProvider.IMPL.getCredentialService().getActorCount() > 0;
 		String dialogHeader;
 		if (isAuth) {
-			dialogHeader = RS.rbLabel(KEYS.APP_DIALOG_AUTH);
+			dialogHeader = RS.rbLabel(KEY.APP_DIALOG_AUTH);
 			log.debug("Presenting authentication dialog prompt");
 		} else {
-			dialogHeader = RS.rbLabel(KEYS.APP_DIALOG_SETUP);
+			dialogHeader = RS.rbLabel(KEY.APP_DIALOG_SETUP);
 			log.info("Initializing post installation dialog prompt");
 		}
 		final UGateDirectory wirelessRemoteNodeDirBox = isAuth ? null : new UGateDirectory(stage);
 		if (!isAuth) {
-			wirelessRemoteNodeDirBox.getTextField().setPromptText(RS.rbLabel(KEYS.WIRELESS_WORKING_DIR));
+			wirelessRemoteNodeDirBox.getTextField().setPromptText(RS.rbLabel(KEY.WIRELESS_WORKING_DIR));
 		}
-		final TextField wirelessHostAddy = isAuth ? null : TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_HOST_ADDY)).build();
-		final TextField wirelessRemoteNodeAddy = isAuth ? null : TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY)).build();
+		final TextField wirelessHostAddy = isAuth ? null : TextFieldBuilder.create().promptText(RS.rbLabel(KEY.WIRELESS_HOST_ADDY)).build();
+		final TextField wirelessRemoteNodeAddy = isAuth ? null : TextFieldBuilder.create().promptText(RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_ADDY)).build();
 		//final FileChooser wirelessRemoteNodeDir = new FileChooser();
 		//wirelessRemoteNodeDir.setTitle(RS.rbLabel(KEYS.WIRELESS_WORKING_DIR));
-		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_USERNAME)).build();
-		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEYS.APP_DIALOG_PWD)).build();
+		final TextField username = TextFieldBuilder.create().promptText(RS.rbLabel(KEY.APP_DIALOG_USERNAME)).build();
+		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEY.APP_DIALOG_PWD)).build();
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
-				RS.rbLabel(KEYS.APP_DIALOG_PWD_VERIFY)).build();
-		final CheckBox autoActor = CheckBoxBuilder.create().text(RS.rbLabel(KEYS.APP_DIALOG_DEFAULT_USER)).build();
-		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
-		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEYS.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 400d, new Service<Void>() {
+				RS.rbLabel(KEY.APP_DIALOG_PWD_VERIFY)).build();
+		final CheckBox autoActor = CheckBoxBuilder.create().text(RS.rbLabel(KEY.APP_DIALOG_DEFAULT_USER)).build();
+		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEY.CLOSE)).build();
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEY.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 400d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
@@ -353,13 +359,13 @@ public class UGateGUI extends Application {
 									actor = ServiceProvider.IMPL.getCredentialService().authenticate(
 											username.getText(), password.getText());
 									if (actor == null) {
-										throw new AuthenticationException(RS.rbLabel(KEYS.APP_DIALOG_AUTH_ERROR, 
+										throw new AuthenticationException(RS.rbLabel(KEY.APP_DIALOG_AUTH_ERROR, 
 												username.getText()));
 									}
 								} else {
 									if (!password.getText().equals(passwordVerify.getText())) {
 										throw new InputMismatchException(RS.rbLabel(
-												KEYS.APP_DIALOG_SETUP_ERROR_PWD_MISMATCH));
+												KEY.APP_DIALOG_SETUP_ERROR_PWD_MISMATCH));
 									}
 									final Host host = ActorType.newDefaultHost();
 									host.setComAddress(wirelessHostAddy.getText());
@@ -396,7 +402,7 @@ public class UGateGUI extends Application {
 									errorMsg = t.getMessage();
 								} else {
 									errorMsg = RS.rbLabel(isAuth ? 
-											KEYS.APP_DIALOG_AUTH_ERROR : KEYS.APP_DIALOG_SETUP_ERROR, username.getText());
+											KEY.APP_DIALOG_AUTH_ERROR : KEY.APP_DIALOG_SETUP_ERROR, username.getText());
 									log.warn(errorMsg, t);
 								}
 								throw new RuntimeException(errorMsg, t);
@@ -408,7 +414,7 @@ public class UGateGUI extends Application {
 									(!hasUsername ? username.getPromptText() : "") + 
 									(!hasPassword ? password.getPromptText() : "") + 
 									(!hasPasswordVerify ? passwordVerify.getPromptText() : "");
-							throw new RuntimeException(RS.rbLabel(KEYS.APP_DIALOG_REQUIRED, invalidFields));
+							throw new RuntimeException(RS.rbLabel(KEY.APP_DIALOG_REQUIRED, invalidFields));
 						}
 						return null;
 					}

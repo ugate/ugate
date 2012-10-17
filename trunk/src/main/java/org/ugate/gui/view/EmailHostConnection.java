@@ -25,7 +25,7 @@ import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.MailRecipientType;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
@@ -60,69 +60,69 @@ public class EmailHostConnection extends VBox {
 				RS.imgView(RS.IMG_EMAIL_ICON), GuiUtil.COLOR_OFF);
 		smtpHost = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_SMTP_HOST, UGateCtrlBox.Type.TEXT,
-				RS.rbLabel(KEYS.MAIL_SMTP_HOST), null);
+				RS.rbLabel(KEY.MAIL_SMTP_HOST), null);
 		controlBar.addHelpTextTrigger(smtpHost,
-				RS.rbLabel(KEYS.MAIL_SMTP_HOST_DESC));
+				RS.rbLabel(KEY.MAIL_SMTP_HOST_DESC));
 		smtpPort = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_SMTP_PORT, UGateCtrlBox.Type.TEXT,
-				RS.rbLabel(KEYS.MAIL_SMTP_PORT), null);
+				RS.rbLabel(KEY.MAIL_SMTP_PORT), null);
 		controlBar.addHelpTextTrigger(smtpPort,
-				RS.rbLabel(KEYS.MAIL_SMTP_PORT_DESC));
+				RS.rbLabel(KEY.MAIL_SMTP_PORT_DESC));
 		imapHost = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_IMAP_HOST, UGateCtrlBox.Type.TEXT,
-				RS.rbLabel(KEYS.MAIL_IMAP_HOST), null);
+				RS.rbLabel(KEY.MAIL_IMAP_HOST), null);
 		controlBar.addHelpTextTrigger(imapHost,
-				RS.rbLabel(KEYS.MAIL_IMAP_HOST_DESC));
+				RS.rbLabel(KEY.MAIL_IMAP_HOST_DESC));
 		imapPort = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_IMAP_PORT, UGateCtrlBox.Type.TEXT,
-				RS.rbLabel(KEYS.MAIL_IMAP_PORT), null);
+				RS.rbLabel(KEY.MAIL_IMAP_PORT), null);
 		controlBar.addHelpTextTrigger(imapPort,
-				RS.rbLabel(KEYS.MAIL_IMAP_PORT_DESC));
+				RS.rbLabel(KEY.MAIL_IMAP_PORT_DESC));
 		username = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_USERNAME, UGateCtrlBox.Type.TEXT,
-				RS.rbLabel(KEYS.MAIL_USERNAME), null);
+				RS.rbLabel(KEY.MAIL_USERNAME), null);
 		controlBar.addHelpTextTrigger(username,
-				RS.rbLabel(KEYS.MAIL_USERNAME_DESC));
+				RS.rbLabel(KEY.MAIL_USERNAME_DESC));
 		password = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_PASSWORD, UGateCtrlBox.Type.PASSWORD,
-				RS.rbLabel(KEYS.MAIL_PASSWORD), null);
+				RS.rbLabel(KEY.MAIL_PASSWORD), null);
 		controlBar.addHelpTextTrigger(password,
-				RS.rbLabel(KEYS.MAIL_PASSWORD_DESC));
+				RS.rbLabel(KEY.MAIL_PASSWORD_DESC));
 		inboxFolder = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_INBOX_NAME, UGateCtrlBox.Type.TEXT,
-				RS.rbLabel(KEYS.MAIL_FOLDER_NAME), null);
+				RS.rbLabel(KEY.MAIL_FOLDER_NAME), null);
 		controlBar.addHelpTextTrigger(inboxFolder,
-				RS.rbLabel(KEYS.MAIL_FOLDER_DESC));
+				RS.rbLabel(KEY.MAIL_FOLDER_DESC));
 		recipient = new TextField();
 		HBox.setHgrow(recipient, Priority.ALWAYS);
-		recipient.setPromptText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD_DESC));
+		recipient.setPromptText(RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_ADD_DESC));
 		final FunctionButton recipientAdd = createRecipientAddBtn();
 		controlBar.addHelpTextTrigger(recipientAdd,
-				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD));
+				RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_ADD));
 		final FunctionButton recipientRem = createRecipientRemovalBtn();
 		controlBar.addHelpTextTrigger(recipientRem,
-				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_REMOVE));
+				RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_REMOVE));
 		final HBox recipientFuncBox = new HBox(5);
 		recipientFuncBox.getChildren().addAll(recipient, recipientAdd, recipientRem);
 		recipients = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_RECIPIENTS, MailRecipientType.EMAIL,
-				MailRecipient.class, RS.rbLabel(KEYS.MAIL_ALARM_NOFITY_EMAILS),
+				MailRecipient.class, RS.rbLabel(KEY.MAIL_ALARM_NOFITY_EMAILS),
 				null, 100d, "", new String[] {}, String.class);
 		controlBar.addHelpTextTrigger(recipients,
-				RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_DESC));
+				RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_DESC));
 
 		listenForAppEvents(emailIcon);
 
 		final HBox emailBtnView = new HBox();
 		emailOnAtStartSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getActorPA(), ActorType.MAIL_ON_AT_COM_STARTUP, null,
-				null, RS.rbLabel(KEYS.APP_SERVICE_STARTUP_AUTO),
-				RS.rbLabel(KEYS.APP_SERVICE_STARTUP_MANUAL));
+				null, RS.rbLabel(KEY.APP_SERVICE_STARTUP_AUTO),
+				RS.rbLabel(KEY.APP_SERVICE_STARTUP_MANUAL));
 		controlBar.addHelpTextTrigger(emailOnAtStartSwitch,
-				RS.rbLabel(KEYS.APP_SERVICE_STARTUP_DESC));
-		emailConnectBtn = new Button(RS.rbLabel(KEYS.MAIL_CONNECT));
+				RS.rbLabel(KEY.APP_SERVICE_STARTUP_DESC));
+		emailConnectBtn = new Button(RS.rbLabel(KEY.MAIL_CONNECT));
 		cb.addServiceBehavior(emailConnectBtn, null, ServiceProvider.Type.EMAIL,
-				KEYS.MAIL_CONNECT);
+				KEY.MAIL_CONNECT);
 		emailBtnView.getChildren().addAll(emailConnectBtn, emailOnAtStartSwitch);
 
 		final GridPane grid = new GridPane();
@@ -166,21 +166,21 @@ public class EmailHostConnection extends VBox {
 			public void handle(final UGateEvent<?, ?> event) {
 				if (event.getType() == UGateEvent.Type.EMAIL_CONNECTING) {
 					emailConnectBtn.setDisable(true);
-					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECTING));
+					emailConnectBtn.setText(RS.rbLabel(KEY.MAIL_CONNECTING));
 					emailIcon.setStatusFill(Duration.seconds(1), 
 							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 					emailConnectBtn.setDisable(false);
-					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECTED));
+					emailConnectBtn.setText(RS.rbLabel(KEY.MAIL_CONNECTED));
 					emailIcon.setStatusFill(GuiUtil.COLOR_ON);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 					emailConnectBtn.setDisable(false);
-					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
+					emailConnectBtn.setText(RS.rbLabel(KEY.MAIL_CONNECT));
 					emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
 					emailConnectBtn.setDisable(true);
-					emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_DISCONNECTING));
+					emailConnectBtn.setText(RS.rbLabel(KEY.MAIL_DISCONNECTING));
 					emailIcon.setStatusFill(Duration.seconds(1), 
 							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
 							Timeline.INDEFINITE);
@@ -193,7 +193,7 @@ public class EmailHostConnection extends VBox {
 						@Override
 						public void run() {
 							emailConnectBtn.setDisable(false);
-							emailConnectBtn.setText(RS.rbLabel(KEYS.MAIL_CONNECT));
+							emailConnectBtn.setText(RS.rbLabel(KEY.MAIL_CONNECT));
 							emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
 						}
 					});
@@ -241,7 +241,7 @@ public class EmailHostConnection extends VBox {
 					log.info(String.format(
 							"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
 							rmaddys, cb.getActor().getHost().getId()), e);
-					cb.setHelpText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
+					cb.setHelpText(RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
 					cb.getActor().getHost().getMailRecipients().clear();
 					cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));
 					cb.getActorPA().setBean(cb.getActor());
@@ -271,7 +271,7 @@ public class EmailHostConnection extends VBox {
 					log.info(String.format(
 							"Unable to add mail recipient \"%1$s\" in host with ID = %2$s",
 							raddy, cb.getActor().getHost().getId()), e);
-					cb.setHelpText(RS.rbLabel(KEYS.MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED));
+					cb.setHelpText(RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED));
 					recipients.getListView().getItems().remove(raddy);
 				}
 			}

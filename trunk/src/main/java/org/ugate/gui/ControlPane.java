@@ -9,7 +9,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 
 /**
  * Base view for control settings
@@ -47,10 +47,10 @@ public abstract class ControlPane extends GridPane {
 	/**
 	 * Creates a label
 	 * 
-	 * @param key the {@linkplain KEYS} resource key
+	 * @param key the {@linkplain KEY} resource key
 	 * @return the label
 	 */
-	protected Label createLabel(final KEYS key) {
+	protected Label createLabel(final KEY key) {
 		final Label label = new Label(RS.rbLabel(key));
 		label.setWrapText(true);
 		label.setPrefWidth(LABEL_WIDTH);

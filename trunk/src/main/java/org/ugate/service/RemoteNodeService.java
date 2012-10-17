@@ -35,6 +35,17 @@ public class RemoteNodeService {
 	}
 
 	/**
+	 * Gets a {@link RemoteNode} by {@link RemoteNode#getId()}
+	 * 
+	 * @param id
+	 *            the {@link RemoteNode#getId()}
+	 * @return the {@link RemoteNode}
+	 */
+	public RemoteNode findById(final int id) {
+		return remoteNodeDao.findEntityById(RemoteNode.class, id);
+	}
+
+	/**
 	 * Gets the {@linkplain RemoteNode}(s) for a given {@linkplain Host#getId()}
 	 * 
 	 * @param hostId

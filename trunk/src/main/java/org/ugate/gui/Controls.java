@@ -21,7 +21,7 @@ import org.ugate.gui.view.AlarmSettings;
 import org.ugate.gui.view.AlarmThresholds;
 import org.ugate.gui.view.PositionSettings;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.w3c.dom.Element;
 
 /**
@@ -43,11 +43,11 @@ public class Controls extends TabPane {
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab tab1 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB1), 
+		final Tab tab1 = createTab(null, RS.rbLabel(KEY.WIRELESS_TAB1), 
 				new AlarmSettings(controlBar));
-		final Tab tab2 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB2), 
+		final Tab tab2 = createTab(null, RS.rbLabel(KEY.WIRELESS_TAB2), 
 				new AlarmThresholds(controlBar));
-		final Tab tab3 = createTab(null, RS.rbLabel(KEYS.WIRELESS_TAB3), 
+		final Tab tab3 = createTab(null, RS.rbLabel(KEY.WIRELESS_TAB3), 
 				new PositionSettings(controlBar));
 		getTabs().addAll(tab1, tab2, tab3);
 	}
@@ -191,7 +191,7 @@ public class Controls extends TabPane {
 	 * @return the created button
 	 */
 	protected Button createReloadButton(final WebView webView) {
-		final Button reloadBtn = new Button(RS.rbLabel(KEYS.RELOAD));
+		final Button reloadBtn = new Button(RS.rbLabel(KEY.RELOAD));
 		reloadBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {

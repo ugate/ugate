@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -132,7 +132,7 @@ public class DatePicker extends StackPane {
 			pickerBox.getChildren().add(row);
 		}
 		
-		Button todayButton = new Button(RS.rbLabel(KEYS.TODAY));
+		Button todayButton = new Button(RS.rbLabel(KEY.TODAY));
 		todayButton.setId(DATEPICKER_TODAYBUTTON);
 		todayButton.setOnAction(new EventHandler<ActionEvent>() {
 			

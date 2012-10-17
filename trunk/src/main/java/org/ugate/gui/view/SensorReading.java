@@ -23,7 +23,7 @@ import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.Digits;
 import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -63,26 +63,26 @@ public class SensorReading extends Parent {
 		this.sensorReadingsPropertyWrapper = new ReadOnlyObjectWrapper<RemoteNodeReading>();
 		readDate = new Label();
 		readDate.getStyleClass().add("readings-text");
-		cb.addHelpTextTrigger(readDate, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_TIME));
+		cb.addHelpTextTrigger(readDate, RS.rbLabel(KEY.WIRELESS_REMOTE_READINGS_TIME));
 		final ImageView sonarReadingLabel = RS.imgView(RS.IMG_SONAR);
 		sonarReading = new Digits(String.format(AlarmThresholds.FORMAT_SONAR, 0.0f),
 				0.15f, GuiUtil.COLOR_SONAR, null);
-		cb.addHelpTextTrigger(sonarReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
+		cb.addHelpTextTrigger(sonarReading, RS.rbLabel(KEY.WIRELESS_REMOTE_READINGS_SENSOR));
 		final ImageView pirReadingLabel = RS.imgView(RS.IMG_PIR);
 		pirReading = new Digits(String.format(AlarmThresholds.FORMAT_PIR, 0), 
 				0.15f, GuiUtil.COLOR_PIR, null);
-		cb.addHelpTextTrigger(pirReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
+		cb.addHelpTextTrigger(pirReading, RS.rbLabel(KEY.WIRELESS_REMOTE_READINGS_SENSOR));
 		final ImageView mwReadingLabel = RS.imgView(RS.IMG_MICROWAVE);
 		mwReading = new Digits(String.format(AlarmThresholds.FORMAT_MW, 0), 0.15f, 
 				GuiUtil.COLOR_MW, null);
-		cb.addHelpTextTrigger(mwReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
+		cb.addHelpTextTrigger(mwReading, RS.rbLabel(KEY.WIRELESS_REMOTE_READINGS_SENSOR));
 		final ImageView laserReadingLabel = RS.imgView(RS.IMG_LASER);
 		laserReading = new Digits(String.format(AlarmThresholds.FORMAT_LASER, 0.0f), 
 				0.15f, GuiUtil.COLOR_LASER, null);
-		cb.addHelpTextTrigger(laserReading, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_SENSOR));
+		cb.addHelpTextTrigger(laserReading, RS.rbLabel(KEY.WIRELESS_REMOTE_READINGS_SENSOR));
 		reportReadings = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.REPORT_READINGS);
-		cb.addHelpTextTrigger(reportReadings, RS.rbLabel(KEYS.WIRELESS_REMOTE_READINGS_REPORT));
+		cb.addHelpTextTrigger(reportReadings, RS.rbLabel(KEY.WIRELESS_REMOTE_READINGS_REPORT));
 		final GridPane readingsGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS, CHILD_SPACING, 
 				orientation == Orientation.HORIZONTAL ? 10 : 1, true,
 				0, 0, readDate, sonarReadingLabel, sonarReading, pirReadingLabel, pirReading, 

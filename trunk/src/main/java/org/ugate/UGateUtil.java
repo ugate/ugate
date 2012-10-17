@@ -10,7 +10,7 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.ugate.resources.RS.KEYS;
+import static org.ugate.resources.RS.KEY;
 
 /**
  * General utility
@@ -18,7 +18,7 @@ import static org.ugate.resources.RS.KEYS;
 public class UGateUtil {
 	
 	public static final Logger PLAIN_LOGGER = getLogger(UGateUtil.class);
-	public static final KEYS HELP_TEXT_DEFAULT_KEY = KEYS.APP_HELP_DEFAULT;
+	public static final KEY HELP_TEXT_DEFAULT_KEY = KEY.APP_HELP_DEFAULT;
 	
 	/**
 	 * Font used

@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 import org.ugate.gui.GuiUtil.Dialog;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 
 /**
  * {@linkplain Preloader} shown when the application is starting
@@ -33,7 +33,7 @@ public class StartupPreloader extends Preloader {
 		lighting.setSurfaceScale(3d);
 		lighting.setLight(light);
 		bar.setEffect(lighting);
-		new Dialog(null, stage, KEYS.APP_TITLE, RS.rbLabel(KEYS.LOADING), null,
+		new Dialog(null, stage, KEY.APP_TITLE, RS.rbLabel(KEY.LOADING), null,
 				WIDTH, HEIGHT, bar);
 	}
 
@@ -43,7 +43,7 @@ public class StartupPreloader extends Preloader {
 	@Override
 	public void start(final Stage stage) throws Exception {
 		this.stage = stage;
-		stage.setTitle(RS.rbLabel(KEYS.APP_TITLE));
+		stage.setTitle(RS.rbLabel(KEY.APP_TITLE));
 		createPreloaderScene();
 		stage.show();
 		stage.centerOnScreen();

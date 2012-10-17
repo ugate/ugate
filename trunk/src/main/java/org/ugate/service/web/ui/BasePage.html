@@ -35,6 +35,46 @@
 				var msg = $(data.xhr.responseText).find("#errorContent").html();
 				$.mobile.pageLoadErrorMessage = msg ? msg : data.errorThrown;
 			});
+			var ws;
+			$(document).ready(function() {
+				// http://jquerymobile.com/test/docs/api/methods.html
+				var url = $.mobile.path.parseUrl(window.location.href);
+				ws = new WebSocket("ws://" + url.host + "/DefaultWebSocket");
+				ws.onopen = function(event) {
+				}
+				ws.onmessage = function(event) {
+					// cycle 
+					try {
+						alert('here');
+						var json = jQuery.parseJSON(event.data);
+						if (json.remoteNodeId) {
+							var rnId = $('#remoteNodeId').val();
+							alert(json.remoteNodeId + " === " + rnId);
+							if (json.remoteNodeId === rnId.toString()) {
+								refreshPage();
+							}
+						}
+						//var json = jQuery.parseJSON(event.data);
+						//json.formId
+						//var $textarea = $('#messages');
+						//$textarea.val($textarea.val() + event.data + "\n");
+						//alert("WebSocket Message: " + event.data);
+					} catch (e) {
+						alert("Unable to update UI (error: " + e + ") with data from\n\n" + event.data);
+						refreshPage();
+					}
+				}
+				ws.onclose = function(event) {
+				}
+			});
+			function refreshPage() {
+				$.mobile.changePage(window.location.href, {
+					allowSamePageTransition : true,
+					transition : 'none',
+					showLoadMsg : false,
+					reloadPage : true
+				});
+			}
 		</script>
 		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 	</head>
@@ -77,5 +117,6 @@
 				<h4 wicket:id="footer">Label Goes Here</h4>
 			</div>
 		</div>
+		<input wicket:id="remoteNodeId" id="remoteNodeId" type="hidden" />
 	</body>
 </html>

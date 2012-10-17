@@ -12,7 +12,7 @@ import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;
@@ -62,7 +62,7 @@ public class EmailService {
 		final String password = host.getMailPassword();
 		final String mainFolderName = host.getMailInboxName();
 		try {
-			msg = RS.rbLabel(KEYS.MAIL_CONNECTING);
+			msg = RS.rbLabel(KEY.MAIL_CONNECTING);
 			log.info(msg);
 			event = new UGateEvent<>(this, UGateEvent.Type.EMAIL_CONNECTING, false);
 			event.addMessage(msg);
@@ -88,10 +88,10 @@ public class EmailService {
 															+ toAddress);
 										}
 										ServiceProvider.IMPL.getWirelessService().sendData(rn, command, false);
-										msg = RS.rbLabel(KEYS.SERVICE_EMAIL_CMD_EXEC, command, event.from, toAddress);
+										msg = RS.rbLabel(KEY.SERVICE_EMAIL_CMD_EXEC, command, event.from, toAddress);
 										log.info(msg);
 									} catch (final Throwable t) {
-										msg = RS.rbLabel(KEYS.SERVICE_EMAIL_CMD_EXEC_FAILED, command, event.from, toAddress);
+										msg = RS.rbLabel(KEY.SERVICE_EMAIL_CMD_EXEC_FAILED, command, event.from, toAddress);
 										log.error(msg, t);
 									}
 									commandMsgs.add(msg);
@@ -109,21 +109,21 @@ public class EmailService {
 								}
 							}
 						} else {
-							msg = RS.rbLabel(KEYS.SERVICE_EMAIL_CMD_EXEC_FAILED, UGateUtil.toString(event.commands), UGateUtil.toString(event.from), 
-									UGateUtil.toString(event.toAddresses), RS.rbLabel(KEYS.SERVICE_WIRELESS_CONNECTION_REQUIRED));
+							msg = RS.rbLabel(KEY.SERVICE_EMAIL_CMD_EXEC_FAILED, UGateUtil.toString(event.commands), UGateUtil.toString(event.from), 
+									UGateUtil.toString(event.toAddresses), RS.rbLabel(KEY.SERVICE_WIRELESS_CONNECTION_REQUIRED));
 							log.warn(msg);
 							UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, List<Command>>(
 									EmailService.this, UGateEvent.Type.EMAIL_EXECUTE_COMMANDS_FAILED, false, 
 									RemoteNodeType.WIRELESS_ADDRESS, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
-						notifyListeners(UGateEvent.Type.EMAIL_CONNECTED, KEYS.MAIL_CONNECTED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_CONNECTED, KEY.MAIL_CONNECTED, event.commands);
 					} else if (event.type == EmailEvent.Type.DISCONNECT) {
-						notifyListeners(UGateEvent.Type.EMAIL_DISCONNECTED, KEYS.MAIL_DISCONNECTED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_DISCONNECTED, KEY.MAIL_DISCONNECTED, event.commands);
 					} else if (event.type == EmailEvent.Type.CLOSED) {
-						notifyListeners(UGateEvent.Type.EMAIL_CLOSED, KEYS.MAIL_CLOSED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_CLOSED, KEY.MAIL_CLOSED, event.commands);
 					} else if (event.type == EmailEvent.Type.AUTH_FAILED) {
-						notifyListeners(UGateEvent.Type.EMAIL_AUTH_FAILED, KEYS.MAIL_AUTH_FAILED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_AUTH_FAILED, KEY.MAIL_AUTH_FAILED, event.commands);
 					}
 				}
 			});
@@ -135,7 +135,7 @@ public class EmailService {
 					username, password, mainFolderName, authEmails, listeners.toArray(new IEmailListener[0]));
 			return true;
 		} catch (final Throwable t) {
-			msg = RS.rbLabel(KEYS.MAIL_CONNECT_FAILED, 
+			msg = RS.rbLabel(KEY.MAIL_CONNECT_FAILED, 
 					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);
 			log.error(msg, t);
 			event = new UGateEvent<>(
@@ -154,13 +154,13 @@ public class EmailService {
 	 * @param type
 	 *            the {@linkplain UGateEvent.Type}
 	 * @param messageKey
-	 *            the {@linkplain KEYS} for the message associated with the
+	 *            the {@linkplain KEY} for the message associated with the
 	 *            notification
 	 * @param commands
 	 *            any {@linkplain Command}s associated with the notification
 	 */
 	protected void notifyListeners(final UGateEvent.Type type,
-			final KEYS messageKey, final List<Command> commands) {
+			final KEY messageKey, final List<Command> commands) {
 		isEmailConnected = false;
 		final String msg = RS.rbLabel(messageKey);
 		log.info(msg);
@@ -173,7 +173,7 @@ public class EmailService {
 	 */
 	public void disconnect() {
 		if (emailAgent != null) {
-			final String msg = RS.rbLabel(KEYS.MAIL_DISCONNECTING);
+			final String msg = RS.rbLabel(KEY.MAIL_DISCONNECTING);
 			log.info(msg);
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, Void>(
 					this, UGateEvent.Type.EMAIL_DISCONNECTING, false, msg));

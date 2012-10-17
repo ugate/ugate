@@ -33,6 +33,8 @@ import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -302,25 +304,25 @@ public class BeanPathAdapter<B> {
 	/**
 	 * @see #bindBidirectional(String, Property, Class)
 	 */
-	public FieldProperty<?, ?> bindBidirectional(final String fieldPath,
+	public void bindBidirectional(final String fieldPath,
 			final BooleanProperty property) {
-		return bindBidirectional(fieldPath, property, Boolean.class);
+		bindBidirectional(fieldPath, property, Boolean.class);
 	}
 
 	/**
 	 * @see #bindBidirectional(String, Property, Class)
 	 */
-	public FieldProperty<?, ?> bindBidirectional(final String fieldPath,
+	public void bindBidirectional(final String fieldPath,
 			final StringProperty property) {
-		return bindBidirectional(fieldPath, property, String.class);
+		bindBidirectional(fieldPath, property, String.class);
 	}
 
 	/**
 	 * @see #bindBidirectional(String, Property, Class)
 	 */
-	public FieldProperty<?, ?> bindBidirectional(final String fieldPath,
+	public void bindBidirectional(final String fieldPath,
 			final Property<Number> property) {
-		return bindBidirectional(fieldPath, property, null);
+		bindBidirectional(fieldPath, property, null);
 	}
 
 	/**
@@ -359,9 +361,8 @@ public class BeanPathAdapter<B> {
 	 *            when binding to {@linkplain SelectionModel} items, this will
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
-	 * @return the generated {@linkplain FieldProperty}
 	 */
-	public <E> FieldProperty<?, ?> bindContentBidirectional(final String fieldPath,
+	public <E> void bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableList<E> list, final Class<E> listValueType,
 			final SelectionModel<E> selectionModel,
@@ -374,9 +375,9 @@ public class BeanPathAdapter<B> {
 					itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		return getRoot().performOperation(fieldPath, list, listValueType,
-				itemFieldPath, itemFieldPathType, selectionModel, itemMaster,
-				FieldBeanOperation.BIND);
+		afterBind(getRoot().performOperation(fieldPath,
+				list, listValueType, itemFieldPath, itemFieldPathType,
+				selectionModel, itemMaster, FieldBeanOperation.BIND));
 	}
 
 	/**
@@ -415,9 +416,8 @@ public class BeanPathAdapter<B> {
 	 *            when binding to {@linkplain SelectionModel} items, this will
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
-	 * @return the generated {@linkplain FieldProperty}
 	 */
-	public <E> FieldProperty<?, ?> bindContentBidirectional(final String fieldPath,
+	public <E> void bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableSet<E> set, final Class<E> setValueType,
 			final SelectionModel<E> selectionModel,
@@ -430,9 +430,9 @@ public class BeanPathAdapter<B> {
 					itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		return getRoot().performOperation(fieldPath, set, setValueType, itemFieldPath,
-				itemFieldPathType, selectionModel, itemMaster,
-				FieldBeanOperation.BIND);
+		afterBind(getRoot().performOperation(fieldPath, set, setValueType,
+				itemFieldPath, itemFieldPathType, selectionModel, itemMaster,
+				FieldBeanOperation.BIND));
 	}
 
 	/**
@@ -471,9 +471,8 @@ public class BeanPathAdapter<B> {
 	 *            when binding to {@linkplain SelectionModel} items, this will
 	 *            be the optional path to the collection field that contains all
 	 *            the items to select from
-	 * @return the generated {@linkplain FieldProperty}
 	 */
-	public <K, V> FieldProperty<?, ?> bindContentBidirectional(final String fieldPath,
+	public <K, V> void bindContentBidirectional(final String fieldPath,
 			final String itemFieldPath, final Class<?> itemFieldPathType,
 			final ObservableMap<K, V> map, final Class<V> mapValueType,
 			final SelectionModel<V> selectionModel,
@@ -486,9 +485,9 @@ public class BeanPathAdapter<B> {
 					itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		return getRoot().performOperation(fieldPath, map, mapValueType, itemFieldPath,
-				itemFieldPathType, selectionModel, itemMaster,
-				FieldBeanOperation.BIND);
+		afterBind(getRoot().performOperation(fieldPath, map, mapValueType,
+				itemFieldPath, itemFieldPathType, selectionModel, itemMaster,
+				FieldBeanOperation.BIND));
 	}
 
 	/**
@@ -502,10 +501,9 @@ public class BeanPathAdapter<B> {
 	 *            the property
 	 * @param propertyType
 	 *            the class type of the {@linkplain Property} value
-	 * @return the generated {@linkplain FieldProperty}
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> FieldProperty<?, ?> bindBidirectional(final String fieldPath,
+	public <T> void bindBidirectional(final String fieldPath,
 			final Property<T> property, final Class<T> propertyType) {
 		Class<T> clazz = propertyType != null ? propertyType
 				: propertyValueClass(property);
@@ -517,8 +515,12 @@ public class BeanPathAdapter<B> {
 					"Unable to determine property value class for %1$s "
 							+ "and declared type %2$s", property, propertyType));
 		}
-		return getRoot().performOperation(fieldPath, property, clazz,
-				FieldBeanOperation.BIND);
+		afterBind(getRoot().performOperation(fieldPath, property, clazz,
+				FieldBeanOperation.BIND));
+	}
+
+	private void afterBind(final FieldProperty<?, ?> fp) {
+//		fp.addListener(listener);
 	}
 
 	/**

@@ -7,6 +7,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.RangeTextField;
 import org.apache.wicket.model.Model;
@@ -16,6 +17,7 @@ import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * Base {@linkplain WebPage} for the application
@@ -24,6 +26,7 @@ public abstract class BasePage extends WebPage {
 
 	private static final long serialVersionUID = 6087480925969429202L;
 	protected static final String LABEL_POSTFIX = "_LABEL";
+	private final Model<Integer> rnIdModel;
 
 	/**
 	 * Constructor
@@ -35,10 +38,22 @@ public abstract class BasePage extends WebPage {
 		super(parameters);
 		//((WebRequest) RequestCycle.get().getRequest()).get
 		add(new Label("title", getTitle()));
+		rnIdModel = new Model<Integer>(0);
 		add(new Label("home", "Home"));
+		add(new HiddenField<>("remoteNodeId", rnIdModel));
 		add(new Label("logInOut", "Login"));
 		add(new Label("footer", "UGate Mobile"));
 		add(new Label("header", getHeader()));
+	}
+
+	/**
+	 * Sets the {@link RemoteNode#getId()} on the {@link HiddenField}
+	 * 
+	 * @param remoteNodeId
+	 *            the {@link RemoteNode#getId()} to set
+	 */
+	protected void setRemoteNodeId(final int remoteNodeId) {
+		rnIdModel.setObject(remoteNodeId);
 	}
 
 	/**

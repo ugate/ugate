@@ -64,16 +64,16 @@ public enum UGateKeeper {
 	 *            the event(s)
 	 */
 	public <S, V> void notifyListeners(final UGateEvent<S, V> event) {
-		if (Platform.isFxApplicationThread()) {
-			notifyListenersExec(event);
-		} else {
+//		if (Platform.isFxApplicationThread()) {
+//			notifyListenersExec(event);
+//		} else {
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
 					notifyListenersExec(event);
 				}
 			});
-		}
+//		}
 	}
 
 	/**

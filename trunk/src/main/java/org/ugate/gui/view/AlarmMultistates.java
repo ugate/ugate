@@ -11,7 +11,7 @@ import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 
@@ -52,7 +52,7 @@ public class AlarmMultistates extends VBox {
 			multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS,
 					CHILD_SPACING, 10, false, 0, 0, multiAlarmToggleSwitch,
 					offToggleSwitch);
-			getChildren().addAll(new Label(RS.rbLabel(KEYS.SENSOR_TRIP_MULTI)),
+			getChildren().addAll(new Label(RS.rbLabel(KEY.SENSOR_TRIP_MULTI)),
 					multiAlarmGroup);
 		} else {
 			multiAlarmGroup = GuiUtil.createBackgroundDisplay(PADDING_INSETS,
@@ -60,6 +60,6 @@ public class AlarmMultistates extends VBox {
 			getChildren().addAll(multiAlarmGroup, offToggleSwitch);
 		}
 		VBox.setVgrow(multiAlarmGroup, Priority.NEVER);
-		cb.addHelpTextTrigger(multiAlarmGroup, RS.rbLabel(KEYS.SENSOR_TRIP_MULTI_DESC));
+		cb.addHelpTextTrigger(multiAlarmGroup, RS.rbLabel(KEY.SENSOR_TRIP_MULTI_DESC));
 	}
 }
