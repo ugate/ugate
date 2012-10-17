@@ -39,7 +39,7 @@ import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.FunctionButton;
 import org.ugate.gui.components.StatusIcon;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
@@ -107,7 +107,7 @@ public class RemoteNodes extends ToolBar {
 								// blink status to indicate the a remote device is out of sync
 								nsv.updateLastCommand(event.getCommand(), true);
 								controlBar.setHelpText(RS.rbLabel(
-										KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
+										KEY.WIRELESS_NODE_REMOTE_SAVED_LOCAL,
 										((RemoteNode) event.getSource()).getAddress()));
 							}
 						}
@@ -121,12 +121,12 @@ public class RemoteNodes extends ToolBar {
 	 * Adds the user interaction controls for adding/removing nodes
 	 */
 	protected void addGlobalNodeControls() {
-		textField.setPromptText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_PROMPT));
+		textField.setPromptText(RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_PROMPT));
 		// textField.setTooltip(new
 		// Tooltip(RS.rbLabel("wireless.node.remote")));
 		textField.setMaxWidth(100d);
 		controlBar.addHelpTextTrigger(textField,
-				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADDY_DESC));
+				RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_ADDY_DESC));
 		final Button addNodeButton = new FunctionButton(
 				FunctionButton.Function.ADD, new Runnable() {
 					@Override
@@ -135,7 +135,7 @@ public class RemoteNodes extends ToolBar {
 					}
 				});
 		controlBar.addHelpTextTrigger(addNodeButton,
-				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_ADD_DESC));
+				RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_ADD_DESC));
 		final Button removeNodeButton = new FunctionButton(
 				FunctionButton.Function.REMOVE, new Runnable() {
 					@Override
@@ -144,7 +144,7 @@ public class RemoteNodes extends ToolBar {
 					}
 				});
 		controlBar.addHelpTextTrigger(removeNodeButton,
-				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE_DESC));
+				RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_REMOVE_DESC));
 
 		rnListView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
             @Override 
@@ -277,10 +277,10 @@ public class RemoteNodes extends ToolBar {
 		if (address == null || address.isEmpty()) {
 			return;
 		}
-		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEYS.CLOSE)).build();
-		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(null, KEYS.APP_TITLE, 
-				RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_REMOVE, address), 
-				KEYS.SUBMIT, 550d, 300d, new Service<Void>() {
+		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEY.CLOSE)).build();
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(null, KEY.APP_TITLE, 
+				RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_REMOVE, address), 
+				KEY.SUBMIT, 550d, 300d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
@@ -429,7 +429,7 @@ public class RemoteNodes extends ToolBar {
 		 */
 		protected void setHelpText(final String commandDesc) {
 			this.helpTextStringProperty.set(RS.rbLabel(
-					KEYS.WIRELESS_NODE_REMOTE_STATUS, 
+					KEY.WIRELESS_NODE_REMOTE_STATUS, 
 					getAddress(), commandDesc));
 		}
 		

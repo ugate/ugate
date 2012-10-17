@@ -17,7 +17,7 @@ import javafx.scene.layout.HBox;
 
 import org.ugate.gui.GuiUtil;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.Model;
 
@@ -68,7 +68,7 @@ public class UGateToggleSwitchBox<T extends Model> extends HBox {
 			final IModelType<T> modelKey, 
 			final String onImageFileName, final String offImageFileName) {
 		this(beanPathAdapter, modelKey, onImageFileName, offImageFileName, RS
-				.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_ON), RS.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_OFF));
+				.rbLabel(KEY.LABEL_TOGGLE_SWITCH_ON), RS.rbLabel(KEY.LABEL_TOGGLE_SWITCH_OFF));
 	}
 	
 	/**
@@ -348,8 +348,8 @@ public class UGateToggleSwitchBox<T extends Model> extends HBox {
 				final String noneImageFileName, final String allImageFileName,
 				final boolean showToggleSwitch) {
 			this(onImageFileName, offImageFileName, noneImageFileName, 
-					allImageFileName, RS.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_ON), 
-					RS.rbLabel(KEYS.LABEL_TOGGLE_SWITCH_OFF), false, showToggleSwitch);
+					allImageFileName, RS.rbLabel(KEY.LABEL_TOGGLE_SWITCH_ON), 
+					RS.rbLabel(KEY.LABEL_TOGGLE_SWITCH_OFF), false, showToggleSwitch);
 		}
 		
 		/**

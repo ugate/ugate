@@ -23,7 +23,7 @@ import org.ugate.gui.components.UGateComboBox;
 import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.gui.components.UGateToggleSwitchBox;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.Model;
@@ -59,32 +59,32 @@ public class HostConnection extends VBox {
 		port = createComPortBox();
 	    baud = createBaudRateBox();
 	    hostAddress = new UGateCtrlBox<>(cb.getActorPA(), ActorType.COM_ADDY, 
-				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY), null);
-	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel(KEYS.WIRELESS_HOST_ADDY_DESC));
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEY.WIRELESS_HOST_ADDY), null);
+	    controlBar.addHelpTextTrigger(hostAddress, RS.rbLabel(KEY.WIRELESS_HOST_ADDY_DESC));
 
 	    listenForAppEvents(wirelessIcon, webIcon);
 		
 	    webHost = new UGateCtrlBox<>(cb.getActorPA(), ActorType.WEB_HOST, 
-				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_HOST), null);
-	    controlBar.addHelpTextTrigger(webHost, RS.rbLabel(KEYS.WEB_HOST_DESC));
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEY.WEB_HOST), null);
+	    controlBar.addHelpTextTrigger(webHost, RS.rbLabel(KEY.WEB_HOST_DESC));
 	    webPort = new UGateCtrlBox<>(cb.getActorPA(), ActorType.WEB_PORT, 
-				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_PORT), null);
-	    controlBar.addHelpTextTrigger(webPort, RS.rbLabel(KEYS.WEB_PORT_DESC));
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEY.WEB_PORT), null);
+	    controlBar.addHelpTextTrigger(webPort, RS.rbLabel(KEY.WEB_PORT_DESC));
 	    webHostLocal = new UGateCtrlBox<>(cb.getActorPA(), ActorType.WEB_HOST_LOCAL, 
-				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_HOST_LOCAL), null);
-	    controlBar.addHelpTextTrigger(webHostLocal, RS.rbLabel(KEYS.WEB_HOST_LOCAL_DESC));
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEY.WEB_HOST_LOCAL), null);
+	    controlBar.addHelpTextTrigger(webHostLocal, RS.rbLabel(KEY.WEB_HOST_LOCAL_DESC));
 	    webPortLocal = new UGateCtrlBox<>(cb.getActorPA(), ActorType.WEB_PORT_LOCAL, 
-				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEYS.WEB_PORT_LOCAL), null);
-	    controlBar.addHelpTextTrigger(webPortLocal, RS.rbLabel(KEYS.WEB_PORT_LOCAL_DESC));
+				UGateCtrlBox.Type.TEXT, RS.rbLabel(KEY.WEB_PORT_LOCAL), null);
+	    controlBar.addHelpTextTrigger(webPortLocal, RS.rbLabel(KEY.WEB_PORT_LOCAL_DESC));
 		
 		final HBox wirelessBtnView = new HBox();
 		wirelessOnAtStartSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getActorPA(), ActorType.COM_ON_AT_APP_STARTUP, null,
-				null, RS.rbLabel(KEYS.APP_SERVICE_STARTUP_AUTO),
-				RS.rbLabel(KEYS.APP_SERVICE_STARTUP_MANUAL));
-		controlBar.addHelpTextTrigger(wirelessOnAtStartSwitch, RS.rbLabel(KEYS.APP_SERVICE_STARTUP_DESC));
-		wirelessBtn = new Button(RS.rbLabel(KEYS.WIRELESS_CONNECT));
-		controlBar.addHelpTextTrigger(wirelessBtn, RS.rbLabel(KEYS.WIRELESS_WEB_START_STOP_DESC));
+				null, RS.rbLabel(KEY.APP_SERVICE_STARTUP_AUTO),
+				RS.rbLabel(KEY.APP_SERVICE_STARTUP_MANUAL));
+		controlBar.addHelpTextTrigger(wirelessOnAtStartSwitch, RS.rbLabel(KEY.APP_SERVICE_STARTUP_DESC));
+		wirelessBtn = new Button(RS.rbLabel(KEY.WIRELESS_CONNECT));
+		controlBar.addHelpTextTrigger(wirelessBtn, RS.rbLabel(KEY.WIRELESS_WEB_START_STOP_DESC));
 		cb.addServiceBehavior(wirelessBtn, null, ServiceProvider.Type.WIRELESS,
 				null);
 		wirelessBtnView.getChildren().addAll(wirelessBtn, wirelessOnAtStartSwitch);
@@ -92,12 +92,12 @@ public class HostConnection extends VBox {
 		final HBox webBtnView = new HBox();
 		webOnAtStartSwitch = new UGateToggleSwitchBox<>(
 				controlBar.getActorPA(), ActorType.WEB_ON_AT_COM_STARTUP, null,
-				null, RS.rbLabel(KEYS.APP_SERVICE_STARTUP_AUTO),
-				RS.rbLabel(KEYS.APP_SERVICE_STARTUP_MANUAL));
-		controlBar.addHelpTextTrigger(webOnAtStartSwitch, RS.rbLabel(KEYS.APP_SERVICE_STARTUP_DESC));
-		webBtn = new Button(RS.rbLabel(KEYS.WIRELESS_WEB_START_STOP));
+				null, RS.rbLabel(KEY.APP_SERVICE_STARTUP_AUTO),
+				RS.rbLabel(KEY.APP_SERVICE_STARTUP_MANUAL));
+		controlBar.addHelpTextTrigger(webOnAtStartSwitch, RS.rbLabel(KEY.APP_SERVICE_STARTUP_DESC));
+		webBtn = new Button(RS.rbLabel(KEY.WIRELESS_WEB_START_STOP));
 		cb.addServiceBehavior(webBtn, null, ServiceProvider.Type.WEB,
-				KEYS.WIRELESS_WEB_START_STOP_DESC);
+				KEY.WIRELESS_WEB_START_STOP_DESC);
 		webBtnView.getChildren().addAll(webBtn, webOnAtStartSwitch);
 
 		getChildren().addAll(
@@ -122,13 +122,13 @@ public class HostConnection extends VBox {
 			public void handle(final UGateEvent<?, ?> event) {
 				if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTING) {
 					wirelessBtn.setDisable(true);
-					wirelessBtn.setText(RS.rbLabel(KEYS.WIRELESS_CONNECTING));
+					wirelessBtn.setText(RS.rbLabel(KEY.WIRELESS_CONNECTING));
 					wirelessIcon.setStatusFill(Duration.seconds(1), 
 							GuiUtil.COLOR_OPEN, GuiUtil.COLOR_CLOSED, 
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
 					wirelessBtn.setDisable(false);
-					wirelessBtn.setText(RS.rbLabel(KEYS.WIRELESS_RECONNECT));
+					wirelessBtn.setText(RS.rbLabel(KEY.WIRELESS_RECONNECT));
 					log.debug("Turning ON email connection icon");
 					wirelessIcon.setStatusFill(GuiUtil.COLOR_ON);
 					Platform.runLater(new Runnable() {
@@ -140,17 +140,17 @@ public class HostConnection extends VBox {
 					});
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 					wirelessBtn.setDisable(false);
-					wirelessBtn.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
+					wirelessBtn.setText(RS.rbLabel(KEY.WIRELESS_CONNECT));
 					wirelessIcon.setStatusFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTING) {
 					wirelessBtn.setDisable(true);
-					wirelessBtn.setText(RS.rbLabel(KEYS.WIRELESS_DISCONNECTING));
+					wirelessBtn.setText(RS.rbLabel(KEY.WIRELESS_DISCONNECTING));
 					wirelessIcon.setStatusFill(Duration.seconds(1), 
 							GuiUtil.COLOR_OFF, GuiUtil.COLOR_CLOSED, 
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_DISCONNECTED) {
 					wirelessBtn.setDisable(false);
-					wirelessBtn.setText(RS.rbLabel(KEYS.WIRELESS_CONNECT));
+					wirelessBtn.setText(RS.rbLabel(KEY.WIRELESS_CONNECT));
 					log.debug("Turning FILL_OFF email connection icon");
 					wirelessIcon.setStatusFill(GuiUtil.COLOR_OFF);
 				} else if (event.getType() == UGateEvent.Type.WEB_INITIALIZE) {
@@ -188,9 +188,9 @@ public class HostConnection extends VBox {
 	 */
 	public UGateComboBox<String> createComPortBox() {
 		log.debug("Loading available serial ports");
-		final UGateComboBox<String> port = new UGateComboBox<>(RS.rbLabel(KEYS.WIRELESS_PORT), 
+		final UGateComboBox<String> port = new UGateComboBox<>(RS.rbLabel(KEY.WIRELESS_PORT), 
 				ServiceProvider.IMPL.getWirelessService().getSerialPorts());
-		cb.addHelpTextTrigger(port, RS.rbLabel(KEYS.WIRELESS_PORT_DESC));
+		cb.addHelpTextTrigger(port, RS.rbLabel(KEY.WIRELESS_PORT_DESC));
 		cb.bindTo(ActorType.COM_PORT, port.getComboBox().valueProperty(),
 				String.class);
 		return port;
@@ -202,8 +202,8 @@ public class HostConnection extends VBox {
 	public UGateComboBox<Integer> createBaudRateBox() {
 		log.debug("Loading available baud rates");
 	    final UGateComboBox<Integer> baud = new UGateComboBox<>(
-	    		RS.rbLabel(KEYS.WIRELESS_SPEED), ActorType.HOST_BAUD_RATES);
-	    cb.addHelpTextTrigger(baud, RS.rbLabel(KEYS.WIRELESS_SPEED_DESC));
+	    		RS.rbLabel(KEY.WIRELESS_SPEED), ActorType.HOST_BAUD_RATES);
+	    cb.addHelpTextTrigger(baud, RS.rbLabel(KEY.WIRELESS_SPEED_DESC));
 		cb.bindTo(ActorType.COM_BAUD_RATE, baud.getComboBox().valueProperty(),
 				Integer.class);
 		return baud;

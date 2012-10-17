@@ -90,6 +90,7 @@ public class IndexPage extends BasePage {
 		final Map<Integer, String> openClose = new HashMap<Integer, String>(2);
 		openClose.put(0, "Close");
 		openClose.put(1, "Open");
+		setRemoteNodeId(rn.getId());
 		final HiddenField<String> cmd = new HiddenField<>("command", new Model<String>());
 		final StatelessForm<String> cmdForm = new StatelessForm<String>("rnCommandForm") {
 			private static final long serialVersionUID = 1L;

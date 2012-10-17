@@ -10,7 +10,7 @@ import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -68,11 +68,11 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 				if (txResponse.getStatus() == TxStatusResponse.Status.SUCCESS) {
 					rd = new RxRawData<String>(null, Status.NORMAL, 0, rawBytes);
 					processData(null, UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS, command, rd, 
-							RS.rbLabel(KEYS.SERVICE_TX_RESPONSE_SUCCESS, rd, txResponse.getStatus()));
+							RS.rbLabel(KEY.SERVICE_TX_RESPONSE_SUCCESS, rd, txResponse.getStatus()));
 				} else {
 					rd = new RxRawData<String>(null, Status.GENERAL_FAILURE, 0, rawBytes);
 					processData(null, UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED, command, rd, 
-							RS.rbLabel(KEYS.SERVICE_TX_RESPONSE_ERROR, rd, txResponse.getStatus()));
+							RS.rbLabel(KEY.SERVICE_TX_RESPONSE_ERROR, rd, txResponse.getStatus()));
 				}
 			} else if (response instanceof ErrorResponse) {
 				final Command command = extractCommand(response);
@@ -86,7 +86,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					rd = new RxRawData<String>(null, Status.GENERAL_FAILURE, 0, rawBytes);
 				}
 				processData(null, UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED, command, rd, 
-						RS.rbLabel(KEYS.SERVICE_TX_RESPONSE_ERROR, rd, errorResponse.getErrorMsg()));
+						RS.rbLabel(KEY.SERVICE_TX_RESPONSE_ERROR, rd, errorResponse.getErrorMsg()));
 				log.error("", errorResponse.getException());
 			} else {
 				final String rawBytes = ByteUtils.toBase16(response.getRawPacketBytes());
@@ -99,7 +99,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 							response, ByteUtils.toBase16(processedPacketBytes)));
 					final RxData rd = new RxRawData<String>(null, Status.GENERAL_FAILURE, 0, rawBytes);
 					processData(null, UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_UNRECOGNIZED, null, rd, 
-							RS.rbLabel(KEYS.SERVICE_TX_RESPONSE_INVALID, rd, rawBytes));
+							RS.rbLabel(KEY.SERVICE_TX_RESPONSE_INVALID, rd, rawBytes));
 				}
 			}
 		} catch (final Exception e) {
@@ -161,14 +161,14 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					rxTxAttempts = 0;
 					ic = rxTxImage.createImageSegmentsSnapshot();
 					processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
-							RS.rbLabel(KEYS.SERVICE_RX_IMAGE_TIMEOUT, ic));
+							RS.rbLabel(KEY.SERVICE_RX_IMAGE_TIMEOUT, ic));
 				}
 				// TODO : add check for what sensor tripped the image and image format detection (instead of using just JPEG)
 				rxTxImage = new RxTxJPEG(rn, status, rxResponse.getRssi(), null);
 				ic = rxTxImage.createImageSegmentsSnapshot();
 				log.info(String.format("======= Receiving chunked image data (%1$s) =======", rxTxImage));
 				processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_MULTIPART, command, ic, 
-						RS.rbLabel(KEYS.SERVICE_RX_IMAGE_MULTPART, ic));
+						RS.rbLabel(KEY.SERVICE_RX_IMAGE_MULTPART, ic));
 			}
 			int[] imageChunk = rxTxImage.addImageSegment(rxResponse.getData(), IMAGE_START_INDEX);
 			if (log.isDebugEnabled()) {
@@ -183,17 +183,17 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					if (retries != 0 && rxTxAttempts <= retries) {
 						rxTxAttempts++;
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED_RETRYING, command, ic, 
-								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxAttempts, retries));
+								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxAttempts, retries));
 						ServiceProvider.IMPL.getWirelessService().sendData(rn, command, false);
 					} else {
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
-								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxAttempts));
+								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxAttempts));
 					}
 				} else {
 					try {
 						ic = rxTxImage.writeImageSegments();
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, ic, 
-								RS.rbLabel(KEYS.SERVICE_RX_IMAGE_SUCCESS, ic));
+								RS.rbLabel(KEY.SERVICE_RX_IMAGE_SUCCESS, ic));
 					} catch (IOException e) {
 						log.info("Cannot save image ID: " + UGateUtil.calFormat(rxTxImage.getCreatedTime()), e);
 					} finally {
@@ -207,11 +207,11 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			final KeyCodes kc = new KeyCodes(rn, status, rxResponse.getRssi(), rxResponse.getData()[1], 
 					rxResponse.getData()[2], rxResponse.getData()[3]);
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, kc, 
-					RS.rbLabel(KEYS.SERVICE_RX_KEYCODES, kc));
+					RS.rbLabel(KEY.SERVICE_RX_KEYCODES, kc));
 		} else if (command == Command.SERVO_LASER_CALIBRATE) {
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command,  
 					new RxRawData<Void>(rn, status, rxResponse.getRssi(), null), 
-					failures > 0 ? RS.rbLabel(KEYS.LASER_CALIBRATION_FAILED) : RS.rbLabel(KEYS.LASER_CALIBRATION_SUCCESS));
+					failures > 0 ? RS.rbLabel(KEY.LASER_CALIBRATION_FAILED) : RS.rbLabel(KEY.LASER_CALIBRATION_SUCCESS));
 		} else if (command == Command.SENSOR_GET_READINGS) {
 			log.info("=== Sensor Readings received ===");
 			int i = 1;
@@ -227,7 +227,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			rnr.setGateState(rxResponse.getData()[++i]);
 			final RxTxRemoteNodeReadingDTO sr = new RxTxRemoteNodeReadingDTO(rnr, status, rxResponse.getRssi());
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, sr, 
-					RS.rbLabel(KEYS.SERVICE_RX_READINGS, sr));
+					RS.rbLabel(KEY.SERVICE_RX_READINGS, sr));
 		} else if (command == Command.SENSOR_GET_SETTINGS) {
 			// the number of response data and their order is important!!!
 			int i = 1;
@@ -240,7 +240,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			final RxTxRemoteNodeDTO dto = new RxTxRemoteNodeDTO(rnFromRemote, status,
 					rxResponse.getRssi(), sd);
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, dto, 
-					RS.rbLabel(KEYS.SERVICE_RX_SETTINGS, dto));
+					RS.rbLabel(KEY.SERVICE_RX_SETTINGS, dto));
 		} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
 			
 		} else {

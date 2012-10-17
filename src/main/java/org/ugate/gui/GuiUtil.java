@@ -42,7 +42,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 
 /**
  * General GUI utility
@@ -115,7 +115,7 @@ public class GuiUtil {
 		//final ProgressIndicator pi = ProgressIndicatorBuilder.create().maxWidth(200d).effect(lighting).build(); 
 		final ProgressIndicator pi = ProgressBarBuilder.create().maxWidth(parent.getWidth() / 2d).maxHeight(25d).effect(lighting).build();
 		final Stage alert = alert(parent, parent.getWidth(), parent.getHeight(), Modality.APPLICATION_MODAL, pi, 
-				LabelBuilder.create().text(RS.rbLabel(KEYS.SENDING)).build());
+				LabelBuilder.create().text(RS.rbLabel(KEY.SENDING)).build());
 		final Service<T> service = new Service<T>() {
 			@Override
 			protected Task<T> createTask() {
@@ -226,12 +226,12 @@ public class GuiUtil {
 	 *            added to the bottom of the dialog.
 	 * @return the {@linkplain DialogService}
 	 */
-	public static DialogService dialogService(final Stage parent, final KEYS titleKey, final String headerText, 
-			final KEYS submitLabelKey, final double width, final double height, final Service<Void> submitService, 
+	public static DialogService dialogService(final Stage parent, final KEY titleKey, final String headerText, 
+			final KEY submitLabelKey, final double width, final double height, final Service<Void> submitService, 
 			final Modality modality, final Node... children) {
 		final Stage window = new Stage();
 		window.initModality(modality);
-		final Button submitBtn = ButtonBuilder.create().text(RS.rbLabel(submitLabelKey == null ? KEYS.SUBMIT : 
+		final Button submitBtn = ButtonBuilder.create().text(RS.rbLabel(submitLabelKey == null ? KEY.SUBMIT : 
 			submitLabelKey)).defaultButton(true).onAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent actionEvent) {
@@ -261,7 +261,7 @@ public class GuiUtil {
 		 * @param stage
 		 *            the dialog {@linkplain Stage}
 		 * @param titleKey
-		 *            the {@linkplain KEYS} used for the title
+		 *            the {@linkplain KEY} used for the title
 		 * @param headerText
 		 *            the text used for the header
 		 * @param submitButton
@@ -273,7 +273,7 @@ public class GuiUtil {
 		 * @param children
 		 *            the child {@linkplain Node}s
 		 */
-		public Dialog(final Stage parent, final Stage stage, final KEYS titleKey,
+		public Dialog(final Stage parent, final Stage stage, final KEY titleKey,
 				final String headerText, final Button submitButton,
 				final double width, final double height, final Node... children) {
 			header = TextBuilder.create().text(headerText)
@@ -367,7 +367,7 @@ public class GuiUtil {
 	 * @param headerText
 	 *            the text to display in the header {@linkplain Region}
 	 * @param closeButtonKey
-	 *            the {@linkplain KEYS} used for the text of the alternative
+	 *            the {@linkplain KEY} used for the text of the alternative
 	 *            close {@linkplain Button} when no children are specified
 	 * @param children
 	 *            the children of the {@linkplain Popup} (when null a close
@@ -375,7 +375,7 @@ public class GuiUtil {
 	 * @return the {@linkplain Popup}
 	 */
 	public static Popup alert(final double width, final double height, 
-			final String headerText, final KEYS closeButtonKey, final Node... children) {
+			final String headerText, final KEY closeButtonKey, final Node... children) {
 		final Popup alert = new Popup();
 		alert.setAutoFix(true);
 		alert.setAutoHide(false);
@@ -386,7 +386,7 @@ public class GuiUtil {
 		if (children != null && children.length > 0) {
 			alert.getContent().addAll(children);
 		} else {
-			final KEYS cbk = closeButtonKey != null ? closeButtonKey : KEYS.CLOSE;
+			final KEY cbk = closeButtonKey != null ? closeButtonKey : KEY.CLOSE;
 			final Button cb = ButtonBuilder.create().text(RS.rbLabel(cbk)).build();
 			cb.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override

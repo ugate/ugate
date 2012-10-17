@@ -49,7 +49,7 @@ import org.ugate.gui.components.BeanPathAdapter;
 import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.view.SensorReading;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.Model;
@@ -148,7 +148,7 @@ public class ControlBar extends ToolBar {
 				}
 			}
 		});
-		addHelpTextTrigger(defaultUserImg, RS.rbLabel(KEYS.APP_DIALOG_DEFAULT_USER));
+		addHelpTextTrigger(defaultUserImg, RS.rbLabel(KEY.APP_DIALOG_DEFAULT_USER));
 	
 		cnctStatusWireless = new StatusIcon(RS.imgView(RS.IMG_WIRELESS_ICON,
 				CONNECTION_STATUS_SIZE, CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
@@ -163,10 +163,10 @@ public class ControlBar extends ToolBar {
 		// TODO : need to set camera resolution before calling Command.CAM_TAKE_PIC?
 		final DropShadow ds = new DropShadow();
 		final ImageView camTakeQvga = RS.imgView(RS.IMG_CAM_QVGA);
-		addServiceBehavior(camTakeQvga, Command.CAM_TAKE_PIC, null, KEYS.CAM_ACTION_QVGA);
+		addServiceBehavior(camTakeQvga, Command.CAM_TAKE_PIC, null, KEY.CAM_ACTION_QVGA);
 		camTakeQvga.setEffect(ds);
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
-		addServiceBehavior(camTakeVga, Command.CAM_TAKE_PIC, null, KEYS.CAM_ACTION_VGA);
+		addServiceBehavior(camTakeVga, Command.CAM_TAKE_PIC, null, KEY.CAM_ACTION_VGA);
 		camTakeVga.setEffect(ds);
 		final ImageView settingsSave = RS.imgView(RS.IMG_DB_SAVE);
 		settingsSave.setCursor(Cursor.HAND);
@@ -174,20 +174,20 @@ public class ControlBar extends ToolBar {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					ServiceProvider.IMPL.getCredentialService().mergeActor(getActor());
+					ServiceProvider.IMPL.getRemoteNodeService().merge(getRemoteNode());
 				}
 			}
 	    });
-		addHelpTextTrigger(settingsSave, RS.rbLabel(KEYS.SETTINGS_SAVE));
+		addHelpTextTrigger(settingsSave, RS.rbLabel(KEY.SETTINGS_SAVE));
 		settingsSave.setEffect(dbDS);
 		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
-		addServiceBehavior(settingsSet, Command.SENSOR_SET_SETTINGS, null, KEYS.SETTINGS_SEND);
+		addServiceBehavior(settingsSet, Command.SENSOR_SET_SETTINGS, null, KEY.SETTINGS_SEND);
 		settingsSet.setEffect(settingsDS);
 		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
-		addServiceBehavior(settingsGet, Command.SENSOR_GET_SETTINGS, null, KEYS.SETTINGS_RECEIVE);
+		addServiceBehavior(settingsGet, Command.SENSOR_GET_SETTINGS, null, KEY.SETTINGS_RECEIVE);
 		settingsGet.setEffect(ds);
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
-		addServiceBehavior(readingsGet, Command.SENSOR_GET_READINGS, null, KEYS.SENSOR_READINGS_GET);
+		addServiceBehavior(readingsGet, Command.SENSOR_GET_READINGS, null, KEY.SENSOR_READINGS_GET);
 		readingsGet.setEffect(ds);
 
 		sensorReading = new SensorReading(this, Orientation.HORIZONTAL);
@@ -228,35 +228,33 @@ public class ControlBar extends ToolBar {
 					final boolean isViewNode = rn.getAddress()
 							.equalsIgnoreCase(getRemoteNode().getAddress());
 					final LinkedHashSet<RemoteNode> rns = new LinkedHashSet<>(
-							getActor().getHost().getRemoteNodes().size());
-					for (final RemoteNode rni : getActor().getHost().getRemoteNodes()) {
-						if (rn.getAddress().equalsIgnoreCase(rni.getAddress())) {
-							// only include the node when it hasn't been removed
-							if (event.getNewValue() != null) {
-								rns.add(rn);
-							}
-						} else {
-							rns.add(rni);
-						}
-					}
+							ServiceProvider.IMPL.getRemoteNodeService()
+									.findForHost(getActor().getHost().getId()));
 					getActor().getHost().setRemoteNodes(rns);
-					getActorPA().setBean(getActor());
+					RemoteNode prn = null;
 					if (isViewNode && event.getNewValue() == null) {
 						// node removed- show another node
-						getRemoteNodePA().setBean(
-								getActor().getHost().getRemoteNodes()
-										.iterator().next());
+						prn = getActor().getHost().getRemoteNodes().iterator()
+								.next();
 					} else if (isViewNode) {
 						// update performed- refresh node
-						getRemoteNodePA().setBean(rn);
+						for (final RemoteNode nrn : getActor().getHost().getRemoteNodes()) {
+							if (nrn.getAddress().equalsIgnoreCase(rn.getAddress())) {
+								prn = nrn;
+								break;
+							}
+						}
 					}
-					setHelpText(RS.rbLabel(KEYS.WIRELESS_NODE_REMOTE_SAVED_LOCAL, rn.getAddress()));
+					setHelpText(RS.rbLabel(KEY.WIRELESS_NODE_REMOTE_SAVED_LOCAL, rn.getAddress()));
 					// synchronize the remote node with the remote device
-					if (!rn.isDeviceSynchronized() && rn.getDeviceAutoSynchronize() == 1) {
-						// automatically send the changes to the remote node device
-						createCommandService(Command.SENSOR_SET_SETTINGS, true);
-					} else if (!rn.isDeviceSynchronized() && isViewNode) {
-						validateRemoteNodeSynchronization();
+					if (prn != null) {
+						getRemoteNodePA().setBean(prn);
+						if (!prn.isDeviceSynchronized() && prn.getDeviceAutoSynchronize() == 1) {
+							// automatically send the changes to the remote node device
+							createCommandService(Command.SENSOR_SET_SETTINGS, true);
+						} else if (!prn.isDeviceSynchronized() && isViewNode) {
+							validateRemoteNodeSynchronization();
+						}
 					}
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
@@ -342,11 +340,11 @@ public class ControlBar extends ToolBar {
 	 * @param serviceType
 	 *            the optional {@linkplain ServiceProvider.Type} to execute
 	 * @param helpKey
-	 *            the optional {@linkplain KEYS} for the
+	 *            the optional {@linkplain KEY} for the
 	 *            {@linkplain ControlBar#setHelpText(String)}
 	 */
 	public void addServiceBehavior(final Node node, final Command command,
-			final ServiceProvider.Type serviceType, final KEYS helpKey) {
+			final ServiceProvider.Type serviceType, final KEY helpKey) {
 		if (command == null && serviceType == null) {
 			return;
 		}
@@ -454,7 +452,7 @@ public class ControlBar extends ToolBar {
 	 */
 	public Service<Boolean> createCommandService(final Command command, final boolean start) {
 		if (!ServiceProvider.IMPL.getWirelessService().isConnected()) {
-			setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_CONNECTION_REQUIRED));
+			setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_CONNECTION_REQUIRED));
 			return null;
 		}
 		setHelpText(null);
@@ -466,14 +464,14 @@ public class ControlBar extends ToolBar {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
 								getRemoteNode(), 
 								Command.SENSOR_GET_READINGS, false)) {
-							setHelpText(RS.rbLabel(KEYS.SENSOR_READINGS_FAILED,
+							setHelpText(RS.rbLabel(KEY.SENSOR_READINGS_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendSettings(
 								false, getRemoteNode())) {
-							setHelpText(RS.rbLabel(KEYS.SETTINGS_SEND_FAILED,
+							setHelpText(RS.rbLabel(KEY.SETTINGS_SEND_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
 						} else if (!getRemoteNode().isDeviceSynchronized()) {
@@ -483,7 +481,7 @@ public class ControlBar extends ToolBar {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
 								getRemoteNode(), 
 								Command.GATE_TOGGLE_OPEN_CLOSE, false)) {
-							setHelpText(RS.rbLabel(KEYS.GATE_TOGGLE_FAILED,
+							setHelpText(RS.rbLabel(KEY.GATE_TOGGLE_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
 						}
@@ -493,7 +491,7 @@ public class ControlBar extends ToolBar {
 						return false;
 					}
 				} catch (final Throwable t) {
-					setHelpText(RS.rbLabel(KEYS.SERVICE_CMD_FAILED));
+					setHelpText(RS.rbLabel(KEY.SERVICE_CMD_FAILED));
 					log.error("Unable to execute " + command, t);
 					return false;
 				}
@@ -529,7 +527,7 @@ public class ControlBar extends ToolBar {
 										getActor().getHost(), null);
 							}
 						} catch (final Throwable t) {
-							setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
+							setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_FAILED));
 							log.error("Unable to establish a wireless connection", t);
 						}
 						return false;
@@ -558,7 +556,7 @@ public class ControlBar extends ToolBar {
 							ServiceProvider.IMPL.getWirelessService().connect(
 									getActor().getHost(), getRemoteNode());
 						} catch (final Throwable t) {
-							setHelpText(RS.rbLabel(KEYS.SERVICE_WIRELESS_FAILED));
+							setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_FAILED));
 							log.error("Unable to establish a wireless connection", t);
 						}
 						return false;
@@ -586,7 +584,7 @@ public class ControlBar extends ToolBar {
 							// establish wireless connection (blocking)
 							ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
 						} catch (final Throwable t) {
-							setHelpText(RS.rbLabel(KEYS.SERVICE_EMAIL_FAILED));
+							setHelpText(RS.rbLabel(KEY.SERVICE_EMAIL_FAILED));
 							log.error("Unable to establish a wireless connection", t);
 						}
 						return false;
@@ -688,7 +686,7 @@ public class ControlBar extends ToolBar {
 			if (persist) {
 				ServiceProvider.IMPL.getCredentialService().setDefaultActor(
 						isDefault ? getActor() : null,
-						RS.rbLabel(KEYS.APP_VERSION));
+						RS.rbLabel(KEY.APP_VERSION));
 			}
 			defaultUserImg.setImage(RS.img(isDefault ? RS.IMG_UNLOCK
 					: RS.IMG_LOCK));

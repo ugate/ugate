@@ -3,7 +3,7 @@ package org.ugate.gui.components;
 import java.io.File;
 
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -35,7 +35,7 @@ public class UGateDirectory extends HBox {
 					@Override
 					public void run() {
 						final DirectoryChooser dc = new DirectoryChooser();
-						dc.setTitle(RS.rbLabel(KEYS.WIRELESS_WORKING_DIR));
+						dc.setTitle(RS.rbLabel(KEY.WIRELESS_WORKING_DIR));
 						final File wdir = dc.showDialog(stage);
 						if (wdir != null) {
 							textField.setText(wdir.getAbsolutePath());

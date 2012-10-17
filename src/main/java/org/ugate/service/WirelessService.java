@@ -15,7 +15,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.dao.RemoteNodeDao;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Host;
@@ -305,7 +305,7 @@ public class WirelessService {
 			final XBeeAddress16 xbeeAddress = getXbeeAddress(event.getSource().getAddress());
 			// create a unicast packet to be delivered to the supplied address, with the pay load
 			final TxRequest16 request = new TxRequest16(xbeeAddress, bytes);
-			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_SENDING, bytes, event.getSource().getAddress());
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_SENDING, bytes, event.getSource().getAddress());
 			log.info(message);
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX, i, message));
 			// send the packet and wait up to 10 seconds for the transmit status reply
@@ -313,13 +313,13 @@ public class WirelessService {
 			if (response.isSuccess()) {
 				// packet was delivered successfully
 				successCount++;
-				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_SUCCESS, bytes, event.getSource().getAddress(), response.getStatus());
+				message = RS.rbLabel(KEY.SERVICE_WIRELESS_ACK_SUCCESS, bytes, event.getSource().getAddress(), response.getStatus());
 				log.info(message);
 				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_ACK, i, message));
 			} else {
 				// packet was not delivered
 				failureCount++;
-				message = RS.rbLabel(KEYS.SERVICE_WIRELESS_ACK_FAILED, bytes, event.getSource().getAddress(), response.getStatus());
+				message = RS.rbLabel(KEY.SERVICE_WIRELESS_ACK_FAILED, bytes, event.getSource().getAddress(), response.getStatus());
 				if (throwRuntimeException) {
 					throw new RuntimeException(message);
 				} else {
@@ -329,7 +329,7 @@ public class WirelessService {
 			}
 		} catch (XBeeTimeoutException e) {
 			failureCount++;
-			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_TIMEOUT, event.getSource().getAddress());
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_TX_TIMEOUT, event.getSource().getAddress());
 			if (throwRuntimeException) {
 				throw new RuntimeException(message, e);
 			} else {
@@ -338,7 +338,7 @@ public class WirelessService {
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
 		} catch (final Throwable t) {
 			failureCount++;
-			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_FAILED, event.getSource().getAddress());
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_TX_FAILED, event.getSource().getAddress());
 			if (throwRuntimeException) {
 				throw new RuntimeException(message, t);
 			} else {
@@ -347,11 +347,11 @@ public class WirelessService {
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
 		}
 		if (failureCount <= 0) {
-			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_SUCCESS, successCount);
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_SUCCESS, successCount);
 			log.info(message);
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS, i, message));
 		} else {
-			message = RS.rbLabel(KEYS.SERVICE_WIRELESS_TX_BATCH_FAILED, failureCount);
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_TX_BATCH_FAILED, failureCount);
 			log.error(message);
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_ALL_TX_FAILED, i, message));
 		}

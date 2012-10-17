@@ -32,7 +32,7 @@ import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.SimpleCalendar;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
 
@@ -62,10 +62,10 @@ public class SensorReadingHistory extends StackPane {
 		this.cb = controlBar;
 		final StackedBarChart<String, Number> chart = new StackedBarChart<>(
 				xAxis, yAxis);
-		chart.setTitle(RS.rbLabel(KEYS.LABEL_GRAPH_ALARM_NOTIFY));
+		chart.setTitle(RS.rbLabel(KEY.LABEL_GRAPH_ALARM_NOTIFY));
 		// xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
 		xAxis.setCategories(FXCollections.<String> observableArrayList());
-		yAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_Y));
+		yAxis.setLabel(RS.rbLabel(KEY.LABEL_GRAPH_AXIS_Y));
 		yAxis.setMinorTickVisible(false);
 		yAxis.setAutoRanging(false);
 		yAxis.setUpperBound(16d);
@@ -104,13 +104,13 @@ public class SensorReadingHistory extends StackPane {
 		setAlignment(Pos.BOTTOM_RIGHT);
 		getChildren().addAll(chart, dateBox);
 
-		sonarSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_SONAR));
-		pirSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_PIR));
+		sonarSeries.setName(RS.rbLabel(KEY.LABEL_GRAPH_SERIES_ALARM_SONAR));
+		pirSeries.setName(RS.rbLabel(KEY.LABEL_GRAPH_SERIES_ALARM_PIR));
 		microwaveSeries.setName(RS
-				.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_MICROWAVE));
-		laserSeries.setName(RS.rbLabel(KEYS.LABEL_GRAPH_SERIES_ALARM_LASER));
+				.rbLabel(KEY.LABEL_GRAPH_SERIES_ALARM_MICROWAVE));
+		laserSeries.setName(RS.rbLabel(KEY.LABEL_GRAPH_SERIES_ALARM_LASER));
 		readTripsSeries.setName(RS
-				.rbLabel(KEYS.LABEL_GRAPH_SERIES_ACTIVITY_READS));
+				.rbLabel(KEY.LABEL_GRAPH_SERIES_ACTIVITY_READS));
 
 		final Calendar cal = Calendar.getInstance();
 		cal.setTime(simpleCalender.dateProperty().get());

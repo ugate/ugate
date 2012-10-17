@@ -13,7 +13,7 @@ import org.ugate.gui.GuiUtil;
 import org.ugate.gui.components.Gauge.IndicatorType;
 import org.ugate.gui.components.UGateGaugeBox;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 
@@ -39,7 +39,7 @@ public class AlarmThresholds extends ControlPane {
 		int ci = columnIndex;
 		int ri = rowIndex;
 
-		final Label sonarThresholdLabel = createLabel(KEYS.SONAR_THRESHOLD);
+		final Label sonarThresholdLabel = createLabel(KEY.SONAR_THRESHOLD);
 		final UGateGaugeBox<RemoteNode> sonarTripGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.SONAR_DISTANCE_THRES_FEET,
@@ -47,24 +47,24 @@ public class AlarmThresholds extends ControlPane {
 				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE, 1d, 2, 0, 180d, 9,
 				4, FORMAT_SONAR, RS.IMG_RULER, GuiUtil.COLOR_SONAR);
 		sonarTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
-		controlBar.addHelpTextTrigger(sonarTripGauge, RS.rbLabel(KEYS.SONAR_THRESHOLD_DESC));
+		controlBar.addHelpTextTrigger(sonarTripGauge, RS.rbLabel(KEY.SONAR_THRESHOLD_DESC));
 		sonarTripGauge.gauge.setIntensity(80d, 15d, 5d);
 		sonarTripGauge.setMaxWidth(200d);
 		final Parent sonarCell = createCell(sonarThresholdLabel, sonarTripGauge);
 		
 		add(sonarCell, ci, ri);
 
-		final Label mwThreshold = createLabel(KEYS.MW_THRESHOLD);
+		final Label mwThreshold = createLabel(KEY.MW_THRESHOLD);
 		final UGateGaugeBox<RemoteNode> mwTripGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC, null,
 				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE, 1d, 2, 0, 180d, 50,
 				0, FORMAT_MW, RS.IMG_SPEEDOMETER, GuiUtil.COLOR_MW);
-		controlBar.addHelpTextTrigger(mwTripGauge, RS.rbLabel(KEYS.MW_THRESHOLD_DESC));
+		controlBar.addHelpTextTrigger(mwTripGauge, RS.rbLabel(KEY.MW_THRESHOLD_DESC));
 		final Parent mwCell = createCell(mwThreshold, mwTripGauge);
 		add(mwCell, ++ci, ri);
 
-		final Label laserThreshold = createLabel(KEYS.LASER_THRESHOLD);
+		final Label laserThreshold = createLabel(KEY.LASER_THRESHOLD);
 		final UGateGaugeBox<RemoteNode> laserTripGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.LASER_DISTANCE_THRES_FEET,
@@ -72,7 +72,7 @@ public class AlarmThresholds extends ControlPane {
 				IndicatorType.NEEDLE, THRESHOLD_SIZE_SCALE, 4d, 0, 0d, 180d, 9,
 				3, FORMAT_LASER, RS.IMG_RULER, GuiUtil.COLOR_LASER);
 		laserTripGauge.gauge.tickMarkLabelFillProperty.set(Color.WHITE);
-		controlBar.addHelpTextTrigger(laserTripGauge, RS.rbLabel(KEYS.LASER_THRESHOLD_DESC));
+		controlBar.addHelpTextTrigger(laserTripGauge, RS.rbLabel(KEY.LASER_THRESHOLD_DESC));
 		laserTripGauge.gauge.setIntensity(100d, 0d, 0d);
 		final Parent laserCell = createCell(laserThreshold, laserTripGauge);
 		add(laserCell, ++ci, ri);
@@ -80,46 +80,46 @@ public class AlarmThresholds extends ControlPane {
 
 	protected void addDelayChildren(final int columnIndex, final int rowIndex) {
 		final VBox sp = new VBox();
-		final Label sonarDelayLabel = createLabel(KEYS.SONAR_ALARM_DELAY);
+		final Label sonarDelayLabel = createLabel(KEY.SONAR_ALARM_DELAY);
 		final UGateGaugeBox<RemoteNode> sonarTripRateGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.SONAR_DELAY_BTWN_TRIPS, null,
 				IndicatorType.NEEDLE, DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0,
 				FORMAT_DELAY, RS.IMG_STOPWATCH, GuiUtil.COLOR_SONAR);
-		controlBar.addHelpTextTrigger(sonarTripRateGauge, RS.rbLabel(KEYS.SONAR_ALARM_DELAY_DESC));
+		controlBar.addHelpTextTrigger(sonarTripRateGauge, RS.rbLabel(KEY.SONAR_ALARM_DELAY_DESC));
 		sonarTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		sp.getChildren().addAll(sonarDelayLabel, sonarTripRateGauge);
 
 		final VBox pp = new VBox();
-		final Label pirDelay = createLabel(KEYS.PIR_ALARM_DELAY);
+		final Label pirDelay = createLabel(KEY.PIR_ALARM_DELAY);
 		final UGateGaugeBox<RemoteNode> pirTripRateGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.PIR_DELAY_BTWN_TRIPS, null,
 				IndicatorType.NEEDLE, DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0,
 				FORMAT_DELAY, RS.IMG_STOPWATCH, GuiUtil.COLOR_PIR);
-		controlBar.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel(KEYS.PIR_ALARM_DELAY_DESC));
+		controlBar.addHelpTextTrigger(pirTripRateGauge, RS.rbLabel(KEY.PIR_ALARM_DELAY_DESC));
 		pirTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		pp.getChildren().addAll(pirDelay, pirTripRateGauge);
 
 		final VBox mp = new VBox();
-		final Label mwDelay = createLabel(KEYS.MW_ALARM_DELAY);
+		final Label mwDelay = createLabel(KEY.MW_ALARM_DELAY);
 		final UGateGaugeBox<RemoteNode> mwTripRateGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.MW_DELAY_BTWN_TRIPS, null, IndicatorType.NEEDLE,
 				DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0, FORMAT_DELAY,
 				RS.IMG_STOPWATCH, GuiUtil.COLOR_MW);
-		controlBar.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel(KEYS.MW_ALARM_DELAY_DESC));
+		controlBar.addHelpTextTrigger(mwTripRateGauge, RS.rbLabel(KEY.MW_ALARM_DELAY_DESC));
 		mwTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		mp.getChildren().addAll(mwDelay, mwTripRateGauge);
 
 		final VBox lp = new VBox();
-		final Label laserDelay = createLabel(KEYS.LASER_ALARM_DELAY);
+		final Label laserDelay = createLabel(KEY.LASER_ALARM_DELAY);
 		final UGateGaugeBox<RemoteNode> laserTripRateGauge = new UGateGaugeBox<>(
 				controlBar.getRemoteNodePA(),
 				RemoteNodeType.LASER_DELAY_BTWN_TRIPS, null,
 				IndicatorType.NEEDLE, DELAY_SIZE_SCALE, 1d, 0, 0, 180d, 61, 0,
 				FORMAT_DELAY, RS.IMG_STOPWATCH, GuiUtil.COLOR_LASER);
-		controlBar.addHelpTextTrigger(laserTripRateGauge, RS.rbLabel(KEYS.LASER_ALARM_DELAY_DESC));
+		controlBar.addHelpTextTrigger(laserTripRateGauge, RS.rbLabel(KEY.LASER_ALARM_DELAY_DESC));
 		laserTripRateGauge.gauge.setIntensity(Color.TRANSPARENT, Color.TRANSPARENT, Color.TRANSPARENT);
 		lp.getChildren().addAll(laserDelay, laserTripRateGauge);
 		

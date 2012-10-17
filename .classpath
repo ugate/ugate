@@ -3,7 +3,11 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="libs/org/rxtx/rxtx/2.1.7"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/com/rapplogic/xbee-api/0.9/xbee-api-0.9.jar"/>
-	<classpathentry kind="lib" path="C:/java/jdk/jre/lib/jfxrt.jar" sourcepath="C:/java/jdk/src.zip"/>
+	<classpathentry kind="lib" path="C:/java/jdk/jre/lib/jfxrt.jar" sourcepath="C:/java/jdk/src.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="http://docs.oracle.com/javafx/2/api"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/openjpa/openjpa-all/2.2.0/openjpa-all-2.2.0.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/javax/mail/mail/1.4.5/mail-1.4.5.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/javax/servlet/javax.servlet-api/3.0.1/javax.servlet-api-3.0.1.jar"/>
@@ -19,7 +23,7 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.7.v20120910/jetty-servlet-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.7.v20120910/jetty-servlet-8.1.7.v20120910.jar" sourcepath="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.7.v20120910/jetty-servlet-8.1.7.v20120910-sources.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-aop/3.1.2.RELEASE/spring-aop-3.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-asm/3.1.2.RELEASE/spring-asm-3.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-beans/3.1.2.RELEASE/spring-beans-3.1.2.RELEASE.jar"/>
@@ -39,7 +43,7 @@
 	<classpathentry kind="lib" path="C:/java/maven/repository/ch/qos/logback/logback-core/1.0.6/logback-core-1.0.6.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/slf4j/log4j-over-slf4j/1.6.6/log4j-over-slf4j-1.6.6.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/wicket/wicket-core/6.1.0/wicket-core-6.1.0.jar" sourcepath="C:/java/maven/repository/org/apache/wicket/wicket-core/6.1.0/wicket-core-6.1.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/wicket/wicket-request/6.1.0/wicket-request-6.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/wicket/wicket-request/6.1.0/wicket-request-6.1.0.jar" sourcepath="C:/java/maven/repository/org/apache/wicket/wicket-request/6.1.0/wicket-request-6.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/apache/wicket/wicket-util/6.1.0/wicket-util-6.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

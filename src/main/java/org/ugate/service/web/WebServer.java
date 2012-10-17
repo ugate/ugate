@@ -8,7 +8,6 @@ import javax.servlet.DispatcherType;
 
 import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
 import org.apache.wicket.protocol.http.WicketFilter;
-import org.apache.wicket.protocol.http.WicketServlet;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
@@ -18,7 +17,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
-import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -32,11 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
-import org.ugate.resources.RS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
-import org.ugate.service.web.ui.IndexPage;
 import org.ugate.service.web.ui.LoginPage;
 import org.ugate.service.web.ui.WicketApplication;
 
@@ -185,11 +181,13 @@ public class WebServer {
 			
 			context.setContextPath("/");
 			final FilterHolder fh = new FilterHolder(WicketFilter.class);
-			fh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, WicketApplication.class.getName());
+			fh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, 
+					WicketApplication.class.getName());
 			fh.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, "/*");
 			context.addFilter(fh, "/*", dispatchers);
-			final ServletHolder sh = new ServletHolder(DefaultServlet.class);
-			sh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, WicketApplication.class.getName());
+			final ServletHolder sh = new ServletHolder(DefaultAppServlet.class);
+			sh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, 
+					WicketApplication.class.getName());
 			context.addServlet(sh, "/*");
 			
 			// Serve files from internal resource location

@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
-import org.ugate.resources.RS.KEYS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.Host;
 
@@ -101,7 +101,7 @@ public class HostKeyStore {
 			}
 		}
 		final HostKeyStore mgr = create(
-				Locale.getDefault().getCountry(), RS.rbLabel(KEYS.APP_ID), 
+				Locale.getDefault().getCountry(), RS.rbLabel(KEY.APP_ID), 
 				Locale.getDefault().getDisplayName(),
 				Locale.getDefault().getDisplayName(), 
 				host.getMailUserName(), host.getWebHost(),
