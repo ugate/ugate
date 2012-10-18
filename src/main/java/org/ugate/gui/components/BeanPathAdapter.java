@@ -31,10 +31,9 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -274,6 +273,24 @@ import javafx.util.StringConverter;
  * </pre>
  * 
  * </li>
+ * <li>
+ * <b>Listening for global field value changes:</b>
+ * 
+ * <pre>
+ * final BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * personPA.fieldPathValueProperty().addListener(
+ * 		new ChangeListener&lt;FieldPathValue&gt;() {
+ * 			&#064;Override
+ * 			public void changed(
+ * 					final ObservableValue&lt;? extends FieldPathValue&gt; observable,
+ * 					final FieldPathValue oldValue, final FieldPathValue newValue) {
+ * 				System.out.println(&quot;Value changed from path: &quot; + oldValue
+ * 						+ &quot; to path: &quot; + newValue);
+ * 			}
+ * 		});
+ * </pre>
+ * 
+ * </li>
  * </ol>
  * 
  * @see #bindBidirectional(String, Property)
@@ -288,8 +305,10 @@ import javafx.util.StringConverter;
  */
 public class BeanPathAdapter<B> {
 
+	public static final char PATH_SEPARATOR = '.';
+	public static final char COLLECTION_ITEM_PATH_SEPARATOR = '#';
 	private FieldBean<Void, B> root;
-	private ReadOnlyObjectWrapper<FieldChange<?, ?>> fieldChangeWrapper = new ReadOnlyObjectWrapper<>();
+	private ReadOnlyObjectWrapper<FieldPathValue> fieldPathValue = new ReadOnlyObjectWrapper<>();
 
 	/**
 	 * Constructor
@@ -371,13 +390,13 @@ public class BeanPathAdapter<B> {
 		if (selectionModelItemMasterPath != null
 				&& !selectionModelItemMasterPath.isEmpty()) {
 			itemMaster = getRoot().performOperation(
-					selectionModelItemMasterPath, list, listValueType,
-					itemFieldPath, itemFieldPathType, null, null,
-					FieldBeanOperation.CREATE_OR_FIND);
+					selectionModelItemMasterPath, fieldPathValue, list,
+					listValueType, itemFieldPath, itemFieldPathType, null,
+					null, FieldBeanOperation.CREATE_OR_FIND);
 		}
-		afterBind(getRoot().performOperation(fieldPath,
-				list, listValueType, itemFieldPath, itemFieldPathType,
-				selectionModel, itemMaster, FieldBeanOperation.BIND));
+		getRoot().performOperation(fieldPath, fieldPathValue, list,
+				listValueType, itemFieldPath, itemFieldPathType,
+				selectionModel, itemMaster, FieldBeanOperation.BIND);
 	}
 
 	/**
@@ -426,13 +445,13 @@ public class BeanPathAdapter<B> {
 		if (selectionModelItemMasterPath != null
 				&& !selectionModelItemMasterPath.isEmpty()) {
 			itemMaster = getRoot().performOperation(
-					selectionModelItemMasterPath, set, setValueType,
-					itemFieldPath, itemFieldPathType, null, null,
+					selectionModelItemMasterPath, fieldPathValue, set,
+					setValueType, itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		afterBind(getRoot().performOperation(fieldPath, set, setValueType,
-				itemFieldPath, itemFieldPathType, selectionModel, itemMaster,
-				FieldBeanOperation.BIND));
+		getRoot().performOperation(fieldPath, fieldPathValue, set,
+				setValueType, itemFieldPath, itemFieldPathType, selectionModel,
+				itemMaster, FieldBeanOperation.BIND);
 	}
 
 	/**
@@ -481,13 +500,13 @@ public class BeanPathAdapter<B> {
 		if (selectionModelItemMasterPath != null
 				&& !selectionModelItemMasterPath.isEmpty()) {
 			itemMaster = getRoot().performOperation(
-					selectionModelItemMasterPath, map, mapValueType,
-					itemFieldPath, itemFieldPathType, null, null,
+					selectionModelItemMasterPath, fieldPathValue, map,
+					mapValueType, itemFieldPath, itemFieldPathType, null, null,
 					FieldBeanOperation.CREATE_OR_FIND);
 		}
-		afterBind(getRoot().performOperation(fieldPath, map, mapValueType,
-				itemFieldPath, itemFieldPathType, selectionModel, itemMaster,
-				FieldBeanOperation.BIND));
+		getRoot().performOperation(fieldPath, fieldPathValue, map,
+				mapValueType, itemFieldPath, itemFieldPathType, selectionModel,
+				itemMaster, FieldBeanOperation.BIND);
 	}
 
 	/**
@@ -515,12 +534,8 @@ public class BeanPathAdapter<B> {
 					"Unable to determine property value class for %1$s "
 							+ "and declared type %2$s", property, propertyType));
 		}
-		afterBind(getRoot().performOperation(fieldPath, property, clazz,
-				FieldBeanOperation.BIND));
-	}
-
-	private void afterBind(final FieldProperty<?, ?> fp) {
-//		fp.addListener(listener);
+		getRoot().performOperation(fieldPath, fieldPathValue, property, clazz,
+				FieldBeanOperation.BIND);
 	}
 
 	/**
@@ -535,7 +550,7 @@ public class BeanPathAdapter<B> {
 	 */
 	public <T> void unBindBidirectional(final String fieldPath,
 			final Property<T> property) {
-		getRoot().performOperation(fieldPath, property, null,
+		getRoot().performOperation(fieldPath, fieldPathValue, property, null,
 				FieldBeanOperation.UNBIND);
 	}
 
@@ -570,6 +585,14 @@ public class BeanPathAdapter<B> {
 	 */
 	protected final FieldBean<Void, B> getRoot() {
 		return this.root;
+	}
+
+	/**
+	 * @return the {@link ReadOnlyObjectProperty} that contains the last path
+	 *         that was changed in the {@link BeanPathAdapter}
+	 */
+	public final ReadOnlyObjectProperty<FieldPathValue> fieldPathValueProperty() {
+		return fieldPathValue.getReadOnlyProperty();
 	}
 
 	/**
@@ -611,46 +634,93 @@ public class BeanPathAdapter<B> {
 	}
 
 	/**
-	 * A referent change from a {@linkplain BeanPathAdapter}
-	 * 
-	 * @param <T>
-	 *            the {@linkplain FieldHandle#getTarget()} type
-	 * @param <F>
-	 *            the {@linkplain FieldHandle#getDeclaredFieldType()} type
+	 * Field {@link #getPath()}/{@link #getValue()}
 	 */
-	public static class FieldChange<T, F> {
+	public static class FieldPathValue {
 
-		private final WeakReference<FieldHandle<T, F>> fieldHandle;
-		private final WeakReference<String> path;
+		private final String path;
+		private final Object value;
 
 		/**
 		 * Constructor
 		 * 
-		 * @param fieldHandle
-		 *            the {@linkplain #getFieldHandle()}
 		 * @param path
-		 *            the {@linkplain #getPath()}
+		 *            the {@link #getPath()}
+		 * @param value
+		 *            the {@link #getValue()}
 		 */
-		public FieldChange(final FieldHandle<T, F> fieldHandle,
-				final String path) {
-			this.fieldHandle = new WeakReference<FieldHandle<T, F>>(fieldHandle);
-			this.path = new WeakReference<String>(path);
+		public FieldPathValue(final String path, final Object value) {
+			this.path = path;
+			this.value = value;
 		}
 
 		/**
-		 * @return the {@linkplain FieldHandle} that changed
+		 * Generates a hash code using {@link #getPath()} and
+		 * {@link #getValue()}
 		 */
-		public WeakReference<FieldHandle<T, F>> getFieldHandle() {
-			return fieldHandle;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((path == null) ? 0 : path.hashCode());
+			result = prime * result + ((value == null) ? 0 : value.hashCode());
+			return result;
 		}
 
 		/**
-		 * @return the <strong>.</strong> delimited path from the
-		 *         {@linkplain BeanPathAdapter#getBean()} to the changed
-		 *         {@linkplain #getFieldHandle()}
+		 * Determines equality based upon {@link #getPath()} and
+		 * {@link #getValue()}
+		 * 
+		 * @param obj
+		 *            the {@link Object} to check for equality
 		 */
-		public WeakReference<String> getPath() {
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			} else if (obj == null) {
+				return false;
+			} else if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final FieldPathValue other = (FieldPathValue) obj;
+			if (path == null) {
+				if (other.path != null) {
+					return false;
+				}
+			} else if (!path.equals(other.path)) {
+				return false;
+			}
+			if (value == null) {
+				if (other.value != null) {
+					return false;
+				}
+			} else if (!value.equals(other.value)) {
+				return false;
+			}
+			return true;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String toString() {
+			return "FieldPathValue [path=" + path + ", value=" + value + "]";
+		}
+
+		/**
+		 * @return the path of the field value that changed
+		 */
+		public String getPath() {
 			return path;
+		}
+
+		/**
+		 * @return value of the field path that changed
+		 */
+		public Object getValue() {
+			return value;
 		}
 	}
 
@@ -836,70 +906,78 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
-		 *      String, Observable, Class, SelectionModel, FieldProperty,
-		 *      FieldBeanOperation)
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, String,
+		 *      ReadOnlyObjectWrapper, Class, String, Observable, Class,
+		 *      SelectionModel, FieldProperty, FieldBeanOperation)
 		 */
-		public <T> FieldProperty<?, ?> performOperation(final String fieldPath,
+		public <T> FieldProperty<?, ?> performOperation(
+				final String fieldPath,
+				final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValueProperty,
 				final Property<T> property, final Class<T> propertyValueClass,
 				final FieldBeanOperation operation) {
-			return performOperation(fieldPath, propertyValueClass, null,
+			return performOperation(fieldPath, fieldPath,
+					fieldPathValueProperty, propertyValueClass, null,
 					(Observable) property, null, null, null, operation);
 		}
 
 		/**
-		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
-		 *      String, Observable, Class, SelectionModel, FieldProperty,
-		 *      FieldBeanOperation)
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, String,
+		 *      ReadOnlyObjectWrapper, Class, String, Observable, Class,
+		 *      SelectionModel, FieldProperty, FieldBeanOperation)
 		 */
-		public <T> FieldProperty<?, ?> performOperation(final String fieldPath,
+		public <T> FieldProperty<?, ?> performOperation(
+				final String fieldPath,
+				final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValueProperty,
 				final ObservableList<T> observableList,
 				final Class<T> listValueClass, final String collectionItemPath,
 				final Class<?> collectionItemPathType,
 				final SelectionModel<T> selectionModel,
 				final FieldProperty<?, ?> itemMaster,
 				final FieldBeanOperation operation) {
-			return performOperation(fieldPath, listValueClass,
-					collectionItemPath, (Observable) observableList,
-					collectionItemPathType, selectionModel, itemMaster,
-					operation);
+			return performOperation(fieldPath, fieldPath,
+					fieldPathValueProperty, listValueClass, collectionItemPath,
+					(Observable) observableList, collectionItemPathType,
+					selectionModel, itemMaster, operation);
 		}
 
 		/**
-		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
-		 *      String, Observable, Class, SelectionModel, FieldProperty,
-		 *      FieldBeanOperation)
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, String,
+		 *      ReadOnlyObjectWrapper, Class, String, Observable, Class,
+		 *      SelectionModel, FieldProperty, FieldBeanOperation)
 		 */
-		public <T> FieldProperty<?, ?> performOperation(final String fieldPath,
+		public <T> FieldProperty<?, ?> performOperation(
+				final String fieldPath,
+				final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValueProperty,
 				final ObservableSet<T> observableSet,
 				final Class<T> setValueClass, final String collectionItemPath,
 				final Class<?> collectionItemPathType,
 				final SelectionModel<T> selectionModel,
 				final FieldProperty<?, ?> itemMaster,
 				final FieldBeanOperation operation) {
-			return performOperation(fieldPath, setValueClass,
-					collectionItemPath, (Observable) observableSet,
-					collectionItemPathType, selectionModel, itemMaster,
-					operation);
+			return performOperation(fieldPath, fieldPath,
+					fieldPathValueProperty, setValueClass, collectionItemPath,
+					(Observable) observableSet, collectionItemPathType,
+					selectionModel, itemMaster, operation);
 		}
 
 		/**
-		 * @see BeanPathAdapter.FieldBean#performOperation(String, Class,
-		 *      String, Observable, Class, SelectionModel, FieldProperty,
-		 *      FieldBeanOperation)
+		 * @see BeanPathAdapter.FieldBean#performOperation(String, String,
+		 *      ReadOnlyObjectWrapper, Class, String, Observable, Class,
+		 *      SelectionModel, FieldProperty, FieldBeanOperation)
 		 */
 		public <K, V> FieldProperty<?, ?> performOperation(
 				final String fieldPath,
+				final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValueProperty,
 				final ObservableMap<K, V> observableMap,
 				final Class<V> mapValueClass, final String collectionItemPath,
 				final Class<?> collectionItemPathType,
 				final SelectionModel<V> selectionModel,
 				final FieldProperty<?, ?> itemMaster,
 				final FieldBeanOperation operation) {
-			return performOperation(fieldPath, mapValueClass,
-					collectionItemPath, (Observable) observableMap,
-					collectionItemPathType, selectionModel, itemMaster,
-					operation);
+			return performOperation(fieldPath, fieldPath,
+					fieldPathValueProperty, mapValueClass, collectionItemPath,
+					(Observable) observableMap, collectionItemPathType,
+					selectionModel, itemMaster, operation);
 		}
 
 		/**
@@ -921,6 +999,9 @@ public class BeanPathAdapter<B> {
 		 * @see Bindings#unbindBidirectional(Property, Property)
 		 * @param fieldPath
 		 *            the <code>.</code> separated field names
+		 * @param fieldPathValueProperty
+		 *            the {@link ReadOnlyObjectWrapper} that will be set when a
+		 *            {@link FieldProperty#set(String)} is performed
 		 * @param propertyValueClass
 		 *            the class of the {@linkplain Property} value type (only
 		 *            needed when binding)
@@ -955,14 +1036,17 @@ public class BeanPathAdapter<B> {
 		 *         (null when the operation was not performed on any
 		 *         {@linkplain FieldProperty}
 		 */
-		protected <T> FieldProperty<?, ?> performOperation(final String fieldPath,
+		protected <T> FieldProperty<?, ?> performOperation(
+				final String fullFieldPath,
+				final String fieldPath,
+				final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValueProperty,
 				final Class<T> propertyValueClass,
 				final String collectionItemPath, final Observable observable,
 				final Class<?> collectionItemType,
 				final SelectionModel<T> selectionModel,
 				final FieldProperty<?, ?> itemMaster,
 				final FieldBeanOperation operation) {
-			final String[] fieldNames = fieldPath.split("\\.");
+			final String[] fieldNames = fieldPath.split("\\" + PATH_SEPARATOR);
 			final boolean isField = fieldNames.length == 1;
 			final String pkey = isField ? fieldNames[0] : "";
 			if (isField && getFieldProperties().containsKey(pkey)) {
@@ -974,18 +1058,21 @@ public class BeanPathAdapter<B> {
 				final String nextFieldPath = fieldPath.substring(fieldPath
 						.indexOf(fieldNames[1]));
 				return getFieldBeans().get(fieldNames[0]).performOperation(
-						nextFieldPath, propertyValueClass, collectionItemPath,
-						observable, collectionItemType, selectionModel,
-						itemMaster, operation);
+						fullFieldPath, nextFieldPath, fieldPathValueProperty,
+						propertyValueClass, collectionItemPath, observable,
+						collectionItemType, selectionModel, itemMaster,
+						operation);
 			} else if (operation != FieldBeanOperation.UNBIND) {
 				// add a new bean/property chain
 				if (isField) {
 					final FieldProperty<BT, ?> childProp = new FieldProperty<>(
-							getBean(), fieldNames[0], Object.class,
+							getBean(), fullFieldPath, fieldNames[0],
+							fieldPathValueProperty, Object.class,
 							collectionItemPath, observable, collectionItemType,
 							selectionModel, itemMaster);
 					addOrUpdateFieldProperty(childProp);
-					return performOperation(fieldNames[0], propertyValueClass,
+					return performOperation(fullFieldPath, fieldNames[0],
+							fieldPathValueProperty, propertyValueClass,
 							collectionItemPath, observable, collectionItemType,
 							selectionModel, itemMaster, operation);
 				} else {
@@ -1000,7 +1087,8 @@ public class BeanPathAdapter<B> {
 					// progress to the next child field/bean in the path chain
 					final String nextFieldPath = fieldPath.substring(fieldPath
 							.indexOf(fieldNames[1]));
-					return childBean.performOperation(nextFieldPath,
+					return childBean.performOperation(fullFieldPath,
+							nextFieldPath, fieldPathValueProperty,
 							propertyValueClass, collectionItemPath, observable,
 							collectionItemType, selectionModel, itemMaster,
 							operation);
@@ -1026,8 +1114,8 @@ public class BeanPathAdapter<B> {
 		 *            the {@linkplain FieldBeanOperation}
 		 */
 		@SuppressWarnings("unchecked")
-		protected <T> void performOperation(
-				final FieldProperty<BT, ?> fp, final Observable observable,
+		protected <T> void performOperation(final FieldProperty<BT, ?> fp,
+				final Observable observable,
 				final Class<T> observableValueClass,
 				final FieldBeanOperation operation) {
 			if (operation == FieldBeanOperation.CREATE_OR_FIND) {
@@ -1324,6 +1412,8 @@ public class BeanPathAdapter<B> {
 			ObjectPropertyBase<String> implements ListChangeListener<Object>,
 			SetChangeListener<Object>, MapChangeListener<Object, Object> {
 
+		private final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValue;
+		private final String fullPath;
 		private final FieldHandle<BT, T> fieldHandle;
 		private boolean isDirty;
 		private boolean isDirtyCollection;
@@ -1339,8 +1429,15 @@ public class BeanPathAdapter<B> {
 		 * 
 		 * @param bean
 		 *            the bean that the path belongs to
+		 * @param fullPath
+		 *            the full <code>.</code> separated path to the
+		 *            {@link FieldProperty}
 		 * @param fieldName
 		 *            the name of the field within the bean
+		 * @param fieldPathValueProperty
+		 *            the {@link ReadOnlyObjectWrapper} that will be set every
+		 *            time the {@link FieldProperty#setValue(Object)} is
+		 *            performed
 		 * @param declaredFieldType
 		 *            the declared {@linkplain Class} of the field
 		 * @param collectionItemPath
@@ -1373,7 +1470,9 @@ public class BeanPathAdapter<B> {
 		 *            that the {@linkplain SelectionModel} can select from
 		 */
 		@SuppressWarnings("unchecked")
-		protected FieldProperty(final BT bean, final String fieldName,
+		protected FieldProperty(final BT bean, final String fullPath,
+				final String fieldName,
+				final ReadOnlyObjectWrapper<FieldPathValue> fieldPathValueProperty,
 				final Class<T> declaredFieldType,
 				final String collectionItemPath,
 				final Observable collectionObservable,
@@ -1381,6 +1480,8 @@ public class BeanPathAdapter<B> {
 				final SelectionModel<?> collectionSelectionModel,
 				final FieldProperty<?, ?> itemMaster) {
 			super();
+			this.fullPath = fullPath;
+			this.fieldPathValue = fieldPathValueProperty;
 			this.fieldHandle = new FieldHandle<BT, T>(bean, fieldName,
 					declaredFieldType);
 			this.itemMaster = itemMaster;
@@ -1495,6 +1596,9 @@ public class BeanPathAdapter<B> {
 			populateObservableCollection();
 			invalidated();
 			fireValueChangedEvent();
+			if (!isDirty && fieldPathValue != null) {
+				fieldPathValue.set(new FieldPathValue(fullPath, getDirty()));
+			}
 			isDirty = false;
 		}
 
@@ -1980,9 +2084,10 @@ public class BeanPathAdapter<B> {
 			FieldBean<Void, Object> fb;
 			FieldProperty<?, ?> fp;
 			fb = new FieldBean<>(null, bean, null);
-			fp = fb.performOperation(collectionItemPath, Object.class, null,
-					null, null, collectionSelectionModel, null,
-					FieldBeanOperation.CREATE_OR_FIND);
+			fp = fb.performOperation(fullPath + COLLECTION_ITEM_PATH_SEPARATOR
+					+ collectionItemPath, collectionItemPath, fieldPathValue,
+					Object.class, null, null, null, collectionSelectionModel,
+					null, FieldBeanOperation.CREATE_OR_FIND);
 			return fp;
 		}
 
