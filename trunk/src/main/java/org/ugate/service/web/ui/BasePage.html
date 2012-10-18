@@ -45,13 +45,19 @@
 				ws.onmessage = function(event) {
 					// cycle 
 					try {
-						alert('here');
 						var json = jQuery.parseJSON(event.data);
-						if (json.remoteNodeId) {
+						//alert(event.data);
+						if (json.id) {
 							var rnId = $('#remoteNodeId').val();
-							alert(json.remoteNodeId + " === " + rnId);
-							if (json.remoteNodeId === rnId.toString()) {
-								refreshPage();
+							alert(json.id + " === " + rnId);
+							if (json.id === rnId.toString()) {
+						        $.each(json, function(name, value){
+						        	var f = $('#' + name);
+						        	alert(f.val() + " === " + value + " (name: " + name + ")");
+						        	if (f) {
+						        		f.val(value);
+						        	}
+						        });
 							}
 						}
 						//var json = jQuery.parseJSON(event.data);

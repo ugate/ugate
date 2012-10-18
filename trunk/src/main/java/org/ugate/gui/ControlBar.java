@@ -46,6 +46,7 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
 import org.ugate.UGateUtil;
 import org.ugate.gui.components.BeanPathAdapter;
+import org.ugate.gui.components.BeanPathAdapter.FieldPathValue;
 import org.ugate.gui.components.StatusIcon;
 import org.ugate.gui.view.SensorReading;
 import org.ugate.resources.RS;
@@ -174,7 +175,7 @@ public class ControlBar extends ToolBar {
 			@Override
 			public void handle(final MouseEvent event) {
 				if (GuiUtil.isPrimaryPress(event)) {
-					ServiceProvider.IMPL.getRemoteNodeService().merge(getRemoteNode());
+					saveOrUpdateRemoteNode(null, null);
 				}
 			}
 	    });
@@ -287,6 +288,14 @@ public class ControlBar extends ToolBar {
 					ServiceProvider.IMPL.getCredentialService().mergeHost(
 							getActor().getHost());
 				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED) {
+					getRemoteNodePA().fieldPathValueProperty().addListener(new ChangeListener<FieldPathValue>() {
+						@Override
+						public void changed(final ObservableValue<? extends FieldPathValue> observable,
+								final FieldPathValue oldValue, final FieldPathValue newValue) {
+							// save changes to the remote node any time that a change is made to it's values
+							saveOrUpdateRemoteNode(oldValue, newValue);
+						}
+					});
 					if (getActor().getHost().getComOnAtAppStartup() == 1) {
 						createWirelessConnectionService().start();
 					}
@@ -296,6 +305,28 @@ public class ControlBar extends ToolBar {
 			}
 		});
 	}
+
+	/**
+	 * Saves/Updates the {@link #getRemoteNode()}
+	 * 
+	 * @param oldValue
+	 *            the old {@link FieldPathValue} (null when not from a changed
+	 *            value)
+	 * @param newValue
+	 *            the new {@link FieldPathValue} (null when not from a changed
+	 *            value)
+	 */
+	public void saveOrUpdateRemoteNode(final FieldPathValue oldValue, final FieldPathValue newValue) {
+		try {
+			ServiceProvider.IMPL.getRemoteNodeService().merge(getRemoteNode());
+		} catch (final Throwable t) {
+			log.warn(String.format(
+					"Unable to save changes to remote node at address %1$s (value change from: %2$s to: %3$s)", 
+					getRemoteNode().getAddress(), oldValue, newValue), t);
+			setHelpText(RS.rbLabel(KEY.SETTINGS_SAVE_FAILED, getRemoteNode().getAddress()));
+		}
+	}
+
 	/**
 	 * TODO : Temporary test method for adding random
 	 * {@linkplain RemoteNodeReading}s for today's date
