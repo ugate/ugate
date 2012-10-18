@@ -912,8 +912,9 @@ public class RS {
 				"cam.pan.microwave.desc"), CAM_PAN_LASER("cam.pan.laser"), CAM_TILT_LASER(
 				"cam.tilt.laser"), CAM_PAN_LASER_DESC("cam.pan.laser.desc"), CAM_TILT_LASER_DESC(
 				"cam.tilt.laser.desc"), CAM_ACTION_QVGA("cam.take.qvga"), CAM_ACTION_VGA(
-				"cam.take.vga"), SETTINGS_SAVE("settings.save"), SETTINGS_SEND(
-				"settings.send"), SETTINGS_RECEIVE("settings.receive"), SETTINGS_SEND_FAILED(
+				"cam.take.vga"), SETTINGS_SAVE("settings.save"), SETTINGS_SAVE_FAILED(
+				"settings.save.failed", 1), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
+				"settings.receive"), SETTINGS_SEND_FAILED(
 				"settings.send.failed", 1), SENSOR_READINGS_GET(
 				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_DESC(
 				"sensors.trip.multi.desc"), SENSOR_READINGS("sensors.readings"), SENSOR_READINGS_FAILED(
