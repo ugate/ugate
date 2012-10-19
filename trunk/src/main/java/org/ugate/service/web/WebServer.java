@@ -184,11 +184,14 @@ public class WebServer {
 			fh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, 
 					WicketApplication.class.getName());
 			fh.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, "/*");
+			fh.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "/"
+					+ UGateWebSocketServlet.class.getSimpleName() + ",/"
+					+ UGateAjaxUpdaterServlet.class.getSimpleName());
 			context.addFilter(fh, "/*", dispatchers);
-			final ServletHolder sh = new ServletHolder(DefaultAppServlet.class);
-			sh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, 
-					WicketApplication.class.getName());
-			context.addServlet(sh, "/*");
+			final ServletHolder sh = new ServletHolder(UGateWebSocketServlet.class);
+			context.addServlet(sh, "/" + UGateWebSocketServlet.class.getSimpleName());
+			final ServletHolder sh2 = new ServletHolder(UGateAjaxUpdaterServlet.class);
+			context.addServlet(sh2, "/*");
 			
 			// Serve files from internal resource location
 //			final org.eclipse.jetty.webapp.WebAppContext context = new org.eclipse.jetty.webapp.WebAppContext();

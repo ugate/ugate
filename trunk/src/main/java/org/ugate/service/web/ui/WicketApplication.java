@@ -3,6 +3,7 @@ package org.ugate.service.web.ui;
 import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.core.request.mapper.CryptoMapper;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 
 /**
  * {@linkplain WebApplication} implementation
@@ -27,6 +28,7 @@ public class WicketApplication extends WebApplication {
 		super.init();
 		getMarkupSettings().setStripWicketTags(true);
 		getPageSettings().setVersionPagesByDefault(false);
+		getRequestCycleSettings().setRenderStrategy(RenderStrategy.ONE_PASS_RENDER);
 		getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
         setRootRequestMapper(new CryptoMapper(getRootRequestMapper(), this));
 //        getRootRequestMapperAsCompound().add(

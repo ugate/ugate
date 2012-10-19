@@ -9,7 +9,7 @@
 				<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" data-inset="true" data-role="listview">
 					<li wicket:id="remoteNodesLI" >
 						<a wicket:id="remoteNodeItem" href="/" data-transition="flip">
-							<span wicket:id="remoteNodeItemLabel"></span>
+							<span wicket:id="remoteNodeItemAddy"></span>
 						</a>
 					</li>
 				</ul>
@@ -45,25 +45,25 @@
 									<h3 wicket:id="alarmState">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="MULTI_ALARM_TRIP_STATE_LABEL" for="MULTI_ALARM_TRIP_STATE">Label Goes Here</label>
-										<input wicket:id="MULTI_ALARM_TRIP_STATE" type="range" name="MULTI_ALARM_TRIP_STATE" id="MULTI_ALARM_TRIP_STATE" value="0" data-highlight="true" />
+										<input wicket:id="MULTI_ALARM_TRIP_STATE" type="range" name="MULTI_ALARM_TRIP_STATE" id="MULTI_ALARM_TRIP_STATE" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3 wicket:id="UNIVERSAL_REMOTE_ACCESS_ON_LABEL">Label Goes Here</h3>
-									<select wicket:id="UNIVERSAL_REMOTE_ACCESS_ON" name="UNIVERSAL_REMOTE_ACCESS_ON" id="UNIVERSAL_REMOTE_ACCESS_ON" data-role="slider">
+									<select wicket:id="UNIVERSAL_REMOTE_ACCESS_ON" name="UNIVERSAL_REMOTE_ACCESS_ON" id="UNIVERSAL_REMOTE_ACCESS_ON" data-role="slider" onchange="ajaxPut(this.form);">
 										<option value="0">Label Goes Here</option>
 									</select>
 									<div data-role="fieldcontain">
 										<label wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_1_LABEL" for="UNIVERSAL_REMOTE_ACCESS_CODE_1">Label Goes Here</label>
-										<input wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_1" type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_1" id="UNIVERSAL_REMOTE_ACCESS_CODE_1" value="0" data-highlight="true" />
+										<input wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_1" type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_1" id="UNIVERSAL_REMOTE_ACCESS_CODE_1" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_2_LABEL" for="UNIVERSAL_REMOTE_ACCESS_CODE_2">Label Goes Here</label>
-										<input wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_2" type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="0" data-highlight="true" />
+										<input wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_2" type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_3_LABEL" for="UNIVERSAL_REMOTE_ACCESS_CODE_3">Label Goes Here</label>
-										<input wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_3" type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="0" data-highlight="true" />
+										<input wicket:id="UNIVERSAL_REMOTE_ACCESS_CODE_3" type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
@@ -114,48 +114,48 @@
 									<h3 wicket:id="sonar">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="SONAR_DISTANCE_THRES_FEET_LABEL" for="SONAR_DISTANCE_THRES_FEET">Label Goes Here</label>
-										<input wicket:id="SONAR_DISTANCE_THRES_FEET" type="range" name="SONAR_DISTANCE_THRES_FEET" id="SONAR_DISTANCE_THRES_FEET" value="0" data-highlight="true" />
+										<input wicket:id="SONAR_DISTANCE_THRES_FEET" type="range" name="SONAR_DISTANCE_THRES_FEET" id="SONAR_DISTANCE_THRES_FEET" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="SONAR_DISTANCE_THRES_INCHES_LABEL" for="SONAR_DISTANCE_THRES_INCHES">Label Goes Here</label>
-										<input wicket:id="SONAR_DISTANCE_THRES_INCHES" type="range" name="SONAR_DISTANCE_THRES_INCHES" id="SONAR_DISTANCE_THRES_INCHES" value="0" data-highlight="true" />
+										<input wicket:id="SONAR_DISTANCE_THRES_INCHES" type="range" name="SONAR_DISTANCE_THRES_INCHES" id="SONAR_DISTANCE_THRES_INCHES" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="SONAR_DELAY_BTWN_TRIPS_LABEL" for="SONAR_DELAY_BTWN_TRIPS"></label>
-										<input wicket:id="SONAR_DELAY_BTWN_TRIPS" type="range" name="SONAR_DELAY_BTWN_TRIPS" id="SONAR_DELAY_BTWN_TRIPS" value="0" data-highlight="true" />
+										<input wicket:id="SONAR_DELAY_BTWN_TRIPS" type="range" name="SONAR_DELAY_BTWN_TRIPS" id="SONAR_DELAY_BTWN_TRIPS" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3 wicket:id="pir">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="PIR_DELAY_BTWN_TRIPS_LABEL" for="PIR_DELAY_BTWN_TRIPS">Label Goes Here</label>
-										<input wicket:id="PIR_DELAY_BTWN_TRIPS" type="range" name="PIR_DELAY_BTWN_TRIPS" id="PIR_DELAY_BTWN_TRIPS" value="0" data-highlight="true" />
+										<input wicket:id="PIR_DELAY_BTWN_TRIPS" type="range" name="PIR_DELAY_BTWN_TRIPS" id="PIR_DELAY_BTWN_TRIPS" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3 wicket:id="microwave">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="MW_SPEED_THRES_CYCLES_PER_SEC_LABEL" for="MW_SPEED_THRES_CYCLES_PER_SEC">Label Goes Here</label>
-										<input wicket:id="MW_SPEED_THRES_CYCLES_PER_SEC" type="range" name="MW_SPEED_THRES_CYCLES_PER_SEC" id="MW_SPEED_THRES_CYCLES_PER_SEC" value="0" data-highlight="true" />
+										<input wicket:id="MW_SPEED_THRES_CYCLES_PER_SEC" type="range" name="MW_SPEED_THRES_CYCLES_PER_SEC" id="MW_SPEED_THRES_CYCLES_PER_SEC" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="MW_DELAY_BTWN_TRIPS_LABEL" for="MW_DELAY_BTWN_TRIPS">Label Goes Here</label>
-										<input wicket:id="MW_DELAY_BTWN_TRIPS" type="range" name="MW_DELAY_BTWN_TRIPS" id="MW_DELAY_BTWN_TRIPS" value="0" data-highlight="true" />
+										<input wicket:id="MW_DELAY_BTWN_TRIPS" type="range" name="MW_DELAY_BTWN_TRIPS" id="MW_DELAY_BTWN_TRIPS" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3 wicket:id="laser">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="LASER_DISTANCE_THRES_FEET_LABEL" for="LASER_DISTANCE_THRES_FEET">Label Goes Here</label>
-										<input wicket:id="LASER_DISTANCE_THRES_FEET" type="range" name="LASER_DISTANCE_THRES_FEET" id="LASER_DISTANCE_THRES_FEET" value="0" data-highlight="true" />
+										<input wicket:id="LASER_DISTANCE_THRES_FEET" type="range" name="LASER_DISTANCE_THRES_FEET" id="LASER_DISTANCE_THRES_FEET" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="LASER_DISTANCE_THRES_INCHES_LABEL" for="LASER_DISTANCE_THRES_INCHES">Label Goes Here</label>
-										<input wicket:id="LASER_DISTANCE_THRES_INCHES" type="range" name="LASER_DISTANCE_THRES_INCHES" id="LASER_DISTANCE_THRES_INCHES" value="0" data-highlight="true" />
+										<input wicket:id="LASER_DISTANCE_THRES_INCHES" type="range" name="LASER_DISTANCE_THRES_INCHES" id="LASER_DISTANCE_THRES_INCHES" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="LASER_DELAY_BTWN_TRIPS_LABEL" for="LASER_DELAY_BTWN_TRIPS">Label Goes Here</label>
-										<input wicket:id="LASER_DELAY_BTWN_TRIPS" type="range" name="LASER_DELAY_BTWN_TRIPS" id="LASER_DELAY_BTWN_TRIPS" value="0" data-highlight="true" />
+										<input wicket:id="LASER_DELAY_BTWN_TRIPS" type="range" name="LASER_DELAY_BTWN_TRIPS" id="LASER_DELAY_BTWN_TRIPS" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 							</div>
@@ -167,77 +167,77 @@
 									<h3 wicket:id="camera">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_ANGLE_PAN_LABEL" for="CAM_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="CAM_ANGLE_PAN" type="range" name="CAM_ANGLE_PAN" id="CAM_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="CAM_ANGLE_PAN" type="range" name="CAM_ANGLE_PAN" id="CAM_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_ANGLE_TILT_LABEL" for="CAM_ANGLE_TILT">Label Goes Here</label>
-										<input wicket:id="CAM_ANGLE_TILT" type="range" name="CAM_ANGLE_TILT" id="CAM_ANGLE_TILT" value="0" data-highlight="true" />
+										<input wicket:id="CAM_ANGLE_TILT" type="range" name="CAM_ANGLE_TILT" id="CAM_ANGLE_TILT" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_SONAR_TRIP_ANGLE_PRIORITY_LABEL" for="CAM_SONAR_TRIP_ANGLE_PRIORITY">Label Goes Here</label>
-										<input wicket:id="CAM_SONAR_TRIP_ANGLE_PRIORITY" type="range" name="CAM_SONAR_TRIP_ANGLE_PRIORITY" id="CAM_SONAR_TRIP_ANGLE_PRIORITY" value="1" data-highlight="true" />
+										<input wicket:id="CAM_SONAR_TRIP_ANGLE_PRIORITY" type="range" name="CAM_SONAR_TRIP_ANGLE_PRIORITY" id="CAM_SONAR_TRIP_ANGLE_PRIORITY" value="1" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_SONAR_TRIP_ANGLE_PAN_LABEL" for="CAM_SONAR_TRIP_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="CAM_SONAR_TRIP_ANGLE_PAN" type="range" name="CAM_SONAR_TRIP_ANGLE_PAN" id="CAM_SONAR_TRIP_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="CAM_SONAR_TRIP_ANGLE_PAN" type="range" name="CAM_SONAR_TRIP_ANGLE_PAN" id="CAM_SONAR_TRIP_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_SONAR_TRIP_ANGLE_TILT_LABEL" for="CAM_SONAR_TRIP_ANGLE_TILT">Label Goes Here</label>
-										<input wicket:id="CAM_SONAR_TRIP_ANGLE_TILT" type="range" name="CAM_SONAR_TRIP_ANGLE_TILT" id="CAM_SONAR_TRIP_ANGLE_TILT" value="0" data-highlight="true" />
+										<input wicket:id="CAM_SONAR_TRIP_ANGLE_TILT" type="range" name="CAM_SONAR_TRIP_ANGLE_TILT" id="CAM_SONAR_TRIP_ANGLE_TILT" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_PIR_TRIP_ANGLE_PRIORITY_LABEL" for="CAM_PIR_TRIP_ANGLE_PRIORITY">Label Goes Here</label>
-										<input wicket:id="CAM_PIR_TRIP_ANGLE_PRIORITY" type="range" name="CAM_PIR_TRIP_ANGLE_PRIORITY" id="CAM_PIR_TRIP_ANGLE_PRIORITY" value="1" data-highlight="true" />
+										<input wicket:id="CAM_PIR_TRIP_ANGLE_PRIORITY" type="range" name="CAM_PIR_TRIP_ANGLE_PRIORITY" id="CAM_PIR_TRIP_ANGLE_PRIORITY" value="1" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_PIR_TRIP_ANGLE_PAN_LABEL" for="CAM_PIR_TRIP_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="CAM_PIR_TRIP_ANGLE_PAN" type="range" name="CAM_PIR_TRIP_ANGLE_PAN" id="CAM_PIR_TRIP_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="CAM_PIR_TRIP_ANGLE_PAN" type="range" name="CAM_PIR_TRIP_ANGLE_PAN" id="CAM_PIR_TRIP_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_PIR_TRIP_ANGLE_TILT_LABEL" for="CAM_PIR_TRIP_ANGLE_TILT">Label Goes Here</label>
-										<input wicket:id="CAM_PIR_TRIP_ANGLE_TILT" type="range" name="CAM_PIR_TRIP_ANGLE_TILT" id="CAM_PIR_TRIP_ANGLE_TILT" value="0" data-highlight="true" />
+										<input wicket:id="CAM_PIR_TRIP_ANGLE_TILT" type="range" name="CAM_PIR_TRIP_ANGLE_TILT" id="CAM_PIR_TRIP_ANGLE_TILT" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_MW_TRIP_ANGLE_PRIORITY_LABEL" for="CAM_MW_TRIP_ANGLE_PRIORITY">Label Goes Here</label>
-										<input wicket:id="CAM_MW_TRIP_ANGLE_PRIORITY" type="range" name="CAM_MW_TRIP_ANGLE_PRIORITY" id="CAM_MW_TRIP_ANGLE_PRIORITY" value="1" data-highlight="true" />
+										<input wicket:id="CAM_MW_TRIP_ANGLE_PRIORITY" type="range" name="CAM_MW_TRIP_ANGLE_PRIORITY" id="CAM_MW_TRIP_ANGLE_PRIORITY" value="1" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_MW_TRIP_ANGLE_PAN_LABEL" for="CAM_SONAR_TRIP_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="CAM_MW_TRIP_ANGLE_PAN" type="range" name="CAM_MW_TRIP_ANGLE_PAN" id="CAM_MW_TRIP_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="CAM_MW_TRIP_ANGLE_PAN" type="range" name="CAM_MW_TRIP_ANGLE_PAN" id="CAM_MW_TRIP_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_MW_TRIP_ANGLE_TILT_LABEL" for="CAM_SONAR_TRIP_ANGLE_TILT">Label Goes Here</label>
-										<input wicket:id="CAM_MW_TRIP_ANGLE_TILT" type="range" name="CAM_MW_TRIP_ANGLE_TILT" id="CAM_MW_TRIP_ANGLE_TILT" value="0" data-highlight="true" />
+										<input wicket:id="CAM_MW_TRIP_ANGLE_TILT" type="range" name="CAM_MW_TRIP_ANGLE_TILT" id="CAM_MW_TRIP_ANGLE_TILT" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_LASER_TRIP_ANGLE_PRIORITY_LABEL" for="CAM_LASER_TRIP_ANGLE_PRIORITY">Label Goes Here</label>
-										<input wicket:id="CAM_LASER_TRIP_ANGLE_PRIORITY" type="range" name="CAM_LASER_TRIP_ANGLE_PRIORITY" id="CAM_LASER_TRIP_ANGLE_PRIORITY" value="1" data-highlight="true" />
+										<input wicket:id="CAM_LASER_TRIP_ANGLE_PRIORITY" type="range" name="CAM_LASER_TRIP_ANGLE_PRIORITY" id="CAM_LASER_TRIP_ANGLE_PRIORITY" value="1" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_LASER_TRIP_ANGLE_PAN_LABEL" for="CAM_LASER_TRIP_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="CAM_LASER_TRIP_ANGLE_PAN" type="range" name="CAM_LASER_TRIP_ANGLE_PAN" id="CAM_LASER_TRIP_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="CAM_LASER_TRIP_ANGLE_PAN" type="range" name="CAM_LASER_TRIP_ANGLE_PAN" id="CAM_LASER_TRIP_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="CAM_LASER_TRIP_ANGLE_TILT_LABEL" for="CAM_LASER_TRIP_ANGLE_TILT">Label Goes Here</label>
-										<input wicket:id="CAM_LASER_TRIP_ANGLE_TILT" type="range" name="CAM_LASER_TRIP_ANGLE_TILT" id="CAM_LASER_TRIP_ANGLE_TILT" value="0" data-highlight="true" />
+										<input wicket:id="CAM_LASER_TRIP_ANGLE_TILT" type="range" name="CAM_LASER_TRIP_ANGLE_TILT" id="CAM_LASER_TRIP_ANGLE_TILT" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3 wicket:id="sonarPir">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="SONAR_PIR_ANGLE_PAN_LABEL" for="SONAR_PIR_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="SONAR_PIR_ANGLE_PAN" type="range" name="SONAR_PIR_ANGLE_PAN" id="SONAR_PIR_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="SONAR_PIR_ANGLE_PAN" type="range" name="SONAR_PIR_ANGLE_PAN" id="SONAR_PIR_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 									<div data-role="fieldcontain">
 										<label wicket:id="SONAR_PIR_ANGLE_TILT_LABEL" for="SONAR_PIR_ANGLE_TILT">Label Goes Here</label>
-										<input wicket:id="SONAR_PIR_ANGLE_TILT" type="range" name="SONAR_PIR_ANGLE_TILT" id="SONAR_PIR_ANGLE_TILT" value="0" data-highlight="true" />
+										<input wicket:id="SONAR_PIR_ANGLE_TILT" type="range" name="SONAR_PIR_ANGLE_TILT" id="SONAR_PIR_ANGLE_TILT" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 								<div data-role="collapsible" data-theme="c" data-content-theme="c">
 									<h3 wicket:id="microwave2">Label Goes Here</h3>
 									<div data-role="fieldcontain">
 										<label wicket:id="MW_ANGLE_PAN_LABEL" for="MW_ANGLE_PAN">Label Goes Here</label>
-										<input wicket:id="MW_ANGLE_PAN" type="range" name="MW_ANGLE_PAN" id="MW_ANGLE_PAN" value="0" data-highlight="true" />
+										<input wicket:id="MW_ANGLE_PAN" type="range" name="MW_ANGLE_PAN" id="MW_ANGLE_PAN" value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
 							</div>
