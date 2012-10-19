@@ -20,59 +20,143 @@
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
 		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
 		<script type="text/javascript">
+			var defaultLoadingMsg = "Please Wait...";
+			var ws, wsc = 0;
+			// converts form data into JSON object
+			(function($) {
+				$.fn.serializeFormJSON = function() {
+					var o = {};
+					var a = this.serializeArray();
+					$.each(a, function() {
+						if (o[this.name] !== undefined) {
+							if (!o[this.name].push) {
+								o[this.name] = [ o[this.name] ];
+							}
+							o[this.name].push(this.value || '');
+						} else {
+							o[this.name] = this.value || '';
+						}
+					});
+					return o;
+				};
+			})(jQuery);
 			$(document).bind("mobileinit", function() {
 				$.mobile.loader.prototype.options.textVisible = true;
+				$.mobile.loader.prototype.options.textonly = false;
 				//$.mobile.ajaxEnabled = false;
-				$.mobile.loadingMessage = "Please wait";
+				$.mobile.loadingMessage = defaultLoadingMsg;
 			});
 			$(document).bind("pagebeforeload", function() {
 				var msgo = $('#feedbackMessage');
-				var msg = msgo ? msgo.html() : null;
+				var msg = msgo ? msgo.text() : null;
 				$.mobile.loadingMessage = msg ? msg : 'Loading...';
 			});
-			$(document).bind("pageloadfailed", function(event, data) {
-				// show error content from HTTP 500 error page
-				var msg = $(data.xhr.responseText).find("#errorContent").html();
-				$.mobile.pageLoadErrorMessage = msg ? msg : data.errorThrown;
-			});
-			var ws;
+			$(document).bind(
+					"pageloadfailed",
+					function(event, data) {
+						// show error content from HTTP 500 error page
+						var msg = $(data.xhr.responseText)
+								.find("#errorContent").html();
+						$.mobile.pageLoadErrorMessage = msg ? msg
+								: data.errorThrown;
+					});
+			// WebSocket
 			$(document).ready(function() {
-				// http://jquerymobile.com/test/docs/api/methods.html
-				var url = $.mobile.path.parseUrl(window.location.href);
-				ws = new WebSocket("ws://" + url.host + "/DefaultWebSocket");
-				ws.onopen = function(event) {
-				}
-				ws.onmessage = function(event) {
-					// cycle 
-					try {
-						var json = jQuery.parseJSON(event.data);
-						//alert(event.data);
-						if (json.id) {
-							var rnId = $('#remoteNodeId').val();
-							alert(json.id + " === " + rnId);
-							if (json.id === rnId.toString()) {
-						        $.each(json, function(name, value){
-						        	var f = $('#' + name);
-						        	alert(f.val() + " === " + value + " (name: " + name + ")");
-						        	if (f) {
-						        		f.val(value);
-						        	}
-						        });
-							}
-						}
-						//var json = jQuery.parseJSON(event.data);
-						//json.formId
-						//var $textarea = $('#messages');
-						//$textarea.val($textarea.val() + event.data + "\n");
-						//alert("WebSocket Message: " + event.data);
-					} catch (e) {
-						alert("Unable to update UI (error: " + e + ") with data from\n\n" + event.data);
-						refreshPage();
-					}
-				}
-				ws.onclose = function(event) {
-				}
+				openWebSocket();
 			});
+			function openWebSocket() {
+				try {
+					if (!ws || ws.readyState === undefined || ws.readyState > 1) {
+						// http://jquerymobile.com/test/docs/api/methods.html
+						var url = $.mobile.path.parseUrl(window.location.href);
+						ws = new WebSocket("ws://" + url.host
+								+ "/UGateWebSocketServlet");
+						ws.onopen = function(event) {
+							hideMessage();
+							wsc = 0;
+						}
+						ws.onmessage = function(event) {
+							updateValues(jQuery.parseJSON(event.data));
+						}
+						ws.onclose = function(event) {
+							wsc++;
+							showMessage('Attempt ' + wsc + ' to reconnect ');
+							setTimeout(openWebSocket, 1000);
+						}
+					}
+				} catch (e) {
+
+				}
+			}
+			function updateValues(json) {
+				try {
+					//alert(event.data);
+					var detail = $('#rnDetail');
+					if (detail && json && json.WIRELESS_ADDRESS) {
+						var rnAddy = $('#remoteNodeAddy0').text();
+						//alert(json.WIRELESS_ADDRESS + " === " + rnAddy + " is " + (json.WIRELESS_ADDRESS === rnAddy));
+						if (json.WIRELESS_ADDRESS === rnAddy) {
+							var updated = false;
+							$.each(json, function(name, value) {
+								var f = $('#' + name);
+								//alert(f.val() + " === " + value + " (name: " + name + ")");
+								if (f) {
+									f.val(value);
+									if (typeof f.slider == 'function') {
+										f.slider('refresh');
+									}
+									updated = true;
+								}
+							});
+						}
+					}
+				} catch (e) {
+					alert("Unable to update UI (error: " + e
+							+ ") with data from\n\n" + event.data);
+					refreshPage();
+				}
+			}
+			// AJAX updates
+			$('#settingsForm').submit(function(e) {
+				ajaxPut('#' + this.id);
+				e.preventDefault();
+			});
+			function ajaxPut(formSelector) {
+				var jsonObj = $(formSelector).serializeFormJSON();
+				if (jsonObj) {
+					var jsonData = $.param(jsonObj);
+					//alert(jsonData);
+					$.ajax({
+						type : "PUT",
+						url : "/UGateAjaxUpdaterServlet",
+						data : 'json=' + jsonData,
+						cache : false,
+						dataType : "application/json",
+						success : ajaxPutSuccess,
+						error : ajaxPutError
+					});
+				}
+			}
+			function ajaxPutError(xhr, status, thrown) {
+				showMessage('Error saving data. status: ' + status + ' error: ' + thrown, 5000);
+			}
+			function ajaxPutSuccess(data) {
+				showMessage('Data saved. Result: ' + data, 5000);
+			}
+			// Messages
+			function showMessage(msg, timeout) {
+				$.mobile.loadingMessage = msg;
+				$.mobile.loading('show');
+				if (timeout) {
+					setTimeout(function () {
+						hideMessage();
+					}, timeout);
+				}
+			}
+			function hideMessage() {
+				$.mobile.loading('hide');
+				$.mobile.loadingMessage = defaultLoadingMsg;
+			}
 			function refreshPage() {
 				$.mobile.changePage(window.location.href, {
 					allowSamePageTransition : true,
@@ -96,7 +180,7 @@
 						<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span>
 				</span>
 				</a>
-				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1" wicket:id="header">Label Goes Here</h1>
+				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1" wicket:id="header" id="headerLabel">Label Goes Here</h1>
 <!-- 				<a -->
 <!-- 					class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" -->
 <!-- 					data-iconpos="notext" data-theme="a" data-role="button" -->
@@ -123,6 +207,6 @@
 				<h4 wicket:id="footer">Label Goes Here</h4>
 			</div>
 		</div>
-		<input wicket:id="remoteNodeId" id="remoteNodeId" type="hidden" />
+		<div id="feedbackMessage" style="display:none;">Loading...</div>
 	</body>
 </html>

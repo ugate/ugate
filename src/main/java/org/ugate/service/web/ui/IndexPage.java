@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.StatelessForm;
-import org.apache.wicket.markup.html.link.StatelessLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.Loop;
 import org.apache.wicket.markup.html.list.LoopItem;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -57,7 +57,7 @@ public class IndexPage extends BasePage {
 				if (rn == null) {
 					pp.add("remoteNodeId", rni.getId());
 				}
-				final StatelessLink<Void> link = new StatelessLink<Void>("remoteNodeItem") {
+				final Link<Void> link = new Link<Void>("remoteNodeItem") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -65,7 +65,7 @@ public class IndexPage extends BasePage {
 						setResponsePage(IndexPage.class, pp);
 					}
         		};
-        		link.add(new Label("remoteNodeItemLabel", rni.getAddress()));
+        		link.add(new Label("remoteNodeItemAddy", rni.getAddress()).setMarkupId("remoteNodeAddy" + item.getIndex()));
         		item.add(link);
             }
         };
@@ -90,7 +90,6 @@ public class IndexPage extends BasePage {
 		final Map<Integer, String> openClose = new HashMap<Integer, String>(2);
 		openClose.put(0, "Close");
 		openClose.put(1, "Open");
-		setRemoteNodeId(rn.getId());
 		final HiddenField<String> cmd = new HiddenField<>("command", new Model<String>());
 		final StatelessForm<String> cmdForm = new StatelessForm<String>("rnCommandForm") {
 			private static final long serialVersionUID = 1L;
