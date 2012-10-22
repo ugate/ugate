@@ -48,10 +48,8 @@ public class WebServer {
 	private final int hostId;
 	private Server server;
 	private HostKeyStore hostKeyStore;
-	public static final String CTRL_CHAR = "___";
 	public static final String RA_LOGOUT = "logout";
-	public static final String RP_FEEDBACK_MSG = "FEEDBACK_MSG";
-	public static final String RP_JS_INCLUDE = "JS_INCLUDE";
+	public static final String RP_REMOTE_NODE_ADDY = "remoteNodeAddy";
 	private final SignatureAlgorithm sa;
 
 	/**

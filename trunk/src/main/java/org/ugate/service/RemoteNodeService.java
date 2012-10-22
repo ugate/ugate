@@ -46,6 +46,17 @@ public class RemoteNodeService {
 	}
 
 	/**
+	 * Gets a {@link RemoteNode} by {@link RemoteNode#getAddress()}
+	 * 
+	 * @param address
+	 *            the {@link RemoteNode#getAddress()}
+	 * @return the {@link RemoteNode}
+	 */
+	public RemoteNode findByAddress(final String address) {
+		return remoteNodeDao.findByAddress(address);
+	}
+
+	/**
 	 * Gets the {@linkplain RemoteNode}(s) for a given {@linkplain Host#getId()}
 	 * 
 	 * @param hostId
