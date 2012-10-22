@@ -126,13 +126,13 @@
 				if (jsonObj) {
 					var rnAddy = 'remoteNodeAddy=' + $('#remoteNodeAddy0').text() + '&';
 					var jsonData = rnAddy + $.param(jsonObj);
-					alert(jsonData);
+					//alert(jsonData);
 					$.ajax({
 						type : "PUT",
 						url : "/UGateAjaxUpdaterServlet",
 						data : jsonData,
 						cache : false,
-						dataType : "application/json",
+						dataType : "xml",
 						success : ajaxPutSuccess,
 						error : ajaxPutError
 					});
@@ -142,14 +142,14 @@
 				showMessage('Error saving data. status: ' + status + ' error: ' + thrown, 5000);
 			}
 			function ajaxPutSuccess(data) {
-				showMessage('Data saved. Result: ' + data, 5000);
+				//showMessage('Data updated. Result: ' + data, 5000);
 			}
 			// Messages
 			function showMessage(msg, timeout) {
 				$.mobile.loadingMessage = msg;
 				$.mobile.loading('show');
 				if (timeout) {
-					setTimeout(function () {
+					setTimeout(function() {
 						hideMessage();
 					}, timeout);
 				}
