@@ -124,12 +124,13 @@
 			function ajaxPut(formSelector) {
 				var jsonObj = $(formSelector).serializeFormJSON();
 				if (jsonObj) {
-					var jsonData = $.param(jsonObj);
-					//alert(jsonData);
+					var rnAddy = 'remoteNodeAddy=' + $('#remoteNodeAddy0').text() + '&';
+					var jsonData = rnAddy + $.param(jsonObj);
+					alert(jsonData);
 					$.ajax({
 						type : "PUT",
 						url : "/UGateAjaxUpdaterServlet",
-						data : 'json=' + jsonData,
+						data : jsonData,
 						cache : false,
 						dataType : "application/json",
 						success : ajaxPutSuccess,

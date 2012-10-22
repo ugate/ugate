@@ -1,5 +1,7 @@
 package org.ugate.service.web;
 
+import static org.ugate.service.web.WebServer.RP_REMOTE_NODE_ADDY;
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -9,6 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.RemoteNodeType;
+import org.ugate.service.entity.jpa.RemoteNode;
 
 public class UGateAjaxUpdaterServlet extends DefaultServlet {
 
@@ -87,8 +92,40 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	protected void doPut(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		try {
 			if (validate(request, response)) {
-				final String json = request.getParameter("json");
-				log.info(json);
+				final String addy = request.getParameter(RP_REMOTE_NODE_ADDY);
+				if (addy != null && !addy.isEmpty()) {
+					final RemoteNode rn = ServiceProvider.IMPL.getRemoteNodeService().findByAddress(addy);
+					if (rn == null) {
+						log.warn(String.format("Unable to find %1$s with %2$s = %3$s Aborting PUT operation", 
+								RemoteNode.class.getSimpleName(), RemoteNodeType.WIRELESS_ADDRESS, addy));
+						return;
+					}
+					boolean hasParams = false;
+					String p;
+					Object v;
+					for (final RemoteNodeType rnt : RemoteNodeType.values()) {
+						p = request.getParameter(rnt.name());
+						if (p == null || p.isEmpty()) {
+							continue;
+						}
+						v = rnt.getValue(rn);
+						if (v != null && v.toString().equals(p)) {
+							continue;
+						}
+						if (log.isInfoEnabled()) {
+							log.info(String.format("Setting %1$s request parameter %2$s to %3$s", 
+									RemoteNode.class.getSimpleName(), rnt.getKey(), p));
+						}
+						rnt.setValue(rn, p);
+						hasParams = true;
+					}
+					if (hasParams) {
+						ServiceProvider.IMPL.getRemoteNodeService().merge(rn);
+					}
+				} else {
+					log.warn(String.format("Request %1$s must contain %2$s in order to perform PUT", 
+							request, RP_REMOTE_NODE_ADDY));
+				}
 			}
 		} catch (final Throwable t) {
 			log.error("Error: ", t);
