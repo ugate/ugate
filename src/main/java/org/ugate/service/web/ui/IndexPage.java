@@ -30,6 +30,13 @@ public class IndexPage extends BasePage {
 
 	/**
 	 * Constructor
+	 */
+	public IndexPage() {
+		this(new PageParameters());
+	}
+
+	/**
+	 * Constructor
 	 * 
 	 * @param parameters
 	 *            the {@linkplain PageParameters}

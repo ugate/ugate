@@ -51,6 +51,14 @@
 				var msg = msgo ? msgo.text() : null;
 				$.mobile.loadingMessage = msg ? msg : 'Loading...';
 			});
+			// when a slider stops sliding submit form data
+	        $(document).bind("pageinit", function() {
+	            $(".ui-slider-input, .ui-slider-switch").each(function() {
+	                $(this).on('slidestop', function(event) {
+	                	ajaxGo(this);
+	                });
+	            });
+	        });
 			$(document).bind(
 					"pageloadfailed",
 					function(event, data) {
@@ -116,33 +124,41 @@
 					refreshPage();
 				}
 			}
-			// AJAX updates
-			$('#settingsForm').submit(function(e) {
-				ajaxPut('#' + this.id);
-				e.preventDefault();
-			});
-			function ajaxPut(formSelector) {
-				var jsonObj = $(formSelector).serializeFormJSON();
+			// AJAX calls
+			function ajaxGo(element) {
+				var httpMeth = "POST";
+				var form;
+				if (!element.form) {
+					form = $('#rnCommandForm');
+					var cmd = form.find('input[name="command"]');
+					cmd.val($(element).attr('id'));
+				} else {
+					form = $(element.form);
+					httpMeth = "PUT";
+				}
+				var jsonObj = form.serializeFormJSON();
 				if (jsonObj) {
-					var rnAddy = 'remoteNodeAddy=' + $('#remoteNodeAddy0').text() + '&';
+					var rnAddy = 'remoteNodeAddy='
+							+ $('#remoteNodeAddy0').text() + '&';
 					var jsonData = rnAddy + $.param(jsonObj);
 					//alert(jsonData);
 					$.ajax({
-						type : "PUT",
+						type : httpMeth,
 						url : "/UGateAjaxUpdaterServlet",
 						data : jsonData,
 						cache : false,
 						dataType : "xml",
-						success : ajaxPutSuccess,
-						error : ajaxPutError
+						success : ajaxGoSuccess,
+						error : ajaxGoError
 					});
 				}
 			}
-			function ajaxPutError(xhr, status, thrown) {
-				showMessage('Error saving data. status: ' + status + ' error: ' + thrown, 5000);
+			function ajaxGoError(xhr, status, thrown) {
+				showMessage('Error submitting request. status: ' + status + ' error: '
+						+ thrown, 5000);
 			}
-			function ajaxPutSuccess(data) {
-				//showMessage('Data updated. Result: ' + data, 5000);
+			function ajaxGoSuccess(data) {
+				//showMessage('Data submitting. Result: ' + data, 5000);
 			}
 			// Messages
 			function showMessage(msg, timeout) {
