@@ -459,10 +459,9 @@ public class RS {
 			final Path rxtxPath = zipFs.getPath("/");
 
 			// TODO : verify Mac x64/Linux x64 works using embedded files... see http://blog.iharder.net/2009/08/18/rxtx-java-6-and-librxtxserial-jnilib-on-intel-mac-os-x/
-			final boolean is64 = !System.getProperties().getProperty("os.arch").equalsIgnoreCase("x86");
-			final String winArch32 = "Windows" + (is64 ? "-x64" : "");
-			final String linuxArch32 = "Linux" + (is64 ? "-x64" : "");
-			final String macArch32 = "Mac_OS_X" + (is64 ? "-x64" : "");
+			final String winArch32 = "Windows";
+			final String linuxArch32 = "Linux";
+			final String macArch32 = "Mac_OS_X";
 			final String winArch64 = "Windows-x64";
 			final String linuxArch64 = "Linux-x64";
 			final String macArch64 = "Mac_OS_X-x64";
@@ -473,9 +472,9 @@ public class RS {
 				@Override
 				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) {
 					try {
-						if (skipCommPath(dir, winArch32, winArch64, UGateUtil.isWindows()) || 
-								skipCommPath(dir, macArch32, macArch64, UGateUtil.isMac()) || 
-								skipCommPath(dir, linuxArch32, linuxArch64, UGateUtil.isLinux()) || 
+						if ((UGateUtil.isWindows() && skipCommPath(dir, winArch32, winArch64)) || 
+								(UGateUtil.isMac() && skipCommPath(dir, macArch32, macArch64)) || 
+								(UGateUtil.isLinux() && skipCommPath(dir, linuxArch32, linuxArch64)) || 
 								(!UGateUtil.isSolaris() && dir.toAbsolutePath().toString().contains("Solaris"))) {
 							return FileVisitResult.SKIP_SUBTREE;
 						}
@@ -522,8 +521,19 @@ public class RS {
 							}
 						}
 						if (newPath != null) {
-							log.info(String.format("RXTX Install: Attempting to copy %1$s to %2$s", file, newPath));
-							Files.copy(file, newPath, StandardCopyOption.REPLACE_EXISTING);
+							final Path cpyToPath = newPath;
+							final Path cpyFromPath = file.toAbsolutePath();
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									log.info(String.format("RXTX Install: Attempting to copy %1$s to %2$s", cpyFromPath, cpyToPath));
+									try {
+										Files.copy(cpyFromPath, cpyToPath, StandardCopyOption.REPLACE_EXISTING);
+									} catch (final Throwable t) {
+										log.error(String.format("RXTX Install: Attempting to copy %1$s to %2$s failed!", cpyFromPath, cpyToPath), t);
+									}
+								}
+							}).start();
 						}
 					} catch (final Throwable t) {
 						log.error(String.format("RXTX Install: Error installing the required file %1$s to %2$s", file, newPath), t);
@@ -554,17 +564,13 @@ public class RS {
 	 *            the OS 32-bit architecture folder name
 	 * @param osArch64
 	 *            the OS 64-bit architecture folder name
-	 * @param osSame
-	 *            true when the OS being checked is the same as the OS
-	 *            architecture folder names
 	 * @return true to skip
 	 */
-	protected static boolean skipCommPath(final Path dir, final String osArch32, final String osArch64, final boolean osSame) {
+	protected static boolean skipCommPath(final Path dir, final String osArch32, final String osArch64) {
 		final boolean is64 = !System.getProperties().getProperty("os.arch").equalsIgnoreCase("x86");
 		final String absp = dir.toAbsolutePath().toString();
-		return ((!osSame && absp.contains(osArch32)) || 
-				((osSame && !is64 && absp.contains(osArch64)) || 
-						(osSame && is64 && absp.contains(osArch32 + '/'))));
+		return (is64 && absp.contains(osArch32 + '/')) || 
+				(!is64 && absp.contains(osArch64));
 	}
 	/**
 	 * Restarts the application

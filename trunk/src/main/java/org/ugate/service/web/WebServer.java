@@ -48,8 +48,9 @@ public class WebServer {
 	private final int hostId;
 	private Server server;
 	private HostKeyStore hostKeyStore;
-	public static final String RA_LOGOUT = "logout";
+	public static final String RP_LOGOUT = "logout";
 	public static final String RP_REMOTE_NODE_ADDY = "remoteNodeAddy";
+	public static final String RP_COMMAND = "command";
 	private final SignatureAlgorithm sa;
 
 	/**
