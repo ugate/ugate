@@ -384,10 +384,21 @@ public class UGateGaugeBox<T extends Model> extends VBox {
 		gauge.tickValueProperty.addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				setValueFromGauge(format, newValue);
+				if (!gauge.needleDraggingProperty().get()) {
+					// only update the value when the gauge needle is not being dragged
+					setValueFromGauge(format, newValue);
+				}
 			}
 		});
-		
+		gauge.needleDraggingProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				if (!newValue) {
+					// once the needle has stopped being dragged capture the value
+					setValueFromGauge(format, gauge.getTickValue());
+				}
+			}
+		});
 		// create/bind the value display
 		wholeNumProperty.addListener(new ChangeListener<Number>() {
 			@Override

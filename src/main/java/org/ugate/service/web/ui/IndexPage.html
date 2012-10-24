@@ -2,18 +2,15 @@
 <html xmlns:wicket="http://wicket.apache.org">
 	<body>
 		<wicket:extend>
-			<div data-role="header" data-theme="d">
-				<h1 wicket:id="deviceAddy">Label Goes Here</h1>
-			</div>
-			<div class="ui-body ui-body-d">
-				<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" data-inset="true" data-role="listview">
-					<li wicket:id="remoteNodesLI" >
-						<a wicket:id="remoteNodeItem" href="/" data-transition="flip">
-							<span wicket:id="remoteNodeItemAddy"></span>
-						</a>
-					</li>
-				</ul>
-			</div>
+			<ul data-theme="d" data-role="listview" data-inset="true" data-divider-theme="e">
+				<li wicket:id="deviceAddy" data-role="list-divider">Label Goes Here</li>
+				<li wicket:id="remoteNodesLI" data-icon="arrow-r">
+					<a wicket:id="remoteNodeItem" href="/" data-transition="flip" disabled="true">
+						<span wicket:id="remoteNodeItemAddy"></span>
+					</a>
+					<a wicket:id="remoteNodeConnect" href="javascript:alert('hi')" data-theme="b" data-icon="arrow-r">Label Goes Here</a>
+				</li>
+			</ul>
 			<div id="rnDetail" wicket:id="detail" />
 			<wicket:fragment wicket:id="rnDetail">
 				<form id="rnCommandForm" wicket:id="rnCommandForm" action="/" method="post" data-theme="c" data-transition="flip">
@@ -243,7 +240,6 @@
 							</div>
 						</div>
 					</div>
-					<button class="btnLogin" type="submit" data-theme="a" wicket:id="saveSettings">Label Goes Here</button>
 				</form>
 			</wicket:fragment>
 			<wicket:fragment wicket:id="rnNoDetail">

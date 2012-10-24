@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.StatelessForm;
@@ -74,6 +75,13 @@ public class IndexPage extends BasePage {
         		};
         		link.add(new Label("remoteNodeItemAddy", rni.getAddress()).setMarkupId("remoteNodeAddy" + item.getIndex()));
         		item.add(link);
+				final boolean isConnected = ServiceProvider.IMPL.getWirelessService().testRemoteConnection(rni);
+        		final Label cnt = new Label("remoteNodeConnect", isConnected ? "Connected" : "Connect");
+        		if (!isConnected) {
+        			cnt.add(new AttributeModifier("data-icon", "alert"));
+        			cnt.add(new AttributeModifier("data-theme", "e"));
+        		}
+        		item.add(cnt);
             }
         };
         add(loop);
@@ -141,7 +149,6 @@ public class IndexPage extends BasePage {
 			}
 		};
 		sForm.add(new Label("generalSettings", "General Settings"));
-		sForm.add(new Label("saveSettings", "Save Settings"));
 		sForm.add(new Label("alarmState", "Alarm State"));
 		addRange(sForm, RemoteNodeType.MULTI_ALARM_TRIP_STATE, rn, 0, 15, "Multi-Alarm Trip State:");
 		addSelect(sForm, RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON, rn, "Universal Remote", onOff);

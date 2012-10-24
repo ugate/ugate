@@ -359,16 +359,17 @@ public class WirelessService {
 	}
 
 	/**
-	 * Tests the address of a remote device within the wireless network
+	 * Tests the {@link RemoteNode#getAddress()} of a remote device within the
+	 * wireless network
 	 * 
 	 * @param remoteNode
-	 *            the {@linkplain RemoteNode} to test a connection for (
-	 *            {@linkplain RemoteSettings#WIRELESS_ADDRESS_START_INDEX} - 1
-	 *            when testing the local address)
-	 * @return the address of the device (if found and returns its address)
+	 *            the {@linkplain RemoteNode} to test a connection for
+	 * @return true when the connection was successful
 	 */
-	public String testRemoteConnection(final RemoteNode remoteNode) {
-		String address = null;
+	public boolean testRemoteConnection(final RemoteNode remoteNode) {
+		if (!isConnected()) {
+			return false;
+		}
 		try {
 			AtCommandResponse response;
 			int[] responseValue;
@@ -386,20 +387,23 @@ public class WirelessService {
 			}
 			if (response.isOk()) {
 				responseValue = response.getValue();
-				address = ByteUtils.toBase16(responseValue);
+				final String address = ByteUtils.toBase16(responseValue);
 				log.info(String.format("Successfully got %1$s address %2$s",
 						(remoteAddress != null ? "remote" : "local"), address));
+				if (address != null && !address.isEmpty()) {
+					return true;
+				}
 			} else {
 				throw new XBeeException(
 						"Failed to get remote address response. Status is "
 								+ response.getStatus());
 			}
-		} catch (XBeeTimeoutException e) {
+		} catch (final XBeeTimeoutException e) {
 			log.warn("Timed out getting remote XBee address", e);
-		} catch (XBeeException e) {
+		} catch (final XBeeException e) {
 			log.warn("Error getting remote XBee address", e);
 		}
-		return address;
+		return false;
 	}
 	
 	/**
