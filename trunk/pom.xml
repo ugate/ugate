@@ -18,12 +18,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>true</skipTests>
 		<ugate.log.level>INFO</ugate.log.level>
-		<!-- Change to reflect the JavaFX install directory where the JavaFX runtime 
-			JAR and the JavaFX ant JAR reside -->
-		<!-- NOTE: Cannot just add to the project repository due to native file 
-			dependencies. Possible solutions: https://forums.oracle.com/forums/thread.jspa?threadID=2307062 -->
-		<ugate.javafx.jar.path>C:\java\jdk\jre\lib\jfxrt.jar</ugate.javafx.jar.path>
-		<ugate.javafx.antjar.path>C:\java\jdk\lib\ant-javafx.jar</ugate.javafx.antjar.path>
+		<!-- NOTE: Java 8 will have JavaFX in class path by default and will not 
+			require system dependencies -->
 		<ugate.javafx.version>2.2</ugate.javafx.version>
 		<!-- RXTX will be automatically installed in the appropriate Java directories 
 			(if not already installed). To run from within IDE ensure the RXTX ZIP archive 
@@ -52,15 +48,15 @@
 		<ugate.plugin.surefire.version>2.5</ugate.plugin.surefire.version>
 		<!-- see http://www.h2database.com/html/features.html -->
 		<ugate.db.version>1.3.168</ugate.db.version>
-<!-- 		<ugate.db.version>5.1.19</ugate.db.version> -->
+		<!-- <ugate.db.version>5.1.19</ugate.db.version> -->
 		<ugate.db.connection.url>jdbc:h2:~/${project.artifactId}/${project.artifactId};AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</ugate.db.connection.url>
-<!-- 		<ugate.db.connection.url>jdbc:mysql://localhost:3306/test</ugate.db.connection.url> -->
+		<!-- <ugate.db.connection.url>jdbc:mysql://localhost:3306/test</ugate.db.connection.url> -->
 		<ugate.db.test.query>SELECT 1 and SELECT 1 FROM DUAL</ugate.db.test.query>
-<!-- 		<ugate.db.test.query>SELECT 1</ugate.db.test.query> -->
+		<!-- <ugate.db.test.query>SELECT 1</ugate.db.test.query> -->
 		<ugate.db.driver.name>org.h2.Driver</ugate.db.driver.name>
-<!-- 		<ugate.db.driver.name>com.mysql.jdbc.Driver</ugate.db.driver.name> -->
+		<!-- <ugate.db.driver.name>com.mysql.jdbc.Driver</ugate.db.driver.name> -->
 		<ugate.db.jta.ds.xa>org.h2.jdbcx.JdbcDataSource</ugate.db.jta.ds.xa>
-<!-- 		<ugate.db.jta.ds.xa>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</ugate.db.jta.ds.xa> -->
+		<!-- <ugate.db.jta.ds.xa>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</ugate.db.jta.ds.xa> -->
 		<ugate.db.username>sa</ugate.db.username>
 		<ugate.db.password>sa</ugate.db.password>
 		<!-- http://www.h2database.com/javadoc/org/h2/jdbcx/JdbcDataSource.html -->
@@ -187,7 +183,8 @@
 				</executions>
 			</plugin>
 			<!-- Copy unpack dependencies to ${project.build.directory}/dependency 
-				to be included in the final JAR (TODO : there may be a more efficient way to do this) -->
+				to be included in the final JAR (TODO : there may be a more efficient way 
+				to do this) -->
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>${ugate.plugin.dependency.version}</version>
@@ -247,13 +244,14 @@
 									classpathref="maven.plugin.classpath" />
 								<jar
 									destfile="${project.build.directory}/bin/${project.build.finalName}.${project.packaging}">
-									<application mainClass="${ugate.main}" preloaderClass="${ugate.preloader}"/>
+									<application mainClass="${ugate.main}"
+										preloaderClass="${ugate.preloader}" />
 									<fileset dir="${project.build.directory}/dependency"
 										includes="**/*" />
-<!-- 									<fileset dir="${project.build.outputDirectory}" -->
-<!-- 										includes="**/*" /> -->
+									<!-- <fileset dir="${project.build.outputDirectory}" -->
+									<!-- includes="**/*" /> -->
 									<manifest>
-									<attribute name="JavaFX-Class-Path" value="." />
+										<attribute name="JavaFX-Class-Path" value="." />
 									</manifest>
 								</jar>
 								<!-- <taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
@@ -274,11 +272,11 @@
 				</executions>
 				<dependencies>
 					<dependency>
-						<groupId>com.sun.javafx</groupId>
-						<artifactId>javafx-ant</artifactId>
+						<groupId>com.oracle</groupId>
+						<artifactId>ant-javafx</artifactId>
 						<version>${ugate.javafx.version}</version>
 						<scope>system</scope>
-						<systemPath>${ugate.javafx.antjar.path}</systemPath>
+						<systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -330,7 +328,7 @@
 			<artifactId>javafx</artifactId>
 			<version>${ugate.javafx.version}</version>
 			<scope>system</scope>
-			<systemPath>${ugate.javafx.jar.path}</systemPath>
+			<systemPath>${java.home}/lib/jfxrt.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.rapplogic</groupId>
@@ -341,7 +339,7 @@
 			<groupId>org.rxtx</groupId>
 			<artifactId>rxtx</artifactId>
 			<version>${ugate.rxtx.version}</version>
-<!-- 			<scope>provided</scope> -->
+			<!-- <scope>provided</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>org.rxtx</groupId>
@@ -361,12 +359,12 @@
 			<artifactId>h2</artifactId>
 			<version>${ugate.db.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>mysql</groupId> -->
-<!-- 			<artifactId>mysql-connector-java</artifactId> -->
-<!-- 			<version>${ugate.db.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		JTA -->
+		<!-- <dependency> -->
+		<!-- <groupId>mysql</groupId> -->
+		<!-- <artifactId>mysql-connector-java</artifactId> -->
+		<!-- <version>${ugate.db.version}</version> -->
+		<!-- </dependency> -->
+		<!-- JTA -->
 		<dependency>
 			<groupId>javax.transaction</groupId>
 			<artifactId>jta</artifactId>
@@ -413,7 +411,8 @@
 			<artifactId>spring-orm</artifactId>
 			<version>${ugate.spring.version}</version>
 		</dependency>
-		<!-- cglib is required for some spring inections (may be replaced by java assist in spring 3.2) -->
+		<!-- cglib is required for some spring inections (may be replaced by java 
+			assist in spring 3.2) -->
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
@@ -435,53 +434,53 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.openjpa</groupId> -->
-<!-- 			<artifactId>openjpa-all</artifactId> -->
-<!-- 			<version>${ugate.openjpa.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.openjpa</groupId> -->
-<!-- 			<artifactId>openjpa-kernel</artifactId> -->
-<!-- 			<version>${ugate.openjpa.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.openjpa</groupId> -->
-<!-- 			<artifactId>openjpa-lib</artifactId> -->
-<!-- 			<version>${ugate.openjpa.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.openjpa</groupId> -->
-<!-- 			<artifactId>openjpa-jdbc</artifactId> -->
-<!-- 			<version>${ugate.openjpa.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.openjpa</groupId> -->
-<!-- 			<artifactId>openjpa-persistence</artifactId> -->
-<!-- 			<version>${ugate.openjpa.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.openjpa</groupId> -->
-<!-- 			<artifactId>openjpa-persistence-jdbc</artifactId> -->
-<!-- 			<version>${ugate.openjpa.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.openjpa</groupId> -->
+		<!-- <artifactId>openjpa-all</artifactId> -->
+		<!-- <version>${ugate.openjpa.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.openjpa</groupId> -->
+		<!-- <artifactId>openjpa-kernel</artifactId> -->
+		<!-- <version>${ugate.openjpa.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.openjpa</groupId> -->
+		<!-- <artifactId>openjpa-lib</artifactId> -->
+		<!-- <version>${ugate.openjpa.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.openjpa</groupId> -->
+		<!-- <artifactId>openjpa-jdbc</artifactId> -->
+		<!-- <version>${ugate.openjpa.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.openjpa</groupId> -->
+		<!-- <artifactId>openjpa-persistence</artifactId> -->
+		<!-- <version>${ugate.openjpa.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.openjpa</groupId> -->
+		<!-- <artifactId>openjpa-persistence-jdbc</artifactId> -->
+		<!-- <version>${ugate.openjpa.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
 		<!-- Web Server -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
 			<version>${ugate.wicket.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.wicket</groupId> -->
-<!-- 			<artifactId>wicket-native-websocket-jetty</artifactId> -->
-<!-- 			<version>0.3.1</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.wicket</groupId> -->
+		<!-- <artifactId>wicket-native-websocket-jetty</artifactId> -->
+		<!-- <version>0.3.1</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -492,44 +491,44 @@
 			<artifactId>jetty-servlet</artifactId>
 			<version>${ugate.jetty.version}</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty.aggregate</groupId> -->
-<!-- 			<artifactId>jetty-servlet</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty.aggregate</groupId> -->
-<!-- 			<artifactId>jetty-webapp</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty.aggregate</groupId> -->
-<!-- 			<artifactId>jetty-webapp</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty.aggregate</groupId> -->
-<!-- 			<artifactId>jetty-websocket</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty.aggregate</groupId> -->
-<!-- 			<artifactId>jetty-websocket</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 			<classifier>sources</classifier> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty</groupId> -->
-<!-- 			<artifactId>jetty-xml</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.eclipse.jetty</groupId> -->
-<!-- 			<artifactId>jetty-util</artifactId> -->
-<!-- 			<version>${ugate.jetty.version}</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
+		<!-- <artifactId>jetty-servlet</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
+		<!-- <artifactId>jetty-webapp</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
+		<!-- <artifactId>jetty-webapp</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
+		<!-- <artifactId>jetty-websocket</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
+		<!-- <artifactId>jetty-websocket</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- <classifier>sources</classifier> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty</groupId> -->
+		<!-- <artifactId>jetty-xml</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.eclipse.jetty</groupId> -->
+		<!-- <artifactId>jetty-util</artifactId> -->
+		<!-- <version>${ugate.jetty.version}</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
