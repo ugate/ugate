@@ -10,6 +10,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -118,6 +120,7 @@ public class Gauge extends Parent {
 	public final DoubleProperty lightingElevationProperty;
 	public final ObjectProperty<Paint> highlightFillProperty;
 	public final BooleanProperty snapToTicksProperty;
+	private final ReadOnlyBooleanWrapper needleDragging = new ReadOnlyBooleanWrapper();
 	
 	public Gauge() {
 		this(null, 0, 0, null, 0);
@@ -676,10 +679,12 @@ public class Gauge extends Parent {
 							event.isShiftDown() || event.isShortcutDown() || !event.isPrimaryButtonDown()) {
 						return;
 					}
+					needleDragging.set(true);
 					getIndicatorMoveEffect().setLevel(indicatorType == IndicatorType.KNOB ? 0.2d : 0.7d);
 					moveIndicator(centerX - event.getX(), centerY - event.getY());
 				} else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
 					getIndicatorMoveEffect().setLevel(0);
+					needleDragging.set(false);
 				}
 			}
 		});
@@ -1503,6 +1508,12 @@ public class Gauge extends Parent {
 		return indicatorMoveEffect;
 	}
 
+    /**
+     * @return the {@link ReadOnlyBooleanProperty} for when the needle is being dragged
+     */
+    public ReadOnlyBooleanProperty needleDraggingProperty(){
+    	return needleDragging.getReadOnlyProperty();
+    }
 	/**
      * Indicator/Hand types
      */

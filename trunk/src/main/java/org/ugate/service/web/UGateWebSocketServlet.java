@@ -23,15 +23,15 @@ import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
  * {@linkplain WebSocketServlet} for context calls related to {@link WebSocket}
- * s. <a
- * href="http://wiki.eclipse.org/Jetty/Feature/Servlets_Bundled_with_Jetty"
- * >Complete list of bundled Servlets</a>
+ * s that will push {@link RemoteNode} changes to connected clients as JSON
+ * objects.
  */
 @WebServlet
 public class UGateWebSocketServlet extends WebSocketServlet {
 
 	private static final long serialVersionUID = 6841946295927734658L;
-	private static final Logger log = LoggerFactory.getLogger(UGateWebSocketServlet.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(UGateWebSocketServlet.class);
 	private final Set<DefaultWebSocket> members = new CopyOnWriteArraySet<>();
 	private JSON json;
 	private UGateListener uiListener;
@@ -55,7 +55,8 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 						// field names to the remote node type names so they
 						// match the input fields in the page
 						for (final RemoteNodeType rnt : RemoteNodeType.values()) {
-							jsonData = jsonData.replaceAll(rnt.getKey(), rnt.name());
+							jsonData = jsonData.replaceAll(rnt.getKey(),
+									rnt.name());
 						}
 						if (log.isInfoEnabled()) {
 							log.info(String
@@ -109,20 +110,25 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * @throws IOException
 	 *             the {@link IOException}
 	 */
-	protected void doAll(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-//		try {
-//			getServletContext().getNamedDispatcher("default").forward(request, response);
-//		} catch (final Throwable t) {
-//			log.error("Error: ", t);
-//			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//		}
+	protected void doAll(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+		// try {
+		// getServletContext().getNamedDispatcher("default").forward(request,
+		// response);
+		// } catch (final Throwable t) {
+		// log.error("Error: ", t);
+		// response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		// }
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -130,7 +136,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -138,7 +146,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doHead(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doHead(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -146,7 +156,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doPut(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doPut(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -154,7 +166,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doDelete(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doDelete(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -162,7 +176,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doOptions(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doOptions(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -170,7 +186,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doTrace(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doTrace(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
 		doAll(request, response);
 	}
 
@@ -178,7 +196,8 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public WebSocket doWebSocketConnect(final HttpServletRequest request, final String protocol) {
+	public WebSocket doWebSocketConnect(final HttpServletRequest request,
+			final String protocol) {
 		return new DefaultWebSocket();
 	}
 
@@ -188,7 +207,7 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	class DefaultWebSocket implements WebSocket.OnTextMessage {
 
 		private Connection connection;
- 
+
 		/**
 		 * {@inheritDoc}
 		 */
