@@ -48,10 +48,11 @@ public abstract class ControlPane extends GridPane {
 	 * Creates a label
 	 * 
 	 * @param key the {@linkplain KEY} resource key
-	 * @return the label
+	 * @param keyArgs the {@link KEY} arguments (if any)
+	 * @return the {@link Label}
 	 */
-	protected Label createLabel(final KEY key) {
-		final Label label = new Label(RS.rbLabel(key));
+	protected Label createLabel(final KEY key, final Object... keyArgs) {
+		final Label label = new Label(RS.rbLabel(key, keyArgs));
 		label.setWrapText(true);
 		label.setPrefWidth(LABEL_WIDTH);
 		label.getStyleClass().add("gauge-header");

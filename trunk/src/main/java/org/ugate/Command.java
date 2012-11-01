@@ -1,6 +1,5 @@
 package org.ugate;
 
-import org.ugate.service.entity.RemoteNodeType;
 
 /**
  * Commands sent/received to/from remote nodes
@@ -22,20 +21,12 @@ public enum Command {
 	SERVO_MICROWAVE_MOVE(102, false, true), 
 	SENSOR_GET_READINGS(103, true, false), 
 	SENSOR_GET_SETTINGS(104, true, false), 
-	SENSOR_SET_SETTINGS(105, false, true),
-	WIRELESS_HOST_CONNECT(200, false, false),
-	WIRELESS_REMOTE_CONNECT(201, false, false, 
-			RemoteNodeType.WIRELESS_ADDRESS);
+	SENSOR_SET_SETTINGS(105, false, true);
 
 	/**
 	 * The id recognized by the remote node
 	 */
 	public final int id;
-
-	/**
-	 * The {@link RemoteNodeType}(s) remote devices expect for the given {@link Command}
-	 */
-	public final RemoteNodeType[] params;
 
 	/**
 	 * True when the command can receive data from remote nodes
@@ -52,17 +43,14 @@ public enum Command {
 	 * 
 	 * @param id
 	 *            the {@link #id}
-	 * @param dataBytes
-	 *            the {@link #params}
 	 * @param canRx
 	 *            the {@link #canRx}
 	 * @param canTx
 	 *            the {@link #canTx}
 	 */
 	private Command(final int id, final boolean canRx,
-			final boolean canTx, final RemoteNodeType... params) {
+			final boolean canTx) {
 		this.id = id;
-		this.params = params;
 		this.canRx = canRx;
 		this.canTx = canTx;
 	}

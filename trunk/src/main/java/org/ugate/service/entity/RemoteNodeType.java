@@ -1,7 +1,11 @@
 package org.ugate.service.entity;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -13,59 +17,71 @@ import org.ugate.service.entity.jpa.RemoteNode;
  * devices</b>.
  */
 public enum RemoteNodeType implements IModelType<RemoteNode> {
-	DEVICE_SOUNDS_ON("deviceSoundsOn", false), DEVICE_AUTO_SYNCHRONIZE(
-			"deviceAutoSynchronize", false), DEVICE_SYNCHRONIZED(
-			"deviceSynchronized", false), CAM_IMG_CAPTURE_RETRY_CNT(
-			"camImgCaptureRetryCnt", false), REPORT_READINGS("reportReadings",
-			false), WIRELESS_ADDRESS("address", false), WIRELESS_WORKING_DIR_PATH(
-			"workingDir", false), MAIL_ALERT_ON("mailAlertOn", false), ALARMS_ON(
-			"alarmsOn", true), UNIVERSAL_REMOTE_ACCESS_ON(
-			"universalRemoteAccessOn", true), UNIVERSAL_REMOTE_ACCESS_CODE_1(
-			"universalRemoteAccessCode1", true), UNIVERSAL_REMOTE_ACCESS_CODE_2(
-			"universalRemoteAccessCode2", true), UNIVERSAL_REMOTE_ACCESS_CODE_3(
-			"universalRemoteAccessCode3", true), GATE_ACCESS_ON("gateAccessOn",
-			true), SONAR_DISTANCE_THRES_FEET("sonarDistanceThresFeet", true), SONAR_DISTANCE_THRES_INCHES(
-			"sonarDistanceThresInches", true), SONAR_DELAY_BTWN_TRIPS(
-			"sonarDelayBtwnTrips", true), PIR_DELAY_BTWN_TRIPS(
-			"pirDelayBtwnTrips", true), SONAR_PIR_ANGLE_PAN("sonarPirAnglePan",
-			true), SONAR_PIR_ANGLE_TILT("sonarPirAngleTilt", true), MW_SPEED_THRES_CYCLES_PER_SEC(
-			"mwSpeedThresCyclesPerSec", true), MW_DELAY_BTWN_TRIPS(
-			"mwDelayBtwnTrips", true), MW_ANGLE_PAN("mwAnglePan", true), LASER_DISTANCE_THRES_FEET(
-			"laserDistanceThresFeet", true), LASER_DISTANCE_THRES_INCHES(
-			"laserDistanceThresInches", true), LASER_DELAY_BTWN_TRIPS(
-			"laserDelayBtwnTrips", true), LASER_ANGLE_PAN("laserAnglePan", true), LASER_ANGLE_TILT(
-			"laserAngleTilt", true), MULTI_ALARM_TRIP_STATE(
-			"multiAlarmTripState", true), CAM_RESOLUTION("camResolution", true), CAM_ANGLE_PAN(
-			"camAnglePan", true), CAM_ANGLE_TILT("camAngleTilt", true), CAM_SONAR_TRIP_ANGLE_PRIORITY(
-			"camSonarTripAnglePriority", true), CAM_SONAR_TRIP_ANGLE_PAN(
-			"camSonarTripAnglePan", true), CAM_SONAR_TRIP_ANGLE_TILT(
-			"camSonarTripAngleTilt", true), CAM_PIR_TRIP_ANGLE_PRIORITY(
-			"camPirTripAnglePriority", true), CAM_PIR_TRIP_ANGLE_PAN(
-			"camPirTripAnglePan", true), CAM_PIR_TRIP_ANGLE_TILT(
-			"camPirTripAngleTilt", true), CAM_MW_TRIP_ANGLE_PRIORITY(
-			"camMwTripAnglePriority", true), CAM_MW_TRIP_ANGLE_PAN(
-			"camMwTripAnglePan", true), CAM_MW_TRIP_ANGLE_TILT(
-			"camMwTripAngleTilt", true), CAM_LASER_TRIP_ANGLE_PRIORITY(
-			"camLaserTripAnglePriority", true), CAM_LASER_TRIP_ANGLE_PAN(
-			"camLaserTripAnglePan", true), CAM_LASER_TRIP_ANGLE_TILT(
-			"camLaserTripAngleTilt", true);
+	DEVICE_SOUNDS_ON("deviceSoundsOn", Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_AUTO_SYNCHRONIZE(
+			"deviceAutoSynchronize", Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_SYNCHRONIZED(
+			"deviceSynchronized", null, false), CAM_IMG_CAPTURE_RETRY_CNT(
+			"camImgCaptureRetryCnt", null, false), REPORT_READINGS(
+			"reportReadings", null, false), WIRELESS_ADDRESS("address", null,
+			false), WIRELESS_WORKING_DIR_PATH("workingDir", null, false), MAIL_ALERT_ON(
+			"mailAlertOn", Type.ALARM_NOTIFY_TOGGLE, false), ALARMS_ON(
+			"alarmsOn", null, true), UNIVERSAL_REMOTE_ACCESS_ON(
+			"universalRemoteAccessOn", Type.UNIVERSAL_REMOTE_TOGGLE, true), UNIVERSAL_REMOTE_ACCESS_CODE_1(
+			"universalRemoteAccessCode1", Type.UNIVERSAL_REMOTE_CODE_RANGE,
+			true), UNIVERSAL_REMOTE_ACCESS_CODE_2("universalRemoteAccessCode2",
+			Type.UNIVERSAL_REMOTE_CODE_RANGE, true), UNIVERSAL_REMOTE_ACCESS_CODE_3(
+			"universalRemoteAccessCode3", Type.UNIVERSAL_REMOTE_CODE_RANGE,
+			true), GATE_ACCESS_ON("gateAccessOn", Type.GATE_TOGGLE, true), SONAR_DISTANCE_THRES_FEET(
+			"sonarDistanceThresFeet", Type.SONAR_THRESHOLD_RANGE, true), SONAR_DISTANCE_THRES_INCHES(
+			"sonarDistanceThresInches", Type.SONAR_THRESHOLD_RANGE, true), SONAR_DELAY_BTWN_TRIPS(
+			"sonarDelayBtwnTrips", Type.SONAR_THRESHOLD_RANGE, true), PIR_DELAY_BTWN_TRIPS(
+			"pirDelayBtwnTrips", Type.PIR_THRESHOLD_RANGE, true), SONAR_PIR_ANGLE_PAN(
+			"sonarPirAnglePan", Type.SONAR_PIR_POSITION_RANGE, true), SONAR_PIR_ANGLE_TILT(
+			"sonarPirAngleTilt", Type.SONAR_PIR_POSITION_RANGE, true), MW_SPEED_THRES_CYCLES_PER_SEC(
+			"mwSpeedThresCyclesPerSec", Type.MW_THRESHOLD_RANGE, true), MW_DELAY_BTWN_TRIPS(
+			"mwDelayBtwnTrips", Type.MW_THRESHOLD_RANGE, true), MW_ANGLE_PAN(
+			"mwAnglePan", Type.MW_POSITION_RANGE, true), LASER_DISTANCE_THRES_FEET(
+			"laserDistanceThresFeet", Type.LASER_THRESHOLD_RANGE, true), LASER_DISTANCE_THRES_INCHES(
+			"laserDistanceThresInches", Type.LASER_THRESHOLD_RANGE, true), LASER_DELAY_BTWN_TRIPS(
+			"laserDelayBtwnTrips", Type.LASER_THRESHOLD_RANGE, true), LASER_ANGLE_PAN(
+			"laserAnglePan", null, true), LASER_ANGLE_TILT("laserAngleTilt",
+			null, true), MULTI_ALARM_TRIP_STATE("multiAlarmTripState",
+			Type.ALARM_TRIP_STATE_RANGE, true), CAM_RESOLUTION(
+			"camResolution", Type.CAM_SETTINGS_TOGGLE, true), CAM_ANGLE_PAN(
+			"camAnglePan", Type.CAM_POSITION_RANGE, true), CAM_ANGLE_TILT(
+			"camAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PRIORITY(
+			"camSonarTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PAN(
+			"camSonarTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_TILT(
+			"camSonarTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_PRIORITY(
+			"camPirTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_PAN(
+			"camPirTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_TILT(
+			"camPirTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_MW_TRIP_ANGLE_PRIORITY(
+			"camMwTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_MW_TRIP_ANGLE_PAN(
+			"camMwTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_MW_TRIP_ANGLE_TILT(
+			"camMwTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_LASER_TRIP_ANGLE_PRIORITY(
+			"camLaserTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_LASER_TRIP_ANGLE_PAN(
+			"camLaserTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_LASER_TRIP_ANGLE_TILT(
+			"camLaserTripAngleTilt", Type.CAM_POSITION_RANGE, true);
 
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
 	private static AtomicInteger canRemoteCount = new AtomicInteger(-1);
 
 	private final String key;
 	private final boolean canRemote;
+	private final Type type;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param key
 	 *            {@linkplain #getKey()}
+	 * @param type
+	 *            the {@link Type} that the {@link RemoteNodeType} belongs to
 	 * @param canRemote
 	 *            {@linkplain #canRemote()}
 	 */
-	private RemoteNodeType(final String key, final boolean canRemote) {
+	private RemoteNodeType(final String key, final Type type, final boolean canRemote) {
 		this.key = key;
+		this.type = type;
 		this.canRemote = canRemote;
 	}
 
@@ -152,6 +168,39 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 
 	/**
+	 * @return the minimum allowed value
+	 */
+	public Long getMin() {
+		return getMinMax(false);
+	}
+
+	/**
+	 * @return the maximum allowed value
+	 */
+	public Long getMax() {
+		return getMinMax(true);
+	}
+
+	/**
+	 * @param isMax
+	 *            true for maximum value, false for minimum value
+	 * @return the maximum or minimum value
+	 */
+	private Long getMinMax(final boolean isMax) {
+		try {
+			final Field field = RemoteNode.class.getDeclaredField(this.getKey());
+			if (isMax) {
+				final Max max = field.getAnnotation(Max.class);
+				return max != null ? max.value() : Long.MAX_VALUE;
+			} else {
+				final Min min = field.getAnnotation(Min.class);
+				return min != null ? min.value() : Long.MIN_VALUE;
+			}
+		} catch (final Throwable t) {
+			throw new RuntimeException(t);
+		}
+	}
+	/**
 	 * Determines if two {@linkplain RemoteNode}s have equivalent remote values
 	 * 
 	 * @param remoteNode1
@@ -198,6 +247,20 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 
 	/**
+	 * Creates a new {@link Value} using the {@link RemoteNode} and
+	 * {@link RemoteNodeType}
+	 * 
+	 * @param remoteNode
+	 *            the {@link RemoteNode} to {@link #getValue(RemoteNode)} from
+	 * @return the {@link Value}
+	 * @throws Throwable
+	 *             when a {@link #getValue(RemoteNode)} fails
+	 */
+	public Value newValue(final RemoteNode remoteNode) throws Throwable {
+		return new Value(this, getValue(remoteNode));
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -220,5 +283,55 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	@Override
 	public boolean canRemote() {
 		return this.canRemote;
+	}
+
+	/**
+	 * @return the {@link Type}
+	 */
+	public Type getGroup() {
+		return type;
+	}
+
+	/**
+	 * {@link RemoteNodeType} group used to organize {@link RemoteNode} fields
+	 */
+	public static enum Type {
+		CAM_SETTINGS_TOGGLE, CAM_POSITION_RANGE, SONAR_PIR_POSITION_RANGE, MW_POSITION_RANGE, SONAR_THRESHOLD_RANGE, PIR_THRESHOLD_RANGE, MW_THRESHOLD_RANGE, LASER_THRESHOLD_RANGE, UNIVERSAL_REMOTE_TOGGLE, UNIVERSAL_REMOTE_CODE_RANGE, ALARM_TRIP_STATE_RANGE, ALARM_NOTIFY_TOGGLE, GATE_TOGGLE;
+	}
+
+	/**
+	 * {@link RemoteNodeType#getValue(RemoteNode)} container for a
+	 * {@link RemoteNodeType}
+	 */
+	public static class Value {
+		private final RemoteNodeType type;
+		private final Object value;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param type
+		 *            the {@link #getType()}
+		 * @param value
+		 *            the {@link #getValue()}
+		 */
+		public Value(final RemoteNodeType type, final Object value) {
+			this.type = type;
+			this.value = value;
+		}
+
+		/**
+		 * @return the {@link RemoteNodeType}
+		 */
+		public RemoteNodeType getType() {
+			return type;
+		}
+
+		/**
+		 * @return the {@link RemoteNodeType#getValue(RemoteNode)}
+		 */
+		public Object getValue() {
+			return value;
+		}
 	}
 }

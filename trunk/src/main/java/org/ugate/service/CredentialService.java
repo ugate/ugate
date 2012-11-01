@@ -155,8 +155,8 @@ public class CredentialService {
 					return actor;
 				}
 			} else if (log.isDebugEnabled()) {
-				log.debug(String.format("No %1$s exists with a login of %2$s",
-						username));
+				log.debug(String.format("No %1$s exists with a login of %2$s and the supplied password",
+						Actor.class.getSimpleName(), username));
 			}
 		} catch (final Exception e) {
 			if (e instanceof NoResultException

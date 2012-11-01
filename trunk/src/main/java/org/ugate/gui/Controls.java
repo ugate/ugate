@@ -43,11 +43,11 @@ public class Controls extends TabPane {
 		
 		// add the main tabs
 		setSide(Side.RIGHT);
-		final Tab tab1 = createTab(null, RS.rbLabel(KEY.WIRELESS_TAB1), 
+		final Tab tab1 = createTab(null, RS.rbLabel(KEY.ALARM_SETTINGS), 
 				new AlarmSettings(controlBar));
-		final Tab tab2 = createTab(null, RS.rbLabel(KEY.WIRELESS_TAB2), 
+		final Tab tab2 = createTab(null, RS.rbLabel(KEY.ALARM_THRESHOLDS), 
 				new AlarmThresholds(controlBar));
-		final Tab tab3 = createTab(null, RS.rbLabel(KEY.WIRELESS_TAB3), 
+		final Tab tab3 = createTab(null, RS.rbLabel(KEY.ALARM_POSITIONING), 
 				new PositionSettings(controlBar));
 		getTabs().addAll(tab1, tab2, tab3);
 	}

@@ -1,5 +1,6 @@
-<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
-<html lang="en" xmlns:wicket="http://wicket.apache.org">
+<!-- <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"> -->
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-3.dtd">
+<html xmlns="http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd" xmlns:th="http://www.thymeleaf.org">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		<meta charset="UTF-8"/>
@@ -239,8 +240,8 @@
 					</span>
 				</a>
 			</div>
-			<div data-role="content">
-				<wicket:child />
+			<div th:substituteby="${content} :: content" data-role="content">
+				Content Goes Here
 			</div>
 			<div data-role="footer" data-theme="d" data-position="fixed">
 				<h4 wicket:id="footer">Label Goes Here</h4>

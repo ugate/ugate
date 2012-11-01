@@ -6,8 +6,6 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
-import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
-import org.apache.wicket.protocol.http.WicketFilter;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
@@ -33,8 +31,8 @@ import org.ugate.UGateKeeper;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Host;
-import org.ugate.service.web.ui.LoginPage;
-import org.ugate.service.web.ui.WicketApplication;
+import org.ugate.service.web.ui.WebApplication;
+import org.ugate.service.web.ui.WebFilter;
 
 /**
  * Embedded web {@linkplain Server}
@@ -45,12 +43,10 @@ public class WebServer {
 	public static final String[] PROTOCOL_INCLUDE = new String[] {
 		"TLSv1", "TLSv1.1", "TLSv1.2"
 	};
+	public static final String REMOTE_USER = "REMOTE_USER";
 	private final int hostId;
 	private Server server;
 	private HostKeyStore hostKeyStore;
-	public static final String RP_LOGOUT = "logout";
-	public static final String RP_REMOTE_NODE_ADDY = "remoteNodeAddy";
-	public static final String RP_COMMAND = "command";
 	private final SignatureAlgorithm sa;
 
 	/**
@@ -179,13 +175,8 @@ public class WebServer {
 //		    context.setSessionHandler(sessionHandler);
 			
 			context.setContextPath("/");
-			final FilterHolder fh = new FilterHolder(WicketFilter.class);
-			fh.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, 
-					WicketApplication.class.getName());
-			fh.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, "/*");
-			fh.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "/"
-					+ UGateWebSocketServlet.class.getSimpleName() + ",/"
-					+ UGateAjaxUpdaterServlet.class.getSimpleName());
+			final FilterHolder fh = new FilterHolder(WebFilter.class);
+			fh.setInitParameter(REMOTE_USER, "");
 			context.addFilter(fh, "/*", dispatchers);
 			final ServletHolder sh = new ServletHolder(UGateWebSocketServlet.class);
 			context.addServlet(sh, "/" + UGateWebSocketServlet.class.getSimpleName());
@@ -197,7 +188,7 @@ public class WebServer {
 //		    final String webappDirInsideJar = this.getClass().getResource("webapp").toExternalForm();
 //		    context.setWar(webappDirInsideJar);
 
-			//addAuthentication(context);
+			addAuthentication(context);
 			server.setHandler(context);
 
 			// server.setDumpAfterStart(true);
@@ -258,9 +249,9 @@ public class WebServer {
 		cm.setConstraint(constraint);
 
 		final ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
-		final FormAuthenticator fa = new FormAuthenticator('/'
-				+ LoginPage.class.getSimpleName() + ".html", '/'
-				+ LoginPage.class.getSimpleName() + ".html", true);
+		final FormAuthenticator fa = new FormAuthenticator(
+				WebApplication.ControllerResource.LOGIN.path(), 
+				WebApplication.ControllerResource.ERROR.path(), true);
 		sh.setAuthenticator(fa);
 //		sh.setAuthenticator(new DigestAuthenticator());
 		sh.setConstraintMappings(Arrays.asList(new ConstraintMapping[] { cm }));
