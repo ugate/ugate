@@ -57,12 +57,12 @@ public class RemoteNode implements Model {
 	private String address;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="CAM_ANGLE_PAN", nullable=false)
 	private int camAnglePan;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="CAM_ANGLE_TILT", nullable=false)
 	private int camAngleTilt;
 
@@ -111,7 +111,8 @@ public class RemoteNode implements Model {
 	@Column(name="CAM_PIR_TRIP_ANGLE_TILT", nullable=false)
 	private int camPirTripAngleTilt;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(1)
 	@Column(name="CAM_RESOLUTION", nullable=false)
 	private int camResolution;
 
@@ -130,7 +131,8 @@ public class RemoteNode implements Model {
 	@Column(name="CAM_SONAR_TRIP_ANGLE_TILT", nullable=false)
 	private int camSonarTripAngleTilt;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(10)
 	@Column(name="CAM_IMG_CAPTURE_RETRY_CNT", nullable=false)
 	private int camImgCaptureRetryCnt;
 
@@ -145,24 +147,27 @@ public class RemoteNode implements Model {
 	private int gateAccessOn;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="LASER_ANGLE_PAN", nullable=false)
 	private int laserAnglePan;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="LASER_ANGLE_TILT", nullable=false)
 	private int laserAngleTilt;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(60)
 	@Column(name="LASER_DELAY_BTWN_TRIPS", nullable=false)
 	private int laserDelayBtwnTrips;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(29)
 	@Column(name="LASER_DISTANCE_THRES_FEET", nullable=false)
 	private int laserDistanceThresFeet;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(11)
 	@Column(name="LASER_DISTANCE_THRES_INCHES", nullable=false)
 	private int laserDistanceThresInches;
 
@@ -177,41 +182,47 @@ public class RemoteNode implements Model {
 	private int multiAlarmTripState;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="MW_ANGLE_PAN", nullable=false)
 	private int mwAnglePan;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(60)
 	@Column(name="MW_DELAY_BTWN_TRIPS", nullable=false)
 	private int mwDelayBtwnTrips;
 
-	@Min(value=0)
+	@Min(2)
+	@Max(100)
 	@Column(name="MW_SPEED_THRES_CYCLES_PER_SEC", nullable=false)
 	private int mwSpeedThresCyclesPerSec;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(60)
 	@Column(name="PIR_DELAY_BTWN_TRIPS", nullable=false)
 	private int pirDelayBtwnTrips;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(60)
 	@Column(name="SONAR_DELAY_BTWN_TRIPS", nullable=false)
 	private int sonarDelayBtwnTrips;
 
-	@Min(value=0)
+	@Min(2)
+	@Max(29)
 	@Column(name="SONAR_DISTANCE_THRES_FEET", nullable=false)
 	private int sonarDistanceThresFeet;
 
-	@Min(value=0)
+	@Min(0)
+	@Max(11)
 	@Column(name="SONAR_DISTANCE_THRES_INCHES", nullable=false)
 	private int sonarDistanceThresInches;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="SONAR_PIR_ANGLE_PAN", nullable=false)
 	private int sonarPirAnglePan;
 
 	@Min(0)
-	@Max(181)
+	@Max(180)
 	@Column(name="SONAR_PIR_ANGLE_TILT", nullable=false)
 	private int sonarPirAngleTilt;
 

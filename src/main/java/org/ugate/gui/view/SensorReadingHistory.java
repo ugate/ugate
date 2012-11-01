@@ -62,7 +62,7 @@ public class SensorReadingHistory extends StackPane {
 		this.cb = controlBar;
 		final StackedBarChart<String, Number> chart = new StackedBarChart<>(
 				xAxis, yAxis);
-		chart.setTitle(RS.rbLabel(KEY.LABEL_GRAPH_ALARM_NOTIFY));
+		chart.setTitle(RS.rbLabel(KEY.ALARM_NOTIFICATION));
 		// xAxis.setLabel(RS.rbLabel(KEYS.LABEL_GRAPH_AXIS_X));
 		xAxis.setCategories(FXCollections.<String> observableArrayList());
 		yAxis.setLabel(RS.rbLabel(KEY.LABEL_GRAPH_AXIS_Y));

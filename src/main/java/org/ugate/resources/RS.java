@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.Model;
+import org.ugate.service.entity.RemoteNodeType;
 
 public class RS {
 
@@ -130,10 +131,6 @@ public class RS {
 	public static final AudioClip mediaPlayerError = RS.audioClip("x_error.wav");
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
-	public static final String WEB_JS_INCLUDE = "index.js";
-	public static final String WEB_PAGE_LOGIN = "login.html";
-	public static final String WEB_PAGE_LOGIN_ERROR = "login-error.html";
-	public static final String WEB_PAGE_INDEX = "index.html";
 	private static final Pattern htmlBodyRegex = Pattern.compile("(.*)<body([^>]*)>(.*)</body>(.*)", Pattern.DOTALL);
 	
 	private RS() {
@@ -897,38 +894,52 @@ public class RS {
 				"app.service.startup.manual"), APP_HELP_DEFAULT(
 				"help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
 				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
-				"win.systray.tooltip"), LOADING("loading"), SELECT("select"), TODAY(
-				"today"), RELOAD("reload"), CLOSE("close"), ALL("all"), ALL_OFF(
-				"all.off"), UPDATE("update"), SUBMIT("submit"), ERROR("error"), INVALID(
-				"invalid", 1), SENDING("sending"), CAM_PAN("cam.pan"), CAM_PAN_DESC(
-				"cam.pan.desc"), CAM_TILT("cam.tilt"), CAM_TILT_DESC(
-				"cam.pan.tilt.desc"), CAM_RES("cam.resolution"), CAM_RES_DESC(
-				"cam.resolution.desc"), CAM_RES_VGA("cam.resolution.vga"), CAM_RES_QVGA(
-				"cam.resolution.qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
+				"win.systray.tooltip"), LOADING("loading"), LOGIN("login"), LOGOUT(
+				"logout"), SELECT("select"), TODAY("today"), RELOAD("reload"), OPEN(
+				"open"), CLOSE("close"), ALL("all"), ALL_OFF("all.off"), ON(
+				"on"), OFF("off"), UPDATE("update"), SUBMIT("submit"), ERROR(
+				"error"), INVALID("invalid", 1), FEET("feet"), INCHES("inches"), METERS("meters"), SENDING("sending"), ALARM_SETTINGS("alarm.settings"), ALARM_THRESHOLDS("alarm.thres"), ALARM_POSITIONING("alarm.positioning"), ALARM_NOTIFICATION(
+						"alarm.notify"), SONAR("sonar"), SONAR_PIR_POSITIONING("sonar.pir.pos"), PIR("pir"), MW("mw"), MW_POSITIONING("mw.pos"), LASER("laser"), CAM("cam"), CAM_POSITIONING("cam.pos"), CAM_PAN(
+				RemoteNodeType.CAM_ANGLE_PAN.getKey()), CAM_PAN_DESC(
+				RemoteNodeType.CAM_ANGLE_PAN.getKey() + ".desc"), CAM_TILT(
+				RemoteNodeType.CAM_ANGLE_TILT.getKey()), CAM_TILT_DESC(
+				RemoteNodeType.CAM_ANGLE_TILT.getKey() + ".desc"), CAM_RES(
+				RemoteNodeType.CAM_RESOLUTION.getKey()), CAM_RES_DESC(
+				RemoteNodeType.CAM_RESOLUTION.getKey() + ".desc"), CAM_RES_VGA(
+				RemoteNodeType.CAM_RESOLUTION.getKey() + ".vga"), CAM_RES_QVGA(
+				RemoteNodeType.CAM_RESOLUTION.getKey() + ".qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
 				"cam.trip.angle.priority.desc", 1), CAM_SONAR_TRIP_ANGLE_PRIORITY(
-				"cam.sonar.trip.angle.priority"), CAM_PIR_TRIP_ANGLE_PRIORITY(
-				"cam.pir.trip.angle.priority"), CAM_MW_TRIP_ANGLE_PRIORITY(
-				"cam.mw.trip.angle.priority"), CAM_LASER_TRIP_ANGLE_PRIORITY(
-				"cam.laser.trip.angle.priority"), CAM_PAN_SONAR("cam.pan.sonar"), CAM_TILT_SONAR(
-				"cam.tilt.sonar"), CAM_PAN_SONAR_DESC("cam.pan.sonar.desc"), CAM_TILT_SONAR_DESC(
-				"cam.tilt.sonar.desc"), CAM_PAN_PIR("cam.pan.pir"), CAM_TILT_PIR(
-				"cam.tilt.pir"), CAM_PAN_PIR_DESC("cam.pan.pir.desc"), CAM_TILT_PIR_DESC(
-				"cam.tilt.pir.desc"), CAM_PAN_MW("cam.pan.microwave"), CAM_TILT_MW(
-				"cam.pan.microwave"), CAM_PAN_MW_DESC("cam.pan.microwave.desc"), CAM_TILT_MW_DESC(
-				"cam.pan.microwave.desc"), CAM_PAN_LASER("cam.pan.laser"), CAM_TILT_LASER(
-				"cam.tilt.laser"), CAM_PAN_LASER_DESC("cam.pan.laser.desc"), CAM_TILT_LASER_DESC(
-				"cam.tilt.laser.desc"), CAM_ACTION_QVGA("cam.take.qvga"), CAM_ACTION_VGA(
-				"cam.take.vga"), SETTINGS_SAVE("settings.save"), SETTINGS_SAVE_FAILED(
-				"settings.save.failed", 1), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
+				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PRIORITY.getKey()), CAM_PIR_TRIP_ANGLE_PRIORITY(
+				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PRIORITY.getKey()), CAM_MW_TRIP_ANGLE_PRIORITY(
+				RemoteNodeType.CAM_MW_TRIP_ANGLE_PRIORITY.getKey()), CAM_LASER_TRIP_ANGLE_PRIORITY(
+				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PRIORITY.getKey()), CAM_PAN_SONAR(
+				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN.getKey()), CAM_TILT_SONAR(
+				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT.getKey()), CAM_PAN_SONAR_DESC(
+				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_SONAR_DESC(
+				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_PAN_PIR(
+				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN.getKey()), CAM_TILT_PIR(
+				RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT.getKey()), CAM_PAN_PIR_DESC(
+				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_PIR_DESC(
+				RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_PAN_MW(
+				RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN.getKey()), CAM_TILT_MW(
+				RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT.getKey()), CAM_PAN_MW_DESC(
+				RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_MW_DESC(
+				RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_PAN_LASER(
+				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN.getKey()), CAM_TILT_LASER(
+				RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT.getKey()), CAM_PAN_LASER_DESC(
+				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_LASER_DESC(
+				RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_ACTION_QVGA(
+				"cam.take.qvga"), CAM_ACTION_VGA("cam.take.vga"), SETTINGS_SAVE(
+				"settings.save"), SETTINGS_SAVE_FAILED("settings.save.failed",
+				1), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
 				"settings.receive"), SETTINGS_SEND_FAILED(
 				"settings.send.failed", 1), SENSOR_READINGS_GET(
-				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_DESC(
-				"sensors.trip.multi.desc"), SENSOR_READINGS("sensors.readings"), SENSOR_READINGS_FAILED(
-				"sensors.readings.failed", 1), GATE_CONFIG("gate.conf"), GATE_TOGGLE(
+				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_BINARY(RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()), SENSOR_TRIP_MULTI_DESC(
+						RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey() + ".desc"), SENSOR_READINGS("sensors.readings"), SENSOR_READINGS_FAILED(
+				"sensors.readings.failed", 1), GATE_CONFIG("gate.conf"), GATE_ACCESS(RemoteNodeType.GATE_ACCESS_ON.getKey()), GATE_ACCESS_DESC(RemoteNodeType.GATE_ACCESS_ON.getKey() + ".desc"), GATE_TOGGLE(
 				"gate.toggle"), GATE_TOGGLE_FAILED("gate.toggle.failed"), GATE_TOGGLE_DESC(
 				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_GRAPH_DESC(
-				"app.graph.desc"), LABEL_GRAPH_ALARM_NOTIFY(
-				"graph.alarm.notify"), LABEL_GRAPH_AXIS_X("graph.axis.x"), LABEL_DISPLAYSHELF_FULLSIZE_DESC(
+				"app.graph.desc"), LABEL_GRAPH_AXIS_X("graph.axis.x"), LABEL_DISPLAYSHELF_FULLSIZE_DESC(
 				"displayshelf.fullsize.tooltip"), LABEL_TOGGLE_SWITCH_ON(
 				"toggleswitch.on"), LABEL_TOGGLE_SWITCH_OFF("toggleswitch.off"), SERVICE_TX_RESPONSE_INVALID(
 				"service.tx.response.unrecognized", 2), SERVICE_TX_RESPONSE_SUCCESS(
@@ -942,8 +953,8 @@ public class RS {
 				"service.rx.image.lostpackets"), SERVICE_RX_IMAGE_LOST_PACKETS_RETRY(
 				"service.rx.image.lostpackets.retry", 3), SERVICE_RX_IMAGE_TIMEOUT(
 				"service.rx.image.timeout", 2), SERVICE_CMD_SOUNDS(
-				"service.command.sounds"), SERVICE_CMD_SOUNDS_TOGGLE(
-				"service.command.sounds.toggle"), SERVICE_CMD_FAILED(
+				RemoteNodeType.DEVICE_SOUNDS_ON.getKey()), SERVICE_CMD_SOUNDS_TOGGLE(
+						RemoteNodeType.DEVICE_SOUNDS_ON.getKey() + ".desc"), SERVICE_CMD_FAILED(
 				"service.command.failed"), SERVICE_WIRELESS_CONNECTION_REQUIRED(
 				"service.wireless.connection.required"), SERVICE_WIRELESS_FAILED(
 				"service.wireless.failed"), SERVICE_WIRELESS_ACK_SUCCESS(
@@ -975,25 +986,26 @@ public class RS {
 				"mail.imap.port.desc"), MAIL_USERNAME("mail.username"), MAIL_USERNAME_DESC(
 				"mail.username.desc"), MAIL_PASSWORD("mail.password"), MAIL_PASSWORD_DESC(
 				"mail.password.desc"), MAIL_FOLDER_NAME("mail.folder"), MAIL_FOLDER_DESC(
-				"mail.folder.desc"), SONAR_THRESHOLD("sonar.threshold"), SONAR_THRESHOLD_DESC(
-				"sonar.threshold.desc"), SONAR_PIR_PAN("sonarpir.pan"), SONAR_PIR_PAN_DESC(
-				"sonarpir.pan.desc"), SONAR_PIR_TILT("sonarpir.tilt"), SONAR_PIR_TILT_DESC(
-				"sonarpir.tilt.desc"), SONAR_ALARM_DELAY("sonar.alarm.delay"), SONAR_ALARM_DELAY_DESC(
-				"sonar.alarm.delay.desc"), PIR_ALARM_DELAY("pir.alarm.delay"), PIR_ALARM_DELAY_DESC(
-				"pir.alarm.delay.desc"), MW_THRESHOLD("microwave.threshold"), MW_THRESHOLD_DESC(
-				"microwave.threshold.desc"), MW_ALARM_DELAY(
-				"microwave.alarm.delay"), MW_ALARM_DELAY_DESC(
-				"microwave.alarm.delay.desc"), MW_PAN("microwave.pan"), MW_PAN_DESC(
-				"microwave.pan.desc"), LASER_THRESHOLD("laser.threshold"), LASER_THRESHOLD_DESC(
-				"laser.threshold.desc"), LASER_ALARM_DELAY("laser.alarm.delay"), LASER_ALARM_DELAY_DESC(
-				"laser.alarm.delay.desc"), LASER_CALIBRATION(
+				"mail.folder.desc"), SONAR_THRESHOLD("sonar.threshold", 1), SONAR_THRESHOLD_DESC(
+						"sonar.threshold.desc", 1), SONAR_THRESHOLD_FEET(RemoteNodeType.SONAR_DISTANCE_THRES_FEET.getKey()), SONAR_THRESHOLD_INCHES(RemoteNodeType.SONAR_DISTANCE_THRES_INCHES.getKey()), SONAR_PIR_PAN(RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey()), SONAR_PIR_PAN_DESC(
+						RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey() + ".desc"), SONAR_PIR_TILT(RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey()), SONAR_PIR_TILT_DESC(
+								RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey() + ".desc"), SONAR_ALARM_DELAY(RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey()), SONAR_ALARM_DELAY_DESC(
+										RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey() + ".desc"), PIR_ALARM_DELAY(RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey()), PIR_ALARM_DELAY_DESC(
+												RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_THRESHOLD(RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey()), MW_THRESHOLD_DESC(
+														RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey() + ".desc"), MW_ALARM_DELAY(
+																RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey()), MW_ALARM_DELAY_DESC(
+																		RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_PAN(RemoteNodeType.MW_ANGLE_PAN.getKey()), MW_PAN_DESC(
+						RemoteNodeType.MW_ANGLE_PAN.getKey() + ".desc"), LASER_THRESHOLD("laser.threshold", 1), LASER_THRESHOLD_DESC(
+				"laser.threshold.desc", 1), LASER_THRESHOLD_FEET(RemoteNodeType.LASER_DISTANCE_THRES_FEET.getKey()), LASER_THRESHOLD_INCHES(RemoteNodeType.LASER_DISTANCE_THRES_INCHES.getKey()),  LASER_ALARM_DELAY(RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey()), LASER_ALARM_DELAY_DESC(
+						RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey() + ".desc"), LASER_CALIBRATION(
 				"laser.calibration"), LASER_CALIBRATION_DESC(
 				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
 				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
-				"laser.calibration.failed"), WIRELESS_TAB1("wireless.tab1"), WIRELESS_TAB2(
-				"wireless.tab2"), WIRELESS_TAB3("wireless.tab3"), WIRELESS_WEB_START_STOP(
+				"laser.calibration.failed"), WIRELESS_WEB_START_STOP(
 				"wireless.web.startstop"), WIRELESS_WEB_START_STOP_DESC(
-				"wireless.web.startstop.desc"), WIRELESS_NODE_REMOTE_ADDY(
+				"wireless.web.startstop.desc"), WIRELESS_WEB_COMMANDS(
+				"wireless.web.commands"), WIRELESS_NODE_CONNECT("wireless.node.connect", 1), WIRELESS_NODE_REMOTE_NODE(
+				"wireless.node.remote.node", 1), WIRELESS_NODE_REMOTE_ADDY(
 				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
 				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
 				"wireless.node.remote.prompt"), WIRELESS_NODE_REMOTE_STATUS(
@@ -1007,15 +1019,15 @@ public class RS {
 				"wireless.node.remote.add.failed", 1), WIRELESS_NODE_REMOTE_SELECT_FAILED(
 				"wireless.node.remote.select.failed", 1), WIRELESS_NODE_REMOTE_SAVED_LOCAL(
 				"wireless.node.remote.local.saved", 1), WIRELESS_REMOTE_SYNC(
-				"wireless.node.remote.sync"), WIRELESS_REMOTE_SYNC_DESC(
-				"wireless.node.remote.sync.desc"), WIRELESS_REMOTE_SYNCD(
+				RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey()), WIRELESS_REMOTE_SYNC_DESC(
+						RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey() + ".desc"), WIRELESS_REMOTE_SYNCD(
 				"wireless.node.remote.syncd", 1), WIRELESS_REMOTE_OUT_OF_SYNC(
 				"wireless.node.remote.outofsync", 1), WIRELESS_REMOTE_READINGS_TIME(
 				"wireless.node.remote.readings.time"), WIRELESS_REMOTE_READINGS_SENSOR(
 				"wireless.node.remote.readings.sensor"), WIRELESS_REMOTE_READINGS_REPORT(
-				"wireless.node.remote.readings.report"), WIRELESS_REMOTE_UNIVERSAL(
-				"wireless.remote.universal"), WIRELESS_REMOTE_UNIVERSAL_DESC(
-				"wireless.remote.universal.desc"), WIRELESS_PORT(
+				"wireless.node.remote.readings.report"), WIRELESS_REMOTE_UNIVERSAL("universal.remote"), WIRELESS_REMOTE_UNIVERSAL_TOGGLE(
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey()), WIRELESS_REMOTE_UNIVERSAL_DESC(
+						RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey() + ".desc"), WIRELESS_PORT(
 				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(
 				"wireless.speed"), WIRELESS_SPEED_DESC("wireless.speed.desc"), WIRELESS_ACCESS_KEY(
 				"wireless.access.key", 1), WIRELESS_ACCESS_KEY_DESC(
@@ -1033,8 +1045,8 @@ public class RS {
 				"wireless.web.host.local.desc"), WEB_PORT_LOCAL(
 				"wireless.web.port.local"), WEB_PORT_LOCAL_DESC(
 				"wireless.web.port.local.desc"), MAIL_ALARM_NOTIFY(
-				"mail.alarm.notify"), MAIL_ALARM_NOTIFY_DESC(
-				"mail.alarm.notify.desc"), MAIL_ALARM_NOFITY_EMAILS(
+						RemoteNodeType.MAIL_ALERT_ON.getKey()), MAIL_ALARM_NOTIFY_DESC(
+								RemoteNodeType.MAIL_ALERT_ON.getKey() + ".desc"), MAIL_ALARM_NOFITY_EMAILS(
 				"mail.alarm.notify.emails"), MAIL_ALARM_NOTIFY_EMAILS_DESC(
 				"mail.alarm.notify.emails.desc"), MAIL_ALARM_NOTIFY_EMAILS_REMOVE(
 				"mail.alarm.notify.emails.remove"), MAIL_ALARM_NOTIFY_EMAILS_ADD(
@@ -1069,6 +1081,24 @@ public class RS {
 			this.key = key;
 			this.numberOfArguments = numberOfArguments >= 0 ? numberOfArguments
 					: 0;
+		}
+
+		/**
+		 * Gets a {@link KEY} based upon a {@link #getKey()}
+		 * 
+		 * @param key
+		 *            the {@link #getKey()}
+		 * @return the {@link KEY}
+		 */
+		public static KEY keyValueOf(final String key) {
+			if (key != null && !key.isEmpty()) {
+				for (final KEY ke : values()) {
+					if (key.equals(ke.getKey())) {
+						return ke;
+					}
+				}
+			}
+			return null;
 		}
 
 		/**

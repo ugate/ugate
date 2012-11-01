@@ -1,12 +1,13 @@
-<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
-<html lang="en" xmlns:wicket="http://wicket.apache.org">
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-3.dtd">
+<html xmlns="http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd" xmlns:th="http://www.thymeleaf.org">
+<!-- <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"> -->
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		<meta charset="UTF-8"/>
 		<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
 		<meta http-equiv="EXPIRES" content="Mon, 01 Jan 2000 00:00:01 GMT" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-		<title wicket:id="title">Label Goes Here</title>
+		<title th:text="${title}">Application Title</title>
 		<meta name="description" content="UGate Mobile Interface"/>
 		<meta name="keywords" content="ugate, ugate mobile"/>
 		<meta name="author" content=""/>
@@ -19,12 +20,18 @@
 		<link rel="apple-touch-icon" href="logo64x64.png"/>
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
 		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-		<script type="text/javascript">
+		<script th:inline="javascript" type="text/javascript">
+		/*<![CDATA[*/
+		    var AJAX_UPDATE_URL = /*[[${ajaxUpdateUrl}]]*/ "";
 			var COMMAND = "command";
 			var ACTION = "action";
 			var ACT_CONNECT = "connect";
-			var RN_ADDY = "remoteNodeAddy";
+			var RN_ADDY = "rnId";
 			var defaultLoadingMsg = "Please Wait...";
+		/*]]>*/
+		</script>
+		<script type="text/javascript">
+		/*<![CDATA[*/
 			var ws, wsc = 0;
 			// converts form data into JSON object
 			(function($) {
@@ -66,7 +73,7 @@
 					});
 			// WebSocket
 			$(document).ready(function() {
-				openWebSocket();
+				//openWebSocket();
 			});
 			function openWebSocket() {
 				try {
@@ -96,10 +103,10 @@
 				try {
 					//alert(event.data);
 					var detail = $('#rnDetail');
-					if (detail && json && json.WIRELESS_ADDRESS) {
+					if (detail && json && json.address) {
 						var rnAddy = $('#' + RN_ADDY + '0').text();
-						//alert(json.WIRELESS_ADDRESS + " === " + rnAddy + " is " + (json.WIRELESS_ADDRESS === rnAddy));
-						if (json.WIRELESS_ADDRESS === rnAddy) {
+						//alert(json.address + " === " + rnAddy + " is " + (json.address === rnAddy));
+						if (json.address === rnAddy) {
 							var updated = false;
 							$.each(json, function(name, value) {
 								var f = $('#' + name);
@@ -124,11 +131,11 @@
 			function rnConnect(a, address, waitMessage) {
 				showMessage(waitMessage);
 				try {
-				ajaxGo(null, address, ACTION + '=' + ACT_CONNECT, function (data) {
-					hideMessage();
-					$(a).attr("data-theme", "b");
-					$(a).attr("data-icon", "arrow-r");
-				});
+					ajaxGo(null, address, ACTION + '=' + ACT_CONNECT, function (data) {
+						hideMessage();
+						$(a).attr("data-theme", "b");
+						$(a).attr("data-icon", "arrow-r");
+					});
 				} catch (e) {
 					showMessage(e.message);
 				}
@@ -163,7 +170,7 @@
 					var ef = (errorFunc ? errorFunc : ajaxGoError);
 					$.ajax({
 						type : httpMeth,
-						url : "/UGateAjaxUpdaterServlet",
+						url : AJAX_UPDATE_URL,
 						data : jsonData,
 						cache : false,
 						dataType : "xml",
@@ -202,6 +209,7 @@
 					reloadPage : true
 				});
 			}
+		/*]]>*/
 		</script>
 		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 	</head>
@@ -211,14 +219,14 @@
 				data-form="ui-bar-a" data-role="header" role="banner" data-position="fixed">
 				<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a"
 					data-iconpos="notext" data-theme="a" data-role="button"
-					data-icon="home" title=" Home " href="/">
+					data-icon="home" th:title="${title}" th:href="@{/}" title=" Home " href="/base.html">
 					<span class="ui-btn-inner ui-btn-corner-all">
-						<span class="ui-btn-text" wicket:id="home">Label Goes Here</span>
+						<span class="ui-btn-text" th:text="${title}">Title</span>
 						<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span>
 				</span>
 				</a>
 				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">
-					<span wicket:id="header" id="headerLabel">Label Goes Here</span>
+					<span th:text="${title}" id="headerLabel">Header</span>
 				</h1>
 <!-- 				<a -->
 <!-- 					class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" -->
@@ -229,21 +237,38 @@
 <!-- 						class="ui-icon ui-icon-grid ui-icon-shadow"></span> -->
 <!-- 				</span> -->
 <!-- 				</a> -->
-				<a data-theme="b" data-iconpos="right" data-icon="arrow-r" href="/?logout=1" 
+				<a th:href="@{/logout}" href="/login.html" data-theme="b" data-iconpos="right" data-icon="arrow-r"  
 					class="ui-btn-right ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-right ui-btn-up-b" 
 					data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span"
 					data-transition="flip">
 					<span class="ui-btn-inner ui-btn-corner-all">
-						<span class="ui-btn-text" wicket:id="logInOut">Label Goes Here</span>
+						<span class="ui-btn-text" th:text="#{logout}">Logout</span>
 						<span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span>
 					</span>
 				</a>
 			</div>
-			<div data-role="content">
-				<wicket:child />
+			<div th:include="${content} :: content" id="content" data-role="content">
+				<script type="text/javascript">
+				/*<![CDATA[*/
+					// prototype content replaced by fragment on server
+					var pp = 'login.html';
+					var hashes = window.location.href.slice(
+							window.location.href.indexOf('?') + 1).split('&');
+					for (var i = 0; i < hashes.length; i++) {
+						var hash = hashes[i].split('=');
+						if (hash[0] == 'page' && hash[1]) {
+							pp = hash[1] + '.html';
+							break;
+						}
+					}
+					$('#content').load(pp, function() {
+						//alert('prototype load was performed.');
+					});
+				/*]]>*/
+				</script>
 			</div>
 			<div data-role="footer" data-theme="d" data-position="fixed">
-				<h4 wicket:id="footer">Label Goes Here</h4>
+				<h4 th:text="${footer}">Footer</h4>
 			</div>
 		</div>
 		<div id="feedbackMessage" style="display:none;">Loading...</div>

@@ -1,265 +1,175 @@
-<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">
-<html lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-		<meta charset="UTF-8"/>
-		<meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
-		<meta http-equiv="EXPIRES" content="Mon, 01 Jan 2000 00:00:01 GMT" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-		<title>UGate Mobile</title>
-		<meta name="description" content="UGate Mobile Interface"/>
-		<meta name="keywords" content="ugate, ugate mobile"/>
-		<meta name="author" content=""/>
-		<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
-		<link rel="icon" href="logo16x16.png"/>
-		<link rel="apple-touch-icon" size="144x144" href="logo128x128.png"/>
-		<link rel="apple-touch-icon" size="114x114" href="logo128x128.png"/>
-		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png"/>
-		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png"/>
-		<link rel="apple-touch-icon" href="logo64x64.png"/>
-		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
-	</head>
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-3.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 	<body>
-		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a" data-dom-cache="false">
-			<div class="ui-header ui-bar-a" data-swatch="a" data-theme="a"
-				data-form="ui-bar-a" data-role="header" role="banner" data-position="fixed">
-				<a class="ui-btn-left ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a"
-					data-iconpos="notext" data-theme="a" data-role="button"
-					data-icon="home" title=" Home " href="/">
-					<span class="ui-btn-inner ui-btn-corner-all">
-						<span class="ui-btn-text"> Home </span>
-						<span data-form="ui-icon" class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span>
-				</span>
-				</a>
-				<h1 class="ui-title" tabindex="0" role="heading" aria-level="1">___FEEDBACK_MSG___</h1>
-<!-- 				<a -->
-<!-- 					class="ui-btn-right ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-a" -->
-<!-- 					data-iconpos="notext" data-theme="a" data-role="button" -->
-<!-- 					data-icon="grid" title=" Navigation "> <span -->
-<!-- 					class="ui-btn-inner ui-btn-corner-all"> <span -->
-<!-- 						class="ui-btn-text"> Navigation </span> <span data-form="ui-icon" -->
-<!-- 						class="ui-icon ui-icon-grid ui-icon-shadow"></span> -->
-<!-- 				</span> -->
-<!-- 				</a> -->
-				<a data-theme="b" data-iconpos="right" data-icon="arrow-r" href="/?logout=1" 
-					class="ui-btn-right ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-right ui-btn-up-b" 
-					data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span"
-					data-transition="flip">
-					<span class="ui-btn-inner ui-btn-corner-all">
-						<span class="ui-btn-text">Logout</span>
-						<span class="ui-icon ui-icon-arrow-r ui-icon-shadow">&nbsp;</span>
-					</span>
-				</a>
-			</div>
-			<div data-role="content">
-				<div data-role="header" data-theme="d">
-					<h1>Device Address</h1>
-				</div>
-				<div class="ui-body ui-body-d">
-					<ul class="ui-listview ui-listview-inset ui-corner-all ui-shadow" data-inset="true" data-role="listview">
-						___REMOTE_NODES___
-					</ul>
-				</div>
-				<div id="rnDetail" style="display: ___NODE_DETAIL_DISPLAY___">
-					<form id="rnCommandForm" action="/?action=1" method="post" data-theme="c" data-transition="flip">
-						<div data-role="collapsible-set" data-transition="pop">
-							<div data-role="collapsible" data-theme="b" data-content-theme="c">
-								<h3>Actions/Commands</h3>
-								<div data-role="fieldcontain">
-									<label for="GATE_TOGGLE_OPEN_CLOSE">Gate State (open/close):</label>
-									<select name="GATE_TOGGLE_OPEN_CLOSE" id="GATE_TOGGLE_OPEN_CLOSE" data-role="slider"
-										onchange="execCommand('GATE_TOGGLE_OPEN_CLOSE')" data-value="0">
-										<option value="0">Close</option>
-										<option value="1">Open</option>
-									</select>
-								</div>
-							</div>
+		<div th:fragment="content">
+			<ul data-theme="d" data-role="listview" data-inset="true" data-divider-theme="e">
+				<li th:text="#{wireless.node.remote.node(${rn.address})}" data-role="list-divider">Remote Node: (prototype)</li>
+				<li th:each="rni : ${remoteNodes}" data-icon="arrow-r">
+					<a th:href="@{${url}(rnId=${rni.id})}" href="/index.html" data-transition="flip" disabled="true">
+						<span th:id="'rnId' + ${rniStat.index}" th:text="${rni.address}">0000 (prototype)</span>
+					</a>
+					<a th:text="#{wireless.node.connect(${rni.address})}" th:href="'javascript:rnConnect(this,\'' + ${rni.address} + '\', \'Connecting...\')'" href="#" data-theme="b" data-icon="arrow-r">Connect To Remote Device (prototype)</a>
+				</li>
+			</ul>
+			<div th:unless="${#strings.isEmpty(rn.address)}" id="rnDetail">
+				<form th:action="@{/}" id="rnCommandForm" action="/index.html" method="post" data-theme="c" data-transition="flip">
+					<input id="command" name="command" type="hidden" value="" />
+				</form>
+				<div data-role="collapsible-set" data-transition="pop">
+					<div data-role="collapsible" data-theme="b" data-content-theme="c">
+						<h3 th:text="#{wireless.web.commands}">Commands (prototype)</h3>
+						<div data-role="fieldcontain">
+							<label th:text="#{gate.state}" for="GATE_TOGGLE_OPEN_CLOSE">Gate State: (prototype)</label>
+							<select name="GATE_TOGGLE_OPEN_CLOSE" id="GATE_TOGGLE_OPEN_CLOSE" data-role="slider">
+								<option th:text="#{close}" th:selected="${rnr == null or rnr.gateState == 0}" value="0">Close</option>
+								<option th:text="#{open}" th:selected="${rnr != null and rnr.gateState == 1}" value="1">Open</option>
+							</select>
 						</div>
-					</form>
-					<form id="settingsForm" action="/node/?save=1&remoteNodeId=___REMOTE_NODE_ID___" method="post" data-theme="c" data-transition="flip">
-						<div data-role="collapsible-set">
-							<div data-role="collapsible" data-theme="b" data-content-theme="c">
-								<h3>General Settings</h3>
-								<div data-role="collapsible-set">
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Alarm State</h3>
-										<div data-role="fieldcontain">
-											<label for="MULTI_ALARM_TRIP_STATE">Multi-Alarm Trip State:</label>
-											<input type="range" name="MULTI_ALARM_TRIP_STATE" id="MULTI_ALARM_TRIP_STATE" value="__MULTI_ALARM_TRIP_STATE__" min="0" max="15" data-highlight="true" />
-										</div>
+	<!-- 					<div data-role="fieldcontain"> -->
+	<!-- 						<a id="SERVO_LASER_CALIBRATE" href="/" data-transition="flip"> -->
+	<!-- 							<span id="SERVO_LASER_CALIBRATE_LABEL">Label Goes Here</span> -->
+	<!-- 						</a> -->
+	<!-- 					</div> -->
+					</div>
+				</div>
+				<form th:action="@{/}" id="settingsForm" action="/index.html" method="post" data-theme="c" data-transition="flip">
+					<div data-role="collapsible-set">
+						<div data-role="collapsible" data-theme="b" data-content-theme="c">
+							<h3 th:text="#{alarm.settings}">General Settings (prototype)</h3>
+							<div data-role="collapsible-set">
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{sensors.trip.multi}">Alarm Multi-Trip State (prototype)</h3>
+									<div th:each="cp : ${ALARM_TRIP_STATE_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="mats">Alarm Multi-Trip State Binary (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="mats" id="mats" 
+											value="0" min="0" max="100" data-highlight="true" />
 									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Universal Remote</h3>
-										<select name="UNIVERSAL_REMOTE_ACCESS_ON" id="UNIVERSAL_REMOTE_ACCESS_ON" data-role="slider" data-value="__UNIVERSAL_REMOTE_ACCESS_ON__">
-											<option value="0" selected="selected">Off</option>
-											<option value="1">On</option>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{universal.remote}">Universal Remote (prototype)</h3>
+									<div th:each="cp : ${UNIVERSAL_REMOTE_TOGGLE}" class="containing-element">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="urt">Universal Remote On/Off (prototype)</label>
+										<select th:name="${cp.type.key}" th:id="${cp.type.key}" name="urt" id="urt" data-role="slider">
+											<option th:text="#{off}" th:selected="${cp.value} == 0" value="0">Off</option>
+											<option th:text="#{on}" th:selected="${cp.value} == 1" value="1">On</option>
 										</select>
-										<div data-role="fieldcontain">
-											<label for="UNIVERSAL_REMOTE_ACCESS_CODE_1">Universal Remote Key 1:</label>
-											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_1" id="UNIVERSAL_REMOTE_ACCESS_CODE_1" value="__UNIVERSAL_REMOTE_ACCESS_CODE_1__" min="0" max="9" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="UNIVERSAL_REMOTE_ACCESS_CODE_2">Universal Remote Key 2:</label>
-											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_2" id="UNIVERSAL_REMOTE_ACCESS_CODE_2" value="__UNIVERSAL_REMOTE_ACCESS_CODE_2__" min="0" max="9" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="UNIVERSAL_REMOTE_ACCESS_CODE_3">Universal Remote Key 3:</label>
-											<input type="range" name="UNIVERSAL_REMOTE_ACCESS_CODE_3" id="UNIVERSAL_REMOTE_ACCESS_CODE_3" value="__UNIVERSAL_REMOTE_ACCESS_CODE_3__" min="0" max="9" data-highlight="true" />
-										</div>
 									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Notifications</h3>
-										<div data-role="fieldcontain">
-											<label for="DEVICE_SOUNDS_ON">Host Sound Alarm:</label>
-											<select name="DEVICE_SOUNDS_ON" id="DEVICE_SOUNDS_ON" data-role="slider" data-value="__DEVICE_SOUNDS_ON__">
-												<option value="0">Off</option>
-												<option value="1">On</option>
-											</select>
-										</div>
-										<div data-role="fieldcontain">
-											<label for="MAIL_ALERT_ON">Email Notifications:</label>
-											<select name="MAIL_ALERT_ON" id="MAIL_ALERT_ON" data-role="slider" data-value="__MAIL_ALERT_ON__">
-												<option value="0">Off</option>
-												<option value="1">On</option>
-											</select>
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Other</h3>
-										<div data-role="fieldcontain">
-											<label for="CAM_RESOLUTION">Camera Resolution:</label>
-											<select name="CAM_RESOLUTION" id="CAM_RESOLUTION" data-role="slider" data-value="__CAM_RESOLUTION__">
-												<option value="0">QVGA</option>
-												<option value="1">VGA</option>
-											</select>
-										</div>
-										<div data-role="fieldcontain">
-											<label for="DEVICE_AUTO_SYNCHRONIZE">Auto Synchronize:</label>
-											<select name="DEVICE_AUTO_SYNCHRONIZE" id="DEVICE_AUTO_SYNCHRONIZE" data-role="slider" data-value="__DEVICE_AUTO_SYNCHRONIZE__">
-												<option value="0">Off</option>
-												<option value="1">On</option>
-											</select>
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Gate</h3>
-										<div data-role="fieldcontain">
-											<label for="GATE_ACCESS_ON">Gate Accessibility:</label>
-											<select name="GATE_ACCESS_ON" id="GATE_ACCESS_ON" data-role="slider" data-value="__GATE_ACCESS_ON__">
-												<option value="0">Off</option>
-												<option value="1">On</option>
-											</select>
-										</div>
+									<div th:each="cp : ${UNIVERSAL_REMOTE_CODE_RANGE}" data-role="fieldcontain">
+										<label th:text="#{wireless.access.key(${cpStat.index})}" th:for="${cp.type.key}" for="urkc">Universal Remote Key Code (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="urkc" id="urkc" 
+											value="0" min="0" max="100" data-highlight="true" />
 									</div>
 								</div>
-							</div>
-							<div data-role="collapsible" data-theme="b" data-content-theme="c">
-								<h3>Alarm Thresholds</h3>
-								<div data-role="collapsible-set">
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Sonar</h3>
-										<div data-role="fieldcontain">
-											<label for="SONAR_DISTANCE_THRES_FEET">Sonar Distance Threshold (feet):</label>
-											<input type="range" name="SONAR_DISTANCE_THRES_FEET" id="SONAR_DISTANCE_THRES_FEET" value="__SONAR_DISTANCE_THRES_FEET__" min="0" max="10" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="SONAR_DISTANCE_THRES_INCHES">Sonar Distance Threshold (inches):</label>
-											<input type="range" name="SONAR_DISTANCE_THRES_INCHES" id="SONAR_DISTANCE_THRES_INCHES" value="__SONAR_DISTANCE_THRES_INCHES__" min="0" max="11" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="SONAR_DELAY_BTWN_TRIPS">Sonar Delay Between Trips (minutes):</label>
-											<input type="range" name="SONAR_DELAY_BTWN_TRIPS" id="SONAR_DELAY_BTWN_TRIPS" value="__SONAR_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>PIR</h3>
-										<div data-role="fieldcontain">
-											<label for="PIR_DELAY_BTWN_TRIPS">PIR Delay Between Trips (minutes):</label>
-											<input type="range" name="PIR_DELAY_BTWN_TRIPS" id="PIR_DELAY_BTWN_TRIPS" value="__PIR_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Microwave</h3>
-										<div data-role="fieldcontain">
-											<label for="MW_SPEED_THRES_CYCLES_PER_SEC">Microwave Distance Threshold (cycles/second):</label>
-											<input type="range" name="MW_SPEED_THRES_CYCLES_PER_SEC" id="MW_SPEED_THRES_CYCLES_PER_SEC" value="__MW_SPEED_THRES_CYCLES_PER_SEC__" min="2" max="50" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="MW_DELAY_BTWN_TRIPS">Microwave Delay Between Trips (minutes):</label>
-											<input type="range" name="MW_DELAY_BTWN_TRIPS" id="MW_DELAY_BTWN_TRIPS" value="__MW_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Laser</h3>
-										<div data-role="fieldcontain">
-											<label for="LASER_DISTANCE_THRES_FEET">Laser Distance Threshold (feet):</label>
-											<input type="range" name="LASER_DISTANCE_THRES_FEET" id="LASER_DISTANCE_THRES_FEET" value="__LASER_DISTANCE_THRES_FEET__" min="0" max="32" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="LASER_DISTANCE_THRES_INCHES">Laser Distance Threshold (inches):</label>
-											<input type="range" name="LASER_DISTANCE_THRES_INCHES" id="LASER_DISTANCE_THRES_INCHES" value="__LASER_DISTANCE_THRES_INCHES__" min="0" max="11" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="LASER_DELAY_BTWN_TRIPS">Laser Delay Between Trips (minutes):</label>
-											<input type="range" name="LASER_DELAY_BTWN_TRIPS" id="LASER_DELAY_BTWN_TRIPS" value="__LASER_DELAY_BTWN_TRIPS__" min="0" max="60" data-highlight="true" />
-										</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{alarm.notify}">Alarm Notifications (prototype)</h3>
+									<div th:each="cp : ${ALARM_NOTIFY_TOGGLE}" class="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="ant">Alarm Notification On/Off (prototype)</label>
+										<select th:name="${cp.type.key}" th:id="${cp.type.key}" name="ant" id="ant" data-role="slider">
+											<option th:text="#{off}" th:selected="${cp.value} == 0" value="0">Off</option>
+											<option th:text="#{on}" th:selected="${cp.value} == 1" value="1">On</option>
+										</select>
 									</div>
 								</div>
-							</div>
-							<div data-role="collapsible" data-theme="b" data-content-theme="c">
-								<h3>Positioning</h3>
-								<div data-role="collapsible-set">
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Camera</h3>
-										<div data-role="fieldcontain">
-											<label for="CAM_ANGLE_PAN">Camera Pan Angle:</label>
-											<input type="range" name="CAM_ANGLE_PAN" id="CAM_ANGLE_PAN" value="__CAM_ANGLE_PAN__" min="0" max="180" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="CAM_ANGLE_TILT">Camera Tilt Angle:</label>
-											<input type="range" name="CAM_ANGLE_TILT" id="CAM_ANGLE_TILT" value="__CAM_ANGLE_TILT__" min="0" max="180" data-highlight="true" />
-										</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{cam}">Camera Settings (prototype)</h3>
+									<div th:each="cp : ${CAM_SETTINGS_TOGGLE}" class="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="camSet">Camera Settings On/Off (prototype)</label>
+										<select th:name="${cp.type.key}" th:id="${cp.type.key}" name="camSet" id="camSet" data-role="slider">
+											<option th:text="#{camResolution.qvga}" th:selected="${cp.value} == 0" value="0">QVGA</option>
+											<option th:text="#{camResolution.vga}" th:selected="${cp.value} == 1" value="1">VGA</option>
+										</select>
 									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Sonar/PIR</h3>
-										<div data-role="fieldcontain">
-											<label for="SONAR_PIR_ANGLE_PAN">Sonar/PIR Pan Angle:</label>
-											<input type="range" name="SONAR_PIR_ANGLE_PAN" id="SONAR_PIR_ANGLE_PAN" value="__SONAR_PIR_ANGLE_PAN__" min="0" max="180" data-highlight="true" />
-										</div>
-										<div data-role="fieldcontain">
-											<label for="SONAR_PIR_ANGLE_TILT">Sonar/PIR Tilt Angle:</label>
-											<input type="range" name="SONAR_PIR_ANGLE_TILT" id="SONAR_PIR_ANGLE_TILT" value="__SONAR_PIR_ANGLE_TILT__" min="0" max="180" data-highlight="true" />
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Micorwave</h3>
-										<div data-role="fieldcontain">
-											<label for="MW_ANGLE_PAN">Micorwave Pan Angle:</label>
-											<input type="range" name="MW_ANGLE_PAN" id="MW_ANGLE_PAN" value="__MW_ANGLE_PAN__" min="0" max="180" data-highlight="true" />
-										</div>
-									</div>
-									<div data-role="collapsible" data-theme="c" data-content-theme="c">
-										<h3>Laser</h3>
-										<div data-role="fieldcontain">
-											<label for="laserCal">Calibrate Laser:</label>
-											<input type="range" name="laserCal" id="laserCal" value="90" min="0" max="180" data-highlight="true" />
-										</div>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{gate.conf}">Gate Configuration (prototype)</h3>
+									<div th:each="cp : ${GATE_TOGGLE}" class="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="ant">Gate On/Off (prototype)</label>
+										<select th:name="${cp.type.key}" th:id="${cp.type.key}" name="ant" id="ant" data-role="slider">
+											<option th:text="#{off}" th:selected="${cp.value} == 0" value="0">Off</option>
+											<option th:text="#{on}" th:selected="${cp.value} == 1" value="1">On</option>
+										</select>
 									</div>
 								</div>
 							</div>
 						</div>
-						<button class="btnLogin" type="submit" data-theme="a">Save Settings</button>
-					</form>
-				</div>
-			</div>
-			<div data-role="footer" data-theme="d" data-position="fixed">
-				<h4>UGate Mobile</h4>
+						<div data-role="collapsible" data-theme="b" data-content-theme="c">
+							<h3 th:text="#{alarm.thres}">Alarm Thresholds (prototype)</h3>
+							<div data-role="collapsible-set">
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{sonar}">Sonar (prototype)</h3>
+									<div th:each="cp : ${SONAR_THRESHOLD_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="sThres">Sonar Threshold Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="sThres" id="sThres" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{pir}">PIR (prototype)</h3>
+									<div th:each="cp : ${PIR_THRESHOLD_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="pThres">PIR Threshold Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="pThres" id="pThres" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{mw}">Microwave (prototype)</h3>
+									<div th:each="cp : ${MW_THRESHOLD_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="mThres">Microwave Threshold Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="mThres" id="mThres" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{laser}">Laser (prototype)</h3>
+									<div th:each="cp : ${LASER_THRESHOLD_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="lThres">Laser Threshold Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="lThres" id="lThres" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div data-role="collapsible" data-theme="b" data-content-theme="c">
+							<h3 th:text="#{alarm.positioning}">Positioning (prototype)</h3>
+							<div data-role="collapsible-set">
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{cam.pos}">Camera Positiong (prototype)</h3>
+									<div th:each="cp : ${CAM_POSITION_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="camPos">Camera Position Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="camPos" id="camPos" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{sonar.pir.pos}">Sonar/PIR Positiong (prototype)</h3>
+									<div th:each="cp : ${SONAR_PIR_POSITION_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="spPos">Sonar/PIR Position Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="spPos" id="spPos" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+								<div data-role="collapsible" data-theme="c" data-content-theme="c">
+									<h3 th:text="#{mw.pos}">Microwave Positiong (prototype)</h3>
+									<div th:each="cp : ${MW_POSITION_RANGE}" data-role="fieldcontain">
+										<label th:text="#{${cp.type.key}}" th:for="${cp.type.key}" for="mwPos">Microwave Range (prototype)</label>
+										<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}" 
+											type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="mwPos" id="mwPos" 
+											value="0" min="0" max="100" data-highlight="true" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
 			</div>
 		</div>
-		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
-		<script type="text/javascript">
-			___JS_INCLUDE___
-		</script>
-		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 	</body>
 </html>

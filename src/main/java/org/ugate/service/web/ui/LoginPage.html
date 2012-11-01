@@ -2,8 +2,7 @@
 <html xmlns:wicket="http://wicket.apache.org">
 	<body>
 		<wicket:extend>
-			<div data-role="page" id="login" data-dom-cache="false" data-transition="flip">
-				<form id="loginForm" method="post" action="/j_security_check" data-transition="flip">
+			<form wicket:id="loginForm" id="loginForm" method="post" action="/" data-theme="b" data-transition="flip">
 					<fieldset data-role="controlgroup">
 						<label for="j_username"><strong>Email:</strong></label>
 						<input type="text" id="j_username" name="j_username" />
@@ -11,8 +10,7 @@
 						<input type="password" id="j_password" name="j_password"/>
 					</fieldset>
 					<button class="btnLogin" type="submit" data-theme="a">Login</button>
-				</form>
-			</div>
+			</form>
 		</wicket:extend>
 	</body>
 </html>

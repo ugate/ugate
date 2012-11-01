@@ -1,18 +1,17 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:wicket="http://wicket.apache.org">
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-3.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 	<body>
-		<wicket:extend>
+		<div th:fragment="content">
 			<ul data-theme="d" data-role="listview" data-inset="true" data-divider-theme="e">
-				<li wicket:id="deviceAddy" data-role="list-divider">Label Goes Here</li>
-				<li wicket:id="remoteNodesLI" data-icon="arrow-r">
-					<a wicket:id="remoteNodeItem" href="/" data-transition="flip" disabled="true">
-						<span wicket:id="remoteNodeItemAddy"></span>
+				<li th:text="'Remote Node: ' + ${rn.address}" data-role="list-divider">Label Goes Here</li>
+				<li th:each="rni : ${remoteNodes}" data-icon="arrow-r">
+					<a th:href="@{${url}(rnId=${rni.id})}" href="/index.html" data-transition="flip" disabled="true">
+						<span th:text="${rni.address}">0000</span>
 					</a>
-					<a wicket:id="remoteNodeConnect" href="#" data-theme="b" data-icon="arrow-r">Label Goes Here</a>
+					<a th:text="'Connect'" th:href="" href="#" data-theme="b" data-icon="arrow-r">Label Goes Here</a>
 				</li>
 			</ul>
-			<div id="rnDetail" wicket:id="detail" />
-			<wicket:fragment wicket:id="rnDetail">
+			<div th:unless="${rn}" id="rnDetail">
 				<form id="rnCommandForm" wicket:id="rnCommandForm" action="/" method="post" data-theme="c" data-transition="flip">
 					<input wicket:id="command" id="command" name="command" type="hidden" value="" />
 				</form>
@@ -26,11 +25,11 @@
 								<option value="0">Label Goes Here</option>
 							</select>
 						</div>
-<!-- 							<div data-role="fieldcontain"> -->
-<!-- 								<a wicket:id="SERVO_LASER_CALIBRATE" href="/" data-transition="flip"> -->
-<!-- 									<span wicket:id="SERVO_LASER_CALIBRATE_LABEL">Label Goes Here</span> -->
-<!-- 								</a> -->
-<!-- 							</div> -->
+	<!-- 					<div data-role="fieldcontain"> -->
+	<!-- 						<a id="SERVO_LASER_CALIBRATE" href="/" data-transition="flip"> -->
+	<!-- 							<span id="SERVO_LASER_CALIBRATE_LABEL">Label Goes Here</span> -->
+	<!-- 						</a> -->
+	<!-- 					</div> -->
 					</div>
 				</div>
 				<form id="settingsForm" wicket:id="rnSettingsForm" action="/" method="post" data-theme="c" data-transition="flip">
@@ -241,10 +240,7 @@
 						</div>
 					</div>
 				</form>
-			</wicket:fragment>
-			<wicket:fragment wicket:id="rnNoDetail">
-				<span></span>
-			</wicket:fragment>
-		</wicket:extend>
+			</div>
+		</div>
 	</body>
 </html>

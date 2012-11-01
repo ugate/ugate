@@ -2,13 +2,6 @@ package org.ugate.gui.view;
 
 import java.io.StringWriter;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -24,18 +17,17 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
 
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.ugate.gui.ControlBar;
 import org.ugate.resources.RS;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.html.HTMLBodyElement;
-import org.w3c.dom.html.HTMLDivElement;
-import org.w3c.dom.html.HTMLElement;
 
 /**
  * Web browser UI builder to build web browser content
@@ -169,7 +161,7 @@ public class WebBuilder extends BorderPane {
 	}
 
 	protected String getContent(final boolean justBodyContent) {
-		String content = RS.getEscapedResource(RS.WEB_PAGE_INDEX, null,
+		String content = RS.getEscapedResource("index.html", null,
 				cb.getRemoteNode(), RemoteNodeType.values());
 		content = RS.getEscapedContent(content, null, cb.getActor(),
 				ActorType.values());

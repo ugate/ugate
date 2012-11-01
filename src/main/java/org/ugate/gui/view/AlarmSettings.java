@@ -148,7 +148,7 @@ public class AlarmSettings extends ControlPane {
 		gateToggleSwitchView = new UGateToggleSwitchBox<>(
 				controlBar.getRemoteNodePA(), RemoteNodeType.GATE_ACCESS_ON,
 				RS.IMG_GATE_ON, RS.IMG_GATE_OFF);
-		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel(KEY.GATE_TOGGLE));
+		controlBar.addHelpTextTrigger(gateToggleSwitchView, RS.rbLabel(KEY.GATE_ACCESS_DESC));
 		final Label gateCtrlHeader = createLabel(KEY.GATE_STATE);
 		final ImageView gateToggleImgView = RS.imgView(RS.IMG_GATE_CLOSED);
 		final Button gateToggleBtn = new Button();

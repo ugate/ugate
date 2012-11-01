@@ -1,7 +1,9 @@
 package org.ugate.service.web;
 
-import static org.ugate.service.web.WebServer.RP_COMMAND;
-import static org.ugate.service.web.WebServer.RP_REMOTE_NODE_ADDY;
+import static org.ugate.service.web.ui.IndexController.VAR_COMMAND_NAME;
+import static org.ugate.service.web.ui.IndexController.VAR_REMOTE_NODE_ADDY_NAME;
+import static org.ugate.service.web.ui.IndexController.VAR_ACTION_NAME;
+import static org.ugate.service.web.ui.IndexController.VAR_ACTION_CONNECT_NAME;
 
 import java.io.IOException;
 
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 
@@ -43,7 +46,45 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	protected boolean validate(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
+		final String username = (String) request.getSession().getAttribute(ActorType.USERNAME.name());
+		if (username == null || username.isEmpty()) {
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return false;
+		}
 		return true;
+	}
+
+	/**
+	 * Executes {@link Command}(s) using the
+	 * {@link HttpServletRequest#getParameter(String)}
+	 * 
+	 * @param request
+	 *            the {@link HttpServletRequest}
+	 * @param response
+	 *            the {@link HttpServletResponse}
+	 * @param rn
+	 *            the {@link RemoteNode} to execute the {@link Command} on
+	 */
+	protected void executeCommands(final HttpServletRequest request,
+			final HttpServletResponse response, final RemoteNode rn) {
+		if (rn == null) {
+			return;
+		}
+		final String c = request.getParameter(VAR_COMMAND_NAME);
+		if (c == null || c.isEmpty()) {
+			return;
+		}
+		final Command cmd = Command.valueOf(c);
+		if (cmd != null) {
+			if (log.isInfoEnabled()) {
+				log.info(String.format(
+						"Executing %1$s for %2$s at address %3$s)",
+						cmd, RemoteNode.class.getSimpleName(),
+						rn.getAddress()));
+			}
+			ServiceProvider.IMPL.getWirelessService().sendData(rn, cmd,
+					true);
+		}
 	}
 
 	/**
@@ -62,13 +103,13 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	protected RemoteNode getRemoteNode(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
-		final String addy = request.getParameter(RP_REMOTE_NODE_ADDY);
+		final String addy = request.getParameter(VAR_REMOTE_NODE_ADDY_NAME);
 		if (addy != null && !addy.isEmpty()) {
 			final RemoteNode rn = ServiceProvider.IMPL.getRemoteNodeService()
 					.findByAddress(addy);
 			if (rn == null) {
 				log.warn(String
-						.format("Unable to find %1$s with %2$s = %3$s Aborting PUT operation",
+						.format("Unable to find %1$s with %2$s = %3$s",
 								RemoteNode.class.getSimpleName(),
 								RemoteNodeType.WIRELESS_ADDRESS, addy));
 				return null;
@@ -77,7 +118,7 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 		} else {
 			log.warn(String.format(
 					"Request %1$s must contain %2$s in order to perform PUT",
-					request, RP_REMOTE_NODE_ADDY));
+					request, VAR_REMOTE_NODE_ADDY_NAME));
 		}
 		return null;
 	}
@@ -126,21 +167,18 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 			final HttpServletResponse response) throws ServletException,
 			IOException {
 		try {
-			RemoteNode rn;
-			if (validate(request, response)
-					&& (rn = getRemoteNode(request, response)) != null) {
-				final Command cmd = Command.valueOf(request
-						.getParameter(RP_COMMAND));
-				if (cmd != null) {
-					if (log.isInfoEnabled()) {
-						log.info(String.format(
-								"Executing %1$s for %2$s at address %3$s)",
-								cmd, RemoteNode.class.getSimpleName(),
-								rn.getAddress()));
+			if (validate(request, response)) {
+				final RemoteNode rn = getRemoteNode(request, response);
+				executeCommands(request, response, rn);
+				final String p = request.getParameter(VAR_ACTION_NAME);
+				if (p != null && p.equals(VAR_ACTION_CONNECT_NAME)) {
+					final boolean connected = ServiceProvider.IMPL.getWirelessService().testRemoteConnection(rn);
+					if (!connected) {
+						response.setStatus(HttpServletResponse.SC_CONFLICT);
+						return;
 					}
-					ServiceProvider.IMPL.getWirelessService().sendData(rn, cmd,
-							true);
 				}
+				response.setStatus(HttpServletResponse.SC_OK);
 			}
 		} catch (final Throwable t) {
 			log.error("POST Error: ", t);
