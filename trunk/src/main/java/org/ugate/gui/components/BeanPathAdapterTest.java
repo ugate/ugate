@@ -189,6 +189,14 @@ public class BeanPathAdapterTest extends Application {
 				dumpPojo(personPA);
 			}
 		});
+		final Address a1 = new Address();
+		final Address a2 = new Address();
+		a1.setStreet("1st Street");
+		a2.setStreet("2nd Street");
+		ComboBox<Address> cb = new ComboBox<>();
+		cb.getItems().addAll(a1, a2);
+		personPA.bindBidirectional("address", cb.valueProperty(), Address.class);
+		personBox.getChildren().add(cb);
 		personBox.getChildren().add(sc);
 //CalendarPicker lCalendarPicker = new CalendarPicker();
 //personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(), Calendar.class);
@@ -633,6 +641,11 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setLocation(Location location) {
 			this.location = location;
+		}
+
+		@Override
+		public String toString() {
+			return street;
 		}
 	}
 
