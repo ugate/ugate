@@ -10,13 +10,9 @@ import java.util.Set;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -42,6 +38,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+
+import org.ugate.gui.components.BeanPathAdapter.FieldPathValue;
 
 public class BeanPathAdapterTest extends Application {
 
@@ -163,6 +161,8 @@ public class BeanPathAdapterTest extends Application {
 				ListView.class, null, HOBBY_OVERWRITE);
 		HBox langBox = beanTF("allLanguages", "languages", null, String.class,
 				0, ListView.class, null, shouldNeverAppear);
+		final HBox stBox = beanTF("address.location.state", null, null, null, 2,
+				ComboBox.class, "[a-zA-z]", STATES);
 		personBox.getChildren().addAll(
 				beanTF("name", null, null, null, 50, null, "[a-zA-z0-9\\s]*"),
 				beanTF("age", null, null, null, 100, Slider.class, null),
@@ -171,8 +171,7 @@ public class BeanPathAdapterTest extends Application {
 						"[a-zA-z0-9]"),
 				beanTF("address.street", null, null, null, 50, null,
 						"[a-zA-z0-9\\s]*"),
-				beanTF("address.location.state", null, null, null, 2,
-						ComboBox.class, "[a-zA-z]", STATES),
+				stBox,
 				beanTF("address.location.country", null, null, null, 10, null,
 						"[0-9]"),
 				beanTF("address.location.country", null, null, null, 2,
@@ -180,34 +179,24 @@ public class BeanPathAdapterTest extends Application {
 				beanTF("address.location.international", null, null, null, 0,
 						CheckBox.class, null), langBox, hobbyBox);
 		beanPane.getChildren().addAll(title, personBox);
+		personBox.getChildren().add(createRoleField("role"));
+		// JFXtras SimpleCalendar test
 		SimpleCalendar sc = new SimpleCalendar();
 		personPA.bindBidirectional("dob", sc.dateProperty(), Date.class);
-		sc.dateProperty().addListener(new ChangeListener<Date>() {
-			@Override
-			public void changed(ObservableValue<? extends Date> observable,
-					Date oldValue, Date newValue) {
-				dumpPojo(personPA);
-			}
-		});
-		final Address a1 = new Address();
-		final Address a2 = new Address();
-		a1.setStreet("1st Street");
-		a2.setStreet("2nd Street");
-		ComboBox<Address> cb = new ComboBox<>();
-		cb.getItems().addAll(a1, a2);
-		personPA.bindBidirectional("address", cb.valueProperty(), Address.class);
-		personBox.getChildren().add(cb);
 		personBox.getChildren().add(sc);
-//CalendarPicker lCalendarPicker = new CalendarPicker();
-//personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(), Calendar.class);
-//lCalendarPicker.calendarProperty().addListener(new ChangeListener<Calendar>() {
-//	@Override
-//	public void changed(ObservableValue<? extends Calendar> observable,
-//			Calendar oldValue, Calendar newValue) {
-//		dumpPojo(personPA);
-//	}
-//});
-//personBox.getChildren().add(lCalendarPicker);
+		// CalendarPicker lCalendarPicker = new CalendarPicker();
+		// personPA.bindBidirectional("dob", lCalendarPicker.calendarProperty(),
+		// Calendar.class);
+		// lCalendarPicker.calendarProperty().addListener(new
+		// ChangeListener<Calendar>() {
+		// @Override
+		// public void changed(ObservableValue<? extends Calendar> observable,
+		// Calendar oldValue, Calendar newValue) {
+		// dumpPojo(personPA);
+		// }
+		// });
+		// personBox.getChildren().add(lCalendarPicker);
+
 		final TextField pojoNameTF = new TextField();
 		Button pojoNameBtn = new Button("Set Person's Name");
 		pojoNameBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -230,12 +219,37 @@ public class BeanPathAdapterTest extends Application {
 				updateListView(langBox, "Language"),
 				updateListView(hobbyBox, "Hobby"), new Separator(),
 				new Label("POJO Dump:"), pojoTA);
-
+		personPA.fieldPathValueProperty().addListener(
+				new ChangeListener<FieldPathValue>() {
+					@Override
+					public void changed(
+							ObservableValue<? extends FieldPathValue> observable,
+							FieldPathValue oldValue, FieldPathValue newValue) {
+						dumpPojo(personPA);
+					}
+				});
 		SplitPane pojoSplit = new SplitPane();
 		pojoSplit.getItems().addAll(beanPane, pojoBox);
 		VBox beanBox = new VBox(10);
 		beanBox.getChildren().addAll(toolBar, pojoSplit);
 		return beanBox;
+	}
+
+	public HBox createRoleField(String rolePath) {
+		HBox cont = new HBox();
+		final Role r1 = new Role();
+		final Role r2 = new Role();
+		r1.setName("User");
+		r1.setDescription("General user role");
+		r2.setName("Admin");
+		r2.setDescription("Administrator role");
+		ComboBox<Role> cb = new ComboBox<>();
+		cb.setPromptText("Select Role");
+		cb.getItems().addAll(r1, r2);
+		cb.setValue(r1);
+		personPA.bindBidirectional(rolePath, cb.valueProperty(), Role.class);
+		cont.getChildren().addAll(new Label(rolePath + " = "), cb);
+		return cont;
 	}
 
 	public VBox updateListView(HBox langBox, String label) {
@@ -252,7 +266,6 @@ public class BeanPathAdapterTest extends Application {
 					return;
 				}
 				listView.getItems().add(addTF.getText());
-				dumpPojo(personPA);
 			}
 		});
 		Button remBtn = new Button("Remove Selected " + label + "(s)");
@@ -288,6 +301,8 @@ public class BeanPathAdapterTest extends Application {
 							+ p.getBean().getAge()
 							+ ", password="
 							+ p.getBean().getPassword()
+							+ ", role="
+							+ p.getBean().getRole()
 							+ ", address.street="
 							+ p.getBean().getAddress().getStreet()
 							+ ", address.location.state="
@@ -297,7 +312,8 @@ public class BeanPathAdapterTest extends Application {
 									.getCountry()
 							+ ", address.location.international="
 							+ p.getBean().getAddress().getLocation()
-									.isInternational() + ", allLanguages="
+									.isInternational()
+							+ ", allLanguages="
 							+ dumpPrimCollection(p.getBean().getAllLanguages())
 							+ ", languages="
 							+ dumpPrimCollection(p.getBean().getLanguages())
@@ -305,8 +321,11 @@ public class BeanPathAdapterTest extends Application {
 							+ dumpHobbyNames(p.getBean().getAllHobbies())
 							+ ", hobbies="
 							+ dumpHobbyNames(p.getBean().getHobbies())
-					+ ", dob="
-					+ (p.getBean().getDob() != null ? new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz").format(p.getBean().getDob().getTime()) : null) + "}\n";
+							+ ", dob="
+							+ (p.getBean().getDob() != null ? new SimpleDateFormat(
+									"yyyy-MM-dd'T'HH:mm:ssz").format(p
+									.getBean().getDob().getTime()) : null)
+							+ "}\n";
 				}
 				pojoTA.setText(dump);
 			}
@@ -342,14 +361,6 @@ public class BeanPathAdapterTest extends Application {
 		Control ctrl;
 		if (controlType == CheckBox.class) {
 			CheckBox cb = new CheckBox();
-			cb.selectedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(
-						ObservableValue<? extends Boolean> observable,
-						Boolean oldValue, Boolean newValue) {
-					dumpPojo(personPA);
-				}
-			});
 			// POJO binding magic...
 			personPA.bindBidirectional(path, cb.selectedProperty());
 			ctrl = cb;
@@ -358,12 +369,6 @@ public class BeanPathAdapterTest extends Application {
 					FXCollections.observableArrayList(choices));
 			cb.setPromptText("Select State");
 			cb.setPrefWidth(100d);
-			cb.valueProperty().addListener(new InvalidationListener() {
-				@Override
-				public void invalidated(Observable observable) {
-					dumpPojo(personPA);
-				}
-			});
 			// POJO binding magic (due to erasure of T in
 			// ObjectProperty<T> of cb.valueProperty() we need
 			// to also pass in the choice class)
@@ -374,27 +379,8 @@ public class BeanPathAdapterTest extends Application {
 			ListView<T> lv = new ListView<>(
 					FXCollections.observableArrayList(choices));
 			lv.setEditable(true);
-			// lv.setCellFactory()
-			lv.getSelectionModel().getSelectedItems()
-					.addListener(new ListChangeListener<T>() {
-						@Override
-						public void onChanged(
-								ListChangeListener.Change<? extends T> paramChange) {
-							dumpPojo(personPA);
-						}
-					});
 			lv.setMaxHeight(100d);
 			lv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-			lv.itemsProperty().addListener(
-					new ChangeListener<ObservableList<?>>() {
-						@Override
-						public void changed(
-								ObservableValue<? extends ObservableList<?>> observable,
-								ObservableList<?> oldValue,
-								ObservableList<?> newValue) {
-							dumpPojo(personPA);
-						}
-					});
 			// POJO binding magic (due to erasure of T in
 			// ObservableList<T> of lv.getItems() we need
 			// to also pass in the choice class)
@@ -424,12 +410,6 @@ public class BeanPathAdapterTest extends Application {
 			sl.setBlockIncrement(1);
 			sl.setMax(maxChars + 1);
 			sl.setSnapToTicks(true);
-			sl.valueProperty().addListener(new InvalidationListener() {
-				@Override
-				public void invalidated(Observable observable) {
-					dumpPojo(personPA);
-				}
-			});
 			// POJO binding magic...
 			personPA.bindBidirectional(path, sl.valueProperty());
 			ctrl = sl;
@@ -455,14 +435,6 @@ public class BeanPathAdapterTest extends Application {
 									.length() < maxChars));
 				}
 			};
-			tf.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(
-						ObservableValue<? extends String> observable,
-						String oldValue, String newValue) {
-					dumpPojo(personPA);
-				}
-			});
 			// POJO binding magic...
 			personPA.bindBidirectional(path, tf.textProperty());
 			ctrl = tf;
@@ -509,14 +481,6 @@ public class BeanPathAdapterTest extends Application {
 											.length() < maxChars));
 						}
 					};
-			tf.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(
-						ObservableValue<? extends String> observable,
-						String oldValue, String newValue) {
-					dumpPojo(personPA);
-				}
-			});
 			// POJO binding magic...
 			personPA.bindBidirectional(path, tf.textProperty());
 			ctrl = tf;
@@ -542,6 +506,7 @@ public class BeanPathAdapterTest extends Application {
 	public static class Person {
 		private String name;
 		private String password;
+		private Role role;
 		private Address address;
 		private double age;
 		private Set<String> languages;
@@ -564,6 +529,14 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setPassword(String password) {
 			this.password = password;
+		}
+
+		public Role getRole() {
+			return role;
+		}
+
+		public void setRole(Role role) {
+			this.role = role;
 		}
 
 		public Address getAddress() {
@@ -623,6 +596,72 @@ public class BeanPathAdapterTest extends Application {
 		}
 	}
 
+	public static class Role {
+		private String name;
+		private String description;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((description == null) ? 0 : description.hashCode());
+			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			Role other = (Role) obj;
+			if (description == null) {
+				if (other.description != null) {
+					return false;
+				}
+			} else if (!description.equals(other.description)) {
+				return false;
+			}
+			if (name == null) {
+				if (other.name != null) {
+					return false;
+				}
+			} else if (!name.equals(other.name)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return getName() != null && getDescription() != null ? getName()
+					+ ':' + getDescription() : "";
+		}
+	}
+
 	public static class Address {
 		private String street;
 		private Location location;
@@ -641,11 +680,6 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setLocation(Location location) {
 			this.location = location;
-		}
-
-		@Override
-		public String toString() {
-			return street;
 		}
 	}
 

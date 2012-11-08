@@ -659,8 +659,9 @@ public class BeanPathAdapter<B> {
 		private final String path;
 		private final Object bean;
 		private final Object value;
-		private final Collection<?> itemValuesAdded;
-		private final Collection<?> itemValuesRemoved;
+		private final ListChangeListener.Change<?> listChange;
+		private final SetChangeListener.Change<?> setChange;
+		private final MapChangeListener.Change<?, ?> mapChange;
 
 		/**
 		 * Constructor
@@ -677,8 +678,9 @@ public class BeanPathAdapter<B> {
 			this.path = path;
 			this.bean = bean;
 			this.value = value;
-			this.itemValuesAdded = null;
-			this.itemValuesRemoved = null;
+			this.listChange = null;
+			this.setChange = null;
+			this.mapChange = null;
 		}
 
 		/**
@@ -690,56 +692,103 @@ public class BeanPathAdapter<B> {
 		 *            the {@link #getBean()}
 		 * @param value
 		 *            the {@link #getValue()}
-		 * @param itemValuesAdded
-		 *            the {@link #itemValuesAdded}
-		 * @param itemValuesRemoved
-		 *            the {@link #itemValuesRemoved}
+		 * @param listChange
+		 *            the {@link #getListChange()}
+		 * @param setChange
+		 *            the {@link #getSetChange()}
+		 * @param mapChange
+		 *            the {@link #getMapChange()}
 		 */
 		public FieldPathValue(final String path, final Object bean,
-				final Object value, final Collection<?> itemValuesAdded,
-				final Collection<?> itemValuesRemoved) {
+				final Object value,
+				final ListChangeListener.Change<?> listChange,
+				final SetChangeListener.Change<?> setChange,
+				final MapChangeListener.Change<?, ?> mapChange) {
 			this.path = path;
 			this.bean = bean;
 			this.value = value;
-			this.itemValuesAdded = itemValuesAdded;
-			this.itemValuesRemoved = itemValuesRemoved;
+			this.listChange = listChange;
+			this.setChange = setChange;
+			this.mapChange = mapChange;
 		}
 
 		/**
-		 * Generates a hash code using {@link #getPath()} and
-		 * {@link #getValue()}
+		 * Generates a hash code using {@link #getPath()}, {@link #getBean()},
+		 * {@link #getValue()}, {@link #getListChange()},
+		 * {@link #getSetChange()}, and {@link #getMapChange()}
+		 * 
+		 * @return the hash code
 		 */
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + ((bean == null) ? 0 : bean.hashCode());
+			result = prime * result
+					+ ((listChange == null) ? 0 : listChange.hashCode());
+			result = prime * result
+					+ ((mapChange == null) ? 0 : mapChange.hashCode());
 			result = prime * result + ((path == null) ? 0 : path.hashCode());
+			result = prime * result
+					+ ((setChange == null) ? 0 : setChange.hashCode());
 			result = prime * result + ((value == null) ? 0 : value.hashCode());
 			return result;
 		}
 
 		/**
-		 * Determines equality based upon {@link #getPath()} and
-		 * {@link #getValue()}
+		 * Determines equality based upon {@link #getPath()}, {@link #getBean()}
+		 * , {@link #getValue()}, {@link #getListChange()},
+		 * {@link #getSetChange()}, and {@link #getMapChange()}
 		 * 
 		 * @param obj
 		 *            the {@link Object} to check for equality
+		 * @return true when equal
 		 */
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(final Object obj) {
 			if (this == obj) {
 				return true;
-			} else if (obj == null) {
-				return false;
-			} else if (getClass() != obj.getClass()) {
+			}
+			if (obj == null) {
 				return false;
 			}
-			final FieldPathValue other = (FieldPathValue) obj;
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			FieldPathValue other = (FieldPathValue) obj;
+			if (bean == null) {
+				if (other.bean != null) {
+					return false;
+				}
+			} else if (!bean.equals(other.bean)) {
+				return false;
+			}
+			if (listChange == null) {
+				if (other.listChange != null) {
+					return false;
+				}
+			} else if (!listChange.equals(other.listChange)) {
+				return false;
+			}
+			if (mapChange == null) {
+				if (other.mapChange != null) {
+					return false;
+				}
+			} else if (!mapChange.equals(other.mapChange)) {
+				return false;
+			}
 			if (path == null) {
 				if (other.path != null) {
 					return false;
 				}
 			} else if (!path.equals(other.path)) {
+				return false;
+			}
+			if (setChange == null) {
+				if (other.setChange != null) {
+					return false;
+				}
+			} else if (!setChange.equals(other.setChange)) {
 				return false;
 			}
 			if (value == null) {
@@ -757,7 +806,8 @@ public class BeanPathAdapter<B> {
 		 */
 		@Override
 		public String toString() {
-			return "FieldPathValue [path=" + path + ", value=" + value + "]";
+			return FieldPathValue.class.getSimpleName() + " [path=" + path
+					+ ", value=" + value + "]";
 		}
 
 		/**
@@ -785,19 +835,27 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * @return any item values that have been added (null when no item
-		 *         values have been added)
+		 * @return the change value when the {@link #getPath()} is for a
+		 *         {@link ListChangeListener.Change}
 		 */
-		public Collection<?> getItemValuesAdded() {
-			return itemValuesAdded;
+		public ListChangeListener.Change<?> getListChange() {
+			return listChange;
 		}
 
 		/**
-		 * @return any item values that have been removed (null when no item
-		 *         values have been removed)
+		 * @return the change value when the {@link #getPath()} is for a
+		 *         {@link SetChangeListener.Change}
 		 */
-		public Collection<?> getItemValuesRemoved() {
-			return itemValuesRemoved;
+		public SetChangeListener.Change<?> getSetChange() {
+			return setChange;
+		}
+
+		/**
+		 * @return the change value when the {@link #getPath()} is for a
+		 *         {@link MapChangeListener.Change}
+		 */
+		public MapChangeListener.Change<?, ?> getMapChange() {
+			return mapChange;
 		}
 	}
 
@@ -1653,12 +1711,11 @@ public class BeanPathAdapter<B> {
 			final boolean popCol = populateObservableCollection();
 			invalidated();
 			fireValueChangedEvent();
-			if (!popCol && !isDirty && fieldPathValue != null) {
-				isDirty = false;
+			isDirty = false;
+			if (!popCol && fieldPathValue != null) {
 				fieldPathValue.set(new FieldPathValue(fullPath, getBean(),
 						getDirty()));
 			}
-			isDirty = false;
 		}
 
 		/**
@@ -1683,7 +1740,7 @@ public class BeanPathAdapter<B> {
 					items = new LinkedHashSet<>();
 					fieldHandle.getSetter().invoke(items);
 				}
-				syncCollectionValues(items, false, null, null);
+				syncCollectionValues(items, false, null, null, null);
 			} else if (isMap()) {
 				addRemoveCollectionListener(false);
 				Map<?, ?> items = (Map<?, ?>) getDirty();
@@ -1691,7 +1748,7 @@ public class BeanPathAdapter<B> {
 					items = new HashMap<>();
 					fieldHandle.getSetter().invoke(items);
 				}
-				syncCollectionValues(items, false, null, null);
+				syncCollectionValues(items, false, null, null, null);
 			} else {
 				return false;
 			}
@@ -1713,15 +1770,19 @@ public class BeanPathAdapter<B> {
 		 *            {@link FieldProperty} collection, false when
 		 *            synchronization needs to occur on the {@link Observable}
 		 *            collection
-		 * @param itemValuesAdded
-		 *            any known item values that have been added
-		 * @param itemValuesRemoved
-		 *            any known item values that have been removed
+		 * @param listChange
+		 *            any {@link ListChangeListener.Change}
+		 * @param setChange
+		 *            any {@link SetChangeListener.Change}
+		 * @param mapChange
+		 *            any {@link MapChangeListener.Change}
 		 */
 		@SuppressWarnings("unchecked")
 		private void syncCollectionValues(final Object values,
-				final boolean toField, final Collection<?> itemValuesAdded,
-				final Collection<?> itemValuesRemoved) {
+				final boolean toField,
+				final ListChangeListener.Change<?> listChange,
+				final SetChangeListener.Change<?> setChange,
+				final MapChangeListener.Change<?, ?> mapChange) {
 			if (isDirtyCollection) {
 				return;
 			}
@@ -1808,10 +1869,10 @@ public class BeanPathAdapter<B> {
 						}
 					}
 				}
+				fieldPathValue.set(new FieldPathValue(fullPath, getBean(),
+						getDirty(), listChange, setChange, mapChange));
 			} finally {
 				isDirtyCollection = false;
-				fieldPathValue.set(new FieldPathValue(fullPath, getBean(),
-						getDirty(), itemValuesAdded, itemValuesRemoved));
 			}
 		}
 
@@ -2243,9 +2304,7 @@ public class BeanPathAdapter<B> {
 		@Override
 		public final void onChanged(
 				MapChangeListener.Change<? extends Object, ? extends Object> change) {
-			syncCollectionValues(getDirty(), true,
-					Arrays.asList(change.getValueAdded()),
-					Arrays.asList(change.getValueRemoved()));
+			syncCollectionValues(getDirty(), true, null, null, change);
 		}
 
 		/**
@@ -2254,9 +2313,7 @@ public class BeanPathAdapter<B> {
 		@Override
 		public final void onChanged(
 				SetChangeListener.Change<? extends Object> change) {
-			syncCollectionValues(getDirty(), true,
-					Arrays.asList(change.getElementAdded()),
-					Arrays.asList(change.getElementRemoved()));
+			syncCollectionValues(getDirty(), true, null, change, null);
 		}
 
 		/**
@@ -2265,8 +2322,7 @@ public class BeanPathAdapter<B> {
 		@Override
 		public final void onChanged(
 				ListChangeListener.Change<? extends Object> change) {
-			syncCollectionValues(getDirty(), true, change.getAddedSubList(),
-					change.getRemoved());
+			syncCollectionValues(getDirty(), true, change, null, null);
 		}
 
 		/**
@@ -2797,7 +2853,9 @@ public class BeanPathAdapter<B> {
 						} else if (Map.class.isAssignableFrom(clazz)) {
 							targetValue = (F) new HashMap<>();
 						} else if (!Calendar.class
-								.isAssignableFrom(getFieldType())) {
+								.isAssignableFrom(getFieldType())
+								&& !String.class
+										.isAssignableFrom(getFieldType())) {
 							targetValue = clazz.newInstance();
 						}
 					}
