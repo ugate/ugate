@@ -20,6 +20,7 @@ import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.web.UGateAjaxUpdaterServlet;
+import org.ugate.service.web.UGateWebSocketServlet;
 
 /**
  * Base MVC Controller
@@ -34,6 +35,7 @@ public abstract class BaseController {
 	public static final String VAR_FOOTER_NAME = "footer";
 	public static final String VAR_URL_NAME = "url";
 	public static final String VAR_URL_AJAX_UPDATE_NAME = "ajaxUpdateUrl";
+	public static final String VAR_URI_WEB_SOCKET_NAME = "webSocketUri";
 	private static final Map<Class<?>, Class<?>> PRIMS = new HashMap<>();
 	static {
 		PRIMS.put(boolean.class, Boolean.class);
@@ -73,6 +75,7 @@ public abstract class BaseController {
 				ctx.setVariable(VAR_CONTENT_NAME, getPageName());
 				ctx.setVariable(VAR_URL_NAME, '/' + getPageName());
 				ctx.setVariable(VAR_URL_AJAX_UPDATE_NAME, '/' + UGateAjaxUpdaterServlet.class.getSimpleName());
+				ctx.setVariable(VAR_URI_WEB_SOCKET_NAME, '/' + UGateWebSocketServlet.class.getSimpleName());
 				final RequiredValues rvs = processContext(req, res, servletContext, ctx);
 				ctx.setVariable(
 						VAR_TITLE_NAME,

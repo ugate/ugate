@@ -17,7 +17,8 @@ import org.ugate.service.entity.jpa.RemoteNode;
  * devices</b>.
  */
 public enum RemoteNodeType implements IModelType<RemoteNode> {
-	DEVICE_SOUNDS_ON("deviceSoundsOn", Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_AUTO_SYNCHRONIZE(
+	ID("id", null, false), DEVICE_SOUNDS_ON("deviceSoundsOn",
+			Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_AUTO_SYNCHRONIZE(
 			"deviceAutoSynchronize", Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_SYNCHRONIZED(
 			"deviceSynchronized", null, false), CAM_IMG_CAPTURE_RETRY_CNT(
 			"camImgCaptureRetryCnt", null, false), REPORT_READINGS(
@@ -45,10 +46,10 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 			"laserDelayBtwnTrips", Type.LASER_THRESHOLD_RANGE, true), LASER_ANGLE_PAN(
 			"laserAnglePan", null, true), LASER_ANGLE_TILT("laserAngleTilt",
 			null, true), MULTI_ALARM_TRIP_STATE("multiAlarmTripState",
-			Type.ALARM_TRIP_STATE_RANGE, true), CAM_RESOLUTION(
-			"camResolution", Type.CAM_SETTINGS_TOGGLE, true), CAM_ANGLE_PAN(
-			"camAnglePan", Type.CAM_POSITION_RANGE, true), CAM_ANGLE_TILT(
-			"camAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PRIORITY(
+			Type.ALARM_TRIP_STATE_RANGE, true), CAM_RESOLUTION("camResolution",
+			Type.CAM_SETTINGS_TOGGLE, true), CAM_ANGLE_PAN("camAnglePan",
+			Type.CAM_POSITION_RANGE, true), CAM_ANGLE_TILT("camAngleTilt",
+			Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PRIORITY(
 			"camSonarTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PAN(
 			"camSonarTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_TILT(
 			"camSonarTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_PRIORITY(
@@ -79,7 +80,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 * @param canRemote
 	 *            {@linkplain #canRemote()}
 	 */
-	private RemoteNodeType(final String key, final Type type, final boolean canRemote) {
+	private RemoteNodeType(final String key, final Type type,
+			final boolean canRemote) {
 		this.key = key;
 		this.type = type;
 		this.canRemote = canRemote;
@@ -92,7 +94,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 *            the {@linkplain RemoteNode} to copy fields from
 	 * @return a new default {@linkplain RemoteNode}
 	 */
-	public static RemoteNode newDefaultRemoteNode(final Host host, final RemoteNode copyFrom) {
+	public static RemoteNode newDefaultRemoteNode(final Host host,
+			final RemoteNode copyFrom) {
 		if (host == null) {
 			throw new NullPointerException(Host.class.getName()
 					+ " cannot be null");
@@ -188,7 +191,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 */
 	private Long getMinMax(final boolean isMax) {
 		try {
-			final Field field = RemoteNode.class.getDeclaredField(this.getKey());
+			final Field field = RemoteNode.class
+					.getDeclaredField(this.getKey());
 			if (isMax) {
 				final Max max = field.getAnnotation(Max.class);
 				return max != null ? max.value() : Long.MAX_VALUE;
@@ -200,6 +204,7 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 			throw new RuntimeException(t);
 		}
 	}
+
 	/**
 	 * Determines if two {@linkplain RemoteNode}s have equivalent remote values
 	 * 
@@ -209,7 +214,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 *            the {@linkplain RemoteNode} to evaluate
 	 * @return true when all the remote values are equivalent
 	 */
-	public static boolean remoteEquivalent(final RemoteNode remoteNode1, final RemoteNode remoteNode2) {
+	public static boolean remoteEquivalent(final RemoteNode remoteNode1,
+			final RemoteNode remoteNode2) {
 		if (remoteNode1 != null && remoteNode2 != null) {
 			for (final RemoteNodeType rnt : RemoteNodeType.values()) {
 				try {

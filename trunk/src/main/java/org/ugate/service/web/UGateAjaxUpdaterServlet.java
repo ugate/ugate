@@ -1,9 +1,8 @@
 package org.ugate.service.web;
 
-import static org.ugate.service.web.ui.IndexController.VAR_COMMAND_NAME;
-import static org.ugate.service.web.ui.IndexController.VAR_REMOTE_NODE_ADDY_NAME;
-import static org.ugate.service.web.ui.IndexController.VAR_ACTION_NAME;
 import static org.ugate.service.web.ui.IndexController.VAR_ACTION_CONNECT_NAME;
+import static org.ugate.service.web.ui.IndexController.VAR_ACTION_NAME;
+import static org.ugate.service.web.ui.IndexController.VAR_COMMAND_NAME;
 
 import java.io.IOException;
 
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
-import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 
@@ -46,8 +44,8 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	protected boolean validate(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
-		final String username = (String) request.getSession().getAttribute(ActorType.USERNAME.name());
-		if (username == null || username.isEmpty()) {
+		if (request.getRemoteUser() == null
+				|| request.getRemoteUser().isEmpty()) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return false;
 		}
@@ -78,12 +76,10 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 		if (cmd != null) {
 			if (log.isInfoEnabled()) {
 				log.info(String.format(
-						"Executing %1$s for %2$s at address %3$s)",
-						cmd, RemoteNode.class.getSimpleName(),
-						rn.getAddress()));
+						"Executing %1$s for %2$s at address %3$s)", cmd,
+						RemoteNode.class.getSimpleName(), rn.getAddress()));
 			}
-			ServiceProvider.IMPL.getWirelessService().sendData(rn, cmd,
-					true);
+			ServiceProvider.IMPL.getWirelessService().sendData(rn, cmd, true);
 		}
 	}
 
@@ -103,22 +99,23 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	protected RemoteNode getRemoteNode(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
-		final String addy = request.getParameter(VAR_REMOTE_NODE_ADDY_NAME);
-		if (addy != null && !addy.isEmpty()) {
+		int id;
+		final String idStr = request.getParameter(RemoteNodeType.ID.getKey());
+		if (idStr != null && !idStr.isEmpty()
+				&& (id = Integer.valueOf(idStr)) >= 0) {
 			final RemoteNode rn = ServiceProvider.IMPL.getRemoteNodeService()
-					.findByAddress(addy);
+					.findById(id);
 			if (rn == null) {
-				log.warn(String
-						.format("Unable to find %1$s with %2$s = %3$s",
-								RemoteNode.class.getSimpleName(),
-								RemoteNodeType.WIRELESS_ADDRESS, addy));
+				log.warn(String.format("Unable to find %1$s with %2$s = %3$s",
+						RemoteNode.class.getSimpleName(),
+						RemoteNodeType.WIRELESS_ADDRESS, idStr));
 				return null;
 			}
 			return rn;
 		} else {
 			log.warn(String.format(
 					"Request %1$s must contain %2$s in order to perform PUT",
-					request, VAR_REMOTE_NODE_ADDY_NAME));
+					request, RemoteNodeType.ID.getKey()));
 		}
 		return null;
 	}
@@ -138,15 +135,17 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	protected void doAll(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
-		response.setHeader("Content-Type: application/json",
-				Boolean.TRUE.toString());
-		// try {
-		// getServletContext().getNamedDispatcher("default").forward(request,
-		// response);
-		// } catch (final Throwable t) {
-		// log.error("Error: ", t);
-		// response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		// }
+		if (validate(request, response)) {
+			response.setHeader("Content-Type: application/json",
+					Boolean.TRUE.toString());
+			// try {
+			// getServletContext().getNamedDispatcher("default").forward(request,
+			// response);
+			// } catch (final Throwable t) {
+			// log.error("Error: ", t);
+			// response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			// }
+		}
 	}
 
 	/**
@@ -172,7 +171,8 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 				executeCommands(request, response, rn);
 				final String p = request.getParameter(VAR_ACTION_NAME);
 				if (p != null && p.equals(VAR_ACTION_CONNECT_NAME)) {
-					final boolean connected = ServiceProvider.IMPL.getWirelessService().testRemoteConnection(rn);
+					final boolean connected = ServiceProvider.IMPL
+							.getWirelessService().testRemoteConnection(rn);
 					if (!connected) {
 						response.setStatus(HttpServletResponse.SC_CONFLICT);
 						return;
@@ -211,7 +211,7 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 				String p;
 				Object v;
 				for (final RemoteNodeType rnt : RemoteNodeType.values()) {
-					p = request.getParameter(rnt.name());
+					p = request.getParameter(rnt.getKey());
 					if (p == null || p.isEmpty()) {
 						continue;
 					}
