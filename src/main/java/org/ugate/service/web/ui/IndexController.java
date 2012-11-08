@@ -28,8 +28,6 @@ public class IndexController extends BaseController {
 	public static final String VAR_REMOTE_NODES_NAME = "remoteNodes";
 	public static final String VAR_REMOTE_NODE_READING_NAME = "rnr";
 	public static final String VAR_REMOTE_NODE_NAME = "rn";
-	public static final String VAR_REMOTE_NODE_ID_NAME = VAR_REMOTE_NODE_NAME + "Id";
-	public static final String VAR_REMOTE_NODE_ADDY_NAME = "remoteNodeAddy";
 	public static final String VAR_COMMAND_NAME = "command";
 	public static final String VAR_ACTION_NAME = "action";
 	public static final String VAR_ACTION_CONNECT_NAME = "connect";
@@ -42,7 +40,7 @@ public class IndexController extends BaseController {
 			final HttpServletResponse res, final ServletContext servletContext,
 			final WebContext ctx) throws Throwable {
 		final Actor actor = findActor(req);
-		final Integer rnId = getParameter(req, VAR_REMOTE_NODE_ID_NAME, Integer.class);
+		final Integer rnId = getParameter(req, RemoteNodeType.ID.getKey(), Integer.class);
 		RemoteNode rn = null;
 		if (rnId != null) {
 			rn = getRemoteNode(actor, rnId);

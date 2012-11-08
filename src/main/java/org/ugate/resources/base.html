@@ -23,16 +23,17 @@
 		<script th:inline="javascript" type="text/javascript">
 		/*<![CDATA[*/
 		    var AJAX_UPDATE_URL = /*[[${ajaxUpdateUrl}]]*/ "";
+		    var WEB_SOCKET_URI = /*[[${webSocketUri}]]*/ "";
 			var COMMAND = "command";
 			var ACTION = "action";
 			var ACT_CONNECT = "connect";
-			var RN_ADDY = "rnId";
+			var RN_ID = "rnId";
 			var defaultLoadingMsg = "Please Wait...";
 		/*]]>*/
 		</script>
 		<script type="text/javascript">
 		/*<![CDATA[*/
-			var ws, wsc = 0;
+			var ws, wsm = false, wsc = 0;
 			// converts form data into JSON object
 			(function($) {
 				$.fn.serializeFormJSON = function() {
@@ -73,38 +74,43 @@
 					});
 			// WebSocket
 			$(document).ready(function() {
-				//openWebSocket();
+				openWebSocket();
 			});
 			function openWebSocket() {
 				try {
+					if (!WEB_SOCKET_URI) {
+						return;
+					}
 					if (!ws || ws.readyState === undefined || ws.readyState > 1) {
 						// http://jquerymobile.com/test/docs/api/methods.html
 						var url = $.mobile.path.parseUrl(window.location.href);
-						ws = new WebSocket("ws://" + url.host
-								+ "/UGateWebSocketServlet");
+						ws = new WebSocket("ws://" + url.host + WEB_SOCKET_URI);
 						ws.onopen = function(event) {
 							hideMessage();
 							wsc = 0;
-						}
+							wsm = true;
+						};
 						ws.onmessage = function(event) {
+							//alert(event.data);
 							updateValues(jQuery.parseJSON(event.data));
-						}
+						};
 						ws.onclose = function(event) {
 							wsc++;
-							showMessage('Attempt ' + wsc + ' to reconnect ');
+							if (wsm) {
+								showMessage('Attempting ' + wsc + ' to reconnect to server');
+							}
 							setTimeout(openWebSocket, 1000);
-						}
+						};
 					}
 				} catch (e) {
-
+					alert('Unable to connect to server for real-time updates');
 				}
 			}
 			function updateValues(json) {
 				try {
-					//alert(event.data);
 					var detail = $('#rnDetail');
 					if (detail && json && json.address) {
-						var rnAddy = $('#' + RN_ADDY + '0').text();
+						var rnAddy = $('#' + RN_ID + '0').text();
 						//alert(json.address + " === " + rnAddy + " is " + (json.address === rnAddy));
 						if (json.address === rnAddy) {
 							var updated = false;
@@ -128,10 +134,10 @@
 				}
 			}
 			// AJAX calls
-			function rnConnect(a, address, waitMessage) {
+			function rnConnect(a, rnId, waitMessage) {
 				showMessage(waitMessage);
 				try {
-					ajaxGo(null, address, ACTION + '=' + ACT_CONNECT, function (data) {
+					ajaxGo(null, rnId, ACTION + '=' + ACT_CONNECT, function (data) {
 						hideMessage();
 						$(a).attr("data-theme", "b");
 						$(a).attr("data-icon", "arrow-r");
@@ -149,7 +155,7 @@
 	                });
 	            });
 	        });
-			function ajaxGo(element, rnAddy, params, successFunc, errorFunc) {
+			function ajaxGo(element, rnId, params, successFunc, errorFunc) {
 				var httpMeth = "POST";
 				var form;
 				if (element && !element.form) {
@@ -162,9 +168,8 @@
 				}
 				var jsonObj = form ? form.serializeFormJSON() : null;
 				if (jsonObj || params) {
-					var rnAddy = RN_ADDY + '='
-							+ (rnAddy ? rnAddy : $('#' + RN_ADDY + '0').text()) + '&';
-					var jsonData = rnAddy + (jsonObj ? $.param(jsonObj) : '') + (params ? '&' + params : '');
+					var rnIdData = rnId ? RN_ID + '=' + rnId + '&' : '';
+					var jsonData = rnIdData + (jsonObj ? $.param(jsonObj) : '') + (params ? '&' + params : '');
 					//alert(jsonData);
 					var sf = (successFunc ? successFunc : ajaxGoSuccess);
 					var ef = (errorFunc ? errorFunc : ajaxGoError);

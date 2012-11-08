@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
-import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 
 /**
@@ -54,10 +53,10 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 						// cycle through the remote node JSON and convert the
 						// field names to the remote node type names so they
 						// match the input fields in the page
-						for (final RemoteNodeType rnt : RemoteNodeType.values()) {
-							jsonData = jsonData.replaceAll(rnt.getKey(),
-									rnt.name());
-						}
+//						for (final RemoteNodeType rnt : RemoteNodeType.values()) {
+//							jsonData = jsonData.replaceAll(rnt.getKey(),
+//									rnt.name());
+//						}
 						if (log.isInfoEnabled()) {
 							log.info(String
 									.format("Sending %1$s (address: %2$s) notification to %3$s web member(s): %4$s",
@@ -113,6 +112,11 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	protected void doAll(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
+		if (request.getRemoteUser() == null || request.getRemoteUser().isEmpty()) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		response.sendRedirect("/");
 		// try {
 		// getServletContext().getNamedDispatcher("default").forward(request,
 		// response);

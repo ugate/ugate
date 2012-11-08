@@ -5,15 +5,16 @@
 			<ul data-theme="d" data-role="listview" data-inset="true" data-divider-theme="e">
 				<li th:text="#{wireless.node.remote.node(${rn.address})}" data-role="list-divider">Remote Node: (prototype)</li>
 				<li th:each="rni : ${remoteNodes}" data-icon="arrow-r">
-					<a th:href="@{${url}(rnId=${rni.id})}" href="/index.html" data-transition="flip" disabled="true">
-						<span th:id="'rnId' + ${rniStat.index}" th:text="${rni.address}">0000 (prototype)</span>
+					<a th:href="@{${url}(id=${rni.id})}" href="/index.html" data-transition="flip" disabled="true">
+						<span th:id="'id' + ${rniStat.index}" th:text="${rni.address}">0000 (prototype)</span>
 					</a>
-					<a th:text="#{wireless.node.connect(${rni.address})}" th:href="'javascript:rnConnect(this,\'' + ${rni.address} + '\', \'Connecting...\')'" href="#" data-theme="b" data-icon="arrow-r">Connect To Remote Device (prototype)</a>
+					<a th:text="#{wireless.node.connect(${rni.address})}" th:href="'javascript:rnConnect(this,\'' + ${rni.id} + '\', \'Connecting...\')'" href="#" data-theme="b" data-icon="arrow-r">Connect To Remote Device (prototype)</a>
 				</li>
 			</ul>
 			<div th:unless="${#strings.isEmpty(rn.address)}" id="rnDetail">
 				<form th:action="@{/}" id="rnCommandForm" action="/index.html" method="post" data-theme="c" data-transition="flip">
 					<input id="command" name="command" type="hidden" value="" />
+					<input th:value="${rn.id}" name="id" type="hidden" value="" />
 				</form>
 				<div data-role="collapsible-set" data-transition="pop">
 					<div data-role="collapsible" data-theme="b" data-content-theme="c">
@@ -168,6 +169,7 @@
 							</div>
 						</div>
 					</div>
+					<input th:value="${rn.id}" name="id" type="hidden" value="" />
 				</form>
 			</div>
 		</div>
