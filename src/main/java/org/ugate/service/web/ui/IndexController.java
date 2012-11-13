@@ -75,6 +75,8 @@ public class IndexController extends BaseController {
 		for (final RemoteNodeType.Type type : RemoteNodeType.Type.values()) {
 			vm.put(type, new ArrayList<RemoteNodeType.Value>());
 		}
+		rn.setConnected(ServiceProvider.IMPL.getWirelessService()
+				.testRemoteConnection(rn));
 		for (final RemoteNodeType rnt : RemoteNodeType.values()) {
 			if (rnt.getGroup() != null) {
 				try {

@@ -23,36 +23,25 @@ public enum Command {
 	SENSOR_GET_SETTINGS(104, true, false), 
 	SENSOR_SET_SETTINGS(105, false, true);
 
-	/**
-	 * The id recognized by the remote node
-	 */
-	public final int id;
-
-	/**
-	 * True when the command can receive data from remote nodes
-	 */
-	public final boolean canRx;
-
-	/**
-	 * True when the command can transmit data to remote nodes
-	 */
-	public final boolean canTx;
+	private final int id;
+	private final boolean rx;
+	private final boolean tx;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param id
-	 *            the {@link #id}
-	 * @param canRx
-	 *            the {@link #canRx}
-	 * @param canTx
-	 *            the {@link #canTx}
+	 *            the {@link #getId()}
+	 * @param isRx
+	 *            the {@link #isRx()}
+	 * @param isTx
+	 *            the {@link #isTx()}
 	 */
-	private Command(final int id, final boolean canRx,
-			final boolean canTx) {
+	private Command(final int id, final boolean isRx,
+			final boolean isTx) {
 		this.id = id;
-		this.canRx = canRx;
-		this.canTx = canTx;
+		this.rx = isRx;
+		this.tx = isTx;
 	}
 
 	/**
@@ -61,7 +50,7 @@ public enum Command {
 	@Override
 	public String toString() {
 		return String.format("%1$s (id = %2$s, canRx = %3$s, canTx = %4$s)",
-				super.toString(), id, canRx, canTx);
+				super.toString(), id, rx, tx);
 	}
 
 	/**
@@ -78,5 +67,26 @@ public enum Command {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @return The id recognized by the remote node
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @return True when the command can receive data from remote nodes
+	 */
+	public boolean isRx() {
+		return rx;
+	}
+
+	/**
+	 * @return True when the command can transmit data to remote nodes
+	 */
+	public boolean isTx() {
+		return tx;
 	}
 }

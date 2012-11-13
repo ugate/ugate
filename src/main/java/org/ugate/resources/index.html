@@ -8,11 +8,13 @@
 					<a th:href="@{${url}(id=${rni.id})}" href="/index.html" data-transition="flip" disabled="true">
 						<span th:id="'id' + ${rniStat.index}" th:text="${rni.address}">0000 (prototype)</span>
 					</a>
-					<a th:text="#{wireless.node.connect(${rni.address})}" th:href="'javascript:rnConnect(this,\'' + ${rni.id} + '\', \'Connecting...\')'" href="#" data-theme="b" data-icon="arrow-r">Connect To Remote Device (prototype)</a>
+					<a th:text="#{wireless.node.connect(${rni.address})}" href="#" 
+						th:attr="data-icon=${rni.connected ? 'check' : 'alert'},onclick=${'rnConnect(this,\'' + rni.id + '\', \'Connecting...\')'}" 
+						data-theme="b" data-icon="check">Connect To Remote Device (prototype)</a>
 				</li>
 			</ul>
 			<div th:unless="${#strings.isEmpty(rn.address)}" id="rnDetail">
-				<form th:action="@{/}" id="rnCommandForm" action="/index.html" method="post" data-theme="c" data-transition="flip">
+				<form th:action="@{/}" id="rnCommandForm" action="/index.html" method="post" data-theme="c" data-transition="flip" class="updateable">
 					<input id="command" name="command" type="hidden" value="" />
 					<input th:value="${rn.id}" name="id" type="hidden" value="" />
 				</form>
@@ -33,7 +35,7 @@
 	<!-- 					</div> -->
 					</div>
 				</div>
-				<form th:action="@{/}" id="settingsForm" action="/index.html" method="post" data-theme="c" data-transition="flip">
+				<form th:action="@{/}" id="settingsForm" action="/index.html" method="post" data-theme="c" data-transition="flip" class="updateable">
 					<div data-role="collapsible-set">
 						<div data-role="collapsible" data-theme="b" data-content-theme="c">
 							<h3 th:text="#{alarm.settings}">General Settings (prototype)</h3>
