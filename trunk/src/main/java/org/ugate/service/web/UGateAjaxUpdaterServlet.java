@@ -14,6 +14,8 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.Command;
+import org.ugate.resources.RS;
+import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -174,7 +176,10 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 					final boolean connected = ServiceProvider.IMPL
 							.getWirelessService().testRemoteConnection(rn);
 					if (!connected) {
-						response.setStatus(HttpServletResponse.SC_CONFLICT);
+						response.sendError(
+								HttpServletResponse.SC_CONFLICT,
+								RS.rbLabel(KEY.WIRELESS_NODE_CONNECT_FAILED,
+										rn.getAddress()));
 						return;
 					}
 				}

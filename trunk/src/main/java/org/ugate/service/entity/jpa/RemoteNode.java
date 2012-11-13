@@ -20,6 +20,7 @@ import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -30,252 +31,254 @@ import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent.Type;
 import org.ugate.service.entity.Model;
 
-
 /**
  * The persistent class for the REMOTE_NODE database table.
  * 
  */
 @Entity
-@Table(name="REMOTE_NODE")
+@Table(name = "REMOTE_NODE")
 public class RemoteNode implements Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@SequenceGenerator(name="REMOTE_NODE_ID_GENERATOR", sequenceName="SQ_REMOTE_NODE_ID", allocationSize=1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="REMOTE_NODE_ID_GENERATOR")
-	@Column(unique=true, nullable=false)
+	@SequenceGenerator(name = "REMOTE_NODE_ID_GENERATOR", sequenceName = "SQ_REMOTE_NODE_ID", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "REMOTE_NODE_ID_GENERATOR")
+	@Column(unique = true, nullable = false)
 	private int id;
 
 	@Basic
-	@Column(name="CREATED_DATE", nullable=false)
+	@Column(name = "CREATED_DATE", nullable = false)
 	@NotNull
 	private Date createdDate;
 
-	@Column(unique=true, nullable=false, length=100)
-	@Size(min=0, max=4)
+	@Column(unique = true, nullable = false, length = 100)
+	@Size(min = 0, max = 4)
 	@NotNull
 	private String address;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="CAM_ANGLE_PAN", nullable=false)
+	@Column(name = "CAM_ANGLE_PAN", nullable = false)
 	private int camAnglePan;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="CAM_ANGLE_TILT", nullable=false)
+	@Column(name = "CAM_ANGLE_TILT", nullable = false)
 	private int camAngleTilt;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_LASER_TRIP_ANGLE_PAN", nullable=false)
+	@Column(name = "CAM_LASER_TRIP_ANGLE_PAN", nullable = false)
 	private int camLaserTripAnglePan;
 
 	@Min(0)
 	@Max(4)
-	@Column(name="CAM_LASER_TRIP_ANGLE_PRIORITY", nullable=false)
+	@Column(name = "CAM_LASER_TRIP_ANGLE_PRIORITY", nullable = false)
 	private int camLaserTripAnglePriority;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_LASER_TRIP_ANGLE_TILT", nullable=false)
+	@Column(name = "CAM_LASER_TRIP_ANGLE_TILT", nullable = false)
 	private int camLaserTripAngleTilt;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_MW_TRIP_ANGLE_PAN", nullable=false)
+	@Column(name = "CAM_MW_TRIP_ANGLE_PAN", nullable = false)
 	private int camMwTripAnglePan;
 
 	@Min(0)
 	@Max(4)
-	@Column(name="CAM_MW_TRIP_ANGLE_PRIORITY", nullable=false)
+	@Column(name = "CAM_MW_TRIP_ANGLE_PRIORITY", nullable = false)
 	private int camMwTripAnglePriority;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_MW_TRIP_ANGLE_TILT", nullable=false)
+	@Column(name = "CAM_MW_TRIP_ANGLE_TILT", nullable = false)
 	private int camMwTripAngleTilt;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_PIR_TRIP_ANGLE_PAN", nullable=false)
+	@Column(name = "CAM_PIR_TRIP_ANGLE_PAN", nullable = false)
 	private int camPirTripAnglePan;
 
 	@Min(0)
 	@Max(4)
-	@Column(name="CAM_PIR_TRIP_ANGLE_PRIORITY", nullable=false)
+	@Column(name = "CAM_PIR_TRIP_ANGLE_PRIORITY", nullable = false)
 	private int camPirTripAnglePriority;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_PIR_TRIP_ANGLE_TILT", nullable=false)
+	@Column(name = "CAM_PIR_TRIP_ANGLE_TILT", nullable = false)
 	private int camPirTripAngleTilt;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="CAM_RESOLUTION", nullable=false)
+	@Column(name = "CAM_RESOLUTION", nullable = false)
 	private int camResolution;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_SONAR_TRIP_ANGLE_PAN", nullable=false)
+	@Column(name = "CAM_SONAR_TRIP_ANGLE_PAN", nullable = false)
 	private int camSonarTripAnglePan;
 
 	@Min(0)
 	@Max(4)
-	@Column(name="CAM_SONAR_TRIP_ANGLE_PRIORITY", nullable=false)
+	@Column(name = "CAM_SONAR_TRIP_ANGLE_PRIORITY", nullable = false)
 	private int camSonarTripAnglePriority;
 
 	@Min(0)
 	@Max(181)
-	@Column(name="CAM_SONAR_TRIP_ANGLE_TILT", nullable=false)
+	@Column(name = "CAM_SONAR_TRIP_ANGLE_TILT", nullable = false)
 	private int camSonarTripAngleTilt;
 
 	@Min(0)
 	@Max(10)
-	@Column(name="CAM_IMG_CAPTURE_RETRY_CNT", nullable=false)
+	@Column(name = "CAM_IMG_CAPTURE_RETRY_CNT", nullable = false)
 	private int camImgCaptureRetryCnt;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="DEVICE_SOUNDS_ON", nullable=false)
+	@Column(name = "DEVICE_SOUNDS_ON", nullable = false)
 	private int deviceSoundsOn;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="GATE_ACCESS_ON", nullable=false)
+	@Column(name = "GATE_ACCESS_ON", nullable = false)
 	private int gateAccessOn;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="LASER_ANGLE_PAN", nullable=false)
+	@Column(name = "LASER_ANGLE_PAN", nullable = false)
 	private int laserAnglePan;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="LASER_ANGLE_TILT", nullable=false)
+	@Column(name = "LASER_ANGLE_TILT", nullable = false)
 	private int laserAngleTilt;
 
 	@Min(0)
 	@Max(60)
-	@Column(name="LASER_DELAY_BTWN_TRIPS", nullable=false)
+	@Column(name = "LASER_DELAY_BTWN_TRIPS", nullable = false)
 	private int laserDelayBtwnTrips;
 
 	@Min(0)
 	@Max(29)
-	@Column(name="LASER_DISTANCE_THRES_FEET", nullable=false)
+	@Column(name = "LASER_DISTANCE_THRES_FEET", nullable = false)
 	private int laserDistanceThresFeet;
 
 	@Min(0)
 	@Max(11)
-	@Column(name="LASER_DISTANCE_THRES_INCHES", nullable=false)
+	@Column(name = "LASER_DISTANCE_THRES_INCHES", nullable = false)
 	private int laserDistanceThresInches;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="MAIL_ALERT_ON", nullable=false)
+	@Column(name = "MAIL_ALERT_ON", nullable = false)
 	private int mailAlertOn;
 
 	@Min(0)
 	@Max(15)
-	@Column(name="MULTI_ALARM_TRIP_STATE", nullable=false)
+	@Column(name = "MULTI_ALARM_TRIP_STATE", nullable = false)
 	private int multiAlarmTripState;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="MW_ANGLE_PAN", nullable=false)
+	@Column(name = "MW_ANGLE_PAN", nullable = false)
 	private int mwAnglePan;
 
 	@Min(0)
 	@Max(60)
-	@Column(name="MW_DELAY_BTWN_TRIPS", nullable=false)
+	@Column(name = "MW_DELAY_BTWN_TRIPS", nullable = false)
 	private int mwDelayBtwnTrips;
 
 	@Min(2)
 	@Max(100)
-	@Column(name="MW_SPEED_THRES_CYCLES_PER_SEC", nullable=false)
+	@Column(name = "MW_SPEED_THRES_CYCLES_PER_SEC", nullable = false)
 	private int mwSpeedThresCyclesPerSec;
 
 	@Min(0)
 	@Max(60)
-	@Column(name="PIR_DELAY_BTWN_TRIPS", nullable=false)
+	@Column(name = "PIR_DELAY_BTWN_TRIPS", nullable = false)
 	private int pirDelayBtwnTrips;
 
 	@Min(0)
 	@Max(60)
-	@Column(name="SONAR_DELAY_BTWN_TRIPS", nullable=false)
+	@Column(name = "SONAR_DELAY_BTWN_TRIPS", nullable = false)
 	private int sonarDelayBtwnTrips;
 
 	@Min(2)
 	@Max(29)
-	@Column(name="SONAR_DISTANCE_THRES_FEET", nullable=false)
+	@Column(name = "SONAR_DISTANCE_THRES_FEET", nullable = false)
 	private int sonarDistanceThresFeet;
 
 	@Min(0)
 	@Max(11)
-	@Column(name="SONAR_DISTANCE_THRES_INCHES", nullable=false)
+	@Column(name = "SONAR_DISTANCE_THRES_INCHES", nullable = false)
 	private int sonarDistanceThresInches;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="SONAR_PIR_ANGLE_PAN", nullable=false)
+	@Column(name = "SONAR_PIR_ANGLE_PAN", nullable = false)
 	private int sonarPirAnglePan;
 
 	@Min(0)
 	@Max(180)
-	@Column(name="SONAR_PIR_ANGLE_TILT", nullable=false)
+	@Column(name = "SONAR_PIR_ANGLE_TILT", nullable = false)
 	private int sonarPirAngleTilt;
 
 	@Min(0)
 	@Max(9)
-	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_1", nullable=false)
+	@Column(name = "UNIVERSAL_REMOTE_ACCESS_CODE_1", nullable = false)
 	private int universalRemoteAccessCode1;
 
 	@Min(0)
 	@Max(9)
-	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_2", nullable=false)
+	@Column(name = "UNIVERSAL_REMOTE_ACCESS_CODE_2", nullable = false)
 	private int universalRemoteAccessCode2;
 
 	@Min(0)
 	@Max(9)
-	@Column(name="UNIVERSAL_REMOTE_ACCESS_CODE_3", nullable=false)
+	@Column(name = "UNIVERSAL_REMOTE_ACCESS_CODE_3", nullable = false)
 	private int universalRemoteAccessCode3;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="UNIVERSAL_REMOTE_ACCESS_ON", nullable=false)
+	@Column(name = "UNIVERSAL_REMOTE_ACCESS_ON", nullable = false)
 	private int universalRemoteAccessOn;
 
-	@Column(name="WORKING_DIR", nullable=false, length=100)
+	@Column(name = "WORKING_DIR", nullable = false, length = 100)
 	private String workingDir;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="ALARMS_ON", nullable=false)
+	@Column(name = "ALARMS_ON", nullable = false)
 	private int alarmsOn;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="REPORT_READINGS", nullable=false)
+	@Column(name = "REPORT_READINGS", nullable = false)
 	private int reportReadings;
 
 	@Min(0)
 	@Max(1)
-	@Column(name="DEVICE_AUTO_SYNCHRONIZE")
+	@Column(name = "DEVICE_AUTO_SYNCHRONIZE")
 	private int deviceAutoSynchronize;
 
-	@Column(name="DEVICE_SYNCHRONIZED")
+	@Column(name = "DEVICE_SYNCHRONIZED")
 	private boolean deviceSynchronized;
 
-	//bi-directional many-to-one association to Host
+	// bi-directional many-to-one association to Host
 	@ManyToOne
-	@JoinColumn(name="HOST_ID", nullable=false)
+	@JoinColumn(name = "HOST_ID", nullable = false)
 	@NotNull
 	private Host host;
 
-	//bi-directional many-to-one association to RemoteNodeReading
-	@OneToMany(mappedBy="remoteNode")
+	// bi-directional many-to-one association to RemoteNodeReading
+	@OneToMany(mappedBy = "remoteNode")
 	private Set<RemoteNodeReading> remoteNodeReadings;
+
+	@Transient
+	private boolean connected;
 
 	/**
 	 * Call {@linkplain UGateKeeper#notifyListeners(UGateEvent)} for
@@ -737,5 +740,13 @@ public class RemoteNode implements Model {
 
 	public void setRemoteNodeReadings(Set<RemoteNodeReading> remoteNodeReadings) {
 		this.remoteNodeReadings = remoteNodeReadings;
+	}
+
+	public boolean isConnected() {
+		return connected;
+	}
+
+	public void setConnected(boolean connected) {
+		this.connected = connected;
 	}
 }

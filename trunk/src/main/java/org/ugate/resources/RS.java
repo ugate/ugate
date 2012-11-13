@@ -898,8 +898,12 @@ public class RS {
 				"logout"), SELECT("select"), TODAY("today"), RELOAD("reload"), OPEN(
 				"open"), CLOSE("close"), ALL("all"), ALL_OFF("all.off"), ON(
 				"on"), OFF("off"), UPDATE("update"), SUBMIT("submit"), ERROR(
-				"error"), INVALID("invalid", 1), FEET("feet"), INCHES("inches"), METERS("meters"), SENDING("sending"), ALARM_SETTINGS("alarm.settings"), ALARM_THRESHOLDS("alarm.thres"), ALARM_POSITIONING("alarm.positioning"), ALARM_NOTIFICATION(
-						"alarm.notify"), SONAR("sonar"), SONAR_PIR_POSITIONING("sonar.pir.pos"), PIR("pir"), MW("mw"), MW_POSITIONING("mw.pos"), LASER("laser"), CAM("cam"), CAM_POSITIONING("cam.pos"), CAM_PAN(
+				"error"), INVALID("invalid", 1), FEET("feet"), INCHES("inches"), METERS(
+				"meters"), SENDING("sending"), ALARM_SETTINGS("alarm.settings"), ALARM_THRESHOLDS(
+				"alarm.thres"), ALARM_POSITIONING("alarm.positioning"), ALARM_NOTIFICATION(
+				"alarm.notify"), SONAR("sonar"), SONAR_PIR_POSITIONING(
+				"sonar.pir.pos"), PIR("pir"), MW("mw"), MW_POSITIONING("mw.pos"), LASER(
+				"laser"), CAM("cam"), CAM_POSITIONING("cam.pos"), CAM_PAN(
 				RemoteNodeType.CAM_ANGLE_PAN.getKey()), CAM_PAN_DESC(
 				RemoteNodeType.CAM_ANGLE_PAN.getKey() + ".desc"), CAM_TILT(
 				RemoteNodeType.CAM_ANGLE_TILT.getKey()), CAM_TILT_DESC(
@@ -934,9 +938,13 @@ public class RS {
 				1), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
 				"settings.receive"), SETTINGS_SEND_FAILED(
 				"settings.send.failed", 1), SENSOR_READINGS_GET(
-				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_BINARY(RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()), SENSOR_TRIP_MULTI_DESC(
-						RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey() + ".desc"), SENSOR_READINGS("sensors.readings"), SENSOR_READINGS_FAILED(
-				"sensors.readings.failed", 1), GATE_CONFIG("gate.conf"), GATE_ACCESS(RemoteNodeType.GATE_ACCESS_ON.getKey()), GATE_ACCESS_DESC(RemoteNodeType.GATE_ACCESS_ON.getKey() + ".desc"), GATE_TOGGLE(
+				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_BINARY(
+				RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()), SENSOR_TRIP_MULTI_DESC(
+				RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey() + ".desc"), SENSOR_READINGS(
+				"sensors.readings"), SENSOR_READINGS_FAILED(
+				"sensors.readings.failed", 1), GATE_CONFIG("gate.conf"), GATE_ACCESS(
+				RemoteNodeType.GATE_ACCESS_ON.getKey()), GATE_ACCESS_DESC(
+				RemoteNodeType.GATE_ACCESS_ON.getKey() + ".desc"), GATE_TOGGLE(
 				"gate.toggle"), GATE_TOGGLE_FAILED("gate.toggle.failed"), GATE_TOGGLE_DESC(
 				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_GRAPH_DESC(
 				"app.graph.desc"), LABEL_GRAPH_AXIS_X("graph.axis.x"), LABEL_DISPLAYSHELF_FULLSIZE_DESC(
@@ -954,7 +962,7 @@ public class RS {
 				"service.rx.image.lostpackets.retry", 3), SERVICE_RX_IMAGE_TIMEOUT(
 				"service.rx.image.timeout", 2), SERVICE_CMD_SOUNDS(
 				RemoteNodeType.DEVICE_SOUNDS_ON.getKey()), SERVICE_CMD_SOUNDS_TOGGLE(
-						RemoteNodeType.DEVICE_SOUNDS_ON.getKey() + ".desc"), SERVICE_CMD_FAILED(
+				RemoteNodeType.DEVICE_SOUNDS_ON.getKey() + ".desc"), SERVICE_CMD_FAILED(
 				"service.command.failed"), SERVICE_WIRELESS_CONNECTION_REQUIRED(
 				"service.wireless.connection.required"), SERVICE_WIRELESS_FAILED(
 				"service.wireless.failed"), SERVICE_WIRELESS_ACK_SUCCESS(
@@ -987,24 +995,38 @@ public class RS {
 				"mail.username.desc"), MAIL_PASSWORD("mail.password"), MAIL_PASSWORD_DESC(
 				"mail.password.desc"), MAIL_FOLDER_NAME("mail.folder"), MAIL_FOLDER_DESC(
 				"mail.folder.desc"), SONAR_THRESHOLD("sonar.threshold", 1), SONAR_THRESHOLD_DESC(
-						"sonar.threshold.desc", 1), SONAR_THRESHOLD_FEET(RemoteNodeType.SONAR_DISTANCE_THRES_FEET.getKey()), SONAR_THRESHOLD_INCHES(RemoteNodeType.SONAR_DISTANCE_THRES_INCHES.getKey()), SONAR_PIR_PAN(RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey()), SONAR_PIR_PAN_DESC(
-						RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey() + ".desc"), SONAR_PIR_TILT(RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey()), SONAR_PIR_TILT_DESC(
-								RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey() + ".desc"), SONAR_ALARM_DELAY(RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey()), SONAR_ALARM_DELAY_DESC(
-										RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey() + ".desc"), PIR_ALARM_DELAY(RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey()), PIR_ALARM_DELAY_DESC(
-												RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_THRESHOLD(RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey()), MW_THRESHOLD_DESC(
-														RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey() + ".desc"), MW_ALARM_DELAY(
-																RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey()), MW_ALARM_DELAY_DESC(
-																		RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_PAN(RemoteNodeType.MW_ANGLE_PAN.getKey()), MW_PAN_DESC(
-						RemoteNodeType.MW_ANGLE_PAN.getKey() + ".desc"), LASER_THRESHOLD("laser.threshold", 1), LASER_THRESHOLD_DESC(
-				"laser.threshold.desc", 1), LASER_THRESHOLD_FEET(RemoteNodeType.LASER_DISTANCE_THRES_FEET.getKey()), LASER_THRESHOLD_INCHES(RemoteNodeType.LASER_DISTANCE_THRES_INCHES.getKey()),  LASER_ALARM_DELAY(RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey()), LASER_ALARM_DELAY_DESC(
-						RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey() + ".desc"), LASER_CALIBRATION(
+				"sonar.threshold.desc", 1), SONAR_THRESHOLD_FEET(
+				RemoteNodeType.SONAR_DISTANCE_THRES_FEET.getKey()), SONAR_THRESHOLD_INCHES(
+				RemoteNodeType.SONAR_DISTANCE_THRES_INCHES.getKey()), SONAR_PIR_PAN(
+				RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey()), SONAR_PIR_PAN_DESC(
+				RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey() + ".desc"), SONAR_PIR_TILT(
+				RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey()), SONAR_PIR_TILT_DESC(
+				RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey() + ".desc"), SONAR_ALARM_DELAY(
+				RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey()), SONAR_ALARM_DELAY_DESC(
+				RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey() + ".desc"), PIR_ALARM_DELAY(
+				RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey()), PIR_ALARM_DELAY_DESC(
+				RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_THRESHOLD(
+				RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey()), MW_THRESHOLD_DESC(
+				RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey() + ".desc"), MW_ALARM_DELAY(
+				RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey()), MW_ALARM_DELAY_DESC(
+				RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_PAN(
+				RemoteNodeType.MW_ANGLE_PAN.getKey()), MW_PAN_DESC(
+				RemoteNodeType.MW_ANGLE_PAN.getKey() + ".desc"), LASER_THRESHOLD(
+				"laser.threshold", 1), LASER_THRESHOLD_DESC(
+				"laser.threshold.desc", 1), LASER_THRESHOLD_FEET(
+				RemoteNodeType.LASER_DISTANCE_THRES_FEET.getKey()), LASER_THRESHOLD_INCHES(
+				RemoteNodeType.LASER_DISTANCE_THRES_INCHES.getKey()), LASER_ALARM_DELAY(
+				RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey()), LASER_ALARM_DELAY_DESC(
+				RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey() + ".desc"), LASER_CALIBRATION(
 				"laser.calibration"), LASER_CALIBRATION_DESC(
 				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
 				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
 				"laser.calibration.failed"), WIRELESS_WEB_START_STOP(
 				"wireless.web.startstop"), WIRELESS_WEB_START_STOP_DESC(
 				"wireless.web.startstop.desc"), WIRELESS_WEB_COMMANDS(
-				"wireless.web.commands"), WIRELESS_NODE_CONNECT("wireless.node.connect", 1), WIRELESS_NODE_REMOTE_NODE(
+				"wireless.web.commands"), WIRELESS_NODE_CONNECT(
+				"wireless.node.connect", 1), WIRELESS_NODE_CONNECT_FAILED(
+				"wireless.node.connect.failed", 1), WIRELESS_NODE_REMOTE_NODE(
 				"wireless.node.remote.node", 1), WIRELESS_NODE_REMOTE_ADDY(
 				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
 				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
@@ -1020,14 +1042,15 @@ public class RS {
 				"wireless.node.remote.select.failed", 1), WIRELESS_NODE_REMOTE_SAVED_LOCAL(
 				"wireless.node.remote.local.saved", 1), WIRELESS_REMOTE_SYNC(
 				RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey()), WIRELESS_REMOTE_SYNC_DESC(
-						RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey() + ".desc"), WIRELESS_REMOTE_SYNCD(
+				RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey() + ".desc"), WIRELESS_REMOTE_SYNCD(
 				"wireless.node.remote.syncd", 1), WIRELESS_REMOTE_OUT_OF_SYNC(
 				"wireless.node.remote.outofsync", 1), WIRELESS_REMOTE_READINGS_TIME(
 				"wireless.node.remote.readings.time"), WIRELESS_REMOTE_READINGS_SENSOR(
 				"wireless.node.remote.readings.sensor"), WIRELESS_REMOTE_READINGS_REPORT(
-				"wireless.node.remote.readings.report"), WIRELESS_REMOTE_UNIVERSAL("universal.remote"), WIRELESS_REMOTE_UNIVERSAL_TOGGLE(
+				"wireless.node.remote.readings.report"), WIRELESS_REMOTE_UNIVERSAL(
+				"universal.remote"), WIRELESS_REMOTE_UNIVERSAL_TOGGLE(
 				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey()), WIRELESS_REMOTE_UNIVERSAL_DESC(
-						RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey() + ".desc"), WIRELESS_PORT(
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey() + ".desc"), WIRELESS_PORT(
 				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(
 				"wireless.speed"), WIRELESS_SPEED_DESC("wireless.speed.desc"), WIRELESS_ACCESS_KEY(
 				"wireless.access.key", 1), WIRELESS_ACCESS_KEY_DESC(
@@ -1045,8 +1068,8 @@ public class RS {
 				"wireless.web.host.local.desc"), WEB_PORT_LOCAL(
 				"wireless.web.port.local"), WEB_PORT_LOCAL_DESC(
 				"wireless.web.port.local.desc"), MAIL_ALARM_NOTIFY(
-						RemoteNodeType.MAIL_ALERT_ON.getKey()), MAIL_ALARM_NOTIFY_DESC(
-								RemoteNodeType.MAIL_ALERT_ON.getKey() + ".desc"), MAIL_ALARM_NOFITY_EMAILS(
+				RemoteNodeType.MAIL_ALERT_ON.getKey()), MAIL_ALARM_NOTIFY_DESC(
+				RemoteNodeType.MAIL_ALERT_ON.getKey() + ".desc"), MAIL_ALARM_NOFITY_EMAILS(
 				"mail.alarm.notify.emails"), MAIL_ALARM_NOTIFY_EMAILS_DESC(
 				"mail.alarm.notify.emails.desc"), MAIL_ALARM_NOTIFY_EMAILS_REMOVE(
 				"mail.alarm.notify.emails.remove"), MAIL_ALARM_NOTIFY_EMAILS_ADD(

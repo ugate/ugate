@@ -27,7 +27,7 @@
 			var COMMAND = "command";
 			var ACTION = "action";
 			var ACT_CONNECT = "connect";
-			var RN_ID = "rnId";
+			var RN_ID = "id";
 			var defaultLoadingMsg = "Please Wait...";
 		/*]]>*/
 		</script>
@@ -106,26 +106,29 @@
 					alert('Unable to connect to server for real-time updates');
 				}
 			}
+			// update all form elements that have the same name as the JSON attribute name 
+			// when the form contains an element with a name == id and the value of that 
+			// element == the JSON id
 			function updateValues(json) {
 				try {
-					var detail = $('#rnDetail');
-					if (detail && json && json.address) {
-						var rnAddy = $('#' + RN_ID + '0').text();
-						//alert(json.address + " === " + rnAddy + " is " + (json.address === rnAddy));
-						if (json.address === rnAddy) {
-							var updated = false;
-							$.each(json, function(name, value) {
-								var f = $('#' + name);
-								//alert(f.val() + " === " + value + " (name: " + name + ")");
-								if (f) {
-									f.val(value);
-									if (typeof f.slider == 'function') {
-										f.slider('refresh');
+					if (json && json.id) {
+						$('form').each(function() {
+							var form = $(this);
+							var id = form.find('input[name="id"]');
+							//alert('id.val(): ' + id.val() + ' json.id: ' + json.id);
+							if (id && id.val() == json.id) {
+								$.each(json, function(name, value) {
+									var f = form.find('input[name="' + name + '"]');
+									//alert('f: ' + (f ? f.attr("name") : 'N/A'));
+									if (f) {
+										f.val(value);
+										if (typeof f.slider == 'function') {
+											try {f.slider('refresh');} catch (e) {}
+										}
 									}
-									updated = true;
-								}
-							});
-						}
+								});
+							}
+						});
 					}
 				} catch (e) {
 					alert("Unable to update UI (error: " + e
@@ -137,10 +140,21 @@
 			function rnConnect(a, rnId, waitMessage) {
 				showMessage(waitMessage);
 				try {
-					ajaxGo(null, rnId, ACTION + '=' + ACT_CONNECT, function (data) {
+					// TODO : Once https://github.com/jquery/jquery-mobile/issues/4317 is released the proper update can be made to the data-icon change
+					var lnk = $(a);
+					ajaxGo(null, rnId, ACTION + '=' + ACT_CONNECT, function(
+							data) {
 						hideMessage();
-						$(a).attr("data-theme", "b");
-						$(a).attr("data-icon", "arrow-r");
+						//alert('data-icon: ' + lnk.attr('data-icon') + ' data-theme: ' + lnk.attr('data-theme'));
+						lnk.attr('data-icon', 'check').trigger('refresh');
+						//lnk.attr('data-theme', 'b').trigger('refresh');
+						lnk.buttonMarkup({ icon: 'check' });
+					}, function (xhr, status, thrown) {
+						hideMessage();
+						lnk.attr('data-icon', 'alert').trigger('refresh');
+						//lnk.attr('data-theme', 'e').trigger('refresh');
+						lnk.buttonMarkup({ icon: 'alert' });
+						ajaxGoError(xhr, status, thrown);
 					});
 				} catch (e) {
 					showMessage(e.message);
@@ -148,13 +162,13 @@
 				//alert('gone');
 			}
 			// when a slider stops sliding submit form data
-	        $(document).bind("pageinit", function() {
-	            $(".ui-slider-input, .ui-slider-switch").each(function() {
-	                $(this).on('slidestop', function(event) {
-	                	ajaxGo(this);
-	                });
-	            });
-	        });
+			$(document).bind("pageinit", function() {
+				$(".ui-slider-input, .ui-slider-switch").each(function() {
+					$(this).on('slidestop', function(event) {
+						ajaxGo(this);
+					});
+				});
+			});
 			function ajaxGo(element, rnId, params, successFunc, errorFunc) {
 				var httpMeth = "POST";
 				var form;
@@ -169,7 +183,8 @@
 				var jsonObj = form ? form.serializeFormJSON() : null;
 				if (jsonObj || params) {
 					var rnIdData = rnId ? RN_ID + '=' + rnId + '&' : '';
-					var jsonData = rnIdData + (jsonObj ? $.param(jsonObj) : '') + (params ? '&' + params : '');
+					var jsonData = rnIdData + (jsonObj ? $.param(jsonObj) : '')
+							+ (params ? '&' + params : '');
 					//alert(jsonData);
 					var sf = (successFunc ? successFunc : ajaxGoSuccess);
 					var ef = (errorFunc ? errorFunc : ajaxGoError);
@@ -185,20 +200,21 @@
 				}
 			}
 			function ajaxGoError(xhr, status, thrown) {
-				showMessage('Error submitting request: ' + status + ' '
-						+ thrown, 5000);
+				showMessage(status + ': '	+ thrown, 5000, true);
 			}
 			function ajaxGoSuccess(data) {
 				//showMessage('Data submitting. Result: ' + data, 5000);
 				hideMessage();
 			}
 			// Messages
-			function showMessage(msg, timeout) {
+			function showMessage(msg, timeout, isError) {
 				$.mobile.loadingMessage = msg;
+				$.mobile.loadingMessageTheme = isError ? 'e' : 'a';
 				$.mobile.loading('show');
 				if (timeout) {
 					setTimeout(function() {
 						hideMessage();
+						$.mobile.loadingMessageTheme = 'a';
 					}, timeout);
 				}
 			}
@@ -214,7 +230,7 @@
 					reloadPage : true
 				});
 			}
-		/*]]>*/
+			/*]]>*/
 		</script>
 		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 	</head>

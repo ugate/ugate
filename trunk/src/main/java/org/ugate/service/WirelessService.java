@@ -299,7 +299,7 @@ public class WirelessService {
 		String message;
 		try {
 			// bytes header command and status/failure code
-			final int[] bytesHeader = new int[] { event.getCommand().id, RxData.Status.NORMAL.ordinal() };
+			final int[] bytesHeader = new int[] { event.getCommand().getId(), RxData.Status.NORMAL.ordinal() };
 			final int[] bytes = event.getNewValue() != null && event.getNewValue().length > 0 ? 
 					UGateUtil.arrayConcatInt(bytesHeader, event.getNewValue()) : bytesHeader;
 			final XBeeAddress16 xbeeAddress = getXbeeAddress(event.getSource().getAddress());
