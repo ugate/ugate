@@ -1,6 +1,9 @@
 package org.ugate.service.web.ui;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,7 +16,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
+import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.web.UGateAjaxUpdaterServlet;
 import org.ugate.service.web.UGateWebSocketServlet;
 import org.ugate.service.web.ui.WebApplication.ControllerResource;
@@ -23,7 +31,9 @@ import org.ugate.service.web.ui.WebApplication.ControllerResource;
  */
 public class WebFilter implements Filter {
 
+	private static final Logger log = LoggerFactory.getLogger(WebFilter.class);
 	private ServletContext servletContext;
+	private int actorId;
 
 	/**
 	 * Processes a {@link HttpServletRequest} using the {@link WebApplication}'s
@@ -68,7 +78,7 @@ public class WebFilter implements Filter {
 			final HttpServletRequest req = (HttpServletRequest) request;
 			final HttpServletResponse res = (HttpServletResponse) response;
 			boolean processed = false;
-			if (req.getRemoteUser() == null || req.getRemoteUser().isEmpty()) {
+			if (!isLoggedIn(req)) {
 				// authentication required
 				if (hasOrigURI(req, UGateWebSocketServlet.class.getSimpleName())
 						|| hasOrigURI(req,
@@ -135,11 +145,65 @@ public class WebFilter implements Filter {
 	}
 
 	/**
+	 * Determines if the {@link HttpServletRequest#getRemoteUser()} is logged
+	 * in. When the host IP matches the
+	 * {@link HttpServletRequest#getLocalAddr()} an attempt will be made to
+	 * automatically log the user in using the {@link Actor#getId()} from
+	 * {@link FilterConfig#getInitParameter(String)}.
+	 * 
+	 * @param req
+	 *            the {@link HttpServletRequest}
+	 * @return true when the user is logged in or automatically logged in
+	 */
+	private boolean isLoggedIn(final HttpServletRequest req) {
+		try {
+			if (req.getRemoteUser() != null && !req.getRemoteUser().isEmpty()) {
+				return true;
+			}
+			if (req.getLocalAddr() == null || req.getLocalAddr().isEmpty()) {
+				return false;
+			}
+			final Enumeration<NetworkInterface> e = NetworkInterface
+					.getNetworkInterfaces();
+			NetworkInterface ni;
+			InetAddress ip;
+			Enumeration<InetAddress> e2;
+			while (e.hasMoreElements()) {
+				ni = e.nextElement();
+				e2 = ni.getInetAddresses();
+				while (e2.hasMoreElements()) {
+					ip = e2.nextElement();
+					if (req.getRemoteAddr().equals(ip.getHostAddress())) {
+						final Actor actor = ServiceProvider.IMPL
+								.getCredentialService().getActorById(
+										Integer.valueOf(actorId));
+						if (actor != null) {
+							req.login(actor.getUsername(), actor.getPassword());
+							return true;
+						}
+						return false;
+					}
+				}
+			}
+		} catch (final Throwable t) {
+			log.warn("Unable to auto login", t);
+		}
+		return false;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void init(final FilterConfig filterConfig) throws ServletException {
 		this.servletContext = filterConfig.getServletContext();
+		final String actorIdStr = filterConfig.getInitParameter(ActorType.ID.name());
+		if (actorIdStr == null || actorIdStr.isEmpty()) {
+			throw new NullPointerException(String.format(
+					"%1$s %2$s cannot be null",
+					Actor.class.getSimpleName(), ActorType.ID.name()));
+		}
+		this.actorId = Integer.valueOf(actorIdStr);
 	}
 
 	/**

@@ -145,9 +145,10 @@ public class WebBuilder extends BorderPane {
 	 */
 	public void load() {
 		if (loadToolBar()) {
-			webView.getEngine().load(
-					"http://" + cb.getActor().getHost().getWebHostLocal() + ':'
-							+ cb.getActor().getHost().getWebPortLocal());
+			webView.getEngine().load(RS.path("base.html"));
+//			webView.getEngine().load(
+//					"http://" + cb.getActor().getHost().getWebHostLocal() + ':'
+//							+ cb.getActor().getHost().getWebPortLocal());
 		}
 	}
 

@@ -40,6 +40,9 @@ public class IndexController extends BaseController {
 			final HttpServletResponse res, final ServletContext servletContext,
 			final WebContext ctx) throws Throwable {
 		final Actor actor = findActor(req);
+		if (actor == null) {
+			req.authenticate(res);
+		}
 		final Integer rnId = getParameter(req, RemoteNodeType.ID.getKey(), Integer.class);
 		RemoteNode rn = null;
 		if (rnId != null) {
@@ -76,7 +79,7 @@ public class IndexController extends BaseController {
 			vm.put(type, new ArrayList<RemoteNodeType.Value>());
 		}
 		rn.setConnected(ServiceProvider.IMPL.getWirelessService()
-				.testRemoteConnection(rn));
+				.testRemoteConnection(rn, 0));
 		for (final RemoteNodeType rnt : RemoteNodeType.values()) {
 			if (rnt.getGroup() != null) {
 				try {

@@ -87,7 +87,7 @@ public class EmailService {
 													"Invalid remote address: "
 															+ toAddress);
 										}
-										ServiceProvider.IMPL.getWirelessService().sendData(rn, command, false);
+										ServiceProvider.IMPL.getWirelessService().sendData(rn, command, 0, false);
 										msg = RS.rbLabel(KEY.SERVICE_EMAIL_CMD_EXEC, command, event.from, toAddress);
 										log.info(msg);
 									} catch (final Throwable t) {

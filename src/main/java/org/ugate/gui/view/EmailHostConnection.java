@@ -34,7 +34,7 @@ import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.MailRecipient;
 
 /**
- * Responsible for connecting to the mail service
+ * Responsible for connecting to the email service
  */
 public class EmailHostConnection extends VBox {
 
@@ -53,11 +53,19 @@ public class EmailHostConnection extends VBox {
 	public final Button emailConnectBtn;
 	public final ControlBar cb;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param controlBar
+	 *            the {@link ControlBar}
+	 */
 	public EmailHostConnection(final ControlBar controlBar) {
 		super(20);
 		this.cb = controlBar;
 		final StatusIcon emailIcon = new StatusIcon(
 				RS.imgView(RS.IMG_EMAIL_ICON), GuiUtil.COLOR_OFF);
+		controlBar.addHelpTextTrigger(emailIcon,
+				RS.rbLabel(KEY.MAIL_CONNECT_DESC));
 		smtpHost = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_SMTP_HOST, UGateCtrlBox.Type.TEXT,
 				RS.rbLabel(KEY.MAIL_SMTP_HOST), null);
@@ -119,10 +127,10 @@ public class EmailHostConnection extends VBox {
 				null, RS.rbLabel(KEY.APP_SERVICE_STARTUP_AUTO),
 				RS.rbLabel(KEY.APP_SERVICE_STARTUP_MANUAL));
 		controlBar.addHelpTextTrigger(emailOnAtStartSwitch,
-				RS.rbLabel(KEY.APP_SERVICE_STARTUP_DESC));
+				RS.rbLabel(KEY.APP_SERVICE_HOST_STARTUP_DESC));
 		emailConnectBtn = new Button(RS.rbLabel(KEY.MAIL_CONNECT));
 		cb.addServiceBehavior(emailConnectBtn, null, ServiceProvider.Type.EMAIL,
-				KEY.MAIL_CONNECT);
+				KEY.MAIL_CONNECT_DESC);
 		emailBtnView.getChildren().addAll(emailConnectBtn, emailOnAtStartSwitch);
 
 		final GridPane grid = new GridPane();
@@ -202,6 +210,12 @@ public class EmailHostConnection extends VBox {
 		});
 	}
 
+	/**
+	 * Creates a {@link FunctionButton} that will remove a mail recipient using
+	 * the selected email address
+	 * 
+	 * @return the {@link FunctionButton}
+	 */
 	protected FunctionButton createRecipientRemovalBtn() {
 		return new FunctionButton(FunctionButton.Function.REMOVE, 
 				new Runnable() {
@@ -250,7 +264,13 @@ public class EmailHostConnection extends VBox {
 			}
 		});
 	}
-	
+
+	/**
+	 * Creates a {@link FunctionButton} that will add a mail recipient using the
+	 * email address entered in the recipient {@link TextField}
+	 * 
+	 * @return the {@link FunctionButton}
+	 */
 	protected FunctionButton createRecipientAddBtn() {
 		return new FunctionButton(FunctionButton.Function.ADD, 
 				new Runnable() {

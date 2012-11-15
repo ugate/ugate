@@ -1,18 +1,10 @@
 package org.ugate.service;
 
-import java.security.cert.X509Certificate;
-import java.util.Iterator;
 import java.util.Properties;
-
-import javax.jms.IllegalStateException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.ugate.service.entity.jpa.Host;
-import org.ugate.service.entity.jpa.RemoteNode;
-import org.ugate.service.web.SignatureAlgorithm;
-import org.ugate.service.web.WebServer;
 
 /**
  * Renders application services
@@ -26,8 +18,6 @@ public enum ServiceProvider {
 	private final WirelessService wirelessService;
 	private final EmailService emailService;
 	private final WebService webService;
-	private Host host;
-	private RemoteNode remoteNode;
 	
 	/**
 	 * Creates/Initializes a new {@linkplain ServiceProvider}
@@ -50,92 +40,6 @@ public enum ServiceProvider {
 			appContext.start();
 		}
 		return getWirelessService().init();
-	}
-
-	/**
-	 * Starts\Restarts all underlying managed services.
-	 * 
-	 * @param host
-	 *            the {@linkplain Host} to open the services for
-	 * @param remoteNode
-	 *            the {@linkplain RemoteNode} in the
-	 *            {@linkplain Host#getRemoteNodes()} used to open the services
-	 * @param startWebServer
-	 *            true to start the {@linkplain WebServer}
-	 * @return true when the {@linkplain WirelessService} successfully connected
-	 *         to the local device
-	 */
-	public boolean connect(final Host host, final RemoteNode remoteNode,
-			final boolean startWebServer) {
-		return connect(host, remoteNode, startWebServer, null);
-	}
-	
-	/**
-	 * Starts\Restarts all underlying managed services.
-	 * 
-	 * @param host
-	 *            the {@linkplain Host} to open the services for
-	 * @param remoteNode
-	 *            the {@linkplain RemoteNode} in the
-	 *            {@linkplain Host#getRemoteNodes()} used to open the services
-	 * @param startWebServer
-	 *            true to start the {@linkplain WebServer}
-	 * @param sa
-	 *            the {@linkplain SignatureAlgorithm} to use when the
-	 *            {@linkplain X509Certificate} needs to be created/signed
-	 * @return true when the {@linkplain WirelessService} successfully connected
-	 *         to the local device (required for application to run)
-	 */
-	public boolean connect(final Host host, final RemoteNode remoteNode,
-			final boolean startWebServer, final SignatureAlgorithm sa) {
-		try {
-			if (host == null && this.host == null) {
-				throw new NullPointerException(Host.class.getName() + " cannot be null");
-			}
-			if (this.host == null) {
-				this.host = host;
-			}
-			if (this.host.getRemoteNodes() == null) {
-				throw new NullPointerException(RemoteNode.class.getName() + " cannot be null");
-			} else if (remoteNode == null) {
-				throw new NullPointerException(String.format(
-						"(%1$s) %2$s on %3$s", this.host.getRemoteNodes()
-								.size(), RemoteNode.class.getName(), Host.class
-								.getName()));
-			}
-			// validate that the remote node is part of the host
-			RemoteNode rn;
-			for (final Iterator<RemoteNode> rni = this.host.getRemoteNodes()
-					.iterator(); rni.hasNext();) {
-				rn = rni.next();
-				if (rn == remoteNode) {
-					this.remoteNode = remoteNode;
-				}
-			}
-			if (this.remoteNode == null) {
-				throw new IllegalStateException(String.format(
-						"%1$s is invalid at address %2$s for host ID %3$s",
-						RemoteNode.class.getName(), remoteNode.getAddress(),
-						host.getId()));
-			}
-			init();
-			if (!getWirelessService().connect(this.host, this.remoteNode)) {
-				log.warn("The local wireless device is unavailable");
-				return false;
-			}
-			if (!getEmailService().connect(this.host)) {
-				log.info("Host is not available for an automatic email connection");
-			}
-			if (startWebServer) {
-				getWebService().start(this.host, sa);
-			}
-			return true;
-		} catch (final Throwable t) {
-			log.error(String.format("Unable to initialize/start %1$s", 
-					ServiceProvider.class.getSimpleName()), t);
-			disconnect();
-			throw new RuntimeException(t);
-		}
 	}
 
 	/**

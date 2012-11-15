@@ -35,17 +35,15 @@ public class JPALoginService extends MappedLoginService {
 	 * @param username
 	 *            the login ID
 	 * @param credentials
-	 *            the password
+	 *            the password (can be already hashed or raw input)
 	 * @return the {@linkplain UserIdentity}
 	 */
 	protected UserIdentity loadActor(final String username, final Object credentials) {
 		try {
 			// get the user and roles from JPA (roles should be eagerly fetched or pre-fetched
 			// or a null pointer will be thrown)
-			final Actor actor = credentials != null ? ServiceProvider.IMPL
-					.getCredentialService().authenticate(username,
-							credentials.toString()) : ServiceProvider.IMPL
-					.getCredentialService().getActor(username);
+			final Actor actor = ServiceProvider.IMPL.getCredentialService().authenticate(username,
+						credentials.toString());
 			if (actor == null) {
 				throw new NullPointerException(Actor.class.getName());
 			}

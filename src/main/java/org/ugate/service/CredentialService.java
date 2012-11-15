@@ -143,15 +143,19 @@ public class CredentialService {
 	 * @param username
 	 *            the user's login ID
 	 * @param password
-	 *            the user's password
+	 *            the user's password (can be already hashed or raw input)
 	 * @return the authenticated {@linkplain Actor} (or <code>null</code> when
 	 *         authentication fails)
 	 */
 	public Actor authenticate(final String username, final String password) {
 		try {
+			if (password == null || password.isEmpty()) {
+				return null;
+			}
 			final Actor actor = credentialDao.getActor(username);
 			if (actor != null) {
-				if (hasDigestMatch(username, actor.getPassword(), password)) {
+				if (actor.getPassword().equals(password) || 
+						hasDigestMatch(username, actor.getPassword(), password)) {
 					return actor;
 				}
 			} else if (log.isDebugEnabled()) {
