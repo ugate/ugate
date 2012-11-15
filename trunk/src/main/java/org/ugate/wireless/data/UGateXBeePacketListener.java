@@ -184,7 +184,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 						rxTxAttempts++;
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED_RETRYING, command, ic, 
 								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxAttempts, retries));
-						ServiceProvider.IMPL.getWirelessService().sendData(rn, command, false);
+						ServiceProvider.IMPL.getWirelessService().sendData(rn, command, 0, false);
 					} else {
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
 								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxAttempts));
@@ -202,7 +202,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					}
 				}
 			}
-		} else if (command == Command.ACCESS_CODE_CHANGE) {
+		} else if (command == Command.ACCESS_PIN_CHANGE) {
 			//final int hasFailures = rxResponse.getData()[1];
 			final KeyCodes kc = new KeyCodes(rn, status, rxResponse.getRssi(), rxResponse.getData()[1], 
 					rxResponse.getData()[2], rxResponse.getData()[3]);

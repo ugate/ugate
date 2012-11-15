@@ -23,7 +23,7 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.8.v20121106/jetty-servlet-8.1.8.v20121106.jar" sourcepath="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.7.v20120910/jetty-servlet-8.1.7.v20120910-sources.jar"/>
+	<classpathentry kind="lib" path="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.8.v20121106/jetty-servlet-8.1.8.v20121106.jar" sourcepath="C:/java/maven/repository/org/eclipse/jetty/aggregate/jetty-servlet/8.1.8.v20121106/jetty-servlet-8.1.8.v20121106-sources.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-aop/3.1.2.RELEASE/spring-aop-3.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-asm/3.1.2.RELEASE/spring-asm-3.1.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/org/springframework/spring-beans/3.1.2.RELEASE/spring-beans-3.1.2.RELEASE.jar"/>

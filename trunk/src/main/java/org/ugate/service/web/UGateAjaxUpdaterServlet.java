@@ -81,7 +81,7 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 						"Executing %1$s for %2$s at address %3$s)", cmd,
 						RemoteNode.class.getSimpleName(), rn.getAddress()));
 			}
-			ServiceProvider.IMPL.getWirelessService().sendData(rn, cmd, true);
+			ServiceProvider.IMPL.getWirelessService().sendData(rn, cmd, 0, true);
 		}
 	}
 
@@ -174,7 +174,7 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 				final String p = request.getParameter(VAR_ACTION_NAME);
 				if (p != null && p.equals(VAR_ACTION_CONNECT_NAME)) {
 					final boolean connected = ServiceProvider.IMPL
-							.getWirelessService().testRemoteConnection(rn);
+							.getWirelessService().testRemoteConnection(rn, 0);
 					if (!connected) {
 						response.sendError(
 								HttpServletResponse.SC_CONFLICT,

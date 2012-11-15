@@ -15,6 +15,7 @@ import org.ugate.service.entity.jpa.Role;
  * field paths within an {@linkplain Actor}
  */
 public enum ActorType implements IModelType<Actor> {
+	ID("id"),
 	USERNAME("username"),
 	PASSWORD("password"),
 	USE_METRIC("host.useMetric"),

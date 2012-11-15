@@ -30,6 +30,7 @@ public abstract class BaseController {
 	private static final Logger log = LoggerFactory
 			.getLogger(BaseController.class);
 	protected static final String POSTFIX_LABEL= "_LABEL";
+	public static final String VAR_REMOTE_USER = "remoteUser";
 	public static final String VAR_CONTENT_NAME = "content";
 	public static final String VAR_TITLE_NAME = "title";
 	public static final String VAR_FOOTER_NAME = "footer";
@@ -76,11 +77,15 @@ public abstract class BaseController {
 				ctx.setVariable(VAR_URL_NAME, '/' + getPageName());
 				ctx.setVariable(VAR_URL_AJAX_UPDATE_NAME, '/' + UGateAjaxUpdaterServlet.class.getSimpleName());
 				ctx.setVariable(VAR_URI_WEB_SOCKET_NAME, '/' + UGateWebSocketServlet.class.getSimpleName());
+				ctx.setVariable(VAR_REMOTE_USER, req.getRemoteUser());
 				final RequiredValues rvs = processContext(req, res, servletContext, ctx);
 				ctx.setVariable(
 						VAR_TITLE_NAME,
-						rvs != null && rvs.getTitle() != null ? rvs.getTitle() : RS
-								.rbLabel(KEY.APP_TITLE));
+						rvs != null && rvs.getTitle() != null ? rvs.getTitle()
+								: RS.rbLabel(
+										KEY.APP_TITLE_USER,
+										(req.getRemoteUser() != null ? req
+												.getRemoteUser() : "")));
 				ctx.setVariable(VAR_FOOTER_NAME,
 						rvs != null && rvs.getFooter() != null ? rvs.getFooter()
 								: RS.rbLabel(KEY.APP_TITLE));
@@ -160,8 +165,11 @@ public abstract class BaseController {
 	 * @return the {@linkplain Actor} or null when none can be found
 	 */
 	protected Actor findActor(final HttpServletRequest req) {
-		return ServiceProvider.IMPL.getCredentialService().getActor(
-				req.getRemoteUser().toString());
+		final String ru = req.getRemoteUser();
+		if (ru == null) {
+			return null;
+		}
+		return ServiceProvider.IMPL.getCredentialService().getActor(ru);
 	}
 
 	/**

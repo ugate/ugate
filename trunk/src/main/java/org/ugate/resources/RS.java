@@ -873,7 +873,8 @@ public class RS {
 	public enum KEY {
 		MAIN_CLASS("main.class"), RXTX_VERSION("rxtx.version"), RXTX_FILE_NAME(
 				"rxtx.file.name"), APP_ID("app.id"), APP_VERSION("app.version"), APP_DESC(
-				"app.desc"), APP_TITLE("app.title"), APP_TITLE_ACTION_REQUIRED(
+				"app.desc"), APP_TITLE("app.title"), APP_TITLE_USER(
+				"app.title.user", 1), APP_TITLE_ACTION_REQUIRED(
 				"app.title.action.required"), APP_TITLE_ERROR("app.title.error"), APP_SERVICE_COM_RESTART_REQUIRED(
 				"app.service.com.restart.required"), APP_SERVICE_INIT_ERROR(
 				"app.service.init.error"), APP_GATE_KEEPER_ERROR(
@@ -889,7 +890,8 @@ public class RS {
 				"app.dialog.password.verify"), APP_DIALOG_REQUIRED(
 				"app.dialog.required", 1), APP_DIALOG_DEFAULT_USER(
 				"app.dialog.defaultuser"), APP_SERVICE_STARTUP_DESC(
-				"app.service.startup.desc"), APP_SERVICE_STARTUP_AUTO(
+				"app.service.startup.desc"), APP_SERVICE_HOST_STARTUP_DESC(
+				"app.service.host.startup.desc"), APP_SERVICE_STARTUP_AUTO(
 				"app.service.startup.auto"), APP_SERVICE_STARTUP_MANUAL(
 				"app.service.startup.manual"), APP_HELP_DEFAULT(
 				"help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
@@ -965,7 +967,8 @@ public class RS {
 				RemoteNodeType.DEVICE_SOUNDS_ON.getKey() + ".desc"), SERVICE_CMD_FAILED(
 				"service.command.failed"), SERVICE_WIRELESS_CONNECTION_REQUIRED(
 				"service.wireless.connection.required"), SERVICE_WIRELESS_FAILED(
-				"service.wireless.failed"), SERVICE_WIRELESS_ACK_SUCCESS(
+				"service.wireless.failed"), SERVICE_WIRELESS_WEB_FAILED(
+				"service.wireless.web.failed"), SERVICE_WIRELESS_ACK_SUCCESS(
 				"service.wireless.ack.success", 3), SERVICE_WIRELESS_ACK_FAILED(
 				"service.wireless.ack.failed", 3), SERVICE_WIRELESS_SENDING(
 				"service.wireless.sending", 2), SERVICE_WIRELESS_SUCCESS(
@@ -983,18 +986,19 @@ public class RS {
 				"graph.series.alarm.microwave"), LABEL_GRAPH_SERIES_ALARM_PIR(
 				"graph.series.alarm.pir"), LABEL_GRAPH_SERIES_ACTIVITY_READS(
 				"graph.series.activity.reads"), MAIL_CONNECT_FAILED(
-				"mail.connect.failed", 6), MAIL_CONNECT("mail.connect"), MAIL_CONNECTED(
-				"mail.connected"), MAIL_CONNECTING("mail.connecting"), MAIL_DISCONNECTING(
-				"mail.disconnecting"), MAIL_DISCONNECTED("mail.disconnected"), MAIL_CLOSED(
-				"mail.closed"), MAIL_AUTH_FAILED("mail.auth.failed"), MAIL_RECONNECT(
-				"mail.reconnect"), MAIL_SMTP_HOST("mail.smtp.host"), MAIL_SMTP_HOST_DESC(
-				"mail.smtp.host.desc"), MAIL_SMTP_PORT("mail.smtp.port"), MAIL_SMTP_PORT_DESC(
-				"mail.smtp.port.desc"), MAIL_IMAP_HOST("mail.imap.host"), MAIL_IMAP_HOST_DESC(
-				"mail.imap.host.desc"), MAIL_IMAP_PORT("mail.imap.port"), MAIL_IMAP_PORT_DESC(
-				"mail.imap.port.desc"), MAIL_USERNAME("mail.username"), MAIL_USERNAME_DESC(
-				"mail.username.desc"), MAIL_PASSWORD("mail.password"), MAIL_PASSWORD_DESC(
-				"mail.password.desc"), MAIL_FOLDER_NAME("mail.folder"), MAIL_FOLDER_DESC(
-				"mail.folder.desc"), SONAR_THRESHOLD("sonar.threshold", 1), SONAR_THRESHOLD_DESC(
+				"mail.connect.failed", 6), MAIL_CONNECT("mail.connect"), MAIL_CONNECT_DESC(
+				"mail.connect.desc"), MAIL_CONNECTED("mail.connected"), MAIL_CONNECTING(
+				"mail.connecting"), MAIL_DISCONNECTING("mail.disconnecting"), MAIL_DISCONNECTED(
+				"mail.disconnected"), MAIL_CLOSED("mail.closed"), MAIL_AUTH_FAILED(
+				"mail.auth.failed"), MAIL_RECONNECT("mail.reconnect"), MAIL_SMTP_HOST(
+				"mail.smtp.host"), MAIL_SMTP_HOST_DESC("mail.smtp.host.desc"), MAIL_SMTP_PORT(
+				"mail.smtp.port"), MAIL_SMTP_PORT_DESC("mail.smtp.port.desc"), MAIL_IMAP_HOST(
+				"mail.imap.host"), MAIL_IMAP_HOST_DESC("mail.imap.host.desc"), MAIL_IMAP_PORT(
+				"mail.imap.port"), MAIL_IMAP_PORT_DESC("mail.imap.port.desc"), MAIL_USERNAME(
+				"mail.username"), MAIL_USERNAME_DESC("mail.username.desc"), MAIL_PASSWORD(
+				"mail.password"), MAIL_PASSWORD_DESC("mail.password.desc"), MAIL_FOLDER_NAME(
+				"mail.folder"), MAIL_FOLDER_DESC("mail.folder.desc"), SONAR_THRESHOLD(
+				"sonar.threshold", 1), SONAR_THRESHOLD_DESC(
 				"sonar.threshold.desc", 1), SONAR_THRESHOLD_FEET(
 				RemoteNodeType.SONAR_DISTANCE_THRES_FEET.getKey()), SONAR_THRESHOLD_INCHES(
 				RemoteNodeType.SONAR_DISTANCE_THRES_INCHES.getKey()), SONAR_PIR_PAN(
@@ -1056,8 +1060,9 @@ public class RS {
 				"wireless.access.key", 1), WIRELESS_ACCESS_KEY_DESC(
 				"wireless.access.key.desc", 1), WIRELESS_HOST_ADDY(
 				"wireless.host"), WIRELESS_HOST_ADDY_DESC("wireless.host.desc"), WIRELESS_CONNECT(
-				"wireless.connect"), WIRELESS_CONNECTING("wireless.connecting"), WIRELESS_RECONNECT(
-				"wireless.reconnect"), WIRELESS_DISCONNECTING(
+				"wireless.connect"), WIRELESS_CONNECT_DESC(
+				"wireless.connect.desc"), WIRELESS_CONNECTING(
+				"wireless.connecting"), WIRELESS_RECONNECT("wireless.reconnect"), WIRELESS_DISCONNECTING(
 				"wireless.disconnecting"), WIRELESS_SYNC(
 				"wireless.synchronizing"), WIRELESS_WORKING_DIR(
 				"wireless.workingdir"), WIRELESS_WORKING_DIR_DESC(

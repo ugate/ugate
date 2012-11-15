@@ -153,13 +153,13 @@ public class ControlBar extends ToolBar {
 	
 		cnctStatusWireless = new StatusIcon(RS.imgView(RS.IMG_WIRELESS_ICON,
 				CONNECTION_STATUS_SIZE, CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
-		addServiceBehavior(cnctStatusWireless, null, ServiceProvider.Type.WIRELESS, null);
+		addServiceBehavior(cnctStatusWireless, null, ServiceProvider.Type.WIRELESS, KEY.WIRELESS_CONNECT_DESC);
 		cnctStatusWeb = new StatusIcon(RS.imgView(RS.IMG_WEB_ICON,
 				CONNECTION_STATUS_SIZE, CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
-		addServiceBehavior(cnctStatusWeb, null, ServiceProvider.Type.WEB, null);
+		addServiceBehavior(cnctStatusWeb, null, ServiceProvider.Type.WEB, KEY.WIRELESS_WEB_START_STOP_DESC);
 		cnctStatusEmail = new StatusIcon(RS.imgView(RS.IMG_EMAIL_ICON, CONNECTION_STATUS_SIZE,
 				CONNECTION_STATUS_SIZE, true, true), GuiUtil.COLOR_OFF);
-		addServiceBehavior(cnctStatusEmail, null, ServiceProvider.Type.EMAIL, null);
+		addServiceBehavior(cnctStatusEmail, null, ServiceProvider.Type.EMAIL, KEY.MAIL_CONNECT_DESC);
 		
 		// TODO : need to set camera resolution before calling Command.CAM_TAKE_PIC?
 		final DropShadow ds = new DropShadow();
@@ -297,7 +297,7 @@ public class ControlBar extends ToolBar {
 						}
 					});
 					if (getActor().getHost().getComOnAtAppStartup() == 1) {
-						createWirelessConnectionService().start();
+						createProviderService(ServiceProvider.Type.WIRELESS).start();
 					}
 				}
 				handleConnections(event);
@@ -388,13 +388,7 @@ public class ControlBar extends ToolBar {
 							if (command != null) {
 								createCommandService(command, true);
 							}
-							if (serviceType == ServiceProvider.Type.WIRELESS) {
-								createWirelessConnectionService().start();
-							} else if (serviceType == ServiceProvider.Type.WEB) {
-								createWebConnectionService().start();
-							} else if (serviceType == ServiceProvider.Type.EMAIL) {
-								createEmailConnectionService().start();
-							}
+							createProviderService(serviceType).start();
 						}
 					}
 				});
@@ -494,14 +488,14 @@ public class ControlBar extends ToolBar {
 					if (command == Command.SENSOR_GET_READINGS) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
 								getRemoteNode(), 
-								Command.SENSOR_GET_READINGS, false)) {
+								Command.SENSOR_GET_READINGS, 0, false)) {
 							setHelpText(RS.rbLabel(KEY.SENSOR_READINGS_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
 						}
 					} else if (command == Command.SENSOR_SET_SETTINGS) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendSettings(
-								false, getRemoteNode())) {
+								0, false, getRemoteNode())) {
 							setHelpText(RS.rbLabel(KEY.SETTINGS_SEND_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
@@ -511,7 +505,7 @@ public class ControlBar extends ToolBar {
 					} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendData(
 								getRemoteNode(), 
-								Command.GATE_TOGGLE_OPEN_CLOSE, false)) {
+								Command.GATE_TOGGLE_OPEN_CLOSE, 0, false)) {
 							setHelpText(RS.rbLabel(KEY.GATE_TOGGLE_FAILED,
 									getRemoteNode().getAddress()));
 							return false;
@@ -536,12 +530,14 @@ public class ControlBar extends ToolBar {
 	}
 
 	/**
-	 * Creates a web server connection {@linkplain Service} that will start or
-	 * stop the web server in a background process.
+	 * Creates a {@linkplain Service} that will start/connect to the
+	 * {@link ServiceProvider.Type} in a background process.
 	 * 
+	 * @param the
+	 *            {@link ServiceProvider.Type} to start/connect to
 	 * @return the {@linkplain Service}
 	 */
-	public Service<Boolean> createWebConnectionService() {
+	public Service<Boolean> createProviderService(final ServiceProvider.Type type) {
 		setHelpText(null);
 		return new Service<Boolean>() {
 			@Override
@@ -549,74 +545,46 @@ public class ControlBar extends ToolBar {
 				return new Task<Boolean>() {
 					@Override
 					protected Boolean call() throws Exception {
-						try {
-							if (ServiceProvider.IMPL.getWebService()
-									.isRunning()) {
-								ServiceProvider.IMPL.getWebService().stop();
-							} else {
-								ServiceProvider.IMPL.getWebService().start(
-										getActor().getHost(), null);
+						switch (type) {
+						case EMAIL:
+							try {
+								// establish wireless connection (blocking)
+								ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
+								return true;
+							} catch (final Throwable t) {
+								setHelpText(RS.rbLabel(KEY.SERVICE_EMAIL_FAILED));
+								log.error("Unable to establish email connectivity", t);
 							}
-						} catch (final Throwable t) {
-							setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_FAILED));
-							log.error("Unable to establish a wireless connection", t);
-						}
-						return false;
-					}
-				};
-			}
-		};
-	}
-
-	/**
-	 * Creates a wireless connection {@linkplain Service} that will connect to
-	 * the wireless host in a background process.
-	 * 
-	 * @return the {@linkplain Service}
-	 */
-	public Service<Boolean> createWirelessConnectionService() {
-		setHelpText(null);
-		return new Service<Boolean>() {
-			@Override
-			protected Task<Boolean> createTask() {
-				return new Task<Boolean>() {
-					@Override
-					protected Boolean call() throws Exception {
-						try {
-							// establish wireless connection (blocking)
-							ServiceProvider.IMPL.getWirelessService().connect(
-									getActor().getHost(), getRemoteNode());
-						} catch (final Throwable t) {
-							setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_FAILED));
-							log.error("Unable to establish a wireless connection", t);
-						}
-						return false;
-					}
-				};
-			}
-		};
-	}
-	
-	/**
-	 * Creates an email connection {@linkplain Service} that will connect to an
-	 * email server in a background process.
-	 * 
-	 * @return the {@linkplain Service}
-	 */
-	public Service<Boolean> createEmailConnectionService() {
-		setHelpText(null);
-		return new Service<Boolean>() {
-			@Override
-			protected Task<Boolean> createTask() {
-				return new Task<Boolean>() {
-					@Override
-					protected Boolean call() throws Exception {
-						try {
-							// establish wireless connection (blocking)
-							ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
-						} catch (final Throwable t) {
-							setHelpText(RS.rbLabel(KEY.SERVICE_EMAIL_FAILED));
-							log.error("Unable to establish a wireless connection", t);
+							break;
+						case WEB:
+							try {
+								// stop/start web server (non-blocking)
+								if (ServiceProvider.IMPL.getWebService()
+										.isRunning()) {
+									ServiceProvider.IMPL.getWebService().stop();
+								} else {
+									ServiceProvider.IMPL.getWebService().start(
+											getActor(), null);
+								}
+								return true;
+							} catch (final Throwable t) {
+								setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_WEB_FAILED));
+								log.error("Unable to start the web server", t);
+							}
+							break;
+						case WIRELESS:
+							try {
+								// establish wireless connection (blocking)
+								ServiceProvider.IMPL.getWirelessService().connect(
+										getActor().getHost(), getRemoteNode());
+								return true;
+							} catch (final Throwable t) {
+								setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_FAILED));
+								log.error("Unable to establish a wireless connection with the local host device", t);
+							}
+							break;
+						default:
+							break;
 						}
 						return false;
 					}
@@ -835,10 +803,10 @@ public class ControlBar extends ToolBar {
 					getActor().getHost());
 			// attempt to start/restart services
 			if (getActor().getHost().getWebOnAtComStartup() == 1) {
-				createWebConnectionService().start();
+				createProviderService(ServiceProvider.Type.WEB).start();
 			}
 			if (getActor().getHost().getMailOnAtComStartup() == 1) {
-				createEmailConnectionService().start();
+				createProviderService(ServiceProvider.Type.EMAIL).start();
 			}
 		} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {
 			cnctStatusWireless.setStatusFill(GuiUtil.COLOR_OFF);

@@ -54,8 +54,10 @@ public class HostConnection extends VBox {
 		
 		final StatusIcon wirelessIcon = new StatusIcon(
 				RS.imgView(RS.IMG_WIRELESS_ICON), GuiUtil.COLOR_OFF);
+		cb.addServiceBehavior(wirelessIcon, null, ServiceProvider.Type.WEB, KEY.WIRELESS_CONNECT_DESC);
 		final StatusIcon webIcon = new StatusIcon(
 				RS.imgView(RS.IMG_WEB_ICON), GuiUtil.COLOR_OFF);
+		cb.addServiceBehavior(webIcon, null, ServiceProvider.Type.WEB, KEY.WIRELESS_WEB_START_STOP_DESC);
 		port = createComPortBox();
 	    baud = createBaudRateBox();
 	    hostAddress = new UGateCtrlBox<>(cb.getActorPA(), ActorType.COM_ADDY, 
@@ -86,7 +88,7 @@ public class HostConnection extends VBox {
 		wirelessBtn = new Button(RS.rbLabel(KEY.WIRELESS_CONNECT));
 		controlBar.addHelpTextTrigger(wirelessBtn, RS.rbLabel(KEY.WIRELESS_WEB_START_STOP_DESC));
 		cb.addServiceBehavior(wirelessBtn, null, ServiceProvider.Type.WIRELESS,
-				null);
+				KEY.WIRELESS_CONNECT_DESC);
 		wirelessBtnView.getChildren().addAll(wirelessBtn, wirelessOnAtStartSwitch);
 		
 		final HBox webBtnView = new HBox();
@@ -94,7 +96,7 @@ public class HostConnection extends VBox {
 				controlBar.getActorPA(), ActorType.WEB_ON_AT_COM_STARTUP, null,
 				null, RS.rbLabel(KEY.APP_SERVICE_STARTUP_AUTO),
 				RS.rbLabel(KEY.APP_SERVICE_STARTUP_MANUAL));
-		controlBar.addHelpTextTrigger(webOnAtStartSwitch, RS.rbLabel(KEY.APP_SERVICE_STARTUP_DESC));
+		controlBar.addHelpTextTrigger(webOnAtStartSwitch, RS.rbLabel(KEY.APP_SERVICE_HOST_STARTUP_DESC));
 		webBtn = new Button(RS.rbLabel(KEY.WIRELESS_WEB_START_STOP));
 		cb.addServiceBehavior(webBtn, null, ServiceProvider.Type.WEB,
 				KEY.WIRELESS_WEB_START_STOP_DESC);

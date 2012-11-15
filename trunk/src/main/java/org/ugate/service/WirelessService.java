@@ -43,6 +43,7 @@ import com.rapplogic.xbee.api.wpan.TxStatusResponse;
 public class WirelessService {
 
 	private final Logger log = UGateUtil.getLogger(WirelessService.class);
+	public static final int DEFAULT_WAIT_MILISECONDS = 12000;
 	private XBee xbee;
 	private UGateXBeePacketListener packetListener;
 	private boolean requiresRestart;
@@ -217,6 +218,9 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode} to send the data to
 	 * @param command
 	 *            the executing {@linkplain Command}
+	 * @param timeout
+	 *            the number of milliseconds that will be used to wait for a
+	 *            response before timing out
 	 * @param throwRuntimeException
 	 *            true to throw any {@linkplain Throwable} as a
 	 *            {@linkplain RuntimeException}
@@ -225,11 +229,12 @@ public class WirelessService {
 	 * @return true when successful
 	 */
 	public boolean sendData(final RemoteNode remoteNode, final Command command,
-			final boolean throwRuntimeException, final String data) {
-		return sendData(remoteNode, command, throwRuntimeException,
+			final int timeout, final boolean throwRuntimeException,
+			final String data) {
+		return sendData(remoteNode, command, timeout, throwRuntimeException,
 				ByteUtils.stringToIntArray(data));
 	}
-	
+
 	/**
 	 * Sends the data string to the {@linkplain RemoteNode#getAddress()} in
 	 * ASCII format array
@@ -238,6 +243,9 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode} to send the data to
 	 * @param command
 	 *            the executing {@linkplain Command}
+	 * @param timeout
+	 *            the number of milliseconds that will be used to wait for a
+	 *            response before timing out
 	 * @param throwRuntimeException
 	 *            true to throw any {@linkplain Throwable} as a
 	 *            {@linkplain RuntimeException}
@@ -246,14 +254,16 @@ public class WirelessService {
 	 * @return true when successful
 	 */
 	public boolean sendData(final RemoteNode remoteNode, final Command command,
-			final boolean throwRuntimeException, final List<Integer> data) {
+			final int timeout, final boolean throwRuntimeException,
+			final List<Integer> data) {
 		int[] dataInts = new int[data.size()];
 		for (int i = 0; i < data.size(); i++) {
 			dataInts[i] = data.get(i);
 		}
-		return sendData(remoteNode, command, throwRuntimeException, dataInts);
+		return sendData(remoteNode, command, timeout, throwRuntimeException,
+				dataInts);
 	}
-	
+
 	/**
 	 * Sends the data array to the {@linkplain RemoteNode#getAddress()}
 	 * 
@@ -261,6 +271,9 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode} to send the data to
 	 * @param command
 	 *            the executing {@linkplain Command}
+	 * @param timeout
+	 *            the number of milliseconds that will be used to wait for a
+	 *            response before timing out
 	 * @param throwRuntimeException
 	 *            true to throw any {@linkplain Throwable} as a
 	 *            {@linkplain RuntimeException}
@@ -269,10 +282,11 @@ public class WirelessService {
 	 * @return true when successful
 	 */
 	public boolean sendData(final RemoteNode remoteNode, final Command command,
-			final boolean throwRuntimeException, final int... data) {
+			final int timeout, final boolean throwRuntimeException,
+			final int... data) {
 		return sendData(new UGateEvent<RemoteNode, int[]>(remoteNode,
 				UGateEvent.Type.INITIALIZE, false, null, command, null, data),
-				throwRuntimeException);
+				timeout, throwRuntimeException);
 	}
 	
 	/**
@@ -283,12 +297,16 @@ public class WirelessService {
 	 *            send {@linkplain UGateEvent#getNewValue()}, the
 	 *            {@linkplain UGateEvent#getCommand()}, and
 	 *            {@linkplain UGateEvent#getSource()} to send the data to
+	 * @param timeout
+	 *            the number of milliseconds that will be used to wait for a
+	 *            response before timing out
 	 * @param throwRuntimeException
 	 *            true to throw any {@linkplain Throwable} as a
 	 *            {@linkplain RuntimeException}
 	 * @return true when successful
 	 */
-	private boolean sendData(final UGateEvent<RemoteNode, int[]> event, final boolean throwRuntimeException) {
+	private boolean sendData(final UGateEvent<RemoteNode, int[]> event,
+			final int timeout, final boolean throwRuntimeException) {
 		if (event.getSource() == null) {
 			throw new NullPointerException("No wireless node addresses to send data to");
 		}
@@ -299,7 +317,7 @@ public class WirelessService {
 		String message;
 		try {
 			// bytes header command and status/failure code
-			final int[] bytesHeader = new int[] { event.getCommand().getId(), RxData.Status.NORMAL.ordinal() };
+			final int[] bytesHeader = new int[] { event.getCommand().getKey(), RxData.Status.NORMAL.ordinal() };
 			final int[] bytes = event.getNewValue() != null && event.getNewValue().length > 0 ? 
 					UGateUtil.arrayConcatInt(bytesHeader, event.getNewValue()) : bytesHeader;
 			final XBeeAddress16 xbeeAddress = getXbeeAddress(event.getSource().getAddress());
@@ -308,8 +326,9 @@ public class WirelessService {
 			message = RS.rbLabel(KEY.SERVICE_WIRELESS_SENDING, bytes, event.getSource().getAddress());
 			log.info(message);
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX, i, message));
-			// send the packet and wait up to 10 seconds for the transmit status reply
-			final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 12000);
+			// send the packet and wait up to 12 seconds for the transmit status reply
+			final TxStatusResponse response = (TxStatusResponse) xbee.sendSynchronous(request, 
+					timeout <= 0 ? DEFAULT_WAIT_MILISECONDS : timeout);
 			if (response.isSuccess()) {
 				// packet was delivered successfully
 				successCount++;
@@ -364,9 +383,13 @@ public class WirelessService {
 	 * 
 	 * @param remoteNode
 	 *            the {@linkplain RemoteNode} to test a connection for
+	 * @param timeout
+	 *            the number of milliseconds that will be used to wait for a
+	 *            response before timing out
 	 * @return true when the connection was successful
 	 */
-	public boolean testRemoteConnection(final RemoteNode remoteNode) {
+	public boolean testRemoteConnection(final RemoteNode remoteNode,
+			final int timeout) {
 		if (!isConnected()) {
 			return false;
 		}
@@ -379,7 +402,9 @@ public class WirelessService {
 				final RemoteAtRequest request = new RemoteAtRequest(
 						remoteAddress, "MY");
 				final RemoteAtResponse remoteResponse = (RemoteAtResponse) xbee
-						.sendSynchronous(request, 10000);
+						.sendSynchronous(request,
+								timeout <= 0 ? DEFAULT_WAIT_MILISECONDS
+										: timeout);
 				response = remoteResponse;
 			} else {
 				response = (AtCommandResponse) xbee
@@ -415,7 +440,8 @@ public class WirelessService {
 	 * @return the {@linkplain XBeeAddress16}
 	 */
 	private XBeeAddress16 getXbeeAddress(final String rawAddress) {
-		// final int xbeeRawAddress = Integer.parseInt(preferences.get(wirelessAddressHexKey), 16);
+		// final int xbeeRawAddress =
+		// Integer.parseInt(preferences.get(wirelessAddressHexKey), 16);
 		if (rawAddress.length() > RemoteNodeType.WIRELESS_ADDRESS_MAX_DIGITS) {
 			throw new IllegalArgumentException(
 					"Wireless address cannot be more than "
@@ -431,6 +457,9 @@ public class WirelessService {
 	/**
 	 * Synchronizes the locally hosted settings with the remote wireless node(s)
 	 * 
+	 * @param timeout
+	 *            the number of milliseconds that will be used to wait for a
+	 *            response before timing out
 	 * @param throwRuntimeException
 	 *            true to throw any {@linkplain Throwable} as a
 	 *            {@linkplain RuntimeException}
@@ -438,8 +467,8 @@ public class WirelessService {
 	 *            the {@linkplain RemoteNode}(s) to send the settings to
 	 * @return true when all node(s) have been updated successfully
 	 */
-	public boolean sendSettings(final boolean throwRuntimeException,
-			final RemoteNode... remoteNode) {
+	public boolean sendSettings(final int timeout,
+			final boolean throwRuntimeException, final RemoteNode... remoteNode) {
 		boolean allSuccess = false;
 		if (!isConnected()) {
 			return allSuccess;
@@ -450,11 +479,11 @@ public class WirelessService {
 				final int[] sendData = sd.getData();
 				log.info(String.format("Attempting to send: %s", sd));
 				final UGateEvent<RemoteNode, int[]> event = new UGateEvent<>(
-						rn, UGateEvent.Type.INITIALIZE,
-						false, null, Command.SENSOR_SET_SETTINGS, null,
-						sendData);
-				if (sendData(event, throwRuntimeException)) {
-					log.info(String.format("Settings sent to %1$s", rn.getAddress()));
+						rn, UGateEvent.Type.INITIALIZE, false, null,
+						Command.SENSOR_SET_SETTINGS, null, sendData);
+				if (sendData(event, timeout, throwRuntimeException)) {
+					log.info(String.format("Settings sent to %1$s",
+							rn.getAddress()));
 					allSuccess = true;
 				}
 			}
@@ -471,11 +500,14 @@ public class WirelessService {
 	}
 	
 	/**
-	 * This method is used to get a list of all the available Serial ports (note: only Serial ports are considered). 
-	 * Any one of the elements contained in the returned {@link List} can be used as a parameter in 
-	 * {@link #wirelessBtn(String)} or {@link #wirelessBtn(String, int)} to open a Serial connection.
+	 * This method is used to get a list of all the available Serial ports
+	 * (note: only Serial ports are considered). Any one of the elements
+	 * contained in the returned {@link List} can be used as a parameter in
+	 * {@link #wirelessBtn(String)} or {@link #wirelessBtn(String, int)} to open
+	 * a Serial connection.
 	 * 
-	 * @return A {@link List} containing {@link String}s showing all available Serial ports.
+	 * @return A {@link List} containing {@link String}s showing all available
+	 *         Serial ports.
 	 */
 	public List<String> getSerialPorts() {
 		return RS.getSerialPorts();

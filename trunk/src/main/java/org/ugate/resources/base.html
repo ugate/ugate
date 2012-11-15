@@ -12,14 +12,14 @@
 		<meta name="keywords" content="ugate, ugate mobile"/>
 		<meta name="author" content=""/>
 		<meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1, user-scalable=no"/>
-		<link rel="icon" href="logo16x16.png"/>
-		<link rel="apple-touch-icon" size="144x144" href="logo128x128.png"/>
-		<link rel="apple-touch-icon" size="114x114" href="logo128x128.png"/>
-		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png"/>
-		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png"/>
-		<link rel="apple-touch-icon" href="logo64x64.png"/>
-		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
-		<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<!-- 		<link rel="icon" href="logo16x16.png"/> -->
+<!-- 		<link rel="apple-touch-icon" size="144x144" href="logo128x128.png"/> -->
+<!-- 		<link rel="apple-touch-icon" size="114x114" href="logo128x128.png"/> -->
+<!-- 		<link rel="apple-touch-icon" size="72x72"   href="logo64x64.png"/> -->
+<!-- 		<link rel="apple-touch-icon" size="57x57"   href="logo64x64.png"/> -->
+<!-- 		<link rel="apple-touch-icon" href="logo64x64.png"/> -->
+		<link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script th:inline="javascript" type="text/javascript">
 		/*<![CDATA[*/
 		    var AJAX_UPDATE_URL = /*[[${ajaxUpdateUrl}]]*/ "";
@@ -72,38 +72,52 @@
 						$.mobile.pageLoadErrorMessage = msg ? msg
 								: data.errorThrown;
 					});
-			// WebSocket
-			$(document).ready(function() {
+			$(document).bind("pagechange", function() {
 				openWebSocket();
 			});
+			// WebSocket
+// 			$(document).ready(function() {
+// 				openWebSocket();
+// 			});
 			function openWebSocket() {
 				try {
 					if (!WEB_SOCKET_URI) {
 						return;
 					}
+					// 0 = not connected, 1 = connected, 2 = closing, 3 = closed
 					if (!ws || ws.readyState === undefined || ws.readyState > 1) {
+						$('#wsStatus').buttonMarkup({ icon: 'gear' });
 						// http://jquerymobile.com/test/docs/api/methods.html
 						var url = $.mobile.path.parseUrl(window.location.href);
-						ws = new WebSocket("ws://" + url.host + WEB_SOCKET_URI);
+						var wsp = url.protocol == "http:" ? "ws" : "wss";
+						ws = new WebSocket(wsp + "://" + url.host + WEB_SOCKET_URI);
 						ws.onopen = function(event) {
-							hideMessage();
+							//hideMessage();
 							wsc = 0;
 							wsm = true;
+							$('#wsStatus').buttonMarkup({ icon: 'check' });
 						};
 						ws.onmessage = function(event) {
 							//alert(event.data);
 							updateValues(jQuery.parseJSON(event.data));
 						};
 						ws.onclose = function(event) {
+							$('#wsStatus').buttonMarkup({ icon: 'alert' });
 							wsc++;
 							if (wsm) {
-								showMessage('Attempting ' + wsc + ' to reconnect to server');
+								//showMessage('Attempting ' + wsc + ' to reconnect to server');
 							}
 							setTimeout(openWebSocket, 1000);
 						};
+					} else if (ws && ws.readyState == 1) {
+						//alert(ws);
+						//$('#wsStatus').prop('data-icon', 'check');
+						$('#wsStatus').buttonMarkup({ icon: 'check' });
+						//$('#wsStatus').trigger('refresh');
 					}
 				} catch (e) {
-					alert('Unable to connect to server for real-time updates');
+					//alert('Unable to connect to server for real-time updates ' + e.message);
+					$('#wsStatus').buttonMarkup({ icon: 'delete' });
 				}
 			}
 			// update all form elements that have the same name as the JSON attribute name 
@@ -232,7 +246,7 @@
 			}
 			/*]]>*/
 		</script>
-		<script src="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
+		<script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.js"></script>
 	</head>
 	<body>
 		<div data-role="page" id="mainPage" data-title="UGate Mobile" data-theme="a" data-swatch="a" data-dom-cache="false">
@@ -258,7 +272,8 @@
 <!-- 						class="ui-icon ui-icon-grid ui-icon-shadow"></span> -->
 <!-- 				</span> -->
 <!-- 				</a> -->
-				<a th:href="@{/logout}" href="/login.html" data-theme="b" data-iconpos="right" data-icon="arrow-r"  
+				<a th:href="@{/logout}" th:if="${remoteUser}" href="/login.html" 
+					data-theme="b" data-iconpos="right" data-icon="arrow-r"  
 					class="ui-btn-right ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-right ui-btn-up-b" 
 					data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span"
 					data-transition="flip">
@@ -289,7 +304,14 @@
 				</script>
 			</div>
 			<div data-role="footer" data-theme="d" data-position="fixed">
-				<h4 th:text="${footer}">Footer</h4>
+				<h4>
+					<span th:text="${footer}">Footer (prototype)</span>
+					<small>
+						<a id="wsStatus" href="#" data-mini="true" data-inline="true" data-role="button" data-theme="e" data-icon="alert" data-iconpos="right">
+							Live Updates
+						</a>
+					</small>
+				</h4>
 			</div>
 		</div>
 		<div id="feedbackMessage" style="display:none;">Loading...</div>
