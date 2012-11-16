@@ -116,7 +116,8 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-		response.sendRedirect("/");
+		response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+		//response.sendRedirect("/");
 		// try {
 		// getServletContext().getNamedDispatcher("default").forward(request,
 		// response);

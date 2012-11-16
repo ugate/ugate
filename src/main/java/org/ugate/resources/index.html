@@ -2,20 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 	<body>
 		<div th:fragment="content">
-			<ul data-theme="d" data-role="listview" data-inset="true" data-divider-theme="e">
+			<ul data-theme="d" data-role="listview" data-inset="true" data-divider-theme="b">
 				<li th:text="#{wireless.node.remote.node(${rn.address})}" data-role="list-divider">Remote Node: (prototype)</li>
-				<li th:each="rni : ${remoteNodes}" data-icon="arrow-r">
+				<li th:each="rni : ${remoteNodes}">
 					<a th:href="@{${url}(id=${rni.id})}" href="/index.html" data-transition="flip" disabled="true">
-						<span th:id="'id' + ${rniStat.index}" th:text="${rni.address}">0000 (prototype)</span>
+						<span th:text="${rni.address}">0000 (prototype)</span>
 					</a>
-					<a th:text="#{wireless.node.connect(${rni.address})}" href="#" 
-						th:attr="data-icon=${rni.connected ? 'check' : 'alert'},onclick=${'rnConnect(this,\'' + rni.id + '\', \'Connecting...\')'}" 
-						data-theme="b" data-icon="check">Connect To Remote Device (prototype)</a>
+					<a th:text="#{wireless.node.connect(${rni.address})}" href="#" th:id="'id' + ${rniStat.index}"
+						th:attr="onclick=${'rnConnect(this.id,\'' + rni.id + '\', \'Connecting...\')'}" 
+						data-theme="b" data-icon="info">Connect To Remote Device (prototype)</a>
 				</li>
 			</ul>
 			<div th:unless="${#strings.isEmpty(rn.address)}" id="rnDetail">
 				<form th:action="@{/}" id="rnCommandForm" action="/index.html" method="post" data-theme="c" data-transition="flip" class="updateable">
 					<input id="command" name="command" type="hidden" value="" />
+					<input id="commandData" name="commandData" type="hidden" value="" />
 					<input th:value="${rn.id}" name="id" type="hidden" value="" />
 				</form>
 				<div data-role="collapsible-set" data-transition="pop">

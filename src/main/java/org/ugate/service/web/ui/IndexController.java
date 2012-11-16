@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.context.WebContext;
+import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
@@ -49,6 +50,7 @@ public class IndexController extends BaseController {
 			rn = getRemoteNode(actor, rnId);
 			if (rn != null) {
 				ctx.setVariable(VAR_REMOTE_NODE_NAME, rn);
+				addCommandVars(ctx);
 				addRemoteNodeVars(rn, ctx);
 			}
 		}
@@ -59,6 +61,30 @@ public class IndexController extends BaseController {
 		}
 		ctx.setVariable(VAR_REMOTE_NODES_NAME, actor.getHost().getRemoteNodes());
 		return null;
+	}
+
+	protected void addCommandVars(final WebContext ctx) {
+		final Map<RemoteNodeType.Type, List<RemoteNodeType.Value>> vm = new HashMap<>();
+		for (final RemoteNodeType.Type type : RemoteNodeType.Type.values()) {
+			vm.put(type, new ArrayList<RemoteNodeType.Value>());
+		}
+//		for (final Command cmd : Command.values()) {
+//			if (cmd.getType() != null) {
+//				try {
+//					vm.get(cmd.getType()).add(rnt.newValue(rn));
+//				} catch (final Throwable t) {
+//					log.error(
+//							String.format(
+//									"Unable to generate new value for %1$s at address %2$s and group %3$s",
+//									rn.getClass(), rn.getAddress(), rnt
+//											.getType().name()), t);
+//				}
+//			}
+//		}
+		// add the group of values as a variable
+		for (final Map.Entry<RemoteNodeType.Type, List<RemoteNodeType.Value>> grp : vm.entrySet()) {
+			ctx.setVariable(grp.getKey().name(), grp.getValue());
+		}
 	}
 
 	/**
@@ -78,18 +104,18 @@ public class IndexController extends BaseController {
 		for (final RemoteNodeType.Type type : RemoteNodeType.Type.values()) {
 			vm.put(type, new ArrayList<RemoteNodeType.Value>());
 		}
-		rn.setConnected(ServiceProvider.IMPL.getWirelessService()
-				.testRemoteConnection(rn, 0));
+//		rn.setConnected(ServiceProvider.IMPL.getWirelessService()
+//				.testRemoteConnection(rn, 0));
 		for (final RemoteNodeType rnt : RemoteNodeType.values()) {
-			if (rnt.getGroup() != null) {
+			if (rnt.getType() != null) {
 				try {
-					vm.get(rnt.getGroup()).add(rnt.newValue(rn));
+					vm.get(rnt.getType()).add(rnt.newValue(rn));
 				} catch (final Throwable t) {
 					log.error(
 							String.format(
 									"Unable to generate new value for %1$s at address %2$s and group %3$s",
 									rn.getClass(), rn.getAddress(), rnt
-											.getGroup().name()), t);
+											.getType().name()), t);
 				}
 			}
 		}

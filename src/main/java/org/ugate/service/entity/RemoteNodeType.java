@@ -17,51 +17,74 @@ import org.ugate.service.entity.jpa.RemoteNode;
  * devices</b>.
  */
 public enum RemoteNodeType implements IModelType<RemoteNode> {
-	ID("id", null, false), DEVICE_SOUNDS_ON("deviceSoundsOn",
-			Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_AUTO_SYNCHRONIZE(
-			"deviceAutoSynchronize", Type.ALARM_NOTIFY_TOGGLE, false), DEVICE_SYNCHRONIZED(
-			"deviceSynchronized", null, false), CAM_IMG_CAPTURE_RETRY_CNT(
-			"camImgCaptureRetryCnt", null, false), REPORT_READINGS(
-			"reportReadings", null, false), WIRELESS_ADDRESS("address", null,
-			false), WIRELESS_WORKING_DIR_PATH("workingDir", null, false), MAIL_ALERT_ON(
-			"mailAlertOn", Type.ALARM_NOTIFY_TOGGLE, false), ALARMS_ON(
-			"alarmsOn", null, true), UNIVERSAL_REMOTE_ACCESS_ON(
-			"universalRemoteAccessOn", Type.UNIVERSAL_REMOTE_TOGGLE, true), UNIVERSAL_REMOTE_ACCESS_CODE_1(
-			"universalRemoteAccessCode1", Type.UNIVERSAL_REMOTE_CODE_RANGE,
-			true), UNIVERSAL_REMOTE_ACCESS_CODE_2("universalRemoteAccessCode2",
-			Type.UNIVERSAL_REMOTE_CODE_RANGE, true), UNIVERSAL_REMOTE_ACCESS_CODE_3(
-			"universalRemoteAccessCode3", Type.UNIVERSAL_REMOTE_CODE_RANGE,
-			true), GATE_ACCESS_ON("gateAccessOn", Type.GATE_TOGGLE, true), SONAR_DISTANCE_THRES_FEET(
-			"sonarDistanceThresFeet", Type.SONAR_THRESHOLD_RANGE, true), SONAR_DISTANCE_THRES_INCHES(
-			"sonarDistanceThresInches", Type.SONAR_THRESHOLD_RANGE, true), SONAR_DELAY_BTWN_TRIPS(
-			"sonarDelayBtwnTrips", Type.SONAR_THRESHOLD_RANGE, true), PIR_DELAY_BTWN_TRIPS(
-			"pirDelayBtwnTrips", Type.PIR_THRESHOLD_RANGE, true), SONAR_PIR_ANGLE_PAN(
-			"sonarPirAnglePan", Type.SONAR_PIR_POSITION_RANGE, true), SONAR_PIR_ANGLE_TILT(
-			"sonarPirAngleTilt", Type.SONAR_PIR_POSITION_RANGE, true), MW_SPEED_THRES_CYCLES_PER_SEC(
-			"mwSpeedThresCyclesPerSec", Type.MW_THRESHOLD_RANGE, true), MW_DELAY_BTWN_TRIPS(
-			"mwDelayBtwnTrips", Type.MW_THRESHOLD_RANGE, true), MW_ANGLE_PAN(
-			"mwAnglePan", Type.MW_POSITION_RANGE, true), LASER_DISTANCE_THRES_FEET(
-			"laserDistanceThresFeet", Type.LASER_THRESHOLD_RANGE, true), LASER_DISTANCE_THRES_INCHES(
-			"laserDistanceThresInches", Type.LASER_THRESHOLD_RANGE, true), LASER_DELAY_BTWN_TRIPS(
-			"laserDelayBtwnTrips", Type.LASER_THRESHOLD_RANGE, true), LASER_ANGLE_PAN(
-			"laserAnglePan", null, true), LASER_ANGLE_TILT("laserAngleTilt",
-			null, true), MULTI_ALARM_TRIP_STATE("multiAlarmTripState",
-			Type.ALARM_TRIP_STATE_RANGE, true), CAM_RESOLUTION("camResolution",
-			Type.CAM_SETTINGS_TOGGLE, true), CAM_ANGLE_PAN("camAnglePan",
-			Type.CAM_POSITION_RANGE, true), CAM_ANGLE_TILT("camAngleTilt",
-			Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PRIORITY(
-			"camSonarTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_PAN(
-			"camSonarTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_SONAR_TRIP_ANGLE_TILT(
-			"camSonarTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_PRIORITY(
-			"camPirTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_PAN(
-			"camPirTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_PIR_TRIP_ANGLE_TILT(
-			"camPirTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_MW_TRIP_ANGLE_PRIORITY(
-			"camMwTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_MW_TRIP_ANGLE_PAN(
-			"camMwTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_MW_TRIP_ANGLE_TILT(
-			"camMwTripAngleTilt", Type.CAM_POSITION_RANGE, true), CAM_LASER_TRIP_ANGLE_PRIORITY(
-			"camLaserTripAnglePriority", Type.CAM_POSITION_RANGE, true), CAM_LASER_TRIP_ANGLE_PAN(
-			"camLaserTripAnglePan", Type.CAM_POSITION_RANGE, true), CAM_LASER_TRIP_ANGLE_TILT(
-			"camLaserTripAngleTilt", Type.CAM_POSITION_RANGE, true);
+	ID("id", null, false),
+	DEVICE_SOUNDS_ON("deviceSoundsOn", Type.ALARM_NOTIFY_TOGGLE, false),
+	DEVICE_AUTO_SYNCHRONIZE("deviceAutoSynchronize", Type.ALARM_NOTIFY_TOGGLE,
+			false),
+	DEVICE_SYNCHRONIZED("deviceSynchronized", null, false),
+	CAM_IMG_CAPTURE_RETRY_CNT("camImgCaptureRetryCnt", null, false),
+	REPORT_READINGS("reportReadings", null, false),
+	WIRELESS_ADDRESS("address", null, false),
+	WIRELESS_WORKING_DIR_PATH("workingDir", null, false),
+	MAIL_ALERT_ON("mailAlertOn", Type.ALARM_NOTIFY_TOGGLE, false),
+	ALARMS_ON("alarmsOn", null, true),
+	UNIVERSAL_REMOTE_ACCESS_ON("universalRemoteAccessOn",
+			Type.UNIVERSAL_REMOTE_TOGGLE, true),
+	UNIVERSAL_REMOTE_ACCESS_CODE_1("universalRemoteAccessCode1",
+			Type.UNIVERSAL_REMOTE_CODE_RANGE, true),
+	UNIVERSAL_REMOTE_ACCESS_CODE_2("universalRemoteAccessCode2",
+			Type.UNIVERSAL_REMOTE_CODE_RANGE, true),
+	UNIVERSAL_REMOTE_ACCESS_CODE_3("universalRemoteAccessCode3",
+			Type.UNIVERSAL_REMOTE_CODE_RANGE, true),
+	GATE_ACCESS_ON("gateAccessOn", Type.GATE_TOGGLE, true),
+	SONAR_DISTANCE_THRES_FEET("sonarDistanceThresFeet",
+			Type.SONAR_THRESHOLD_RANGE, true),
+	SONAR_DISTANCE_THRES_INCHES("sonarDistanceThresInches",
+			Type.SONAR_THRESHOLD_RANGE, true),
+	SONAR_DELAY_BTWN_TRIPS("sonarDelayBtwnTrips", Type.SONAR_THRESHOLD_RANGE,
+			true),
+	PIR_DELAY_BTWN_TRIPS("pirDelayBtwnTrips", Type.PIR_THRESHOLD_RANGE, true),
+	SONAR_PIR_ANGLE_PAN("sonarPirAnglePan", Type.SONAR_PIR_POSITION_RANGE, true),
+	SONAR_PIR_ANGLE_TILT("sonarPirAngleTilt", Type.SONAR_PIR_POSITION_RANGE,
+			true),
+	MW_SPEED_THRES_CYCLES_PER_SEC("mwSpeedThresCyclesPerSec",
+			Type.MW_THRESHOLD_RANGE, true),
+	MW_DELAY_BTWN_TRIPS("mwDelayBtwnTrips", Type.MW_THRESHOLD_RANGE, true),
+	MW_ANGLE_PAN("mwAnglePan", Type.MW_POSITION_RANGE, true),
+	LASER_DISTANCE_THRES_FEET("laserDistanceThresFeet",
+			Type.LASER_THRESHOLD_RANGE, true),
+	LASER_DISTANCE_THRES_INCHES("laserDistanceThresInches",
+			Type.LASER_THRESHOLD_RANGE, true),
+	LASER_DELAY_BTWN_TRIPS("laserDelayBtwnTrips", Type.LASER_THRESHOLD_RANGE,
+			true),
+	LASER_ANGLE_PAN("laserAnglePan", null, true),
+	LASER_ANGLE_TILT("laserAngleTilt", null, true),
+	MULTI_ALARM_TRIP_STATE("multiAlarmTripState", Type.ALARM_TRIP_STATE_RANGE,
+			true),
+	CAM_RESOLUTION("camResolution", Type.CAM_SETTINGS_TOGGLE, true),
+	CAM_ANGLE_PAN("camAnglePan", Type.CAM_POSITION_RANGE, true),
+	CAM_ANGLE_TILT("camAngleTilt", Type.CAM_POSITION_RANGE, true),
+	CAM_SONAR_TRIP_ANGLE_PRIORITY("camSonarTripAnglePriority",
+			Type.CAM_POSITION_RANGE, true),
+	CAM_SONAR_TRIP_ANGLE_PAN("camSonarTripAnglePan", Type.CAM_POSITION_RANGE,
+			true),
+	CAM_SONAR_TRIP_ANGLE_TILT("camSonarTripAngleTilt", Type.CAM_POSITION_RANGE,
+			true),
+	CAM_PIR_TRIP_ANGLE_PRIORITY("camPirTripAnglePriority",
+			Type.CAM_POSITION_RANGE, true),
+	CAM_PIR_TRIP_ANGLE_PAN("camPirTripAnglePan", Type.CAM_POSITION_RANGE, true),
+	CAM_PIR_TRIP_ANGLE_TILT("camPirTripAngleTilt", Type.CAM_POSITION_RANGE,
+			true),
+	CAM_MW_TRIP_ANGLE_PRIORITY("camMwTripAnglePriority",
+			Type.CAM_POSITION_RANGE, true),
+	CAM_MW_TRIP_ANGLE_PAN("camMwTripAnglePan", Type.CAM_POSITION_RANGE, true),
+	CAM_MW_TRIP_ANGLE_TILT("camMwTripAngleTilt", Type.CAM_POSITION_RANGE, true),
+	CAM_LASER_TRIP_ANGLE_PRIORITY("camLaserTripAnglePriority",
+			Type.CAM_POSITION_RANGE, true),
+	CAM_LASER_TRIP_ANGLE_PAN("camLaserTripAnglePan", Type.CAM_POSITION_RANGE,
+			true),
+	CAM_LASER_TRIP_ANGLE_TILT("camLaserTripAngleTilt", Type.CAM_POSITION_RANGE,
+			true);
 
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
 	private static AtomicInteger canRemoteCount = new AtomicInteger(-1);
@@ -294,7 +317,7 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	/**
 	 * @return the {@link Type}
 	 */
-	public Type getGroup() {
+	public Type getType() {
 		return type;
 	}
 
@@ -302,7 +325,45 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 * {@link RemoteNodeType} group used to organize {@link RemoteNode} fields
 	 */
 	public static enum Type {
-		CAM_SETTINGS_TOGGLE, CAM_POSITION_RANGE, SONAR_PIR_POSITION_RANGE, MW_POSITION_RANGE, SONAR_THRESHOLD_RANGE, PIR_THRESHOLD_RANGE, MW_THRESHOLD_RANGE, LASER_THRESHOLD_RANGE, UNIVERSAL_REMOTE_TOGGLE, UNIVERSAL_REMOTE_CODE_RANGE, ALARM_TRIP_STATE_RANGE, ALARM_NOTIFY_TOGGLE, GATE_TOGGLE;
+		CAM_SETTINGS_TOGGLE(Group.TOGGLE),
+		CAM_POSITION_RANGE(Group.RANGE),
+		SONAR_PIR_POSITION_RANGE(Group.RANGE),
+		MW_POSITION_RANGE(Group.RANGE),
+		SONAR_THRESHOLD_RANGE(Group.RANGE),
+		PIR_THRESHOLD_RANGE(Group.RANGE),
+		MW_THRESHOLD_RANGE(Group.RANGE),
+		LASER_THRESHOLD_RANGE(Group.RANGE),
+		UNIVERSAL_REMOTE_TOGGLE(Group.TOGGLE),
+		UNIVERSAL_REMOTE_CODE_RANGE(Group.RANGE),
+		ALARM_TRIP_STATE_RANGE(Group.RANGE),
+		ALARM_NOTIFY_TOGGLE(Group.TOGGLE),
+		GATE_TOGGLE(Group.TOGGLE);
+
+		private final Group group;
+
+		/**
+		 * Constructor
+		 * 
+		 * @param group
+		 */
+		private Type(final Group group) {
+			this.group = group;
+		}
+
+		/**
+		 * @return the {@link Group} that the {@link Type} belongs to
+		 */
+		public Group getGroup() {
+			return group;
+		}
+	}
+
+	/**
+	 * {@link Type} group
+	 */
+	public static enum Group {
+		TOGGLE,
+		RANGE;
 	}
 
 	/**

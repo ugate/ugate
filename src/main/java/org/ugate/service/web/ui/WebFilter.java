@@ -192,6 +192,30 @@ public class WebFilter implements Filter {
 	}
 
 	/**
+	 * Delegates to the
+	 * {@link WebApplication#handleError(HttpServletRequest, HttpServletResponse, ServletContext, int, String)}
+	 * 
+	 * @param req
+	 *            the {@link HttpServletRequest}
+	 * @param res
+	 *            the {@link HttpServletResponse}
+	 * @param servletContext
+	 *            the {@link ServletContext}
+	 * @param code
+	 *            the HTTP status code
+	 * @param message
+	 *            the error message
+	 * @throws IOException
+	 *             the {@link IOException}
+	 */
+	public static void handleErrorPage(final HttpServletRequest req,
+			final HttpServletResponse res, final ServletContext servletContext,
+			final int code, final String message) throws IOException {
+		WebApplication.DFLT
+				.handleError(req, res, servletContext, code, message);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

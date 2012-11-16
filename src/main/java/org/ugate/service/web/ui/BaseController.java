@@ -33,6 +33,7 @@ public abstract class BaseController {
 	public static final String VAR_REMOTE_USER = "remoteUser";
 	public static final String VAR_CONTENT_NAME = "content";
 	public static final String VAR_TITLE_NAME = "title";
+	public static final String VAR_HEADER_NAME = "header";
 	public static final String VAR_FOOTER_NAME = "footer";
 	public static final String VAR_URL_NAME = "url";
 	public static final String VAR_URL_AJAX_UPDATE_NAME = "ajaxUpdateUrl";
@@ -79,24 +80,29 @@ public abstract class BaseController {
 				ctx.setVariable(VAR_URI_WEB_SOCKET_NAME, '/' + UGateWebSocketServlet.class.getSimpleName());
 				ctx.setVariable(VAR_REMOTE_USER, req.getRemoteUser());
 				final RequiredValues rvs = processContext(req, res, servletContext, ctx);
-				ctx.setVariable(
-						VAR_TITLE_NAME,
+				ctx.setVariable(VAR_TITLE_NAME,
 						rvs != null && rvs.getTitle() != null ? rvs.getTitle()
-								: RS.rbLabel(
-										KEY.APP_TITLE_USER,
-										(req.getRemoteUser() != null ? req
-												.getRemoteUser() : "")));
-				ctx.setVariable(VAR_FOOTER_NAME,
-						rvs != null && rvs.getFooter() != null ? rvs.getFooter()
 								: RS.rbLabel(KEY.APP_TITLE));
+				ctx.setVariable(
+						VAR_HEADER_NAME,
+						rvs != null && rvs.getHeader() != null ? rvs
+								.getHeader() : RS.rbLabel(
+								KEY.APP_TITLE_USER,
+								(req.getRemoteUser() != null ? req
+										.getRemoteUser() : "")));
+				ctx.setVariable(
+						VAR_FOOTER_NAME,
+						rvs != null && rvs.getFooter() != null ? rvs
+								.getFooter() : RS.rbLabel(KEY.APP_TITLE));
 				templateEngine.process(getPageName(BaseController.class), ctx,
 						res.getWriter());
 			}
 		} catch (final Throwable t) {
-			log.error(String.format(
-					"Unable to process request for %1$s (remote user: %2$s)",
-					req.getRequestURL(), req.getRemoteUser()), t);
-			res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			log.warn(String
+					.format("Unable to process request for %1$s (remote user: %2$s) Reason: %3$s",
+							req.getRequestURL(), req.getRemoteUser(),
+							t.getMessage()));
+			throw t;
 		}
 	}
 
@@ -234,6 +240,7 @@ public abstract class BaseController {
 	 */
 	protected static class RequiredValues {
 		private final String title;
+		private final String header;
 		private final String footer;
 
 		/**
@@ -241,11 +248,15 @@ public abstract class BaseController {
 		 * 
 		 * @param title
 		 *            the {@link #getTitle()}
+		 * @param header
+		 *            the {@link #getHeader()}
 		 * @param footer
 		 *            the {@link #getFooter()}
 		 */
-		public RequiredValues(final String title, final String footer) {
+		public RequiredValues(final String title, final String header,
+				final String footer) {
 			this.title = title;
+			this.header = header;
 			this.footer = footer;
 		}
 
@@ -254,6 +265,13 @@ public abstract class BaseController {
 		 */
 		public String getTitle() {
 			return title;
+		}
+
+		/**
+		 * @return the header of the HTML page
+		 */
+		public String getHeader() {
+			return header;
 		}
 
 		/**

@@ -1,17 +1,23 @@
 package org.ugate.service.web;
 
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
+import org.eclipse.jetty.server.AbstractHttpConnection;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
@@ -183,6 +189,19 @@ public class WebServer {
 			context.addServlet(sh, "/" + UGateWebSocketServlet.class.getSimpleName());
 			final ServletHolder sh2 = new ServletHolder(UGateAjaxUpdaterServlet.class);
 			context.addServlet(sh2, "/*");
+			context.setErrorHandler(new ErrorHandler() {
+				@Override
+				public void handle(String target, Request baseRequest,
+						HttpServletRequest request, HttpServletResponse response)
+						throws IOException {
+					// delegate errors to the filter
+					final AbstractHttpConnection connection = AbstractHttpConnection
+							.getCurrentConnection();
+					WebFilter.handleErrorPage(request, response, baseRequest
+							.getServletContext(), connection.getResponse()
+							.getStatus(), connection.getResponse().getReason());
+				}
+			});
 			
 			// Serve files from internal resource location
 //			final org.eclipse.jetty.webapp.WebAppContext context = new org.eclipse.jetty.webapp.WebAppContext();

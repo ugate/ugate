@@ -875,7 +875,8 @@ public class RS {
 				"rxtx.file.name"), APP_ID("app.id"), APP_VERSION("app.version"), APP_DESC(
 				"app.desc"), APP_TITLE("app.title"), APP_TITLE_USER(
 				"app.title.user", 1), APP_TITLE_ACTION_REQUIRED(
-				"app.title.action.required"), APP_TITLE_ERROR("app.title.error"), APP_SERVICE_COM_RESTART_REQUIRED(
+				"app.title.action.required"), APP_TITLE_ERROR("app.title.error"), APP_FOOTER_UPDATES_INDICATOR(
+				"app.footer.updates.inidcator"), APP_SERVICE_COM_RESTART_REQUIRED(
 				"app.service.com.restart.required"), APP_SERVICE_INIT_ERROR(
 				"app.service.init.error"), APP_GATE_KEEPER_ERROR(
 				"app.gatekeeper.init.error"), APP_CONNECTION_DESC(
