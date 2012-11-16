@@ -1,6 +1,8 @@
 package org.ugate.gui.components;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -135,7 +137,11 @@ public class DisplayShelfImage extends Parent {
      */
     protected static Image createImage(final File file, final double width, final double height, 
     		boolean preserveRatio, boolean smooth) {
-    	return new Image(file.getAbsolutePath(), width, height, preserveRatio, smooth, false);
+    	try {
+			return new Image(new FileInputStream(file), width, height, preserveRatio, smooth);
+		} catch (final FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
     }
     
     /**
@@ -185,7 +191,12 @@ public class DisplayShelfImage extends Parent {
     		zoomButton.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
     			@Override
     			public void handle(MouseEvent e) {
-    				final Image image = new Image(file.getAbsolutePath());
+    				Image image;
+    				try {
+						image = new Image(new FileInputStream(file));
+					} catch (FileNotFoundException e1) {
+						throw new RuntimeException(e1);
+					}
     				final VBox frame = new VBox(10);
     				final ImageView imgView = new ImageView(image);
     				frame.getStyleClass().add("displayshelfpopup");

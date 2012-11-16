@@ -1,48 +1,50 @@
 package org.ugate;
 
+import static org.ugate.service.entity.RemoteNodeType.Type;
 
 /**
  * Commands sent/received to/from remote devices
  */
 public enum Command {
-	SERVO_LASER_CALIBRATE(11, true, true), 
-	SERVO_TILT_UP(16, false, true), 
-	SERVO_TILT_DOWN(17, false, true), 
-	SERVO_PAN_RIGHT(18, false, true), 
-	SERVO_PAN_LEFT(19, false, true), 
-	IR_REMOTE_SESSION_RESET(20, false, true), 
-	SENSOR_ALARM_TOGGLE(21, false, true), 
-	CAM_TAKE_PIC(29, false, true), 
-	ACCESS_PIN_CHANGE(37, true, true), 
-	SERVO_TOGGLE_CAM_SONARIR_MICROWAVE(58, false, true), 
-	GATE_TOGGLE_OPEN_CLOSE(59, true, true),  
-	SERVO_CAM_MOVE(100, false, true, 2), 
-	SERVO_SONAR_PIR_MOVE(101, false, true, 2), 
-	SERVO_MICROWAVE_MOVE(102, false, true, 2), 
-	SENSOR_GET_READINGS(103, true, false), 
-	SENSOR_GET_SETTINGS(104, true, false), 
-	SENSOR_SET_SETTINGS(105, false, true, 35);
+	SERVO_LASER_CALIBRATE(11, 1, 0), 
+	SERVO_TILT_UP(16, 1, 0), 
+	SERVO_TILT_DOWN(17, 1, 0), 
+	SERVO_PAN_RIGHT(18, 1, 0), 
+	SERVO_PAN_LEFT(19, 1, 0), 
+	IR_REMOTE_SESSION_RESET(20, 1, 0), 
+	SENSOR_ALARM_TOGGLE(21, 1, 0), 
+	CAM_TAKE_PIC(29, 1, 0), 
+	ACCESS_PIN_CHANGE(37, 1, 0), 
+	SERVO_TOGGLE_CAM_SONARIR_MICROWAVE(58, 1, 0), 
+	GATE_TOGGLE_OPEN_CLOSE(59, 1, 0),  
+	SERVO_CAM_MOVE(100, 3, 0), 
+	SERVO_SONAR_PIR_MOVE(101, 3, 0), 
+	SERVO_MICROWAVE_MOVE(102, 3, 0), 
+	SENSOR_GET_READINGS(103, 1, 8), 
+	SENSOR_GET_SETTINGS(104, 1, 37), 
+	SENSOR_SET_SETTINGS(105, 37, 0);
 
 	private final int key;
-	private final boolean rx;
-	private final boolean tx;
-	private final int dataBytes;
+	private final int txBytes;
+	private final int rxBytes;
+	private final Type type;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param key
 	 *            the {@link #getKey()}
-	 * @param isRx
-	 *            the {@link #isRx()}
-	 * @param isTx
-	 *            the {@link #isTx()}
+	 * @param txDataBytes
+	 *            the {@link #getRxBytes()}
+	 * @param rxDataBytes
+	 *            the {@link #getTxBytes()}
 	 */
-	private Command(final int key, final boolean isRx, final boolean isTx) {
+	private Command(final int key, 
+			final int txDataBytes, final int rxDataBytes) {
 		this.key = key;
-		this.rx = isRx;
-		this.tx = isTx;
-		this.dataBytes = 0;
+		this.txBytes = txDataBytes;
+		this.rxBytes = rxDataBytes;
+		this.type = null;
 	}
 
 	/**
@@ -50,19 +52,19 @@ public enum Command {
 	 * 
 	 * @param key
 	 *            the {@link #getKey()}
-	 * @param isRx
-	 *            the {@link #isRx()}
-	 * @param isTx
-	 *            the {@link #isTx()}
-	 * @param the
-	 *            {@link #getDataBytes()}
+	 * @param txDataBytes
+	 *            the {@link #getRxBytes()}
+	 * @param rxDataBytes
+	 *            the {@link #getTxBytes()}
+	 * @param type
+	 *            the {@link #getType()}
 	 */
-	private Command(final int key, final boolean isRx, final boolean isTx,
-			final int byteCount) {
+	private Command(final int key, 
+			final int txDataBytes, final int rxDataBytes, final Type type) {
 		this.key = key;
-		this.rx = isRx;
-		this.tx = isTx;
-		this.dataBytes = byteCount;
+		this.txBytes = txDataBytes;
+		this.rxBytes = rxDataBytes;
+		this.type = type;
 	}
 
 	/**
@@ -70,8 +72,8 @@ public enum Command {
 	 */
 	@Override
 	public String toString() {
-		return String.format("%1$s (id = %2$s, canRx = %3$s, canTx = %4$s)",
-				super.toString(), key, rx, tx);
+		return String.format("%1$s (id = %2$s, txBytes = %3$s, rxBytes = %4$s)",
+				super.toString(), key, txBytes, rxBytes);
 	}
 
 	/**
@@ -98,24 +100,52 @@ public enum Command {
 	}
 
 	/**
+	 * @return the {@link Type} of {@link Command}
+	 */
+	public Type getType() {
+		return type;
+	}
+
+	/**
 	 * @return True when the  {@link Command} can receive data from remote devices
 	 */
-	public boolean isRx() {
-		return rx;
+	public boolean canRx() {
+		return rxBytes > 0;
 	}
 
 	/**
 	 * @return True when the  {@link Command} can transmit data to remote devices
 	 */
-	public boolean isTx() {
-		return tx;
+	public boolean canTx() {
+		return txBytes > 0;
 	}
 
 	/**
 	 * @return the number of bytes that is expected for the {@link Command}
 	 *         (excluding the {@link #getKey()} byte)
 	 */
-	public int getDataBytes() {
-		return dataBytes;
+	public int getTxBytes() {
+		return txBytes;
+	}
+
+	/**
+	 * @return the number of bytes that is expected for the {@link Command}
+	 */
+	public int getRxBytes() {
+		return rxBytes;
+	}
+
+	/**
+	 * @return the {@link #getTxBytes()} excluding the {@link #getKey()} byte
+	 */
+	public int getTxDataBytes() {
+		return txBytes - 1;
+	}
+
+	/**
+	 * @return the {@link #getRxBytes()} excluding the {@link #getKey()} byte
+	 */
+	public int getRxDataBytes() {
+		return rxBytes - 1;
 	}
 }

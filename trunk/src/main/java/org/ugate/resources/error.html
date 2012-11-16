@@ -1,0 +1,17 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-3.dtd">
+<html xmlns="http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd" xmlns:th="http://www.thymeleaf.org">
+<!-- <!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd"> -->
+	<body>
+		<div th:fragment="content" data-theme="b">
+			<form th:action="@{/}" action="base.html#?page=index" id="errorForm" method="get" data-theme="b" data-transition="flip">
+				<fieldset data-role="controlgroup" class="ui-body ui-body-d" style="padding: 30px;">
+					<h3><span th:text="#{error}">Error (prototype)</span>: <span th:text="${errorCode}">0 (prototype)</span></h3>
+					<p th:text="${errorMessage}">
+						Error Message (prototype)
+					</p>
+				</fieldset>
+				<button th:text="#{reload}" type="submit" data-theme="b">Reload (prototype)</button>
+			</form>
+		</div>
+	</body>
+</html>

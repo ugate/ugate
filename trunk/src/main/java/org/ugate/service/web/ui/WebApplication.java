@@ -1,5 +1,6 @@
 package org.ugate.service.web.ui;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.ServletContext;
@@ -196,6 +197,30 @@ public enum WebApplication {
 					request.getRequestURI()));
 			return null;
 		}
+	}
+
+	/**
+	 * Delegates to the {@link ErrorController}
+	 * 
+	 * @param req
+	 *            the {@link HttpServletRequest}
+	 * @param res
+	 *            the {@link HttpServletResponse}
+	 * @param servletContext
+	 *            the {@link ServletContext}
+	 * @param code
+	 *            the HTTP status code
+	 * @param message
+	 *            the error message
+	 * @throws IOException
+	 *             the {@link IOException}
+	 */
+	public void handleError(final HttpServletRequest req,
+			final HttpServletResponse res, final ServletContext servletContext,
+			final int code, final String message) throws IOException {
+		((ErrorController) ControllerResource.ERROR.getController())
+				.processError(req, res, servletContext, code, message,
+						getTemplateEngine());
 	}
 
 	/**
