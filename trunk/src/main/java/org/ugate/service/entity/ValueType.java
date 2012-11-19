@@ -3,7 +3,7 @@ package org.ugate.service.entity;
 /**
  * A {@link IModelType} {@link #getValue()} holder
  */
-public class TypeValue<T extends Model> {
+public class ValueType<T extends Model> {
 	private final IModelType<T> type;
 	private final Object value;
 
@@ -15,7 +15,7 @@ public class TypeValue<T extends Model> {
 	 * @param value
 	 *            the {@link #getValue()}
 	 */
-	public TypeValue(final IModelType<T> type, final Object value) {
+	public ValueType(final IModelType<T> type, final Object value) {
 		this.type = type;
 		this.value = value;
 	}

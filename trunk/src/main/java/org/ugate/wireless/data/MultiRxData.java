@@ -31,7 +31,7 @@ public abstract class MultiRxData<T> extends RxRawData<T> {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @return true when the transmission of data has timed out
 	 */
 	public boolean hasTimedOut() {
 		return Calendar.getInstance().getTimeInMillis()

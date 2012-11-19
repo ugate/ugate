@@ -2,6 +2,8 @@ package org.ugate.wireless.data;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +36,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 	 * The index of the image start byte
 	 */
 	public static final int IMAGE_START_INDEX = 7;
-	private volatile RxTxImage rxTxImage;
-	private volatile int rxTxAttempts = 0;
+	private final Map<String, RxTxImage> imgMap = new ConcurrentHashMap<>();
 
 	/**
 	 * Process responses as they are received
@@ -79,12 +80,14 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 				final ErrorResponse errorResponse = (ErrorResponse) response;
 				final String rawBytes = ByteUtils.toBase16(response.getRawPacketBytes());
 				RxData rd;
-				if (rxTxImage != null) {
-					rxTxImage.setStatus(RxData.Status.PARSING_ERROR);
-					rd = rxTxImage.createImageSegmentsSnapshot();
-				} else {
+				// TODO : need a way to determine what address the error came from for an ErrorResponse
+//				if (imgMap.containsKey(errorResponse.getRemoteAddress())) {
+//					imgMap.get(errorResponse.getRemoteAddress()).setStatus(RxData.Status.PARSING_ERROR);
+//					rd = imgMap.get(errorResponse.getRemoteAddress()).createImageSegmentsSnapshot();
+//					imgMap.remove(errorResponse.getRemoteAddress());
+//				} else {
 					rd = new RxRawData<String>(null, Status.GENERAL_FAILURE, 0, rawBytes);
-				}
+//				}
 				processData(null, UGateEvent.Type.WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED, command, rd, 
 						RS.rbLabel(KEY.SERVICE_TX_RESPONSE_ERROR, rd, errorResponse.getErrorMsg()));
 				log.error("", errorResponse.getException());
@@ -156,15 +159,17 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 				command, rn.getAddress(), rxResponse.getRssi(), failures));
 		if (command == Command.CAM_TAKE_PIC) {
 			ImageCapture ic;
+			RxTxImage rxTxImage = imgMap.containsKey(rn.getAddress()) ? imgMap.get(rn.getAddress()) : null;
 			if (rxTxImage == null || rxTxImage.hasTimedOut()) {
 				if (rxTxImage != null) {
-					rxTxAttempts = 0;
+					rxTxImage.resetRxTxAttempts();
 					ic = rxTxImage.createImageSegmentsSnapshot();
 					processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
 							RS.rbLabel(KEY.SERVICE_RX_IMAGE_TIMEOUT, ic));
 				}
 				// TODO : add check for what sensor tripped the image and image format detection (instead of using just JPEG)
 				rxTxImage = new RxTxJPEG(rn, status, rxResponse.getRssi(), null);
+				imgMap.put(rn.getAddress(), rxTxImage);
 				ic = rxTxImage.createImageSegmentsSnapshot();
 				log.info(String.format("======= Receiving chunked image data (%1$s) =======", rxTxImage));
 				processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_MULTIPART, command, ic, 
@@ -178,16 +183,19 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			if (rxTxImage.isEof()) {
 				if (rxTxImage.getStatus() != RxData.Status.NORMAL) {
 					final int retries = rn.getCamImgCaptureRetryCnt();
-					rxTxImage = null;
 					ic = rxTxImage.createImageSegmentsSnapshot();
-					if (retries != 0 && rxTxAttempts <= retries) {
-						rxTxAttempts++;
+					if (retries != 0 && rxTxImage.getRxTxAttempts() <= retries) {
+						rxTxImage.incRxTxAttempts();
 						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED_RETRYING, command, ic, 
-								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxAttempts, retries));
+								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS_RETRY, ic, rxTxImage.getRxTxAttempts(), retries));
 						ServiceProvider.IMPL.getWirelessService().sendData(rn, command, 0, false);
 					} else {
-						processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
-								RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxAttempts));
+						try {
+							processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_FAILED, command, ic, 
+									RS.rbLabel(KEY.SERVICE_RX_IMAGE_LOST_PACKETS, ic, rxTxImage.getRxTxAttempts()));
+						} finally {
+							imgMap.remove(rn.getAddress());
+						}
 					}
 				} else {
 					try {
@@ -197,8 +205,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					} catch (IOException e) {
 						log.info("Cannot save image ID: " + UGateUtil.calFormat(rxTxImage.getCreatedTime()), e);
 					} finally {
-						rxTxImage = null;
-						rxTxAttempts = 0;
+						imgMap.remove(rn.getAddress());
 					}
 				}
 			}

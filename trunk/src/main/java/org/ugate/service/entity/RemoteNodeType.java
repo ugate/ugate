@@ -276,17 +276,17 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 
 	/**
-	 * Creates a new {@link TypeValue} using the {@link RemoteNode} and
+	 * Creates a new {@link ValueType} using the {@link RemoteNode} and
 	 * {@link RemoteNodeType}
 	 * 
 	 * @param remoteNode
 	 *            the {@link RemoteNode} to {@link #getValue(RemoteNode)} from
-	 * @return the {@link TypeValue}
+	 * @return the {@link ValueType}
 	 * @throws Throwable
 	 *             when a {@link #getValue(RemoteNode)} fails
 	 */
-	public TypeValue<RemoteNode> newValue(final RemoteNode remoteNode) throws Throwable {
-		return new TypeValue<>(this, getValue(remoteNode));
+	public ValueType<RemoteNode> newTypeValue(final RemoteNode remoteNode) throws Throwable {
+		return new ValueType<>(this, getValue(remoteNode));
 	}
 
 	/**
@@ -325,44 +325,37 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 * {@link RemoteNodeType} group used to organize {@link RemoteNode} fields
 	 */
 	public static enum Type {
-		CAM_SETTINGS_TOGGLE(Group.TOGGLE),
-		CAM_POSITION_RANGE(Group.RANGE),
-		SONAR_PIR_POSITION_RANGE(Group.RANGE),
-		MW_POSITION_RANGE(Group.RANGE),
-		SONAR_THRESHOLD_RANGE(Group.RANGE),
-		PIR_THRESHOLD_RANGE(Group.RANGE),
-		MW_THRESHOLD_RANGE(Group.RANGE),
-		LASER_THRESHOLD_RANGE(Group.RANGE),
-		UNIVERSAL_REMOTE_TOGGLE(Group.TOGGLE),
-		UNIVERSAL_REMOTE_CODE_RANGE(Group.RANGE),
-		ALARM_TRIP_STATE_RANGE(Group.RANGE),
-		ALARM_NOTIFY_TOGGLE(Group.TOGGLE),
-		GATE_TOGGLE(Group.TOGGLE);
+		CAM_SETTINGS_TOGGLE(ValueGroupType.TOGGLE),
+		CAM_POSITION_RANGE(ValueGroupType.RANGE),
+		SONAR_PIR_POSITION_RANGE(ValueGroupType.RANGE),
+		MW_POSITION_RANGE(ValueGroupType.RANGE),
+		SONAR_THRESHOLD_RANGE(ValueGroupType.RANGE),
+		PIR_THRESHOLD_RANGE(ValueGroupType.RANGE),
+		MW_THRESHOLD_RANGE(ValueGroupType.RANGE),
+		LASER_THRESHOLD_RANGE(ValueGroupType.RANGE),
+		UNIVERSAL_REMOTE_TOGGLE(ValueGroupType.TOGGLE),
+		UNIVERSAL_REMOTE_CODE_RANGE(ValueGroupType.RANGE),
+		ALARM_TRIP_STATE_RANGE(ValueGroupType.RANGE),
+		ALARM_NOTIFY_TOGGLE(ValueGroupType.TOGGLE),
+		GATE_TOGGLE(ValueGroupType.TOGGLE);
 
-		private final Group group;
+		private final ValueGroupType group;
 
 		/**
 		 * Constructor
 		 * 
 		 * @param group
+		 *            the {@link #getGroup()}
 		 */
-		private Type(final Group group) {
+		private Type(final ValueGroupType group) {
 			this.group = group;
 		}
 
 		/**
-		 * @return the {@link Group} that the {@link Type} belongs to
+		 * @return the {@link ValueGroupType} that the {@link Type} belongs to
 		 */
-		public Group getGroup() {
+		public ValueGroupType getGroup() {
 			return group;
 		}
-	}
-
-	/**
-	 * {@link Type} group
-	 */
-	public static enum Group {
-		TOGGLE,
-		RANGE;
 	}
 }
