@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.context.WebContext;
-import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.RemoteNodeType;
+import org.ugate.service.entity.TypeValue;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
@@ -64,9 +64,9 @@ public class IndexController extends BaseController {
 	}
 
 	protected void addCommandVars(final WebContext ctx) {
-		final Map<RemoteNodeType.Type, List<RemoteNodeType.Value>> vm = new HashMap<>();
+		final Map<RemoteNodeType.Type, List<TypeValue<RemoteNode>>> vm = new HashMap<>();
 		for (final RemoteNodeType.Type type : RemoteNodeType.Type.values()) {
-			vm.put(type, new ArrayList<RemoteNodeType.Value>());
+			vm.put(type, new ArrayList<TypeValue<RemoteNode>>());
 		}
 //		for (final Command cmd : Command.values()) {
 //			if (cmd.getType() != null) {
@@ -82,7 +82,7 @@ public class IndexController extends BaseController {
 //			}
 //		}
 		// add the group of values as a variable
-		for (final Map.Entry<RemoteNodeType.Type, List<RemoteNodeType.Value>> grp : vm.entrySet()) {
+		for (final Map.Entry<RemoteNodeType.Type, List<TypeValue<RemoteNode>>> grp : vm.entrySet()) {
 			ctx.setVariable(grp.getKey().name(), grp.getValue());
 		}
 	}
@@ -100,9 +100,9 @@ public class IndexController extends BaseController {
 	 */
 	protected void addRemoteNodeVars(final RemoteNode rn, final WebContext ctx) {
 		ctx.setVariable(VAR_REMOTE_NODE_READING_NAME, getLastRemoteNodeReading(rn));
-		final Map<RemoteNodeType.Type, List<RemoteNodeType.Value>> vm = new HashMap<>();
+		final Map<RemoteNodeType.Type, List<TypeValue<RemoteNode>>> vm = new HashMap<>();
 		for (final RemoteNodeType.Type type : RemoteNodeType.Type.values()) {
-			vm.put(type, new ArrayList<RemoteNodeType.Value>());
+			vm.put(type, new ArrayList<TypeValue<RemoteNode>>());
 		}
 //		rn.setConnected(ServiceProvider.IMPL.getWirelessService()
 //				.testRemoteConnection(rn, 0));
@@ -120,7 +120,7 @@ public class IndexController extends BaseController {
 			}
 		}
 		// add the group of values as a variable
-		for (final Map.Entry<RemoteNodeType.Type, List<RemoteNodeType.Value>> grp : vm.entrySet()) {
+		for (final Map.Entry<RemoteNodeType.Type, List<TypeValue<RemoteNode>>> grp : vm.entrySet()) {
 			ctx.setVariable(grp.getKey().name(), grp.getValue());
 		}
 	}
