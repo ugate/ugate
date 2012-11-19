@@ -25,6 +25,7 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 
 	private static final Logger log = LoggerFactory.getLogger(RxTxImage.class);
 	private Calendar endTime = null;
+	private int rxTxAttempts = 0;
 
 	/**
 	 * Constructor
@@ -55,6 +56,45 @@ public abstract class RxTxImage extends MultiRxData<List<RxTxImage.ImageChunk>> 
 	 * @return the file extension fo the image
 	 */
 	public abstract String getImageExtension();
+
+	/**
+	 * @return the number of RX/TX attempts that were made while retrieving the
+	 *         {@link RxTxImage}
+	 */
+	public int getRxTxAttempts() {
+		return rxTxAttempts;
+	}
+
+	/**
+	 * @param rxTxAttempts
+	 *            the number of RX/TX attempts that were made while retrieving
+	 *            the {@link RxTxImage} (resets {@link #getData()})
+	 */
+	public void setRxTxAttempts(final int rxTxAttempts) {
+		if (rxTxAttempts == 0 || rxTxAttempts > this.rxTxAttempts) {
+			getData().clear();
+			this.rxTxAttempts = rxTxAttempts;
+		} else if (rxTxAttempts < this.rxTxAttempts) {
+			throw new IllegalArgumentException(
+					"RX/TX attempts cannot be less than " + this.rxTxAttempts);
+		}
+	}
+
+	/**
+	 * Resets the number of RX/TX attempts that were made while retrieving the
+	 * {@link RxTxImage}
+	 */
+	public void resetRxTxAttempts() {
+		setRxTxAttempts(0);
+	}
+
+	/**
+	 * Increments the number of RX/TX attempts that were made while retrieving
+	 * the {@link RxTxImage}
+	 */
+	public void incRxTxAttempts() {
+		setRxTxAttempts(getRxTxAttempts() + 1);
+	}
 
 	/**
 	 * @return the current bytes of for the image chunks
