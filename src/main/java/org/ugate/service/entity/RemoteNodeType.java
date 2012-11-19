@@ -276,17 +276,17 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 
 	/**
-	 * Creates a new {@link Value} using the {@link RemoteNode} and
+	 * Creates a new {@link TypeValue} using the {@link RemoteNode} and
 	 * {@link RemoteNodeType}
 	 * 
 	 * @param remoteNode
 	 *            the {@link RemoteNode} to {@link #getValue(RemoteNode)} from
-	 * @return the {@link Value}
+	 * @return the {@link TypeValue}
 	 * @throws Throwable
 	 *             when a {@link #getValue(RemoteNode)} fails
 	 */
-	public Value newValue(final RemoteNode remoteNode) throws Throwable {
-		return new Value(this, getValue(remoteNode));
+	public TypeValue<RemoteNode> newValue(final RemoteNode remoteNode) throws Throwable {
+		return new TypeValue<>(this, getValue(remoteNode));
 	}
 
 	/**
@@ -364,41 +364,5 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	public static enum Group {
 		TOGGLE,
 		RANGE;
-	}
-
-	/**
-	 * {@link RemoteNodeType#getValue(RemoteNode)} container for a
-	 * {@link RemoteNodeType}
-	 */
-	public static class Value {
-		private final RemoteNodeType type;
-		private final Object value;
-
-		/**
-		 * Constructor
-		 * 
-		 * @param type
-		 *            the {@link #getType()}
-		 * @param value
-		 *            the {@link #getValue()}
-		 */
-		public Value(final RemoteNodeType type, final Object value) {
-			this.type = type;
-			this.value = value;
-		}
-
-		/**
-		 * @return the {@link RemoteNodeType}
-		 */
-		public RemoteNodeType getType() {
-			return type;
-		}
-
-		/**
-		 * @return the {@link RemoteNodeType#getValue(RemoteNode)}
-		 */
-		public Object getValue() {
-			return value;
-		}
 	}
 }
