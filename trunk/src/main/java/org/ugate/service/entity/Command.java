@@ -1,36 +1,32 @@
-package org.ugate;
-
-import org.ugate.service.entity.ValueGroupType;
-
+package org.ugate.service.entity;
 
 /**
  * Commands sent/received to/from remote devices
  */
 public enum Command {
-	SERVO_LASER_CALIBRATE(11, 1, 0, ValueGroupType.EXECUTE),
+	SERVO_LASER_CALIBRATE(11, 1, 0),
 	SERVO_TILT_UP(16, 1, 0),
 	SERVO_TILT_DOWN(17, 1, 0),
 	SERVO_PAN_RIGHT(18, 1, 0),
 	SERVO_PAN_LEFT(19, 1, 0),
-	IR_REMOTE_SESSION_RESET(20, 1, 0, ValueGroupType.EXECUTE),
+	IR_REMOTE_SESSION_RESET(20, 1, 0),
 	SENSOR_ALARM_TOGGLE(21, 1, 0),
 	CAM_TAKE_PIC(29, 1, 0),
 	ACCESS_PIN_CHANGE(37, 1, 0),
 	SERVO_TOGGLE_CAM_SONARIR_MICROWAVE(58, 1, 0),
-	GATE_TOGGLE_OPEN_CLOSE(59, 1, 0, ValueGroupType.TOGGLE),
-	SERVO_CAM_TILT(100, 2, 0, ValueGroupType.RANGE),
-	SERVO_CAM_PAN(101, 2, 0, ValueGroupType.RANGE),
-	SERVO_SONAR_PIR_TILT(102, 2, 0, ValueGroupType.RANGE),
-	SERVO_SONAR_PIR_PAN(103, 2, 0, ValueGroupType.RANGE),
-	SERVO_MICROWAVE_PAN(104, 3, 0, ValueGroupType.RANGE),
-	SENSOR_GET_READINGS(105, 1, 8, ValueGroupType.EXECUTE),
-	SENSOR_GET_SETTINGS(106, 1, 37, ValueGroupType.EXECUTE),
+	GATE_TOGGLE_OPEN_CLOSE(59, 1, 0),
+	SERVO_CAM_TILT(100, 2, 0),
+	SERVO_CAM_PAN(101, 2, 0),
+	SERVO_SONAR_PIR_TILT(102, 2, 0),
+	SERVO_SONAR_PIR_PAN(103, 2, 0),
+	SERVO_MICROWAVE_PAN(104, 3, 0),
+	SENSOR_GET_READINGS(105, 1, 8),
+	SENSOR_GET_SETTINGS(106, 1, 37),
 	SENSOR_SET_SETTINGS(107, 37, 0);
 
 	private final int key;
 	private final int txBytes;
 	private final int rxBytes;
-	private final ValueGroupType type;
 
 	/**
 	 * Constructor
@@ -47,27 +43,6 @@ public enum Command {
 		this.key = key;
 		this.txBytes = txDataBytes;
 		this.rxBytes = rxDataBytes;
-		this.type = null;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param key
-	 *            the {@link #getKey()}
-	 * @param txDataBytes
-	 *            the {@link #getRxBytes()}
-	 * @param rxDataBytes
-	 *            the {@link #getTxBytes()}
-	 * @param type
-	 *            the {@link #getType()}
-	 */
-	private Command(final int key, 
-			final int txDataBytes, final int rxDataBytes, final ValueGroupType type) {
-		this.key = key;
-		this.txBytes = txDataBytes;
-		this.rxBytes = rxDataBytes;
-		this.type = type;
 	}
 
 	/**
@@ -96,17 +71,17 @@ public enum Command {
 	}
 
 	/**
+	 * @return {@link #name()}
+	 */
+	public String getName() {
+		return name();
+	}
+
+	/**
 	 * @return The key recognized by the remote device
 	 */
 	public int getKey() {
 		return key;
-	}
-
-	/**
-	 * @return the {@link ValueGroupType} of {@link Command}
-	 */
-	public ValueGroupType getType() {
-		return type;
 	}
 
 	/**

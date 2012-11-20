@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.context.WebContext;
-import org.ugate.Command;
 import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.RemoteNodeReadingType;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.ValueType;
 import org.ugate.service.entity.jpa.Actor;
@@ -51,7 +51,7 @@ public class IndexController extends BaseController {
 			rn = getRemoteNode(actor, rnId);
 			if (rn != null) {
 				ctx.setVariable(VAR_REMOTE_NODE_NAME, rn);
-				addCommandVars(ctx);
+				addRemoteNodeReadingVars(rn, ctx);
 				addRemoteNodeVars(rn, ctx);
 			}
 		}
@@ -64,15 +64,24 @@ public class IndexController extends BaseController {
 		return null;
 	}
 
-	protected void addCommandVars(final WebContext ctx) {
-		final List<Command> cmds = new ArrayList<>();
-		for (final Command cmd : Command.values()) {
-			if (cmd.getType() != null) {
-				cmds.add(cmd);
+	protected void addRemoteNodeReadingVars(final RemoteNode rn, final WebContext ctx) {
+		final RemoteNodeReading rnr = getLastRemoteNodeReading(rn);
+		final List<ValueType<RemoteNodeReading, Object>> cmds = new ArrayList<>();
+		for (final RemoteNodeReadingType rnrt : RemoteNodeReadingType.values()) {
+			try {
+				cmds.add(rnrt.newValueType(rnr));
+			} catch (final Throwable t) {
+				log.error(
+						String.format(
+								"Unable to generate new value for %1$s at address %2$s for %3$s %4$s",
+								rn.getClass(), rn.getAddress(),
+								RemoteNodeReadingType.class.getSimpleName(),
+								rnrt), t);
 			}
 		}
 		// add the commands as a variable
-		ctx.setVariable(Command.class.getSimpleName(), cmds);
+		ctx.setVariable(RemoteNodeReadingType.class.getSimpleName(), cmds);
+		ctx.setVariable(VAR_REMOTE_NODE_READING_NAME, getLastRemoteNodeReading(rn));
 	}
 
 	/**
@@ -87,17 +96,16 @@ public class IndexController extends BaseController {
 	 *            the {@link WebContext} to add values to
 	 */
 	protected void addRemoteNodeVars(final RemoteNode rn, final WebContext ctx) {
-		ctx.setVariable(VAR_REMOTE_NODE_READING_NAME, getLastRemoteNodeReading(rn));
-		final Map<RemoteNodeType.Type, List<ValueType<RemoteNode>>> vm = new HashMap<>();
+		final Map<RemoteNodeType.Type, List<ValueType<RemoteNode, Object>>> vm = new HashMap<>();
 		for (final RemoteNodeType.Type type : RemoteNodeType.Type.values()) {
-			vm.put(type, new ArrayList<ValueType<RemoteNode>>());
+			vm.put(type, new ArrayList<ValueType<RemoteNode, Object>>());
 		}
 //		rn.setConnected(ServiceProvider.IMPL.getWirelessService()
 //				.testRemoteConnection(rn, 0));
 		for (final RemoteNodeType rnt : RemoteNodeType.values()) {
 			if (rnt.getType() != null) {
 				try {
-					vm.get(rnt.getType()).add(rnt.newTypeValue(rn));
+					vm.get(rnt.getType()).add(rnt.newValueType(rn));
 				} catch (final Throwable t) {
 					log.error(
 							String.format(
@@ -108,7 +116,7 @@ public class IndexController extends BaseController {
 			}
 		}
 		// add the group of values as a variable
-		for (final Map.Entry<RemoteNodeType.Type, List<ValueType<RemoteNode>>> grp : vm.entrySet()) {
+		for (final Map.Entry<RemoteNodeType.Type, List<ValueType<RemoteNode, Object>>> grp : vm.entrySet()) {
 			ctx.setVariable(grp.getKey().name(), grp.getValue());
 		}
 	}

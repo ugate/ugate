@@ -57,13 +57,26 @@ public interface IModelType<T extends Model> {
 	public void setValue(final T model, Object value) throws Throwable;
 
 	/**
+	 * Creates a new {@link ValueType} using the {@link Model} and
+	 * {@link RemoteNodeType}
+	 * 
+	 * @param model
+	 *            the {@link Model} to {@link #getValue(Model)} from
+	 * @return the {@link ValueType}
+	 * @throws Throwable
+	 *             when a {@link #getValue(Model)} fails
+	 */
+	public ValueType<T, Object> newValueType(final T model) throws Throwable;
+
+	/**
 	 * Value extraction helper
 	 */
 	public static class ValueHelper {
 
 		public static final String[] ACCESSOR_PREFIXES = { "get", "is", "has",
 				"use" };
-		private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssz");
+		private static final SimpleDateFormat SDF = new SimpleDateFormat(
+				"yyyy-MM-dd'T'HH:mm:ssz");
 		private static final Map<Class<?>, Class<?>> PRIMS = new HashMap<>();
 		static {
 			PRIMS.put(boolean.class, Boolean.class);
@@ -174,6 +187,9 @@ public interface IModelType<T extends Model> {
 		private static <T extends Model> MethodHandle buildAccessor(
 				final T model, final IModelType<T> type,
 				final String... fieldNamePrefix) {
+			if (model == null) {
+				return null;
+			}
 			final String accessorName = buildMethodName(fieldNamePrefix[0],
 					type.getKey());
 			try {
@@ -276,11 +292,11 @@ public interface IModelType<T extends Model> {
 			if (value != null && String.class.isAssignableFrom(valueOfClass)) {
 				return (VT) value.toString();
 			}
-			final Class<?> clazz = PRIMS.containsKey(valueOfClass) ? PRIMS.get(valueOfClass) : valueOfClass;
+			final Class<?> clazz = PRIMS.containsKey(valueOfClass) ? PRIMS
+					.get(valueOfClass) : valueOfClass;
 			MethodHandle mh1 = null;
 			try {
-				mh1 = MethodHandles.lookup().findStatic(
-						clazz, "valueOf",
+				mh1 = MethodHandles.lookup().findStatic(clazz, "valueOf",
 						MethodType.methodType(clazz, String.class));
 			} catch (final Throwable t) {
 				// class doesn't support it- do nothing
