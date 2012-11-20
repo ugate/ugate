@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
-import org.ugate.Command;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
 import org.ugate.UGateUtil;
@@ -13,6 +12,7 @@ import org.ugate.mail.EmailEvent;
 import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
+import org.ugate.service.entity.Command;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;

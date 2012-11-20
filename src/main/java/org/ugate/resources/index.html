@@ -21,26 +21,22 @@
 				</form>
 				<div data-role="collapsible-set" data-transition="pop">
 					<div data-role="collapsible" data-theme="b" data-content-theme="c">
-						<h3 th:text="#{wireless.web.commands}">Commands (prototype)</h3>
-						<div th:each="cmd : ${Command}" class="fieldcontain">
-							<input th:if="${cmd.type.name == 'EXECUTE'}" th:name="${cmd.key}" th:value="${cmd}" type="button" data-role="button" value="Command Button (prototype)" />
-<!-- 							<label th:if="${cmd.type.name == 'TOGGLE'}" th:text="#{${cmd.key}}" th:for="${cmd.key}" for="${cmd.key}">Command Toggle (prototype)</label> -->
-							<select th:if="${cmd.type.name == 'TOGGLE'}" th:name="${cmd.key}" data-role="slider">
-								<option th:text="#{off}" th:selected="${cmd} == 0" value="0">Off</option>
-								<option th:text="#{on}" th:selected="${cmd} == 1" value="1">On</option>
-							</select>
-<!-- 							<label th:if="${cmd.type.name != 'RANGE'}" th:text="#{${cmd.key}}" th:for="${cmd.key}" for="${cmd.key}">Command Range (prototype)</label> -->
-<!-- 							<input th:value="${cp.value}" th:max="${cp.type.max}" th:min="${cp.type.min}"  -->
-<!-- 								type="range" th:name="${cp.type.key}" th:id="${cp.type.key}" name="mats" id="mats"  -->
-<!-- 								value="0" min="0" max="100" data-highlight="true" /> -->
+						<h3 th:text="#{sensors.readings.last}">Last Captured Reading (prototype)</h3>
+						<div th:each="vt : ${RemoteNodeReadingType}" data-role="fieldcontain">
+							<div th:text="#{${vt.type.key}}" th:for="${vt.type.key}">Label (prototype)</div>
+							<label>
+								<select th:if="${vt.type.group.name == 'TOGGLE'}" th:name="${vt.type.key}" data-role="slider">
+									<option th:text="#{off}" th:selected="${vt.value} == 0" value="0">Closed</option>
+									<option th:text="#{on}" th:selected="${vt.value} == 1" value="1">Opened</option>
+								</select>
+								<input th:if="${vt.type.group.name == 'INPUT'}" th:name="${vt.type.key}" th:value="${vt.value}" 
+									type="number" readonly="readonly" />
+								<a th:if="${vt.type.command and vt.type.group.name == 'INPUT'}" th:title="#{wireless.web.command.execute(${vt.type.command.key})}" 
+									title="Command Button (prototype)" href="#" data-mini="true" data-inline="true" data-role="button" 
+									data-theme="a" data-icon="gear" data-iconpos="notext">
+								</a>
+							</label>
 						</div>
-<!-- 						<div data-role="fieldcontain"> -->
-<!-- 							<label th:text="#{gate.state}" for="GATE_TOGGLE_OPEN_CLOSE">Gate State: (prototype)</label> -->
-<!-- 							<select name="GATE_TOGGLE_OPEN_CLOSE" id="GATE_TOGGLE_OPEN_CLOSE" data-role="slider"> -->
-<!-- 								<option th:text="#{close}" th:selected="${rnr == null or rnr.gateState == 0}" value="0">Close</option> -->
-<!-- 								<option th:text="#{open}" th:selected="${rnr != null and rnr.gateState == 1}" value="1">Open</option> -->
-<!-- 							</select> -->
-<!-- 						</div> -->
 					</div>
 				</div>
 				<form th:action="@{/}" id="settingsForm" action="/index.html" method="post" data-theme="c" data-transition="flip" class="updateable">

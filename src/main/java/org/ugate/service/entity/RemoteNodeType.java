@@ -13,7 +13,7 @@ import org.ugate.service.entity.jpa.RemoteNode;
 /**
  * {@linkplain RemoteNode} {@linkplain IModelType} related to an individual node
  * devices located in a remote locations. <b>Each {@linkplain #ordinal()}
- * represents a the proper order that incoming data is received from remote node
+ * represents the proper order that incoming data is received from remote node
  * devices</b>.
  */
 public enum RemoteNodeType implements IModelType<RemoteNode> {
@@ -276,16 +276,10 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	}
 
 	/**
-	 * Creates a new {@link ValueType} using the {@link RemoteNode} and
-	 * {@link RemoteNodeType}
-	 * 
-	 * @param remoteNode
-	 *            the {@link RemoteNode} to {@link #getValue(RemoteNode)} from
-	 * @return the {@link ValueType}
-	 * @throws Throwable
-	 *             when a {@link #getValue(RemoteNode)} fails
+	 * {@inheritDoc}
 	 */
-	public ValueType<RemoteNode> newTypeValue(final RemoteNode remoteNode) throws Throwable {
+	@Override
+	public ValueType<RemoteNode, Object> newValueType(final RemoteNode remoteNode) throws Throwable {
 		return new ValueType<>(this, getValue(remoteNode));
 	}
 
@@ -294,8 +288,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 */
 	@Override
 	public String toString() {
-		return String.format("%1$s (key = %2$s, canRemote = %3$s)",
-				super.toString(), key, canRemote);
+		return String.format("%1$s (key = %2$s, canRemote = %3$s, type = %4$s)",
+				super.toString(), key, canRemote, type);
 	}
 
 	/**

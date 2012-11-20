@@ -23,7 +23,7 @@ public class StartupPreloader extends Preloader {
 	boolean noLoadingProgress = true;
 
 	/**
-	 * @return the {@linkplain Preloader} {@linkplain Scene}
+	 * Creates the {@linkplain Preloader} {@linkplain Scene}
 	 */
 	private void createPreloaderScene() {
 		bar = new ProgressBar();

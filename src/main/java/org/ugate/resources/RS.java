@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.Model;
+import org.ugate.service.entity.RemoteNodeReadingType;
 import org.ugate.service.entity.RemoteNodeType;
 
 public class RS {
@@ -871,217 +872,320 @@ public class RS {
 	 * {@linkplain RS} bundle keys
 	 */
 	public enum KEY {
-		MAIN_CLASS("main.class"), RXTX_VERSION("rxtx.version"), RXTX_FILE_NAME(
-				"rxtx.file.name"), APP_ID("app.id"), APP_VERSION("app.version"), APP_DESC(
-				"app.desc"), APP_TITLE("app.title"), APP_TITLE_USER(
-				"app.title.user", 1), APP_TITLE_ACTION_REQUIRED(
-				"app.title.action.required"), APP_TITLE_ERROR("app.title.error"), APP_FOOTER_UPDATES_INDICATOR(
-				"app.footer.updates.inidcator"), APP_SERVICE_COM_RESTART_REQUIRED(
-				"app.service.com.restart.required"), APP_SERVICE_INIT_ERROR(
-				"app.service.init.error"), APP_GATE_KEEPER_ERROR(
-				"app.gatekeeper.init.error"), APP_CONNECTION_DESC(
-				"app.connection.desc"), APP_CONTROLS_DESC("app.controls.desc"), APP_CAPTURE_DESC(
-				"app.capture.desc"), APP_WEB_TOOL_DESC("app.web.tool.desc"), APP_DIALOG_SETUP(
-				"app.dialog.setup"), APP_DIALOG_SETUP_ERROR(
-				"app.dialog.setup.error", 1), APP_DIALOG_SETUP_ERROR_PWD_MISMATCH(
-				"app.dialog.setup.error.password.mismatch"), APP_DIALOG_AUTH(
-				"app.dialog.auth"), APP_DIALOG_AUTH_ERROR(
-				"app.dialog.auth.error", 1), APP_DIALOG_USERNAME(
-				"app.dialog.username"), APP_DIALOG_PWD("app.dialog.password"), APP_DIALOG_PWD_VERIFY(
-				"app.dialog.password.verify"), APP_DIALOG_REQUIRED(
-				"app.dialog.required", 1), APP_DIALOG_DEFAULT_USER(
-				"app.dialog.defaultuser"), APP_SERVICE_STARTUP_DESC(
-				"app.service.startup.desc"), APP_SERVICE_HOST_STARTUP_DESC(
-				"app.service.host.startup.desc"), APP_SERVICE_STARTUP_AUTO(
-				"app.service.startup.auto"), APP_SERVICE_STARTUP_MANUAL(
-				"app.service.startup.manual"), APP_HELP_DEFAULT(
-				"help.text.default"), APP_WIN_SYSTRAY_MIN_INFO(
-				"win.systray.minimize.info"), APP_WIN_SYSTRAY(
-				"win.systray.tooltip"), LOADING("loading"), LOGIN("login"), LOGOUT(
-				"logout"), SELECT("select"), TODAY("today"), RELOAD("reload"), OPEN(
-				"open"), CLOSE("close"), ALL("all"), ALL_OFF("all.off"), ON(
-				"on"), OFF("off"), UPDATE("update"), SUBMIT("submit"), ERROR(
-				"error"), INVALID("invalid", 1), FEET("feet"), INCHES("inches"), METERS(
-				"meters"), SENDING("sending"), ALARM_SETTINGS("alarm.settings"), ALARM_THRESHOLDS(
-				"alarm.thres"), ALARM_POSITIONING("alarm.positioning"), ALARM_NOTIFICATION(
-				"alarm.notify"), SONAR("sonar"), SONAR_PIR_POSITIONING(
-				"sonar.pir.pos"), PIR("pir"), MW("mw"), MW_POSITIONING("mw.pos"), LASER(
-				"laser"), CAM("cam"), CAM_POSITIONING("cam.pos"), CAM_PAN(
-				RemoteNodeType.CAM_ANGLE_PAN.getKey()), CAM_PAN_DESC(
-				RemoteNodeType.CAM_ANGLE_PAN.getKey() + ".desc"), CAM_TILT(
-				RemoteNodeType.CAM_ANGLE_TILT.getKey()), CAM_TILT_DESC(
-				RemoteNodeType.CAM_ANGLE_TILT.getKey() + ".desc"), CAM_RES(
-				RemoteNodeType.CAM_RESOLUTION.getKey()), CAM_RES_DESC(
-				RemoteNodeType.CAM_RESOLUTION.getKey() + ".desc"), CAM_RES_VGA(
-				RemoteNodeType.CAM_RESOLUTION.getKey() + ".vga"), CAM_RES_QVGA(
-				RemoteNodeType.CAM_RESOLUTION.getKey() + ".qvga"), CAM_TRIP_ANGLE_PRIORITY_DESC(
-				"cam.trip.angle.priority.desc", 1), CAM_SONAR_TRIP_ANGLE_PRIORITY(
-				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PRIORITY.getKey()), CAM_PIR_TRIP_ANGLE_PRIORITY(
-				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PRIORITY.getKey()), CAM_MW_TRIP_ANGLE_PRIORITY(
-				RemoteNodeType.CAM_MW_TRIP_ANGLE_PRIORITY.getKey()), CAM_LASER_TRIP_ANGLE_PRIORITY(
-				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PRIORITY.getKey()), CAM_PAN_SONAR(
-				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN.getKey()), CAM_TILT_SONAR(
-				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT.getKey()), CAM_PAN_SONAR_DESC(
-				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_SONAR_DESC(
-				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_PAN_PIR(
-				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN.getKey()), CAM_TILT_PIR(
-				RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT.getKey()), CAM_PAN_PIR_DESC(
-				RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_PIR_DESC(
-				RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_PAN_MW(
-				RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN.getKey()), CAM_TILT_MW(
-				RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT.getKey()), CAM_PAN_MW_DESC(
-				RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_MW_DESC(
-				RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_PAN_LASER(
-				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN.getKey()), CAM_TILT_LASER(
-				RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT.getKey()), CAM_PAN_LASER_DESC(
-				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN.getKey() + ".desc"), CAM_TILT_LASER_DESC(
-				RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT.getKey() + ".desc"), CAM_ACTION_QVGA(
-				"cam.take.qvga"), CAM_ACTION_VGA("cam.take.vga"), SETTINGS_SAVE(
-				"settings.save"), SETTINGS_SAVE_FAILED("settings.save.failed",
-				1), SETTINGS_SEND("settings.send"), SETTINGS_RECEIVE(
-				"settings.receive"), SETTINGS_SEND_FAILED(
-				"settings.send.failed", 1), SENSOR_READINGS_GET(
-				"sensors.readings.get"), SENSOR_TRIP_MULTI("sensors.trip.multi"), SENSOR_TRIP_MULTI_BINARY(
-				RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()), SENSOR_TRIP_MULTI_DESC(
-				RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey() + ".desc"), SENSOR_READINGS(
-				"sensors.readings"), SENSOR_READINGS_FAILED(
-				"sensors.readings.failed", 1), GATE_CONFIG("gate.conf"), GATE_ACCESS(
-				RemoteNodeType.GATE_ACCESS_ON.getKey()), GATE_ACCESS_DESC(
-				RemoteNodeType.GATE_ACCESS_ON.getKey() + ".desc"), GATE_TOGGLE(
-				"gate.toggle"), GATE_TOGGLE_FAILED("gate.toggle.failed"), GATE_TOGGLE_DESC(
-				"gate.toggle.desc"), GATE_STATE("gate.state"), LABEL_GRAPH_DESC(
-				"app.graph.desc"), LABEL_GRAPH_AXIS_X("graph.axis.x"), LABEL_DISPLAYSHELF_FULLSIZE_DESC(
-				"displayshelf.fullsize.tooltip"), LABEL_TOGGLE_SWITCH_ON(
-				"toggleswitch.on"), LABEL_TOGGLE_SWITCH_OFF("toggleswitch.off"), SERVICE_TX_RESPONSE_INVALID(
-				"service.tx.response.unrecognized", 2), SERVICE_TX_RESPONSE_SUCCESS(
-				"service.tx.response.success", 2), SERVICE_TX_RESPONSE_ERROR(
-				"service.tx.response.error", 2), SERVICE_RX_READINGS(
-				"service.rx.readings", 1), SERVICE_RX_SETTINGS(
-				"service.rx.settings", 1), SERVICE_RX_KEYCODES(
-				"service.rx.keycodes", 1), SERVICE_RX_IMAGE_MULTPART(
-				"service.rx.image.multipart", 1), SERVICE_RX_IMAGE_SUCCESS(
-				"service.rx.image.success", 1), SERVICE_RX_IMAGE_LOST_PACKETS(
-				"service.rx.image.lostpackets"), SERVICE_RX_IMAGE_LOST_PACKETS_RETRY(
-				"service.rx.image.lostpackets.retry", 3), SERVICE_RX_IMAGE_TIMEOUT(
-				"service.rx.image.timeout", 2), SERVICE_CMD_SOUNDS(
-				RemoteNodeType.DEVICE_SOUNDS_ON.getKey()), SERVICE_CMD_SOUNDS_TOGGLE(
-				RemoteNodeType.DEVICE_SOUNDS_ON.getKey() + ".desc"), SERVICE_CMD_FAILED(
-				"service.command.failed"), SERVICE_WIRELESS_CONNECTION_REQUIRED(
-				"service.wireless.connection.required"), SERVICE_WIRELESS_FAILED(
-				"service.wireless.failed"), SERVICE_WIRELESS_WEB_FAILED(
-				"service.wireless.web.failed"), SERVICE_WIRELESS_ACK_SUCCESS(
-				"service.wireless.ack.success", 3), SERVICE_WIRELESS_ACK_FAILED(
-				"service.wireless.ack.failed", 3), SERVICE_WIRELESS_SENDING(
-				"service.wireless.sending", 2), SERVICE_WIRELESS_SUCCESS(
-				"service.wireless.success", 1), SERVICE_WIRELESS_TX_TIMEOUT(
-				"service.wireless.tx.timeout", 1), SERVICE_WIRELESS_TX_FAILED(
-				"service.wireless.tx.failed", 1), SERVICE_WIRELESS_TX_BATCH_FAILED(
-				"service.wireless.tx.batch.failed", 1), SERVICE_WIRELESS_SETTINGS_FAILED(
-				"service.wireless.settings.failed", 1), SERVICE_EMAIL_FAILED(
-				"service.email.failed"), SERVICE_EMAIL_CMD_EXEC(
-				"service.email.commandexec", 3), SERVICE_EMAIL_CMD_EXEC_FAILED(
-				"service.email.commandexec.failed", 4), LABEL_GRAPH_AXIS_Y(
-				"graph.axis.y"), LABEL_GRAPH_SERIES_ALARM_LASER(
-				"graph.series.alarm.laser"), LABEL_GRAPH_SERIES_ALARM_SONAR(
-				"graph.series.alarm.sonar"), LABEL_GRAPH_SERIES_ALARM_MICROWAVE(
-				"graph.series.alarm.microwave"), LABEL_GRAPH_SERIES_ALARM_PIR(
-				"graph.series.alarm.pir"), LABEL_GRAPH_SERIES_ACTIVITY_READS(
-				"graph.series.activity.reads"), MAIL_CONNECT_FAILED(
-				"mail.connect.failed", 6), MAIL_CONNECT("mail.connect"), MAIL_CONNECT_DESC(
-				"mail.connect.desc"), MAIL_CONNECTED("mail.connected"), MAIL_CONNECTING(
-				"mail.connecting"), MAIL_DISCONNECTING("mail.disconnecting"), MAIL_DISCONNECTED(
-				"mail.disconnected"), MAIL_CLOSED("mail.closed"), MAIL_AUTH_FAILED(
-				"mail.auth.failed"), MAIL_RECONNECT("mail.reconnect"), MAIL_SMTP_HOST(
-				"mail.smtp.host"), MAIL_SMTP_HOST_DESC("mail.smtp.host.desc"), MAIL_SMTP_PORT(
-				"mail.smtp.port"), MAIL_SMTP_PORT_DESC("mail.smtp.port.desc"), MAIL_IMAP_HOST(
-				"mail.imap.host"), MAIL_IMAP_HOST_DESC("mail.imap.host.desc"), MAIL_IMAP_PORT(
-				"mail.imap.port"), MAIL_IMAP_PORT_DESC("mail.imap.port.desc"), MAIL_USERNAME(
-				"mail.username"), MAIL_USERNAME_DESC("mail.username.desc"), MAIL_PASSWORD(
-				"mail.password"), MAIL_PASSWORD_DESC("mail.password.desc"), MAIL_FOLDER_NAME(
-				"mail.folder"), MAIL_FOLDER_DESC("mail.folder.desc"), SONAR_THRESHOLD(
-				"sonar.threshold", 1), SONAR_THRESHOLD_DESC(
-				"sonar.threshold.desc", 1), SONAR_THRESHOLD_FEET(
-				RemoteNodeType.SONAR_DISTANCE_THRES_FEET.getKey()), SONAR_THRESHOLD_INCHES(
-				RemoteNodeType.SONAR_DISTANCE_THRES_INCHES.getKey()), SONAR_PIR_PAN(
-				RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey()), SONAR_PIR_PAN_DESC(
-				RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey() + ".desc"), SONAR_PIR_TILT(
-				RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey()), SONAR_PIR_TILT_DESC(
-				RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey() + ".desc"), SONAR_ALARM_DELAY(
-				RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey()), SONAR_ALARM_DELAY_DESC(
-				RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey() + ".desc"), PIR_ALARM_DELAY(
-				RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey()), PIR_ALARM_DELAY_DESC(
-				RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_THRESHOLD(
-				RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey()), MW_THRESHOLD_DESC(
-				RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey() + ".desc"), MW_ALARM_DELAY(
-				RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey()), MW_ALARM_DELAY_DESC(
-				RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey() + ".desc"), MW_PAN(
-				RemoteNodeType.MW_ANGLE_PAN.getKey()), MW_PAN_DESC(
-				RemoteNodeType.MW_ANGLE_PAN.getKey() + ".desc"), LASER_THRESHOLD(
-				"laser.threshold", 1), LASER_THRESHOLD_DESC(
-				"laser.threshold.desc", 1), LASER_THRESHOLD_FEET(
-				RemoteNodeType.LASER_DISTANCE_THRES_FEET.getKey()), LASER_THRESHOLD_INCHES(
-				RemoteNodeType.LASER_DISTANCE_THRES_INCHES.getKey()), LASER_ALARM_DELAY(
-				RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey()), LASER_ALARM_DELAY_DESC(
-				RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey() + ".desc"), LASER_CALIBRATION(
-				"laser.calibration"), LASER_CALIBRATION_DESC(
-				"laser.calibration.desc"), LASER_CALIBRATION_SUCCESS(
-				"laser.calibration.success"), LASER_CALIBRATION_FAILED(
-				"laser.calibration.failed"), WIRELESS_WEB_START_STOP(
-				"wireless.web.startstop"), WIRELESS_WEB_START_STOP_DESC(
-				"wireless.web.startstop.desc"), WIRELESS_WEB_COMMANDS(
-				"wireless.web.commands"), WIRELESS_NODE_CONNECT(
-				"wireless.node.connect", 1), WIRELESS_NODE_CONNECT_FAILED(
-				"wireless.node.connect.failed", 1), WIRELESS_NODE_REMOTE_NODE(
-				"wireless.node.remote.node", 1), WIRELESS_NODE_REMOTE_ADDY(
-				"wireless.node.remote"), WIRELESS_NODE_REMOTE_ADDY_DESC(
-				"wireless.node.remote.desc"), WIRELESS_NODE_REMOTE_PROMPT(
-				"wireless.node.remote.prompt"), WIRELESS_NODE_REMOTE_STATUS(
-				"wireless.node.remote.status", 2), WIRELESS_NODE_REMOTE_CHANGING(
-				"wireless.node.remote.changing", 2), WIRELESS_NODE_REMOTE_REMOVE(
-				"wireless.node.remote.remove"), WIRELESS_NODE_REMOTE_REMOVE_DESC(
-				"wireless.node.remote.remove.desc"), WIRELESS_NODE_REMOVE_FAILED(
-				"wireless.node.remote.remove.failed", 1), WIRELESS_NODE_REMOTE_ADD(
-				"wireless.node.remote.add", 1), WIRELESS_NODE_REMOTE_ADD_DESC(
-				"wireless.node.remote.add.desc"), WIRELESS_NODE_ADD_FAILED(
-				"wireless.node.remote.add.failed", 1), WIRELESS_NODE_REMOTE_SELECT_FAILED(
-				"wireless.node.remote.select.failed", 1), WIRELESS_NODE_REMOTE_SAVED_LOCAL(
-				"wireless.node.remote.local.saved", 1), WIRELESS_REMOTE_SYNC(
-				RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey()), WIRELESS_REMOTE_SYNC_DESC(
-				RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey() + ".desc"), WIRELESS_REMOTE_SYNCD(
-				"wireless.node.remote.syncd", 1), WIRELESS_REMOTE_OUT_OF_SYNC(
-				"wireless.node.remote.outofsync", 1), WIRELESS_REMOTE_READINGS_TIME(
-				"wireless.node.remote.readings.time"), WIRELESS_REMOTE_READINGS_SENSOR(
-				"wireless.node.remote.readings.sensor"), WIRELESS_REMOTE_READINGS_REPORT(
-				"wireless.node.remote.readings.report"), WIRELESS_REMOTE_UNIVERSAL(
-				"universal.remote"), WIRELESS_REMOTE_UNIVERSAL_TOGGLE(
-				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey()), WIRELESS_REMOTE_UNIVERSAL_DESC(
-				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey() + ".desc"), WIRELESS_PORT(
-				"wireless.port"), WIRELESS_PORT_DESC("wireless.port.desc"), WIRELESS_SPEED(
-				"wireless.speed"), WIRELESS_SPEED_DESC("wireless.speed.desc"), WIRELESS_ACCESS_KEY(
-				"wireless.access.key", 1), WIRELESS_ACCESS_KEY_DESC(
-				"wireless.access.key.desc", 1), WIRELESS_HOST_ADDY(
-				"wireless.host"), WIRELESS_HOST_ADDY_DESC("wireless.host.desc"), WIRELESS_CONNECT(
-				"wireless.connect"), WIRELESS_CONNECT_DESC(
-				"wireless.connect.desc"), WIRELESS_CONNECTING(
-				"wireless.connecting"), WIRELESS_RECONNECT("wireless.reconnect"), WIRELESS_DISCONNECTING(
-				"wireless.disconnecting"), WIRELESS_SYNC(
-				"wireless.synchronizing"), WIRELESS_WORKING_DIR(
-				"wireless.workingdir"), WIRELESS_WORKING_DIR_DESC(
-				"wireless.workingdir.desc"), WEB_HOST("wireless.web.host"), WEB_HOST_DESC(
-				"wireless.web.host.desc"), WEB_PORT("wireless.web.port"), WEB_PORT_DESC(
-				"wireless.web.port.desc"), WEB_HOST_LOCAL(
-				"wireless.web.host.local"), WEB_HOST_LOCAL_DESC(
-				"wireless.web.host.local.desc"), WEB_PORT_LOCAL(
-				"wireless.web.port.local"), WEB_PORT_LOCAL_DESC(
-				"wireless.web.port.local.desc"), MAIL_ALARM_NOTIFY(
-				RemoteNodeType.MAIL_ALERT_ON.getKey()), MAIL_ALARM_NOTIFY_DESC(
-				RemoteNodeType.MAIL_ALERT_ON.getKey() + ".desc"), MAIL_ALARM_NOFITY_EMAILS(
-				"mail.alarm.notify.emails"), MAIL_ALARM_NOTIFY_EMAILS_DESC(
-				"mail.alarm.notify.emails.desc"), MAIL_ALARM_NOTIFY_EMAILS_REMOVE(
-				"mail.alarm.notify.emails.remove"), MAIL_ALARM_NOTIFY_EMAILS_ADD(
-				"mail.alarm.notify.emails.add"), MAIL_ALARM_NOTIFY_EMAILS_ADD_DESC(
-				"mail.alarm.notify.emails.add.desc"), MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED(
-				"mail.alarm.notify.emails.add.failed"), MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED(
+		MAIN_CLASS("main.class"),
+		RXTX_VERSION("rxtx.version"),
+		RXTX_FILE_NAME("rxtx.file.name"),
+		APP_ID("app.id"),
+		APP_VERSION("app.version"),
+		APP_DESC("app.desc"),
+		APP_TITLE("app.title"),
+		APP_TITLE_USER("app.title.user", 1),
+		APP_TITLE_ACTION_REQUIRED("app.title.action.required"),
+		APP_TITLE_ERROR("app.title.error"),
+		APP_FOOTER_UPDATES_INDICATOR("app.footer.updates.inidcator"),
+		APP_SERVICE_COM_RESTART_REQUIRED("app.service.com.restart.required"),
+		APP_SERVICE_INIT_ERROR("app.service.init.error"),
+		APP_GATE_KEEPER_ERROR("app.gatekeeper.init.error"),
+		APP_CONNECTION_DESC("app.connection.desc"),
+		APP_CONTROLS_DESC("app.controls.desc"),
+		APP_CAPTURE_DESC("app.capture.desc"),
+		APP_WEB_TOOL_DESC("app.web.tool.desc"),
+		APP_DIALOG_SETUP("app.dialog.setup"),
+		APP_DIALOG_SETUP_ERROR("app.dialog.setup.error", 1),
+		APP_DIALOG_SETUP_ERROR_PWD_MISMATCH(
+				"app.dialog.setup.error.password.mismatch"),
+		APP_DIALOG_AUTH("app.dialog.auth"),
+		APP_DIALOG_AUTH_ERROR("app.dialog.auth.error", 1),
+		APP_DIALOG_USERNAME("app.dialog.username"),
+		APP_DIALOG_PWD("app.dialog.password"),
+		APP_DIALOG_PWD_VERIFY("app.dialog.password.verify"),
+		APP_DIALOG_REQUIRED("app.dialog.required", 1),
+		APP_DIALOG_DEFAULT_USER("app.dialog.defaultuser"),
+		APP_SERVICE_STARTUP_DESC("app.service.startup.desc"),
+		APP_SERVICE_HOST_STARTUP_DESC("app.service.host.startup.desc"),
+		APP_SERVICE_STARTUP_AUTO("app.service.startup.auto"),
+		APP_SERVICE_STARTUP_MANUAL("app.service.startup.manual"),
+		APP_HELP_DEFAULT("help.text.default"),
+		APP_WIN_SYSTRAY_MIN_INFO("win.systray.minimize.info"),
+		APP_WIN_SYSTRAY("win.systray.tooltip"),
+		LOADING("loading"),
+		LOGIN("login"),
+		LOGOUT("logout"),
+		SELECT("select"),
+		TODAY("today"),
+		RELOAD("reload"),
+		OPEN("open"),
+		CLOSE("close"),
+		ALL("all"),
+		ALL_OFF("all.off"),
+		ON("on"),
+		OFF("off"),
+		UPDATE("update"),
+		SUBMIT("submit"),
+		ERROR("error"),
+		INVALID("invalid", 1),
+		FEET("feet"),
+		INCHES("inches"),
+		METERS("meters"),
+		SENDING("sending"),
+		ALARM_SETTINGS("alarm.settings"),
+		ALARM_THRESHOLDS("alarm.thres"),
+		ALARM_POSITIONING("alarm.positioning"),
+		ALARM_NOTIFICATION("alarm.notify"),
+		SONAR("sonar"),
+		SONAR_PIR_POSITIONING("sonar.pir.pos"),
+		PIR("pir"),
+		MW("mw"),
+		MW_POSITIONING("mw.pos"),
+		LASER("laser"),
+		CAM("cam"),
+		CAM_POSITIONING("cam.pos"),
+		CAM_PAN(RemoteNodeType.CAM_ANGLE_PAN.getKey()),
+		CAM_PAN_DESC(RemoteNodeType.CAM_ANGLE_PAN.getKey() + ".desc"),
+		CAM_TILT(RemoteNodeType.CAM_ANGLE_TILT.getKey()),
+		CAM_TILT_DESC(RemoteNodeType.CAM_ANGLE_TILT.getKey() + ".desc"),
+		CAM_RES(RemoteNodeType.CAM_RESOLUTION.getKey()),
+		CAM_RES_DESC(RemoteNodeType.CAM_RESOLUTION.getKey() + ".desc"),
+		CAM_RES_VGA(RemoteNodeType.CAM_RESOLUTION.getKey() + ".vga"),
+		CAM_RES_QVGA(RemoteNodeType.CAM_RESOLUTION.getKey() + ".qvga"),
+		CAM_TRIP_ANGLE_PRIORITY_DESC("cam.trip.angle.priority.desc", 1),
+		CAM_SONAR_TRIP_ANGLE_PRIORITY(
+				RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PRIORITY.getKey()),
+		CAM_PIR_TRIP_ANGLE_PRIORITY(RemoteNodeType.CAM_PIR_TRIP_ANGLE_PRIORITY
+				.getKey()),
+		CAM_MW_TRIP_ANGLE_PRIORITY(RemoteNodeType.CAM_MW_TRIP_ANGLE_PRIORITY
+				.getKey()),
+		CAM_LASER_TRIP_ANGLE_PRIORITY(
+				RemoteNodeType.CAM_LASER_TRIP_ANGLE_PRIORITY.getKey()),
+		CAM_PAN_SONAR(RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN.getKey()),
+		CAM_TILT_SONAR(RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT.getKey()),
+		CAM_PAN_SONAR_DESC(RemoteNodeType.CAM_SONAR_TRIP_ANGLE_PAN.getKey()
+				+ ".desc"),
+		CAM_TILT_SONAR_DESC(RemoteNodeType.CAM_SONAR_TRIP_ANGLE_TILT.getKey()
+				+ ".desc"),
+		CAM_PAN_PIR(RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN.getKey()),
+		CAM_TILT_PIR(RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT.getKey()),
+		CAM_PAN_PIR_DESC(RemoteNodeType.CAM_PIR_TRIP_ANGLE_PAN.getKey()
+				+ ".desc"),
+		CAM_TILT_PIR_DESC(RemoteNodeType.CAM_PIR_TRIP_ANGLE_TILT.getKey()
+				+ ".desc"),
+		CAM_PAN_MW(RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN.getKey()),
+		CAM_TILT_MW(RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT.getKey()),
+		CAM_PAN_MW_DESC(RemoteNodeType.CAM_MW_TRIP_ANGLE_PAN.getKey() + ".desc"),
+		CAM_TILT_MW_DESC(RemoteNodeType.CAM_MW_TRIP_ANGLE_TILT.getKey()
+				+ ".desc"),
+		CAM_PAN_LASER(RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN.getKey()),
+		CAM_TILT_LASER(RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT.getKey()),
+		CAM_PAN_LASER_DESC(RemoteNodeType.CAM_LASER_TRIP_ANGLE_PAN.getKey()
+				+ ".desc"),
+		CAM_TILT_LASER_DESC(RemoteNodeType.CAM_LASER_TRIP_ANGLE_TILT.getKey()
+				+ ".desc"),
+		CAM_ACTION_QVGA("cam.take.qvga"),
+		CAM_ACTION_VGA("cam.take.vga"),
+		SETTINGS_SAVE("settings.save"),
+		SETTINGS_SAVE_FAILED("settings.save.failed", 1),
+		SETTINGS_SEND("settings.send"),
+		SETTINGS_RECEIVE("settings.receive"),
+		SETTINGS_SEND_FAILED("settings.send.failed", 1),
+		SENSOR_READINGS_GET("sensors.readings.get"),
+		SENSOR_TRIP_MULTI("sensors.trip.multi"),
+		SENSOR_TRIP_MULTI_BINARY(RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()),
+		SENSOR_TRIP_MULTI_DESC(RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()
+				+ ".desc"),
+		SENSOR_READINGS("sensors.readings"),
+		SENSOR_LAST_READING("sensors.readings.last"),
+		SENSOR_READINGS_FAILED("sensors.readings.failed", 1),
+		GATE_CONFIG("gate.conf"),
+		GATE_ACCESS(RemoteNodeType.GATE_ACCESS_ON.getKey()),
+		GATE_ACCESS_DESC(RemoteNodeType.GATE_ACCESS_ON.getKey() + ".desc"),
+		GATE_TOGGLE("gate.toggle"),
+		GATE_TOGGLE_FAILED("gate.toggle.failed"),
+		GATE_TOGGLE_DESC("gate.toggle.desc"),
+		LABEL_GRAPH_DESC("app.graph.desc"),
+		LABEL_GRAPH_AXIS_X("graph.axis.x"),
+		LABEL_DISPLAYSHELF_FULLSIZE_DESC("displayshelf.fullsize.tooltip"),
+		LABEL_TOGGLE_SWITCH_ON("toggleswitch.on"),
+		LABEL_TOGGLE_SWITCH_OFF("toggleswitch.off"),
+		SERVICE_TX_RESPONSE_INVALID("service.tx.response.unrecognized", 2),
+		SERVICE_TX_RESPONSE_SUCCESS("service.tx.response.success", 2),
+		SERVICE_TX_RESPONSE_ERROR("service.tx.response.error", 2),
+		SERVICE_RX_READINGS("service.rx.readings", 1),
+		SERVICE_RX_SETTINGS("service.rx.settings", 1),
+		SERVICE_RX_KEYCODES("service.rx.keycodes", 1),
+		SERVICE_RX_IMAGE_MULTPART("service.rx.image.multipart", 1),
+		SERVICE_RX_IMAGE_SUCCESS("service.rx.image.success", 1),
+		SERVICE_RX_IMAGE_LOST_PACKETS("service.rx.image.lostpackets"),
+		SERVICE_RX_IMAGE_LOST_PACKETS_RETRY(
+				"service.rx.image.lostpackets.retry", 3),
+		SERVICE_RX_IMAGE_TIMEOUT("service.rx.image.timeout", 2),
+		SERVICE_CMD_SOUNDS(RemoteNodeType.DEVICE_SOUNDS_ON.getKey()),
+		SERVICE_CMD_SOUNDS_TOGGLE(RemoteNodeType.DEVICE_SOUNDS_ON.getKey()
+				+ ".desc"),
+		SERVICE_CMD_FAILED("service.command.failed"),
+		SERVICE_WIRELESS_CONNECTION_REQUIRED(
+				"service.wireless.connection.required"),
+		SERVICE_WIRELESS_FAILED("service.wireless.failed"),
+		SERVICE_WIRELESS_WEB_FAILED("service.wireless.web.failed"),
+		SERVICE_WIRELESS_ACK_SUCCESS("service.wireless.ack.success", 3),
+		SERVICE_WIRELESS_ACK_FAILED("service.wireless.ack.failed", 3),
+		SERVICE_WIRELESS_SENDING("service.wireless.sending", 2),
+		SERVICE_WIRELESS_SUCCESS("service.wireless.success", 1),
+		SERVICE_WIRELESS_TX_TIMEOUT("service.wireless.tx.timeout", 1),
+		SERVICE_WIRELESS_TX_FAILED("service.wireless.tx.failed", 1),
+		SERVICE_WIRELESS_TX_BATCH_FAILED("service.wireless.tx.batch.failed", 1),
+		SERVICE_WIRELESS_SETTINGS_FAILED("service.wireless.settings.failed", 1),
+		SERVICE_EMAIL_FAILED("service.email.failed"),
+		SERVICE_EMAIL_CMD_EXEC("service.email.commandexec", 3),
+		SERVICE_EMAIL_CMD_EXEC_FAILED("service.email.commandexec.failed", 4),
+		LABEL_GRAPH_AXIS_Y("graph.axis.y"),
+		LABEL_GRAPH_SERIES_ALARM_LASER("graph.series.alarm.laser"),
+		LABEL_GRAPH_SERIES_ALARM_SONAR("graph.series.alarm.sonar"),
+		LABEL_GRAPH_SERIES_ALARM_MICROWAVE("graph.series.alarm.microwave"),
+		LABEL_GRAPH_SERIES_ALARM_PIR("graph.series.alarm.pir"),
+		LABEL_GRAPH_SERIES_ACTIVITY_READS("graph.series.activity.reads"),
+		MAIL_CONNECT_FAILED("mail.connect.failed", 6),
+		MAIL_CONNECT("mail.connect"),
+		MAIL_CONNECT_DESC("mail.connect.desc"),
+		MAIL_CONNECTED("mail.connected"),
+		MAIL_CONNECTING("mail.connecting"),
+		MAIL_DISCONNECTING("mail.disconnecting"),
+		MAIL_DISCONNECTED("mail.disconnected"),
+		MAIL_CLOSED("mail.closed"),
+		MAIL_AUTH_FAILED("mail.auth.failed"),
+		MAIL_RECONNECT("mail.reconnect"),
+		MAIL_SMTP_HOST("mail.smtp.host"),
+		MAIL_SMTP_HOST_DESC("mail.smtp.host.desc"),
+		MAIL_SMTP_PORT("mail.smtp.port"),
+		MAIL_SMTP_PORT_DESC("mail.smtp.port.desc"),
+		MAIL_IMAP_HOST("mail.imap.host"),
+		MAIL_IMAP_HOST_DESC("mail.imap.host.desc"),
+		MAIL_IMAP_PORT("mail.imap.port"),
+		MAIL_IMAP_PORT_DESC("mail.imap.port.desc"),
+		MAIL_USERNAME("mail.username"),
+		MAIL_USERNAME_DESC("mail.username.desc"),
+		MAIL_PASSWORD("mail.password"),
+		MAIL_PASSWORD_DESC("mail.password.desc"),
+		MAIL_FOLDER_NAME("mail.folder"),
+		MAIL_FOLDER_DESC("mail.folder.desc"),
+		SONAR_THRESHOLD("sonar.threshold", 1),
+		SONAR_THRESHOLD_DESC("sonar.threshold.desc", 1),
+		SONAR_FEET(RemoteNodeReadingType.SONAR_FEET.getKey()),
+		SONAR_INCHES(RemoteNodeReadingType.SONAR_INCHES.getKey()),
+		SONAR_THRESHOLD_FEET(RemoteNodeType.SONAR_DISTANCE_THRES_FEET.getKey()),
+		SONAR_THRESHOLD_INCHES(RemoteNodeType.SONAR_DISTANCE_THRES_INCHES
+				.getKey()),
+		SONAR_PIR_PAN(RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey()),
+		SONAR_PIR_PAN_DESC(RemoteNodeType.SONAR_PIR_ANGLE_PAN.getKey()
+				+ ".desc"),
+		SONAR_PIR_TILT(RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey()),
+		SONAR_PIR_TILT_DESC(RemoteNodeType.SONAR_PIR_ANGLE_TILT.getKey()
+				+ ".desc"),
+		SONAR_ALARM_DELAY(RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey()),
+		SONAR_ALARM_DELAY_DESC(RemoteNodeType.SONAR_DELAY_BTWN_TRIPS.getKey()
+				+ ".desc"),
+		PIR_INTENSITY(RemoteNodeReadingType.PIR_INTENSITY.getKey()),
+		PIR_ALARM_DELAY(RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey()),
+		PIR_ALARM_DELAY_DESC(RemoteNodeType.PIR_DELAY_BTWN_TRIPS.getKey()
+				+ ".desc"),
+		MW_CYCLE_COUNT(RemoteNodeReadingType.MICROWAVE_CYCLE_COUNT.getKey()),
+		MW_THRESHOLD(RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey()),
+		MW_THRESHOLD_DESC(RemoteNodeType.MW_SPEED_THRES_CYCLES_PER_SEC.getKey()
+				+ ".desc"),
+		MW_ALARM_DELAY(RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey()),
+		MW_ALARM_DELAY_DESC(RemoteNodeType.MW_DELAY_BTWN_TRIPS.getKey()
+				+ ".desc"),
+		MW_PAN(RemoteNodeType.MW_ANGLE_PAN.getKey()),
+		MW_PAN_DESC(RemoteNodeType.MW_ANGLE_PAN.getKey() + ".desc"),
+		LASER_THRESHOLD("laser.threshold", 1),
+		LASER_THRESHOLD_DESC("laser.threshold.desc", 1),
+		LASER_CALIBRATED_ANGLE_PAN(
+				RemoteNodeReadingType.LASER_CALIBRATED_ANGLE_PAN.getKey()),
+		LASER_CALIBRATED_ANGLE_TILT(
+				RemoteNodeReadingType.LASER_CALIBRATED_ANGLE_TILT.getKey()),
+		LASER_FEET(RemoteNodeReadingType.LASER_FEET.getKey()),
+		LASER_INCHES(RemoteNodeReadingType.LASER_INCHES.getKey()),
+		LASER_THRESHOLD_FEET(RemoteNodeType.LASER_DISTANCE_THRES_FEET.getKey()),
+		LASER_THRESHOLD_INCHES(RemoteNodeType.LASER_DISTANCE_THRES_INCHES
+				.getKey()),
+		LASER_ALARM_DELAY(RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey()),
+		LASER_ALARM_DELAY_DESC(RemoteNodeType.LASER_DELAY_BTWN_TRIPS.getKey()
+				+ ".desc"),
+		LASER_CALIBRATION("laser.calibration"),
+		LASER_CALIBRATION_DESC("laser.calibration.desc"),
+		LASER_CALIBRATION_SUCCESS("laser.calibration.success"),
+		LASER_CALIBRATION_FAILED("laser.calibration.failed"),
+		GATE_STATE(RemoteNodeReadingType.GATE_STATE.getKey()),
+		FROM_MULTI_ALARM_TRIP_STATE(
+				RemoteNodeReadingType.FROM_MULTI_ALARM_TRIP_STATE.getKey()),
+		READ_DATE(RemoteNodeReadingType.READ_DATE.getKey()),
+		WIRELESS_WEB_START_STOP("wireless.web.startstop"),
+		WIRELESS_WEB_START_STOP_DESC("wireless.web.startstop.desc"),
+		WIRELESS_WEB_COMMANDS("wireless.web.commands"),
+		WIRELESS_WEB_COMMAND_EXECUTE("wireless.web.command.execute", 1),
+		WIRELESS_NODE_CONNECT("wireless.node.connect", 1),
+		WIRELESS_NODE_CONNECT_FAILED("wireless.node.connect.failed", 1),
+		WIRELESS_NODE_REMOTE_NODE("wireless.node.remote.node", 1),
+		WIRELESS_NODE_REMOTE_ADDY("wireless.node.remote"),
+		WIRELESS_NODE_REMOTE_ADDY_DESC("wireless.node.remote.desc"),
+		WIRELESS_NODE_REMOTE_PROMPT("wireless.node.remote.prompt"),
+		WIRELESS_NODE_REMOTE_STATUS("wireless.node.remote.status", 2),
+		WIRELESS_NODE_REMOTE_CHANGING("wireless.node.remote.changing", 2),
+		WIRELESS_NODE_REMOTE_REMOVE("wireless.node.remote.remove"),
+		WIRELESS_NODE_REMOTE_REMOVE_DESC("wireless.node.remote.remove.desc"),
+		WIRELESS_NODE_REMOVE_FAILED("wireless.node.remote.remove.failed", 1),
+		WIRELESS_NODE_REMOTE_ADD("wireless.node.remote.add", 1),
+		WIRELESS_NODE_REMOTE_ADD_DESC("wireless.node.remote.add.desc"),
+		WIRELESS_NODE_ADD_FAILED("wireless.node.remote.add.failed", 1),
+		WIRELESS_NODE_REMOTE_SELECT_FAILED(
+				"wireless.node.remote.select.failed", 1),
+		WIRELESS_NODE_REMOTE_SAVED_LOCAL("wireless.node.remote.local.saved", 1),
+		WIRELESS_REMOTE_SYNC(RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE.getKey()),
+		WIRELESS_REMOTE_SYNC_DESC(RemoteNodeType.DEVICE_AUTO_SYNCHRONIZE
+				.getKey() + ".desc"),
+		WIRELESS_REMOTE_SYNCD("wireless.node.remote.syncd", 1),
+		WIRELESS_REMOTE_OUT_OF_SYNC("wireless.node.remote.outofsync", 1),
+		WIRELESS_REMOTE_READINGS_TIME("wireless.node.remote.readings.time"),
+		WIRELESS_REMOTE_READINGS_SENSOR("wireless.node.remote.readings.sensor"),
+		WIRELESS_REMOTE_READINGS_REPORT("wireless.node.remote.readings.report"),
+		WIRELESS_REMOTE_UNIVERSAL("universal.remote"),
+		WIRELESS_REMOTE_UNIVERSAL_TOGGLE(
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey()),
+		WIRELESS_REMOTE_UNIVERSAL_DESC(
+				RemoteNodeType.UNIVERSAL_REMOTE_ACCESS_ON.getKey() + ".desc"),
+		WIRELESS_PORT("wireless.port"),
+		WIRELESS_PORT_DESC("wireless.port.desc"),
+		WIRELESS_SPEED("wireless.speed"),
+		WIRELESS_SPEED_DESC("wireless.speed.desc"),
+		WIRELESS_ACCESS_KEY("wireless.access.key", 1),
+		WIRELESS_ACCESS_KEY_DESC("wireless.access.key.desc", 1),
+		WIRELESS_HOST_ADDY("wireless.host"),
+		WIRELESS_HOST_ADDY_DESC("wireless.host.desc"),
+		WIRELESS_CONNECT("wireless.connect"),
+		WIRELESS_CONNECT_DESC("wireless.connect.desc"),
+		WIRELESS_CONNECTING("wireless.connecting"),
+		WIRELESS_RECONNECT("wireless.reconnect"),
+		WIRELESS_DISCONNECTING("wireless.disconnecting"),
+		WIRELESS_SYNC("wireless.synchronizing"),
+		WIRELESS_WORKING_DIR("wireless.workingdir"),
+		WIRELESS_WORKING_DIR_DESC("wireless.workingdir.desc"),
+		WEB_HOST("wireless.web.host"),
+		WEB_HOST_DESC("wireless.web.host.desc"),
+		WEB_PORT("wireless.web.port"),
+		WEB_PORT_DESC("wireless.web.port.desc"),
+		WEB_HOST_LOCAL("wireless.web.host.local"),
+		WEB_HOST_LOCAL_DESC("wireless.web.host.local.desc"),
+		WEB_PORT_LOCAL("wireless.web.port.local"),
+		WEB_PORT_LOCAL_DESC("wireless.web.port.local.desc"),
+		MAIL_ALARM_NOTIFY(RemoteNodeType.MAIL_ALERT_ON.getKey()),
+		MAIL_ALARM_NOTIFY_DESC(RemoteNodeType.MAIL_ALERT_ON.getKey() + ".desc"),
+		MAIL_ALARM_NOFITY_EMAILS("mail.alarm.notify.emails"),
+		MAIL_ALARM_NOTIFY_EMAILS_DESC("mail.alarm.notify.emails.desc"),
+		MAIL_ALARM_NOTIFY_EMAILS_REMOVE("mail.alarm.notify.emails.remove"),
+		MAIL_ALARM_NOTIFY_EMAILS_ADD("mail.alarm.notify.emails.add"),
+		MAIL_ALARM_NOTIFY_EMAILS_ADD_DESC("mail.alarm.notify.emails.add.desc"),
+		MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED(
+				"mail.alarm.notify.emails.add.failed"),
+		MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED(
 				"mail.alarm.notify.emails.remove.failed");
 
 		private final String key;

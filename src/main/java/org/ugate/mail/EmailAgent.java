@@ -33,8 +33,8 @@ import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.Command;
 import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.Command;
 
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPMessage;

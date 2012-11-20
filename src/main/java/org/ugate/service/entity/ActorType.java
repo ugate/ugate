@@ -38,16 +38,16 @@ public enum ActorType implements IModelType<Actor> {
 	WEB_PORT("host.webPort"),
 	WEB_HOST_LOCAL("host.webHostLocal"),
 	WEB_PORT_LOCAL("host.webPortLocal");
-	
+
 	public static final String MAIL_COMMAND_DELIMITER = ";";
 	public static final String MAIL_RECIPIENTS_DELIMITER = ";";
 	/**
 	 * Available XBee baud rates
 	 */
-	public static final Integer[] HOST_BAUD_RATES = {1200, 2400, 4800, 9600, 19200, 
-		38400, 57600, 115200, 230400};
+	public static final Integer[] HOST_BAUD_RATES = { 1200, 2400, 4800, 9600,
+			19200, 38400, 57600, 115200, 230400 };
 	private final String key;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -59,34 +59,30 @@ public enum ActorType implements IModelType<Actor> {
 	}
 
 	/**
-	 * Gets a {@linkplain Actor} value for a {@linkplain ActorType}
-	 * 
-	 * @param actor
-	 *            the {@linkplain Actor} to get the value from
-	 * @return the extracted {@linkplain Actor} value
-	 * @throws Throwable
-	 *             any errors during extraction
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Object getValue(final Actor actor) throws Throwable {
 		return IModelType.ValueHelper.getValue(actor, this);
 	}
 
 	/**
-	 * Sets a {@linkplain Actor} value for a {@linkplain ActorType}.
-	 * 
-	 * @param actor
-	 *            the {@linkplain Actor} to get the value from
-	 * @param value
-	 *            the value to set
-	 * @return the extracted {@linkplain Actor} value
-	 * @throws Throwable
-	 *             any errors during extraction
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void setValue(final Actor actor, final Object value)
 			throws Throwable {
 		IModelType.ValueHelper.setValue(actor, this, value);
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ValueType<Actor, Object> newValueType(final Actor actor) throws Throwable {
+		return new ValueType<>(this, getValue(actor));
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -94,7 +90,7 @@ public enum ActorType implements IModelType<Actor> {
 	public String toString() {
 		return String.format("%1$s (key = %2$s)", super.toString(), key);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,7 +98,7 @@ public enum ActorType implements IModelType<Actor> {
 	public String getKey() {
 		return this.key;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -162,7 +158,7 @@ public enum ActorType implements IModelType<Actor> {
 		host.setComOnAtAppStartup(1);
 		host.setComAddress("7777");
 		host.setComBaud(19200);
-		//host.setComPort("COM1");
+		// host.setComPort("COM1");
 		host.setMailSmtpHost("smtp.gmail.com");
 		host.setMailSmtpPort(465);
 		host.setMailImapHost("imap.gmail.com");

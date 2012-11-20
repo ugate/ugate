@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.mail.Address;
 
-import org.ugate.Command;
+import org.ugate.service.entity.Command;
 
 /**
  * Email event

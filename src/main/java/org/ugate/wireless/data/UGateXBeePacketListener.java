@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.Command;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
+import org.ugate.service.entity.Command;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.RemoteNodeReading;

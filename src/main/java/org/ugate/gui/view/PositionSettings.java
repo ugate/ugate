@@ -14,7 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
-import org.ugate.Command;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.ControlPane;
 import org.ugate.gui.GuiUtil;
@@ -23,6 +22,7 @@ import org.ugate.gui.components.UGateCtrlBox;
 import org.ugate.gui.components.UGateGaugeBox;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
+import org.ugate.service.entity.Command;
 import org.ugate.service.entity.Model;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;

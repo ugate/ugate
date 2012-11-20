@@ -43,6 +43,16 @@ public class RemoteNodeReading implements Model {
 	private int gateState;
 
 	@Min(0)
+	@Max(180)
+	@Column(name="LASER_CALIBRATED_ANGLE_PAN")
+	private int laserCalibratedAnglePan;
+
+	@Min(0)
+	@Max(180)
+	@Column(name="LASER_CALIBRATED_ANGLE_TILT")
+	private int laserCalibratedAngleTilt;
+
+	@Min(0)
 	@Column(name="LASER_FEET")
 	private int laserFeet;
 
@@ -98,6 +108,22 @@ public class RemoteNodeReading implements Model {
 
 	public int getGateState() {
 		return this.gateState;
+	}
+
+	public int getLaserCalibratedAnglePan() {
+		return laserCalibratedAnglePan;
+	}
+
+	public void setLaserCalibratedAnglePan(int laserCalibratedAnglePan) {
+		this.laserCalibratedAnglePan = laserCalibratedAnglePan;
+	}
+
+	public int getLaserCalibratedAngleTilt() {
+		return laserCalibratedAngleTilt;
+	}
+
+	public void setLaserCalibratedAngleTilt(int laserCalibratedAngleTilt) {
+		this.laserCalibratedAngleTilt = laserCalibratedAngleTilt;
 	}
 
 	public void setGateState(int gateState) {

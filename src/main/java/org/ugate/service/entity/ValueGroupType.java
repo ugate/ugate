@@ -4,7 +4,7 @@ package org.ugate.service.entity;
  * Group for {@link ValueType}
  */
 public enum ValueGroupType {
-	EXECUTE, 
+	INPUT,
 	TOGGLE, 
 	RANGE;
 
