@@ -123,22 +123,21 @@
 			// element == the JSON id
 			function updateValues(json) {
 				try {
+					//alert(json);
 					if (json && json.id) {
 						$('form').each(function() {
 							var form = $(this);
 							var id = form.find('input[name="id"]');
 							//alert('id.val(): ' + id.val() + ' json.id: ' + json.id);
 							if (id && id.val() == json.id) {
-								$.each(json, function(name, value) {
-									var f = form.find('input[name="' + name + '"]');
-									//alert('f: ' + (f ? f.attr("name") : 'N/A'));
-									if (f) {
-										f.val(value);
-										if (typeof f.slider == 'function') {
-											try {f.slider('refresh');} catch (e) {}
-										}
-									}
-								});
+								var rnrId = form.find('input[name="remoteNodeReadings"]');
+								if (rnrId && json.remoteNodeReadings) {
+									//alert('RNR ID: ' + rnrId.val() + ' JSON RNR ID: ' + json.remoteNodeReadings.id);
+									updateNameValues(form, json.remoteNodeReadings);
+								} else {
+									//alert('RN ID: ' + id.val() + ' JSON RN ID: ' + json.id);
+									updateNameValues(form, json);
+								}
 							}
 						});
 					}
@@ -147,6 +146,19 @@
 							+ ") with data from\n\n" + event.data);
 					refreshPage();
 				}
+			}
+			function updateNameValues(form, json) {
+				$.each(json, function(name, value) {
+					var f = form.find('input[name="' + name + '"]');
+					//alert('f: ' + (f ? f.attr("name") : 'N/A'));
+					if (f && f.attr("name")) {
+						//alert('f: ' + f.attr("name") + ' v: ' + f.val() + ' nv: ' + value);
+						f.val(value);
+						if (typeof f.slider == 'function') {
+							try {f.slider('refresh');} catch (e) {}
+						}
+					}
+				});
 			}
 			// AJAX calls
 			function rnConnect(iconId, rnId, waitMessage) {
@@ -167,6 +179,20 @@
 					showMessage(e.message);
 				}
 				//alert('gone');
+			}
+			// executes a command
+			function exeCommand(command) {
+				try {
+					var element = $('<input>').attr({
+						type : 'hidden',
+						id : command,
+						name : command,
+						value : command
+					});
+					ajaxGo(element);
+				} catch (e) {
+					showMessage(e.message);
+				}
 			}
 			// when a slider stops sliding submit form data
 			$(document).bind("pageinit", function() {
@@ -207,7 +233,7 @@
 				}
 			}
 			function ajaxGoError(xhr, status, thrown) {
-				showMessage(status + ': '	+ thrown, 5000, true);
+				showMessage(status + ': ' + thrown, 5000, true);
 			}
 			function ajaxGoSuccess(data) {
 				//showMessage('Data submitting. Result: ' + data, 5000);
@@ -239,7 +265,9 @@
 			}
 			function updateIcon(iconSelector, iconName) {
 				var b = $(iconSelector);
-				b.buttonMarkup({ icon: iconName });
+				b.buttonMarkup({
+					icon : iconName
+				});
 				/*
 				try {
 					b.attr('data-icon', iconName).trigger('refresh');
@@ -254,12 +282,13 @@
 					}
 				}
 				//alert('data-icon: ' + b.attr('data-icon') + ' data-theme: ' + b.attr('data-theme'));
-				*/
+				 */
 			}
 			function updateFooterStatus(iconName) {
 				//updateIcon('#wsStatus', iconName);
 				var footer = $('[data-role="footer"]');
-				var html = fc.replace(/(<a\s+.*?data-icon=").*?(".*)/gi, "$1" + iconName + "$2");
+				var html = fc.replace(/(<a\s+.*?data-icon=").*?(".*)/gi, "$1"
+						+ iconName + "$2");
 				//alert(html);
 				footer.html(html).trigger('create');
 			}

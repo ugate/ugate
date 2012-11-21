@@ -1,8 +1,8 @@
 package org.ugate.service.web;
 
-import static org.ugate.service.web.ui.IndexController.VAR_ACTION_CONNECT_NAME;
-import static org.ugate.service.web.ui.IndexController.VAR_ACTION_NAME;
-import static org.ugate.service.web.ui.IndexController.VAR_COMMAND_NAME;
+import static org.ugate.service.web.WebServer.VAR_ACTION_CONNECT_NAME;
+import static org.ugate.service.web.WebServer.VAR_ACTION_NAME;
+import static org.ugate.service.web.WebServer.VAR_COMMAND_NAME;
 
 import java.io.IOException;
 
@@ -154,16 +154,6 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void doGet(final HttpServletRequest request,
-			final HttpServletResponse response) throws ServletException,
-			IOException {
-		doAll(request, response);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected void doPost(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
@@ -189,16 +179,6 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 			log.error("POST Error: ", t);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void doHead(final HttpServletRequest request,
-			final HttpServletResponse response) throws ServletException,
-			IOException {
-		doAll(request, response);
 	}
 
 	/**
@@ -242,6 +222,26 @@ public class UGateAjaxUpdaterServlet extends DefaultServlet {
 			log.error("PUT Error: ", t);
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void doGet(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+		doAll(request, response);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void doHead(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+		doAll(request, response);
 	}
 
 	/**

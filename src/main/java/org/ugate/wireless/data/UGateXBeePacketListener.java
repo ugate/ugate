@@ -219,12 +219,12 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command,  
 					new RxRawData<Void>(rn, status, rxResponse.getRssi(), null), 
 					failures > 0 ? RS.rbLabel(KEY.LASER_CALIBRATION_FAILED) : RS.rbLabel(KEY.LASER_CALIBRATION_SUCCESS));
-		} else if (command == Command.SENSOR_GET_READINGS) {
-			log.info("=== Sensor Readings received ===");
+		} else if (command == Command.SENSOR_GET_READINGS || command == Command.GATE_TOGGLE_OPEN_CLOSE) {
 			int i = 1;
 			final RemoteNodeReading rnr = new RemoteNodeReading();
 			rnr.setRemoteNode(rn);
 			rnr.setReadDate(new Date());
+			rnr.setSignalStrength(rxResponse.getRssi());
 			rnr.setSonarFeet(rxResponse.getData()[++i]);
 			rnr.setSonarInches(rxResponse.getData()[++i]);
 			rnr.setMicrowaveCycleCount(rxResponse.getData()[++i]);
@@ -232,7 +232,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			rnr.setLaserFeet(rxResponse.getData()[++i]);
 			rnr.setLaserInches(rxResponse.getData()[++i]);
 			rnr.setGateState(rxResponse.getData()[++i]);
-			final RxTxRemoteNodeReadingDTO sr = new RxTxRemoteNodeReadingDTO(rnr, status, rxResponse.getRssi());
+			final RxTxRemoteNodeReadingDTO sr = new RxTxRemoteNodeReadingDTO(rnr, status);
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, sr, 
 					RS.rbLabel(KEY.SERVICE_RX_READINGS, sr));
 		} else if (command == Command.SENSOR_GET_SETTINGS) {
@@ -248,8 +248,6 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 					rxResponse.getRssi(), sd);
 			processData(rn, UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, command, dto, 
 					RS.rbLabel(KEY.SERVICE_RX_SETTINGS, dto));
-		} else if (command == Command.GATE_TOGGLE_OPEN_CLOSE) {
-			
 		} else {
 			log.error("Unrecognized command: " + command);
 		}

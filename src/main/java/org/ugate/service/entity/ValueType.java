@@ -6,6 +6,11 @@ import org.ugate.resources.RS.KEY;
 
 /**
  * A {@link IModelType} {@link #getValue()} holder
+ * 
+ * @param <T>
+ *            the {@link Model} type
+ * @param <V>
+ *            the {@link Model} {@link #getValue()} type
  */
 public class ValueType<T extends Model, V> {
 	private final IModelType<T> type;

@@ -988,6 +988,7 @@ public class RS {
 		SETTINGS_RECEIVE("settings.receive"),
 		SETTINGS_SEND_FAILED("settings.send.failed", 1),
 		SENSOR_READINGS_GET("sensors.readings.get"),
+		SENSOR_READINGS_GET_DESC("sensors.readings.get.desc"),
 		SENSOR_TRIP_MULTI("sensors.trip.multi"),
 		SENSOR_TRIP_MULTI_BINARY(RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()),
 		SENSOR_TRIP_MULTI_DESC(RemoteNodeType.MULTI_ALARM_TRIP_STATE.getKey()
@@ -1117,6 +1118,7 @@ public class RS {
 		GATE_STATE(RemoteNodeReadingType.GATE_STATE.getKey()),
 		FROM_MULTI_ALARM_TRIP_STATE(
 				RemoteNodeReadingType.FROM_MULTI_ALARM_TRIP_STATE.getKey()),
+		SIGNAL_STRENGTH(RemoteNodeReadingType.SIGNAL_STRENGTH.getKey()),
 		READ_DATE(RemoteNodeReadingType.READ_DATE.getKey()),
 		WIRELESS_WEB_START_STOP("wireless.web.startstop"),
 		WIRELESS_WEB_START_STOP_DESC("wireless.web.startstop.desc"),

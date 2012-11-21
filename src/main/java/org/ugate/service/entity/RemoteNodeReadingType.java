@@ -22,6 +22,7 @@ public enum RemoteNodeReadingType implements IModelType<RemoteNodeReading> {
 	GATE_STATE("gateState", ValueGroupType.TOGGLE,
 			Command.GATE_TOGGLE_OPEN_CLOSE),
 	FROM_MULTI_ALARM_TRIP_STATE("fromMultiState"),
+	SIGNAL_STRENGTH("signalStrength"),
 	READ_DATE("readDate");
 
 	private final String key;

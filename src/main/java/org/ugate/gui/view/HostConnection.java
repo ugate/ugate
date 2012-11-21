@@ -137,7 +137,7 @@ public class HostConnection extends VBox {
 						@Override
 						public void run() {
 							log.info("Synchronizing the host settings to remote node(s)");
-							cb.createCommandService(Command.SENSOR_SET_SETTINGS, true);
+							cb.createCommandService(Command.SENSOR_SEND_SETTINGS, true);
 						}
 					});
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED) {

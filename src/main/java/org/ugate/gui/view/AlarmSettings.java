@@ -27,7 +27,7 @@ import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
 
 /**
- * Node configuration
+ * {@link RemoteNode} general settings configuration
  */
 public class AlarmSettings extends ControlPane {
 

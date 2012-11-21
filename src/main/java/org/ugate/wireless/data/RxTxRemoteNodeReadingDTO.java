@@ -16,12 +16,10 @@ public class RxTxRemoteNodeReadingDTO extends RxData  {
 	 *            the {@linkplain RemoteNodeReading}
 	 * @param status
 	 *            the {@linkplain Status} of the transmission
-	 * @param signalStrength
-	 *            the signal strength at the time of transmission
 	 */
 	public RxTxRemoteNodeReadingDTO(final RemoteNodeReading remoteNodeReading,
-			final Status status, final int signalStrength) {
-		super(remoteNodeReading.getRemoteNode(), status, signalStrength);
+			final Status status) {
+		super(remoteNodeReading.getRemoteNode(), status, remoteNodeReading.getSignalStrength());
 		this.remoteNodeReading = remoteNodeReading;
 	}
 	

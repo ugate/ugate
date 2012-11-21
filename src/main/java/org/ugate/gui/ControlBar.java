@@ -109,7 +109,6 @@ public class ControlBar extends ToolBar {
 		this.stage = stage;
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
-		final DropShadow dbDS = new DropShadow();
 		final DropShadow settingsDS = new DropShadow();
 		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimeline(
 				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
@@ -169,32 +168,20 @@ public class ControlBar extends ToolBar {
 		final ImageView camTakeVga = RS.imgView(RS.IMG_CAM_VGA);
 		addServiceBehavior(camTakeVga, Command.CAM_TAKE_PIC, null, KEY.CAM_ACTION_VGA);
 		camTakeVga.setEffect(ds);
-		final ImageView settingsSave = RS.imgView(RS.IMG_DB_SAVE);
-		settingsSave.setCursor(Cursor.HAND);
-		settingsSave.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				if (GuiUtil.isPrimaryPress(event)) {
-					saveOrUpdateRemoteNode(null, null);
-				}
-			}
-	    });
-		addHelpTextTrigger(settingsSave, RS.rbLabel(KEY.SETTINGS_SAVE));
-		settingsSave.setEffect(dbDS);
-		final ImageView settingsSet = RS.imgView(RS.IMG_SETTINGS_SET);
-		addServiceBehavior(settingsSet, Command.SENSOR_SET_SETTINGS, null, KEY.SETTINGS_SEND);
-		settingsSet.setEffect(settingsDS);
+		final ImageView settingsSend = RS.imgView(RS.IMG_SETTINGS_SET);
+		addServiceBehavior(settingsSend, Command.SENSOR_SEND_SETTINGS, null, KEY.SETTINGS_SEND);
+		settingsSend.setEffect(settingsDS);
 		final ImageView settingsGet = RS.imgView(RS.IMG_SETTINGS_GET);
 		addServiceBehavior(settingsGet, Command.SENSOR_GET_SETTINGS, null, KEY.SETTINGS_RECEIVE);
 		settingsGet.setEffect(ds);
 		final ImageView readingsGet = RS.imgView(RS.IMG_READINGS_GET);
-		addServiceBehavior(readingsGet, Command.SENSOR_GET_READINGS, null, KEY.SENSOR_READINGS_GET);
+		addServiceBehavior(readingsGet, Command.SENSOR_GET_READINGS, null, KEY.SENSOR_READINGS_GET_DESC);
 		readingsGet.setEffect(ds);
 
 		sensorReading = new SensorReading(this, Orientation.HORIZONTAL);
 		
 		// add the menu items
-		getItems().addAll(camTakeQvga, camTakeVga, settingsSave, settingsSet,
+		getItems().addAll(camTakeQvga, camTakeVga, settingsSend,
 				settingsGet, readingsGet, new Separator(Orientation.VERTICAL), 
 				sensorReading);
 		listenForAppEvents();
@@ -252,7 +239,7 @@ public class ControlBar extends ToolBar {
 						getRemoteNodePA().setBean(prn);
 						if (!prn.isDeviceSynchronized() && prn.getDeviceAutoSynchronize() == 1) {
 							// automatically send the changes to the remote node device
-							createCommandService(Command.SENSOR_SET_SETTINGS, true);
+							createCommandService(Command.SENSOR_SEND_SETTINGS, true);
 						} else if (!prn.isDeviceSynchronized() && isViewNode) {
 							validateRemoteNodeSynchronization();
 						}
@@ -278,7 +265,7 @@ public class ControlBar extends ToolBar {
 								// (consume event so no other notifications for the
 								// event will be processed)
 								event.setConsumed(true);
-								createCommandService(Command.SENSOR_SET_SETTINGS, true);
+								createCommandService(Command.SENSOR_SEND_SETTINGS, true);
 							} else if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 								validateRemoteNodeSynchronization();
 							}
@@ -342,6 +329,7 @@ public class ControlBar extends ToolBar {
 			cal.set(Calendar.MINUTE, Double.valueOf(Math.random() * (59 - 0)).intValue());
 
 			RemoteNodeReading sr = new RemoteNodeReading();
+			sr.setSignalStrength(Double.valueOf(Math.random() * (60 - 1)).intValue());
 			sr.setRemoteNode(getRemoteNode());
 			sr.setFromMultiState(Double.valueOf(Math.random() * (15 - 1)).intValue());
 			sr.setLaserFeet(Double.valueOf(Math.random() * (30 - 0)).intValue());
@@ -352,7 +340,7 @@ public class ControlBar extends ToolBar {
 			sr.setPirIntensity(Double.valueOf(Math.random() * (25 - 0)).intValue());
 			sr.setReadDate(cal.getTime());
 			
-			final RxTxRemoteNodeReadingDTO srdto = new RxTxRemoteNodeReadingDTO(sr, RxData.Status.NORMAL, 0);
+			final RxTxRemoteNodeReadingDTO srdto = new RxTxRemoteNodeReadingDTO(sr, RxData.Status.NORMAL);
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<RemoteNode, RxTxRemoteNodeReadingDTO>(
 					srdto.getRemoteNode(), UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS, true, null,
 					 Command.SENSOR_GET_READINGS, null, srdto));
@@ -493,7 +481,7 @@ public class ControlBar extends ToolBar {
 									getRemoteNode().getAddress()));
 							return false;
 						}
-					} else if (command == Command.SENSOR_SET_SETTINGS) {
+					} else if (command == Command.SENSOR_SEND_SETTINGS) {
 						if (!ServiceProvider.IMPL.getWirelessService().sendSettings(
 								0, false, getRemoteNode())) {
 							setHelpText(RS.rbLabel(KEY.SETTINGS_SEND_FAILED,
