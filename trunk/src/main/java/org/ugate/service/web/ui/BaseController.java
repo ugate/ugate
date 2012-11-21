@@ -1,5 +1,14 @@
 package org.ugate.service.web.ui;
 
+import static org.ugate.service.web.WebServer.VAR_CONTENT_NAME;
+import static org.ugate.service.web.WebServer.VAR_FOOTER_NAME;
+import static org.ugate.service.web.WebServer.VAR_HEADER_NAME;
+import static org.ugate.service.web.WebServer.VAR_REMOTE_USER;
+import static org.ugate.service.web.WebServer.VAR_TITLE_NAME;
+import static org.ugate.service.web.WebServer.VAR_URI_WEB_SOCKET_NAME;
+import static org.ugate.service.web.WebServer.VAR_URL_AJAX_UPDATE_NAME;
+import static org.ugate.service.web.WebServer.VAR_URL_NAME;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -30,14 +39,6 @@ public abstract class BaseController {
 	private static final Logger log = LoggerFactory
 			.getLogger(BaseController.class);
 	protected static final String POSTFIX_LABEL= "_LABEL";
-	public static final String VAR_REMOTE_USER = "remoteUser";
-	public static final String VAR_CONTENT_NAME = "content";
-	public static final String VAR_TITLE_NAME = "title";
-	public static final String VAR_HEADER_NAME = "header";
-	public static final String VAR_FOOTER_NAME = "footer";
-	public static final String VAR_URL_NAME = "url";
-	public static final String VAR_URL_AJAX_UPDATE_NAME = "ajaxUpdateUrl";
-	public static final String VAR_URI_WEB_SOCKET_NAME = "webSocketUri";
 	private static final Map<Class<?>, Class<?>> PRIMS = new HashMap<>();
 	static {
 		PRIMS.put(boolean.class, Boolean.class);

@@ -47,6 +47,20 @@ import org.ugate.service.web.ui.WebFilter;
 public class WebServer {
 
 	private static final Logger log = LoggerFactory.getLogger(WebServer.class);
+	public static final String VAR_REMOTE_USER = "remoteUser";
+	public static final String VAR_CONTENT_NAME = "content";
+	public static final String VAR_TITLE_NAME = "title";
+	public static final String VAR_HEADER_NAME = "header";
+	public static final String VAR_FOOTER_NAME = "footer";
+	public static final String VAR_URL_NAME = "url";
+	public static final String VAR_URL_AJAX_UPDATE_NAME = "ajaxUpdateUrl";
+	public static final String VAR_URI_WEB_SOCKET_NAME = "webSocketUri";
+	public static final String VAR_REMOTE_NODES_NAME = "remoteNodes";
+	public static final String VAR_REMOTE_NODE_READING_NAME = "rnr";
+	public static final String VAR_REMOTE_NODE_NAME = "rn";
+	public static final String VAR_COMMAND_NAME = "command";
+	public static final String VAR_ACTION_NAME = "action";
+	public static final String VAR_ACTION_CONNECT_NAME = "connect";
 	public static final String[] PROTOCOL_INCLUDE = new String[] {
 		"TLSv1", "TLSv1.1", "TLSv1.2"
 	};

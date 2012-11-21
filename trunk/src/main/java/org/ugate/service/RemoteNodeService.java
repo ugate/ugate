@@ -88,6 +88,23 @@ public class RemoteNodeService {
 	}
 
 	/**
+	 * Gets the latest {@link RemoteNodeReading} using the last entry by
+	 * {@link RemoteNodeReading#getReadDate()}
+	 * 
+	 * @param remoteNode
+	 *            the {@linkplain RemoteNode} to get the
+	 *            {@linkplain RemoteNodeReading} for
+	 * @return the {@linkplain RemoteNodeReading}
+	 */
+	public RemoteNodeReading findReadingLatest(final RemoteNode remoteNode) {
+		final List<RemoteNodeReading> rnrs = findReadingsById(remoteNode, 0, 1);
+		if (rnrs != null && !rnrs.isEmpty()) {
+			return rnrs.get(0);
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the {@linkplain RemoteNodeReading}(s) for a given
 	 * {@linkplain RemoteNode#getId()} and {@linkplain Date}
 	 * 

@@ -81,6 +81,9 @@ public class RemoteNodeReading implements Model {
 	@Column(name="SONAR_INCHES")
 	private int sonarInches;
 
+	@Column(name="SIGNAL_STRENGTH")
+	private int signalStrength;
+
 	//bi-directional many-to-one association to RemoteNode
 	@ManyToOne
 	@JoinColumn(name="REMOTE_NODE_ID")
@@ -184,6 +187,14 @@ public class RemoteNodeReading implements Model {
 
 	public void setSonarInches(int sonarInches) {
 		this.sonarInches = sonarInches;
+	}
+
+	public int getSignalStrength() {
+		return signalStrength;
+	}
+
+	public void setSignalStrength(int signalStrength) {
+		this.signalStrength = signalStrength;
 	}
 
 	public RemoteNode getRemoteNode() {

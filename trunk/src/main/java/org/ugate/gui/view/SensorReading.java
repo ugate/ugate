@@ -1,7 +1,6 @@
 package org.ugate.gui.view;
 
 import java.util.Calendar;
-import java.util.List;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -116,10 +115,10 @@ public class SensorReading extends Parent {
 	 */
 	public void remoteNodeReadingShow(final boolean isReset) {
 		try {
-			final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
-					.getRemoteNodeService().findReadingsById(cb.getRemoteNode(), 0, 1);
-			if (!rnrs.isEmpty()) {
-				remoteNodeReadingShow(rnrs.get(0));
+			final RemoteNodeReading rnr = ServiceProvider.IMPL
+					.getRemoteNodeService().findReadingLatest(cb.getRemoteNode());
+			if (rnr != null) {
+				remoteNodeReadingShow(rnr);
 			} else if (isReset) {
 				remoteNodeReadingShow(null);
 			}

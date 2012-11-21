@@ -19,26 +19,33 @@
 					<input id="commandData" name="commandData" type="hidden" value="" />
 					<input th:value="${rn.id}" name="id" type="hidden" value="" />
 				</form>
-				<div data-role="collapsible-set" data-transition="pop">
-					<div data-role="collapsible" data-theme="b" data-content-theme="c">
-						<h3 th:text="#{sensors.readings.last}">Last Captured Reading (prototype)</h3>
-						<div th:each="vt : ${RemoteNodeReadingType}" data-role="fieldcontain">
-							<div th:text="#{${vt.type.key}}" th:for="${vt.type.key}">Label (prototype)</div>
-							<label>
-								<select th:if="${vt.type.group.name == 'TOGGLE'}" th:name="${vt.type.key}" data-role="slider">
-									<option th:text="#{off}" th:selected="${vt.value} == 0" value="0">Closed</option>
-									<option th:text="#{on}" th:selected="${vt.value} == 1" value="1">Opened</option>
-								</select>
-								<input th:if="${vt.type.group.name == 'INPUT'}" th:name="${vt.type.key}" th:value="${vt.value}" 
-									type="number" readonly="readonly" />
-								<a th:if="${vt.type.command and vt.type.group.name == 'INPUT'}" th:title="#{wireless.web.command.execute(${vt.type.command.key})}" 
-									title="Command Button (prototype)" href="#" data-mini="true" data-inline="true" data-role="button" 
-									data-theme="a" data-icon="gear" data-iconpos="notext">
-								</a>
-							</label>
+				<form th:action="@{/}" id="rnrForm" action="/index.html" method="post">
+					<div data-role="collapsible-set" data-transition="slidefade">
+						<div data-role="collapsible" data-theme="b" data-content-theme="c">
+							<h3 th:text="#{sensors.readings.last}">Last Captured Reading (prototype)</h3>
+							<a th:text="#{sensors.readings.get}" th:attr="onclick=${'exeCommand(\'SENSOR_GET_READINGS\')'}" 
+								href="#" id="rnrRefreshBtn" data-theme="b" data-icon="info">Request Readings From Remote Device (prototype)</a>
+							<div th:each="vt : ${RemoteNodeReadingType}" data-role="fieldcontain">
+								<div th:text="#{${vt.type.key}}" th:for="${vt.type.key}">Label (prototype)</div>
+								<label>
+									<select th:if="${vt.type.group.name == 'TOGGLE'}" th:name="${vt.type.key}" data-role="slider">
+										<option th:text="#{off}" th:selected="${vt.value} == 0" value="0">Closed</option>
+										<option th:text="#{on}" th:selected="${vt.value} == 1" value="1">Opened</option>
+									</select>
+									<input th:if="${vt.type.group.name == 'INPUT'}" th:name="${vt.type.key}" th:value="${vt.value}" 
+										type="number" readonly="readonly" />
+									<a th:if="${vt.type.command and vt.type.group.name == 'INPUT'}" th:title="#{wireless.web.command.execute(${vt.type.command.key})}" 
+										th:attr="onclick=${'exeCommand(\'' + vt.type.command.name + '\')'}"
+										title="Command Button (prototype)" href="#" data-mini="true" data-inline="true" data-role="button" 
+										data-theme="a" data-icon="gear" data-iconpos="notext">
+									</a>
+								</label>
+							</div>
 						</div>
 					</div>
-				</div>
+					<input th:value="${rn.id}" name="id" type="hidden" value="" />
+					<input th:value="${rnr.id}" name="remoteNodeReadings" type="hidden" value="" />
+				</form>
 				<form th:action="@{/}" id="settingsForm" action="/index.html" method="post" data-theme="c" data-transition="flip" class="updateable">
 					<div data-role="collapsible-set">
 						<div data-role="collapsible" data-theme="b" data-content-theme="c">

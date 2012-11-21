@@ -18,12 +18,19 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateListener;
+import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.RemoteNode;
+import org.ugate.service.entity.jpa.RemoteNodeReading;
+import org.ugate.wireless.data.RxTxRemoteNodeReadingDTO;
 
 /**
  * {@linkplain WebSocketServlet} for context calls related to {@link WebSocket}
- * s that will push {@link RemoteNode} changes to connected clients as JSON
- * objects.
+ * s that will push {@link RemoteNode} and {@link RemoteNodeReading} changes to
+ * connected clients as JSON objects.
+ * {@link UGateEvent.Type#WIRELESS_REMOTE_NODE_COMMITTED} and
+ * {@link UGateEvent.Type#WIRELESS_REMOTE_NODE_COMMITTED} (with
+ * {@link RemoteNodeReading}s as it's {@link UGateEvent#getNewValue()}) events
+ * will be listened to that will prompt pushes to client members.
  */
 @WebServlet
 public class UGateWebSocketServlet extends WebSocketServlet {
@@ -32,7 +39,8 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	private static final Logger log = LoggerFactory
 			.getLogger(UGateWebSocketServlet.class);
 	private final Set<DefaultWebSocket> members = new CopyOnWriteArraySet<>();
-	private JSON json;
+	private JSON jsonRemoteNode;
+	private JSON jsonRemoteNodeReading;
 	private UGateListener uiListener;
 
 	/**
@@ -41,48 +49,76 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		json = new JSON();
-		json.addConvertor(RemoteNode.class, new JSONObjectConvertor());
+		final JSONObjectConvertor cvt = new JSONObjectConvertor();
+		jsonRemoteNode = new JSON();
+		jsonRemoteNode.addConvertor(RemoteNode.class, cvt);
+		jsonRemoteNodeReading = new JSON();
+		jsonRemoteNodeReading.addConvertor(RemoteNodeReading.class, cvt);
 		uiListener = new UGateListener() {
 			@Override
 			public void handle(final UGateEvent<?, ?> event) {
+				if (members.size() <= 0) {
+					return;
+				}
 				if (event.getType() == UGateEvent.Type.WIRELESS_REMOTE_NODE_COMMITTED) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
-					if (members.size() > 0) {
-						String jsonData = json.toJSON(rn);
-						// cycle through the remote node JSON and convert the
-						// field names to the remote node type names so they
-						// match the input fields in the page
-//						for (final RemoteNodeType rnt : RemoteNodeType.values()) {
-//							jsonData = jsonData.replaceAll(rnt.getKey(),
-//									rnt.name());
-//						}
-						if (log.isInfoEnabled()) {
-							log.info(String
-									.format("Sending %1$s (address: %2$s) notification to %3$s web member(s): %4$s",
-											RemoteNode.class, rn.getAddress(),
-											members.size(), jsonData));
-						}
-						for (final DefaultWebSocket member : members) {
-							try {
-								member.sendMessage(jsonData);
-							} catch (final Throwable t) {
-								log.warn(String.format(
-										"Unable to send message %1$s to %2$s",
-										jsonData, member), t);
-							}
-						}
-					} else if (log.isInfoEnabled()) {
+					final String jsonData = jsonRemoteNode.toJSON(rn);
+					if (log.isInfoEnabled()) {
 						log.info(String
-								.format("No members listening to %1$s updates for %2$s at address %3$s",
-										WebSocket.class.getSimpleName(),
+								.format("Sending %1$s (address: %2$s) notification to %3$s web member(s): %4$s",
 										RemoteNode.class.getSimpleName(),
-										rn.getAddress()));
+										rn.getAddress(), members.size(),
+										jsonData));
 					}
+					notifyMembers(jsonData);
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS
+						&& event.getNewValue() instanceof RxTxRemoteNodeReadingDTO) {
+					final RxTxRemoteNodeReadingDTO sr = (RxTxRemoteNodeReadingDTO) event
+							.getNewValue();
+					final RemoteNodeReading rnr = sr.getRemoteNodeReading();
+					String jsonData = jsonRemoteNode
+							.toJSON(rnr.getRemoteNode());
+					final String rnrJsonData = jsonRemoteNodeReading
+							.toJSON(rnr);
+					final String rnrsKey = '"'
+							+ RemoteNodeType.REMOTE_NODE_READINGS.getKey()
+							+ "\":";
+					jsonData = jsonData.replaceAll(rnrsKey
+							+ rnr.getRemoteNode().getRemoteNodeReadings(),
+							rnrsKey + rnrJsonData);
+					if (log.isInfoEnabled()) {
+						log.info(String
+								.format("Sending %1$s (address: %2$s) notification to %3$s web member(s): %4$s",
+										RemoteNodeReading.class.getSimpleName(),
+										rnr.getRemoteNode().getAddress(),
+										members.size(), jsonData));
+					}
+					notifyMembers(jsonData);
 				}
 			}
 		};
 		UGateKeeper.DEFAULT.addListener(uiListener);
+	}
+
+	/**
+	 * Notifies all the {@link DefaultWebSocket} members that are currently
+	 * connected of the JSON change
+	 * 
+	 * @param jsonData
+	 *            the JSON data send the notification for
+	 */
+	protected void notifyMembers(final String jsonData) {
+		if (jsonData == null || jsonData.isEmpty()) {
+			return;
+		}
+		for (final DefaultWebSocket member : members) {
+			try {
+				member.sendMessage(jsonData);
+			} catch (final Throwable t) {
+				log.warn(String.format("Unable to send message %1$s to %2$s",
+						jsonData, member), t);
+			}
+		}
 	}
 
 	/**
@@ -94,7 +130,7 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 		if (uiListener != null) {
 			UGateKeeper.DEFAULT.removeListener(uiListener);
 		}
-		json = null;
+		jsonRemoteNode = null;
 	}
 
 	/**
@@ -112,12 +148,13 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	protected void doAll(final HttpServletRequest request,
 			final HttpServletResponse response) throws ServletException,
 			IOException {
-		if (request.getRemoteUser() == null || request.getRemoteUser().isEmpty()) {
+		if (request.getRemoteUser() == null
+				|| request.getRemoteUser().isEmpty()) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 		response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-		//response.sendRedirect("/");
+		// response.sendRedirect("/");
 		// try {
 		// getServletContext().getNamedDispatcher("default").forward(request,
 		// response);

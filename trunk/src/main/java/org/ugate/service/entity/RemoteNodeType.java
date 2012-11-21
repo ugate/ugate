@@ -84,7 +84,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	CAM_LASER_TRIP_ANGLE_PAN("camLaserTripAnglePan", Type.CAM_POSITION_RANGE,
 			true),
 	CAM_LASER_TRIP_ANGLE_TILT("camLaserTripAngleTilt", Type.CAM_POSITION_RANGE,
-			true);
+			true),
+	REMOTE_NODE_READINGS("remoteNodeReadings", null, false);
 
 	public static final int WIRELESS_ADDRESS_MAX_DIGITS = 4;
 	private static AtomicInteger canRemoteCount = new AtomicInteger(-1);
@@ -279,7 +280,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ValueType<RemoteNode, Object> newValueType(final RemoteNode remoteNode) throws Throwable {
+	public ValueType<RemoteNode, Object> newValueType(
+			final RemoteNode remoteNode) throws Throwable {
 		return new ValueType<>(this, getValue(remoteNode));
 	}
 
@@ -288,7 +290,8 @@ public enum RemoteNodeType implements IModelType<RemoteNode> {
 	 */
 	@Override
 	public String toString() {
-		return String.format("%1$s (key = %2$s, canRemote = %3$s, type = %4$s)",
+		return String.format(
+				"%1$s (key = %2$s, canRemote = %3$s, type = %4$s)",
 				super.toString(), key, canRemote, type);
 	}
 

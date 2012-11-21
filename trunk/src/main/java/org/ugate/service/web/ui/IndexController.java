@@ -1,5 +1,9 @@
 package org.ugate.service.web.ui;
 
+import static org.ugate.service.web.WebServer.VAR_REMOTE_NODES_NAME;
+import static org.ugate.service.web.WebServer.VAR_REMOTE_NODE_NAME;
+import static org.ugate.service.web.WebServer.VAR_REMOTE_NODE_READING_NAME;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +31,6 @@ public class IndexController extends BaseController {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(IndexController.class);
-	public static final String VAR_REMOTE_NODES_NAME = "remoteNodes";
-	public static final String VAR_REMOTE_NODE_READING_NAME = "rnr";
-	public static final String VAR_REMOTE_NODE_NAME = "rn";
-	public static final String VAR_COMMAND_NAME = "command";
-	public static final String VAR_ACTION_NAME = "action";
-	public static final String VAR_ACTION_CONNECT_NAME = "connect";
 
 	/**
 	 * {@inheritDoc}
@@ -64,8 +62,27 @@ public class IndexController extends BaseController {
 		return null;
 	}
 
-	protected void addRemoteNodeReadingVars(final RemoteNode rn, final WebContext ctx) {
-		final RemoteNodeReading rnr = getLastRemoteNodeReading(rn);
+	/**
+	 * Calls {@link WebContext#setVariable(String, Object)} using the
+	 * {@link RemoteNodeReadingType#getClass()} as the variable name and the
+	 * list of {@link ValueType}s generated from
+	 * {@link RemoteNodeReadingType#newValueType(RemoteNodeReading)} for each
+	 * {@link RemoteNodeReadingType#values()} using the
+	 * {@link #getLastRemoteNodeReading(RemoteNode)}.
+	 * 
+	 * @param rn
+	 *            the {@link RemoteNode} to
+	 *            {@link #getLastRemoteNodeReading(RemoteNode)} for
+	 * @param ctx
+	 *            the {@link WebContext} to add values to
+	 */
+	protected void addRemoteNodeReadingVars(final RemoteNode rn,
+			final WebContext ctx) {
+		RemoteNodeReading rnr = ServiceProvider.IMPL
+				.getRemoteNodeService().findReadingLatest(rn);
+		if (rnr == null) {
+			rnr = new RemoteNodeReading();
+		}
 		final List<ValueType<RemoteNodeReading, Object>> cmds = new ArrayList<>();
 		for (final RemoteNodeReadingType rnrt : RemoteNodeReadingType.values()) {
 			try {
@@ -81,14 +98,13 @@ public class IndexController extends BaseController {
 		}
 		// add the commands as a variable
 		ctx.setVariable(RemoteNodeReadingType.class.getSimpleName(), cmds);
-		ctx.setVariable(VAR_REMOTE_NODE_READING_NAME, getLastRemoteNodeReading(rn));
+		ctx.setVariable(VAR_REMOTE_NODE_READING_NAME, rnr);
 	}
 
 	/**
 	 * Calls {@link WebContext#setVariable(String, Object)} for each
 	 * {@link RemoteNodeType.Type} name with a list of
 	 * {@link RemoteNodeType.Value}(s) in that {@link RemoteNodeType.Type}.
-	 * Also, adds the latest {@link RemoteNodeReading}.
 	 * 
 	 * @param rn
 	 *            the {@link RemoteNode} to add values for
@@ -119,22 +135,6 @@ public class IndexController extends BaseController {
 		for (final Map.Entry<RemoteNodeType.Type, List<ValueType<RemoteNode, Object>>> grp : vm.entrySet()) {
 			ctx.setVariable(grp.getKey().name(), grp.getValue());
 		}
-	}
-
-	/**
-	 * Gets the last {@linkplain RemoteNodeReading}
-	 * 
-	 * @param rn
-	 *            the {@linkplain RemoteNode}
-	 * @return the {@linkplain RemoteNodeReading} or null when none exists
-	 */
-	private RemoteNodeReading getLastRemoteNodeReading(final RemoteNode rn) {
-		final List<RemoteNodeReading> rnrs = ServiceProvider.IMPL
-				.getRemoteNodeService().findReadingsById(rn, 0, 1);
-		if (rnrs != null && !rnrs.isEmpty()) {
-			return rnrs.get(0);
-		}
-		return null;
 	}
 
 	/**

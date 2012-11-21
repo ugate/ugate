@@ -480,7 +480,7 @@ public class WirelessService {
 				log.info(String.format("Attempting to send: %s", sd));
 				final UGateEvent<RemoteNode, int[]> event = new UGateEvent<>(
 						rn, UGateEvent.Type.INITIALIZE, false, null,
-						Command.SENSOR_SET_SETTINGS, null, sendData);
+						Command.SENSOR_SEND_SETTINGS, null, sendData);
 				if (sendData(event, timeout, throwRuntimeException)) {
 					log.info(String.format("Settings sent to %1$s",
 							rn.getAddress()));
