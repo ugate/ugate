@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.ugate.ByteUtils;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
@@ -307,14 +307,29 @@ public class WirelessService {
 	 */
 	private boolean sendData(final UGateEvent<RemoteNode, int[]> event,
 			final int timeout, final boolean throwRuntimeException) {
+		String message;
+		if (!isConnected()) {
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_CONNECTION_REQUIRED);
+			if (throwRuntimeException) {
+				throw new IllegalStateException(message);
+			} else {
+				log.error(message);
+				return false;
+			}
+		}
 		if (event.getSource() == null) {
-			throw new NullPointerException("No wireless node addresses to send data to");
+			message = RS.rbLabel(KEY.SERVICE_WIRELESS_SEND_ADDY_UNDEFINED);
+			if (throwRuntimeException) {
+				throw new NullPointerException(message);
+			} else {
+				log.error(message);
+				return false;
+			}
 		}
 		int i = 0;
 		int successCount = 0;
 		int failureCount = 0;
 		UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_ALL_TX, i));
-		String message;
 		try {
 			// bytes header command and status/failure code
 			final int[] bytesHeader = new int[] { event.getCommand().getKey(), RxData.Status.NORMAL.ordinal() };
@@ -498,7 +513,7 @@ public class WirelessService {
 		}
 		return allSuccess;
 	}
-	
+
 	/**
 	 * This method is used to get a list of all the available Serial ports
 	 * (note: only Serial ports are considered). Any one of the elements

@@ -78,6 +78,9 @@
 			// WebSocket
 			$(document).ready(function() {
 				fc = $('[data-role="footer"]').html();
+			    $('select').each(function() {
+			        this.oldValue = $(this).val();
+			    });
 			});
 			function openWebSocket() {
 				try {
@@ -181,17 +184,35 @@
 				//alert('gone');
 			}
 			// executes a command
-			function exeCommand(command) {
+			function exeCommand(command, formId, sourceName) {
 				try {
+					var form = null;
+					var src = null;
+					var ov = null;
+					if (formId && sourceName) {
+						form = $('#' + formId);
+						src = form.find('[name="' + sourceName + '"]');
+						ov = src.oldValue;
+						src.oldValue = src.val();
+					}
 					var element = $('<input>').attr({
 						type : 'hidden',
 						id : command,
 						name : command,
 						value : command
 					});
-					ajaxGo(element);
+					ajaxGo(element, null, null, null, function(xhr, status, thrown) {
+						if (form && src && src.attr("name")) {
+							//alert('ov: ' + ov + ' src.defaultValue: ' + src.defaultValue + ' src.oldValue: ' + src.oldValue);
+							src.val(ov);
+							if (typeof src.slider == 'function') {
+								try {src.slider('refresh');} catch (e) {}
+							}
+						}
+						ajaxGoError(xhr, status, thrown);
+					});
 				} catch (e) {
-					showMessage(e.message);
+					showMessage(e.message, 10000, true);
 				}
 			}
 			// when a slider stops sliding submit form data
