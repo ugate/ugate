@@ -1023,6 +1023,7 @@ public class RS {
 		SERVICE_CMD_SOUNDS_TOGGLE(RemoteNodeType.DEVICE_SOUNDS_ON.getKey()
 				+ ".desc"),
 		SERVICE_CMD_FAILED("service.command.failed"),
+		SERVICE_WIRELESS_SEND_ADDY_UNDEFINED("service.wireless.source.undefined"),
 		SERVICE_WIRELESS_CONNECTION_REQUIRED(
 				"service.wireless.connection.required"),
 		SERVICE_WIRELESS_FAILED("service.wireless.failed"),

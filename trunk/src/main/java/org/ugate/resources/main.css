@@ -205,10 +205,10 @@
     -fx-effect: dropshadow( one-pass-box , rgba(75,75,75,0.8) , 0, 0.0 , 2, 2);
 }
 .dialog-message {
-    -fx-fill: crimson;
+    -fx-fill: white;
     -fx-font-style: oblique;
     -fx-font-size: 12px;
-    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 1, 1);
+    -fx-effect: dropshadow( one-pass-box , rgba(255,0,0,0.8) , 0, 0.0 , 1, 1);
 }
 .dialog-base, .dialog {
 	-fx-text-fill: white;
