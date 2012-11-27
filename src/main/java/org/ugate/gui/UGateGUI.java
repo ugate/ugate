@@ -35,6 +35,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import org.slf4j.Logger;
 import org.ugate.UGateEvent;
@@ -91,6 +92,7 @@ public class UGateGUI extends Application {
 	 * Constructor
 	 */
 	public UGateGUI() {
+		notifyPreloader(new ProgressNotification(0.01d));
 		// TextAreaAppender.setTextArea(webSetupView);
 		actorPA = new BeanPathAdapter<Actor>(ActorType.newDefaultActor());
 		remoteNodePA = new BeanPathAdapter<RemoteNode>(
@@ -122,7 +124,7 @@ public class UGateGUI extends Application {
 		try {
 			logStartStop(true);
 			log.debug("Iniitializing Service Provider...");
-			notifyPreloader(new ProgressNotification(0.3d));
+			notifyPreloader(new ProgressNotification(0.1d));
 			if (!ServiceProvider.IMPL.init() && 
 					ServiceProvider.IMPL.getWirelessService().isRequiresRestart()) {
 				initErrorHeader = RS.rbLabel(KEY.APP_TITLE_ACTION_REQUIRED);
@@ -163,7 +165,11 @@ public class UGateGUI extends Application {
 		try {
 			log.debug("Starting GUI...");
 			
+			stage.getIcons().addAll(RS.img(RS.IMG_LOGO_16), RS.img(RS.IMG_LOGO_64), RS.img(RS.IMG_LOGO_128));
+			stage.setTitle(RS.rbLabel(KEY.APP_TITLE));
+
 			if (initErrors != null && initErrors.length() > 0) {
+				notifyPreloader(new ProgressNotification(0.2d));
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
 				if (initErrorHeader == null) {
@@ -182,12 +188,19 @@ public class UGateGUI extends Application {
 						};
 					}
 				}, null, errorDetails);
+				dialogService.getStage().addEventFilter(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
+					@Override
+					public void handle(final WindowEvent event) {
+						notifyPreloader(new ProgressNotification(1d));
+					}
+				});
+				notifyPreloader(new ProgressNotification(0.5d));
 				dialogService.start();
 				notifyPreloader(new StateChangeNotification(
 						StateChangeNotification.Type.BEFORE_START));
 			} else {
 				// start the main GUI
-				mainStageStart(stage);
+				primaryStageStart(stage);
 			}
 			
 			log.debug("GUI started");
@@ -196,26 +209,18 @@ public class UGateGUI extends Application {
 			throw new RuntimeException("Unable to start GUI", t);
 		}
 	}
-	
-	/**
-	 * Starts the primary {@linkplain Stage} but does not call {@linkplain Stage#show()}
-	 * 
-	 * @param stage the primary {@linkplain Stage}
-	 */
-	protected void mainStageStart(final Stage stage) {
-		notifyPreloader(new ProgressNotification(0.9d));
-		stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
-		stage.setTitle(RS.rbLabel(KEY.APP_TITLE));
 
+	/**
+	 * Builds the application components on the primary {@link Stage}
+	 * 
+	 * @param stage
+	 *            the primary {@link Stage}
+	 */
+	protected void primaryStageBuild(final Stage stage) {
 		controlBar = new ControlBar(stage, actorPA, remoteNodePA);
 		final BorderPane content = new BorderPane();
 		content.setId("main-content");
 		content.setEffect(new InnerShadow());
-		
-		final Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-		final double appWidth = Math.min(bounds.getWidth(), APPLICATION_WIDTH);
-		final double appHeight = Math.min(bounds.getHeight(), APPLICATION_HEIGHT);
-		applicationFrame = new AppFrame(stage, content, appWidth, appHeight, appWidth + 10d, appHeight + 10d, false, new String[] { RS.path(RS.CSS_MAIN), RS.path(RS.CSS_DISPLAY_SHELF) }, controlBar.createTitleBarItems());
 
 		taskbar.setId("taskbar");
 		taskbar.setCache(true);
@@ -275,40 +280,58 @@ public class UGateGUI extends Application {
 				changeCenterView(webSetupView, 4);
 			}
 		}));
+		final Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+		final double appWidth = Math.min(bounds.getWidth(), APPLICATION_WIDTH);
+		final double appHeight = Math.min(bounds.getHeight(), APPLICATION_HEIGHT);
+		applicationFrame = new AppFrame(stage, content, appWidth, appHeight, appWidth + 10d, 
+				appHeight + 10d, false, new String[] { RS.path(RS.CSS_MAIN), RS.path(RS.CSS_DISPLAY_SHELF) }, 
+				controlBar.createTitleBarItems());
 		changeCenterView(connectionView, 0);
-		afterStart(stage);
 	}
-
 	/**
-	 * After {@linkplain Application#start(Stage)} and before {@linkplain Stage#show()}
+	 * Starts the primary {@linkplain Stage} but does not call {@linkplain Stage#show()}
 	 * 
 	 * @param stage the primary {@linkplain Stage}
 	 */
-	protected void afterStart(final Stage stage) {
+	protected void primaryStageStart(final Stage stage) {
+		notifyPreloader(new ProgressNotification(0.2d));
+		Platform.runLater(new Task<Void>() {
+			@Override
+			protected Void call() throws Exception {
+				notifyPreloader(new ProgressNotification(0.5d));
+				primaryStageBuild(stage);
+				notifyPreloader(new ProgressNotification(0.75d));
+				SystemTray.initSystemTray(stage);
+				return null;
+			}
+		});
 		UGateStartupDialog.DFLT.start(new UGateStartupDialog.StartupHandler() {
 			@Override
 			public void handle(final Stage stage, final Actor actor) {
-				showApplication(stage, actor);
+				primaryStageShow(stage, actor);
 			}
-		}, stage, controlBar);
+		}, this, stage, controlBar);
 		notifyPreloader(new StateChangeNotification(
 				StateChangeNotification.Type.BEFORE_START));
 	}
 
 	/**
-	 * Shows the primary {@linkplain Stage} and shows the {@linkplain SystemTray}
+	 * Shows the primary {@linkplain Stage} and shows the
+	 * {@linkplain SystemTray}
 	 * 
-	 * @param stage the primary {@linkplain Stage}
-	 * @param authActor the authorized {@linkplain Actor}
+	 * @param stage
+	 *            the primary {@linkplain Stage}
+	 * @param authActor
+	 *            the authorized {@linkplain Actor}
 	 */
-	protected void showApplication(final Stage stage, final Actor authActor) {
-		log.info("Showing GUI");
+	protected void primaryStageShow(final Stage stage, final Actor authActor) {
+		log.info("Showing Main GUI");
 		if (authActor == null) {
 			throw new IllegalArgumentException(
 					"Cannot show application without an authenticated user");
 		}
 		stage.show();
-		SystemTray.initSystemTray(stage);
+		notifyPreloader(new ProgressNotification(1d));
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {

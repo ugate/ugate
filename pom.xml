@@ -42,7 +42,7 @@
 		<ugate.plugin.compiler.version>3.0</ugate.plugin.compiler.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
 		<ugate.plugin.shade.version>2.0</ugate.plugin.shade.version>
-		<ugate.plugin.dependency.version>2.5.1</ugate.plugin.dependency.version>
+		<ugate.plugin.dependency.version>2.6</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
 		<ugate.plugin.surefire.version>2.5</ugate.plugin.surefire.version>

@@ -598,12 +598,19 @@ public class GuiUtil {
 			return dialog.getParent() != null && dialog.getParent().getScene() != null && 
 					dialog.getParent().getScene().getRoot() != null;
 		}
-		
+
 		/**
 		 * Hides the dialog used in the {@linkplain Service}
 		 */
 		public void hide() {
 			Platform.runLater(createHideTask());
+		}
+
+		/**
+		 * @return the {@link Stage} used by the {@link DialogService}
+		 */
+		public Stage getStage() {
+			return dialog.getStage();
 		}
 	}
 }
