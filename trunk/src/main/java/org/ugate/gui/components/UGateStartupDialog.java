@@ -2,7 +2,9 @@ package org.ugate.gui.components;
 
 import java.util.InputMismatchException;
 
+import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.application.Preloader.ProgressNotification;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -19,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFieldBuilder;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import javax.security.sasl.AuthenticationException;
 import javax.validation.ValidationException;
@@ -57,12 +60,14 @@ public enum UGateStartupDialog {
 	 *            the {@link StartupHandler} that will call
 	 *            {@link StartupHandler#handle(Stage, Actor)} when auto-login is
 	 *            detected
+	 * @param application
+	 *            the {@link Application} the {@link UGateStartupDialog} is for
 	 * @param stage
 	 *            the {@link Stage}
 	 * @param controlBar
 	 *            the {@link ControlBar}
 	 */
-	public void start(final StartupHandler startupHandler, final Stage stage, final ControlBar controlBar) {
+	public void start(final StartupHandler startupHandler, final Application application, final Stage stage, final ControlBar controlBar) {
 		final String appVersion = RS.rbLabel(KEY.APP_VERSION);
 		if (hasAutoLogin(startupHandler, stage, controlBar, appVersion)) {
 			return;
@@ -189,6 +194,12 @@ public enum UGateStartupDialog {
 			}
 		}, null, closeBtn, wirelessPort, wirelessBaud, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, 
 		username, password, passwordVerify, autoActor);
+		dialogService.getStage().addEventFilter(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(final WindowEvent event) {
+				application.notifyPreloader(new ProgressNotification(1d));
+			}
+		});
 		if (closeBtn != null) {
 			closeBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
