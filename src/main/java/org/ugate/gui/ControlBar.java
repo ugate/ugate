@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -57,6 +59,7 @@ import org.ugate.service.entity.Model;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.entity.jpa.MailRecipient;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.service.entity.jpa.RemoteNodeReading;
 import org.ugate.wireless.data.ImageCapture;
@@ -196,7 +199,9 @@ public class ControlBar extends ToolBar {
 		UGateKeeper.DEFAULT.addListener(new UGateListener() {
 			@Override
 			public void handle(final UGateEvent<?, ?> event) {
-				setHelpText(event.getMessageString());
+				if (event.getMessageString() != null && !event.getMessageString().isEmpty()) {
+					setHelpText(event.getMessageString());
+				}
 				if (event.getType() == UGateEvent.Type.ACTOR_COMMIT) {
 					validate(getActor());
 				} else if (event.getType() == UGateEvent.Type.HOST_COMMIT) {
@@ -281,6 +286,13 @@ public class ControlBar extends ToolBar {
 								final FieldPathValue oldValue, final FieldPathValue newValue) {
 							// save changes to the remote node any time that a change is made to it's values
 							saveOrUpdateRemoteNode(oldValue, newValue);
+						}
+					});
+					getRemoteNodePA().fieldPathValueProperty().addListener(new InvalidationListener() {
+						
+						@Override
+						public void invalidated(final Observable paramObservable) {
+							System.err.println(paramObservable);
 						}
 					});
 					if (getActor().getHost().getComOnAtAppStartup() == 1) {
@@ -376,7 +388,9 @@ public class ControlBar extends ToolBar {
 							if (command != null) {
 								createCommandService(command, true);
 							}
-							createProviderService(serviceType).start();
+							if (serviceType != null) {
+								createProviderService(serviceType).start();
+							}
 						}
 					}
 				});
@@ -810,6 +824,7 @@ public class ControlBar extends ToolBar {
 					Timeline.INDEFINITE);
 		} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 			cnctStatusEmail.setStatusFill(GuiUtil.COLOR_ON);
+			ServiceProvider.IMPL.getCredentialService().mergeHost(getActor().getHost());
 		} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 			cnctStatusEmail.setStatusFill(GuiUtil.COLOR_OFF);
 		} else if (event.getType() == UGateEvent.Type.EMAIL_DISCONNECTING) {
@@ -830,6 +845,7 @@ public class ControlBar extends ToolBar {
 					Timeline.INDEFINITE);
 		} else if (event.getType() == UGateEvent.Type.WEB_CONNECTED) {
 			cnctStatusWeb.setStatusFill(GuiUtil.COLOR_ON);
+			ServiceProvider.IMPL.getCredentialService().mergeHost(getActor().getHost());
 		} else if (event.getType() == UGateEvent.Type.WEB_CONNECT_FAILED
 				|| event.getType() == UGateEvent.Type.WEB_INITIALIZE_FAILED) {
 			cnctStatusWeb.setStatusFill(GuiUtil.COLOR_OFF);
@@ -865,15 +881,30 @@ public class ControlBar extends ToolBar {
 			RS.mediaPlayerError.play();
 		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_SUCCESS && event.getNewValue() instanceof ImageCapture) {
 			RS.mediaPlayerDoorBell.play();
-			// TODO : send email with image as attachment (only when the image
-			// is captured via alarm trip rather, but not from GUI)
-			// UGateKeeper.DEFAULT.emailSend("UGate Tripped",
-			// trippedImage.toString(),
-			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_USERNAME_KEY),
-			// UGateKeeper.DEFAULT.preferences.get(UGateKeeper.MAIL_RECIPIENTS_KEY,
-			// UGateKeeper.MAIL_RECIPIENTS_DELIMITER).toArray(new String[]{}),
-			// imageFile.filePath);
-			RS.mediaPlayerComplete.play();
+			// send alarm trip notification with image attachment when initiated by remote device
+			if (ServiceProvider.IMPL.getEmailService().isConnected() && 
+					event.isFromRemote() &&
+					getActor().getHost().getMailRecipients() != null && 
+					!getActor().getHost().getMailRecipients().isEmpty()) {
+				final ImageCapture imgc = (ImageCapture) event.getNewValue();
+				String[] mrs = new String[getActor().getHost().getMailRecipients().size()];
+				int i = -1;
+				for (final MailRecipient mr : getActor().getHost().getMailRecipients()) {
+					mrs[++i] = mr.getEmail();
+				}
+				ServiceProvider.IMPL.getEmailService().send(
+						RS.rbLabel(KEY.MAIL_ALARM_NOFITY_SUBJECT, imgc
+								.getRemoteNode().getAddress()),
+						RS.rbLabel(KEY.MAIL_ALARM_NOFITY_SUBJECT, imgc
+								.getRemoteNode().getMultiAlarmTripState(), imgc
+								.getRemoteNode().getAddress()),
+						getActor().getHost().getMailUserName(), mrs,
+						imgc.getFilePath());
+				RS.mediaPlayerComplete.play();
+				if (log.isInfoEnabled()) {
+					log.info(String.format("Alarm image notification(s) sent to %1$s", mrs.toString()));
+				}
+			}
 		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
 			RS.mediaPlayerCam.play();
 		}

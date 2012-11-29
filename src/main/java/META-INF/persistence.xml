@@ -22,16 +22,19 @@
 		<class>org.ugate.service.entity.jpa.RemoteNodeReading</class>
 		<validation-mode>CALLBACK</validation-mode>
 		<properties>
-			<property name="openjpa.Log" value="DefaultLevel=INFO, Tool=INFO, SQL=INFO"/>
-			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/>
+<!-- 			<property name="openjpa.Log" value="slf4j"/> -->
+			<property name="openjpa.Log" value="DefaultLevel=WARN, Enhance=INFO, MetaData=INFO, Query=INFO, DataCache=WARN, JDBC=WARN, Tool=INFO, SQL=WARN"/>
+<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/> -->
 			
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction=add,ForeignKeys=true)"/>
 <!-- 			<property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/> -->
 			<property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
 			<property name="openjpa.jdbc.DBDictionary" value="org.apache.openjpa.jdbc.sql.H2Dictionary(useGetObjectForBlobs=false)" />
 			<property name="openjpa.DynamicEnhancementAgent" value="false"/>
-			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" />
-			
+<!-- 			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" /> -->
+
+			<property name="openjpa.LockTimeout" value="60000" />
+			<property name="openjpa.ConnectionFactoryProperties" value="QueryTimeout=5000" />
 			<property name="openjpa.ConnectionFactoryMode" value="managed" />
 			<property name="openjpa.TransactionMode" value="managed" />
 			<property name="openjpa.ManagedRuntime"

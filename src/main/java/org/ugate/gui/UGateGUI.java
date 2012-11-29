@@ -107,9 +107,6 @@ public class UGateGUI extends Application {
 	 */
 	public static void main(final String[] args) {
 		try {
-			// Set up a simple configuration that logs on the console.
-			// BasicConfigurator.configure();
-			// PropertyConfigurator.configure(RS.class.getResource("log4j.xml").getPath());
 			Application.launch(UGateGUI.class, args);
 		} catch (final Throwable t) {
 			log.error("Unable to launch GUI", t);
@@ -121,24 +118,9 @@ public class UGateGUI extends Application {
 	 */
 	@Override
 	public void init() {
-		try {
-			logStartStop(true);
-			log.debug("Iniitializing Service Provider...");
-			notifyPreloader(new ProgressNotification(0.1d));
-			if (!ServiceProvider.IMPL.init() && 
-					ServiceProvider.IMPL.getWirelessService().isRequiresRestart()) {
-				initErrorHeader = RS.rbLabel(KEY.APP_TITLE_ACTION_REQUIRED);
-				addInitError(RS.rbLabel(KEY.APP_SERVICE_COM_RESTART_REQUIRED));
-			}
-			// Text.setFontSmoothingType(FontSmoothingType.LCD);
-		} catch (final Throwable t) {
-			log.error("Unable to start services", t);
-			try {
-				addInitError(RS.rbLabel(KEY.APP_SERVICE_INIT_ERROR), t.getMessage());
-			} catch (final Throwable t2) {
-				log.error("Unable notify user that services failed to start", t2);
-			}
-		}
+		log.debug("Initializing GUI...");
+		notifyPreloader(new ProgressNotification(0.1d));
+		logStartStop(true);
 	}
 
 	/**
@@ -158,18 +140,43 @@ public class UGateGUI extends Application {
 	}
 
 	/**
+	 * Initializes the {@link ServiceProvider}
+	 */
+	private void initServices() {
+		try {
+			if (!ServiceProvider.IMPL.init() && 
+					ServiceProvider.IMPL.getWirelessService().isRequiresRestart()) {
+				initErrorHeader = RS.rbLabel(KEY.APP_TITLE_ACTION_REQUIRED);
+				addInitError(RS.rbLabel(KEY.APP_SERVICE_COM_RESTART_REQUIRED));
+			}
+			// Text.setFontSmoothingType(FontSmoothingType.LCD);
+		} catch (final Throwable t) {
+			log.error("Unable to start services", t);
+			try {
+				addInitError(RS.rbLabel(KEY.APP_SERVICE_INIT_ERROR), t.getMessage());
+			} catch (final Throwable t2) {
+				log.error("Unable notify user that services failed to start", t2);
+			}
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void start(final Stage stage) throws Exception {
 		try {
 			log.debug("Starting GUI...");
+			notifyPreloader(new ProgressNotification(0.1d));
 			
 			stage.getIcons().addAll(RS.img(RS.IMG_LOGO_16), RS.img(RS.IMG_LOGO_64), RS.img(RS.IMG_LOGO_128));
 			stage.setTitle(RS.rbLabel(KEY.APP_TITLE));
 
+			log.debug("Iniitializing Services...");
+			notifyPreloader(new ProgressNotification(0.2d));
+			initServices();
+
 			if (initErrors != null && initErrors.length() > 0) {
-				notifyPreloader(new ProgressNotification(0.2d));
 				final TextArea errorDetails = TextAreaBuilder.create().text(initErrors.toString()).wrapText(true
 						).focusTraversable(false).editable(false).opacity(0.7d).build();
 				if (initErrorHeader == null) {
@@ -188,16 +195,18 @@ public class UGateGUI extends Application {
 						};
 					}
 				}, null, errorDetails);
-				dialogService.getStage().addEventFilter(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
+				dialogService.getStage().addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 					@Override
 					public void handle(final WindowEvent event) {
 						notifyPreloader(new ProgressNotification(1d));
+						dialogService.getStage().removeEventHandler(WindowEvent.WINDOW_SHOWN, this);
 					}
 				});
 				notifyPreloader(new ProgressNotification(0.5d));
 				dialogService.start();
 				notifyPreloader(new StateChangeNotification(
 						StateChangeNotification.Type.BEFORE_START));
+				notifyPreloader(new ProgressNotification(0.75d));
 			} else {
 				// start the main GUI
 				primaryStageStart(stage);
@@ -294,7 +303,6 @@ public class UGateGUI extends Application {
 	 * @param stage the primary {@linkplain Stage}
 	 */
 	protected void primaryStageStart(final Stage stage) {
-		notifyPreloader(new ProgressNotification(0.2d));
 		Platform.runLater(new Task<Void>() {
 			@Override
 			protected Void call() throws Exception {
@@ -310,7 +318,11 @@ public class UGateGUI extends Application {
 			public void handle(final Stage stage, final Actor actor) {
 				primaryStageShow(stage, actor);
 			}
-		}, this, stage, controlBar);
+			@Override
+			public ControlBar getControlBar() {
+				return controlBar;
+			}
+		}, this, stage);
 		notifyPreloader(new StateChangeNotification(
 				StateChangeNotification.Type.BEFORE_START));
 	}
@@ -325,23 +337,31 @@ public class UGateGUI extends Application {
 	 *            the authorized {@linkplain Actor}
 	 */
 	protected void primaryStageShow(final Stage stage, final Actor authActor) {
+		notifyPreloader(new ProgressNotification(0.85d));
 		log.info("Showing Main GUI");
 		if (authActor == null) {
 			throw new IllegalArgumentException(
 					"Cannot show application without an authenticated user");
 		}
-		stage.show();
-		notifyPreloader(new ProgressNotification(1d));
-		Platform.runLater(new Runnable() {
+		stage.addEventFilter(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override
-			public void run() {
-				actorPA.setBean(authActor);
-				remoteNodePA.setBean(authActor.getHost().getRemoteNodes()
-						.iterator().next());
-				UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
-						Type.APP_DATA_LOADED, false));
+			public void handle(final WindowEvent event) {
+				notifyPreloader(new ProgressNotification(1d));
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						actorPA.setBean(authActor);
+						remoteNodePA.setBean(authActor.getHost().getRemoteNodes()
+								.iterator().next());
+						UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(this,
+								Type.APP_DATA_LOADED, false));
+					}
+				});
+				stage.removeEventHandler(WindowEvent.WINDOW_SHOWN, this);
 			}
 		});
+		stage.show();
+		notifyPreloader(new ProgressNotification(0.9d));
 	}
 
 	/**

@@ -38,7 +38,7 @@ public class WebService {
 		if (webServer != null) {
 			webServer.stop();
 		}
-		webServer = WebServer.start(actor.getId(), (sa != null ? sa
+		webServer = WebServer.start(actor, (sa != null ? sa
 				: SignatureAlgorithm.getDefault()));
 		return true;
 	}

@@ -659,9 +659,7 @@ public class BeanPathAdapter<B> {
 		private final String path;
 		private final Object bean;
 		private final Object value;
-		private final ListChangeListener.Change<?> listChange;
-		private final SetChangeListener.Change<?> setChange;
-		private final MapChangeListener.Change<?, ?> mapChange;
+		private final boolean fromSelection;
 
 		/**
 		 * Constructor
@@ -678,9 +676,7 @@ public class BeanPathAdapter<B> {
 			this.path = path;
 			this.bean = bean;
 			this.value = value;
-			this.listChange = null;
-			this.setChange = null;
-			this.mapChange = null;
+			this.fromSelection = false;
 		}
 
 		/**
@@ -692,30 +688,20 @@ public class BeanPathAdapter<B> {
 		 *            the {@link #getBean()}
 		 * @param value
 		 *            the {@link #getValue()}
-		 * @param listChange
-		 *            the {@link #getListChange()}
-		 * @param setChange
-		 *            the {@link #getSetChange()}
-		 * @param mapChange
-		 *            the {@link #getMapChange()}
+		 * @param fromSelection
+		 *            the {@link #fromSelection}
 		 */
 		public FieldPathValue(final String path, final Object bean,
-				final Object value,
-				final ListChangeListener.Change<?> listChange,
-				final SetChangeListener.Change<?> setChange,
-				final MapChangeListener.Change<?, ?> mapChange) {
+				final Object value, final boolean fromSelection) {
 			this.path = path;
 			this.bean = bean;
 			this.value = value;
-			this.listChange = listChange;
-			this.setChange = setChange;
-			this.mapChange = mapChange;
+			this.fromSelection = fromSelection;
 		}
 
 		/**
 		 * Generates a hash code using {@link #getPath()}, {@link #getBean()},
-		 * {@link #getValue()}, {@link #getListChange()},
-		 * {@link #getSetChange()}, and {@link #getMapChange()}
+		 * {@link #getValue()}, and {@link #isFromSelection()}
 		 * 
 		 * @return the hash code
 		 */
@@ -724,21 +710,15 @@ public class BeanPathAdapter<B> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((bean == null) ? 0 : bean.hashCode());
-			result = prime * result
-					+ ((listChange == null) ? 0 : listChange.hashCode());
-			result = prime * result
-					+ ((mapChange == null) ? 0 : mapChange.hashCode());
 			result = prime * result + ((path == null) ? 0 : path.hashCode());
-			result = prime * result
-					+ ((setChange == null) ? 0 : setChange.hashCode());
 			result = prime * result + ((value == null) ? 0 : value.hashCode());
+			result = prime * result + (fromSelection ? 1231 : 1237);
 			return result;
 		}
 
 		/**
 		 * Determines equality based upon {@link #getPath()}, {@link #getBean()}
-		 * , {@link #getValue()}, {@link #getListChange()},
-		 * {@link #getSetChange()}, and {@link #getMapChange()}
+		 * , {@link #getValue()}, and {@link #isFromSelection()}
 		 * 
 		 * @param obj
 		 *            the {@link Object} to check for equality
@@ -763,20 +743,6 @@ public class BeanPathAdapter<B> {
 			} else if (!bean.equals(other.bean)) {
 				return false;
 			}
-			if (listChange == null) {
-				if (other.listChange != null) {
-					return false;
-				}
-			} else if (!listChange.equals(other.listChange)) {
-				return false;
-			}
-			if (mapChange == null) {
-				if (other.mapChange != null) {
-					return false;
-				}
-			} else if (!mapChange.equals(other.mapChange)) {
-				return false;
-			}
 			if (path == null) {
 				if (other.path != null) {
 					return false;
@@ -784,18 +750,14 @@ public class BeanPathAdapter<B> {
 			} else if (!path.equals(other.path)) {
 				return false;
 			}
-			if (setChange == null) {
-				if (other.setChange != null) {
-					return false;
-				}
-			} else if (!setChange.equals(other.setChange)) {
-				return false;
-			}
 			if (value == null) {
 				if (other.value != null) {
 					return false;
 				}
 			} else if (!value.equals(other.value)) {
+				return false;
+			}
+			if (fromSelection != other.fromSelection) {
 				return false;
 			}
 			return true;
@@ -807,7 +769,8 @@ public class BeanPathAdapter<B> {
 		@Override
 		public String toString() {
 			return FieldPathValue.class.getSimpleName() + " [path=" + path
-					+ ", value=" + value + "]";
+					+ ", value=" + value + ", fromSelection=" + fromSelection
+					+ ", bean=" + bean + "]";
 		}
 
 		/**
@@ -835,27 +798,11 @@ public class BeanPathAdapter<B> {
 		}
 
 		/**
-		 * @return the change value when the {@link #getPath()} is for a
-		 *         {@link ListChangeListener.Change}
+		 * @return true when the {@link FieldPathValue} is from a selection
+		 *         change
 		 */
-		public ListChangeListener.Change<?> getListChange() {
-			return listChange;
-		}
-
-		/**
-		 * @return the change value when the {@link #getPath()} is for a
-		 *         {@link SetChangeListener.Change}
-		 */
-		public SetChangeListener.Change<?> getSetChange() {
-			return setChange;
-		}
-
-		/**
-		 * @return the change value when the {@link #getPath()} is for a
-		 *         {@link MapChangeListener.Change}
-		 */
-		public MapChangeListener.Change<?, ?> getMapChange() {
-			return mapChange;
+		public boolean isFromSelection() {
+			return fromSelection;
 		}
 	}
 
@@ -863,7 +810,9 @@ public class BeanPathAdapter<B> {
 	 * {@link FieldBean} operations
 	 */
 	public static enum FieldBeanOperation {
-		BIND, UNBIND, CREATE_OR_FIND;
+		BIND,
+		UNBIND,
+		CREATE_OR_FIND;
 	}
 
 	/**
@@ -1548,6 +1497,8 @@ public class BeanPathAdapter<B> {
 	 *            the bean type
 	 * @param <T>
 	 *            the field type
+	 * @param <PT>
+	 *            the {@link FieldProperty#get()} type
 	 */
 	public static class FieldProperty<BT, T, PT> extends ObjectPropertyBase<PT>
 			implements ListChangeListener<Object>, SetChangeListener<Object>,
@@ -1686,11 +1637,11 @@ public class BeanPathAdapter<B> {
 						&& (Collection.class.isAssignableFrom(v.getClass()) || Map.class
 								.isAssignableFrom(v.getClass()))) {
 					fieldHandle.getSetter().invoke(v);
-					postSet();
+					postSet(cv);
 				} else if (isDirty || cv != v) {
 					final Object val = FieldStringConverter.coerce(v, clazz);
 					fieldHandle.getSetter().invoke(val);
-					postSet();
+					postSet(cv);
 				}
 			} catch (final Throwable t) {
 				throw new IllegalArgumentException(String.format(
@@ -1703,18 +1654,28 @@ public class BeanPathAdapter<B> {
 		 * Executes any post processing that needs to take place after set
 		 * operation takes place
 		 * 
+		 * @param prevValue
+		 *            the {@link #getValue()} before {@link #setValue(Object)}
+		 *            was called
 		 * @throws Throwable
 		 *             thrown when any errors occur when processing a post set
 		 *             operation
 		 */
-		protected final void postSet() throws Throwable {
-			final boolean popCol = populateObservableCollection();
+		protected final void postSet(final Object prevValue) throws Throwable {
+			populateObservableCollection();
 			invalidated();
 			fireValueChangedEvent();
 			isDirty = false;
-			if (!popCol && fieldPathValue != null) {
-				fieldPathValue.set(new FieldPathValue(fullPath, getBean(),
-						getDirty()));
+			// all collection/map item value changes will be captured at the
+			// collection/map level
+			if (fieldPathValue != null
+					&& fullPath.indexOf(COLLECTION_ITEM_PATH_SEPARATOR) < 0) {
+				final Object cv = getDirty();
+				if ((cv == null && prevValue != null)
+						|| (cv != null && !cv.equals(prevValue))) {
+					fieldPathValue.set(new FieldPathValue(fullPath, getBean(),
+							cv));
+				}
 			}
 		}
 
@@ -1776,15 +1737,18 @@ public class BeanPathAdapter<B> {
 		 *            any {@link SetChangeListener.Change}
 		 * @param mapChange
 		 *            any {@link MapChangeListener.Change}
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
 		@SuppressWarnings("unchecked")
-		private void syncCollectionValues(final Object values,
+		private boolean syncCollectionValues(final Object values,
 				final boolean toField,
 				final ListChangeListener.Change<?> listChange,
 				final SetChangeListener.Change<?> setChange,
 				final MapChangeListener.Change<?, ?> mapChange) {
+			boolean changed = false;
 			if (isDirtyCollection) {
-				return;
+				return changed;
 			}
 			try {
 				isDirtyCollection = true;
@@ -1802,14 +1766,17 @@ public class BeanPathAdapter<B> {
 					if (Collection.class.isAssignableFrom(values.getClass())) {
 						final Collection<Object> col = (Collection<Object>) values;
 						if (toField) {
-							syncCollectionValuesFromObservable(col, oc);
+							changed = syncCollectionValuesFromObservable(col,
+									oc);
 						} else {
 							final boolean wasColEmpty = col.isEmpty();
 							if (collectionSelectionModel == null
 									&& (!wasColEmpty || isDirty)) {
 								oc.clear();
+								changed = true;
 							} else if (collectionSelectionModel == null) {
-								syncCollectionValuesFromObservable(col, oc);
+								changed = syncCollectionValuesFromObservable(
+										col, oc);
 							}
 							if (!wasColEmpty) {
 								syncObservableFromCollectionValues(col, oc);
@@ -1818,14 +1785,17 @@ public class BeanPathAdapter<B> {
 					} else if (Map.class.isAssignableFrom(values.getClass())) {
 						final Map<Object, Object> map = (Map<Object, Object>) values;
 						if (toField) {
-							syncCollectionValuesFromObservable(map, oc);
+							changed = syncCollectionValuesFromObservable(map,
+									oc);
 						} else {
 							final boolean wasColEmpty = map.isEmpty();
 							if (collectionSelectionModel == null
 									&& (!wasColEmpty || isDirty)) {
 								oc.clear();
+								changed = true;
 							} else if (collectionSelectionModel == null) {
-								syncCollectionValuesFromObservable(map, oc);
+								changed = syncCollectionValuesFromObservable(
+										map, oc);
 							}
 							if (!wasColEmpty) {
 								syncObservableFromCollectionValues(map, oc);
@@ -1838,14 +1808,17 @@ public class BeanPathAdapter<B> {
 					if (Collection.class.isAssignableFrom(values.getClass())) {
 						final Collection<Object> col = (Collection<Object>) values;
 						if (toField) {
-							syncCollectionValuesFromObservable(col, oc);
+							changed = syncCollectionValuesFromObservable(col,
+									oc);
 						} else {
 							final boolean wasColEmpty = col.isEmpty();
 							if (collectionSelectionModel == null
 									&& (!wasColEmpty || isDirty)) {
 								oc.clear();
+								changed = true;
 							} else if (collectionSelectionModel == null) {
-								syncCollectionValuesFromObservable(col, oc);
+								changed = syncCollectionValuesFromObservable(
+										col, oc);
 							}
 							if (!wasColEmpty) {
 								syncObservableFromCollectionValues(col, oc);
@@ -1854,14 +1827,17 @@ public class BeanPathAdapter<B> {
 					} else if (Map.class.isAssignableFrom(values.getClass())) {
 						final Map<Object, Object> map = (Map<Object, Object>) values;
 						if (toField) {
-							syncCollectionValuesFromObservable(map, oc);
+							changed = syncCollectionValuesFromObservable(map,
+									oc);
 						} else {
 							final boolean wasColEmpty = map.isEmpty();
 							if (collectionSelectionModel == null
 									&& (!wasColEmpty || isDirty)) {
 								oc.clear();
+								changed = true;
 							} else if (collectionSelectionModel == null) {
-								syncCollectionValuesFromObservable(map, oc);
+								changed = syncCollectionValuesFromObservable(
+										map, oc);
 							}
 							if (!wasColEmpty) {
 								syncObservableFromCollectionValues(map, oc);
@@ -1869,8 +1845,8 @@ public class BeanPathAdapter<B> {
 						}
 					}
 				}
-				fieldPathValue.set(new FieldPathValue(fullPath, getBean(),
-						getDirty(), listChange, setChange, mapChange));
+				return changed || listChange != null || setChange != null
+						|| mapChange != null;
 			} finally {
 				isDirtyCollection = false;
 			}
@@ -1886,14 +1862,20 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Collection} that should be
 		 *            synchronized to
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncObservableFromCollectionValues(
+		private boolean syncObservableFromCollectionValues(
 				final Collection<Object> fromCol, final Collection<Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
 			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			final boolean isOcList = List.class.isAssignableFrom(oc.getClass());
 			for (final Object item : fromCol) {
+				missing = !oc.contains(item);
+				changed = !changed ? missing : changed;
 				fp = updateCollectionItemBean(++i, item, null);
 				fpv = fp != null ? fp.getDirty() : item;
 				if (collectionSelectionModel == null) {
@@ -1912,7 +1894,12 @@ public class BeanPathAdapter<B> {
 						}
 					});
 				}
+				if (missing && fieldPathValue != null) {
+					fieldPathValue
+							.set(newSyncCollectionFieldPathValue(fp, fpv));
+				}
 			}
+			return changed;
 		}
 
 		/**
@@ -1925,13 +1912,19 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Map} that should be
 		 *            synchronized to
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncObservableFromCollectionValues(
+		private boolean syncObservableFromCollectionValues(
 				final Collection<Object> fromCol, final Map<Object, Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
 			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			for (final Object item : fromCol) {
+				missing = !oc.containsKey(i) || !item.equals(oc.get(i));
+				changed = !changed ? missing : changed;
 				fp = updateCollectionItemBean(++i, item, null);
 				fpv = fp != null ? fp.getDirty() : item;
 				if (collectionSelectionModel == null) {
@@ -1946,7 +1939,12 @@ public class BeanPathAdapter<B> {
 						}
 					});
 				}
+				if (missing && fieldPathValue != null) {
+					fieldPathValue
+							.set(newSyncCollectionFieldPathValue(fp, fpv));
+				}
 			}
+			return changed;
 		}
 
 		/**
@@ -1958,14 +1956,20 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Collection} that should be
 		 *            synchronized to
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncObservableFromCollectionValues(
+		private boolean syncObservableFromCollectionValues(
 				final Map<Object, Object> fromMap, final Collection<Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
 			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			final boolean isOcList = List.class.isAssignableFrom(oc.getClass());
 			for (final Object item : fromMap.values()) {
+				missing = !oc.contains(item);
+				changed = !changed ? missing : changed;
 				fp = updateCollectionItemBean(++i, item, null);
 				fpv = fp != null ? fp.getDirty() : item;
 				if (collectionSelectionModel == null) {
@@ -1984,7 +1988,12 @@ public class BeanPathAdapter<B> {
 						}
 					});
 				}
+				if (missing && fieldPathValue != null) {
+					fieldPathValue
+							.set(newSyncCollectionFieldPathValue(fp, fpv));
+				}
 			}
+			return changed;
 		}
 
 		/**
@@ -1996,13 +2005,20 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Map} that should be
 		 *            synchronized to
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncObservableFromCollectionValues(
+		private boolean syncObservableFromCollectionValues(
 				final Map<Object, Object> fromMap, final Map<Object, Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
 			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			for (final Map.Entry<Object, Object> item : fromMap.entrySet()) {
+				missing = !oc.containsKey(item.getKey())
+						|| !item.getValue().equals(oc.get(item.getKey()));
+				changed = !changed ? missing : changed;
 				fp = updateCollectionItemBean(++i, item, null);
 				fpv = fp != null ? fp.getDirty() : item;
 				if (collectionSelectionModel == null) {
@@ -2017,7 +2033,12 @@ public class BeanPathAdapter<B> {
 						}
 					});
 				}
+				if (missing && fieldPathValue != null) {
+					fieldPathValue
+							.set(newSyncCollectionFieldPathValue(fp, fpv));
+				}
 			}
+			return changed;
 		}
 
 		/**
@@ -2029,20 +2050,34 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Collection} that
 		 *            synchronization will derive from
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncCollectionValuesFromObservable(
+		private boolean syncCollectionValuesFromObservable(
 				final Collection<Object> toCol, final Collection<Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
+			final List<FieldPathValue> fvs = new ArrayList<>();
+			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			final List<Object> nc = new ArrayList<>();
 			for (final Object item : oc) {
 				if (item != null) {
-					fpv = updateCollectionItemProperty(++i, item);
+					missing = !toCol.contains(item);
+					changed = !changed ? missing : changed;
+					fp = updateCollectionItemBean(++i, null, item);
+					fpv = fp == null ? item : fp.getBean();
 					nc.add(fpv);
+					if (missing && fieldPathValue != null) {
+						fvs.add(newSyncCollectionFieldPathValue(fp, fpv));
+					}
 				}
 			}
 			toCol.clear();
 			toCol.addAll(nc);
+			setFieldPathValues(fvs);
+			return changed;
 		}
 
 		/**
@@ -2054,20 +2089,34 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Map} that synchronization
 		 *            will derive from
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncCollectionValuesFromObservable(
+		private boolean syncCollectionValuesFromObservable(
 				final Map<Object, Object> toMap, final Collection<Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
+			final List<FieldPathValue> fvs = new ArrayList<>();
+			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			final Map<Object, Object> nc = new HashMap<>();
 			for (final Object item : oc) {
 				if (item != null) {
-					fpv = updateCollectionItemProperty(++i, item);
+					missing = !toMap.containsValue(item);
+					changed = !changed ? missing : changed;
+					fp = updateCollectionItemBean(++i, null, item);
+					fpv = fp == null ? item : fp.getBean();
 					nc.put(i, fpv);
+					if (missing && fieldPathValue != null) {
+						fvs.add(newSyncCollectionFieldPathValue(fp, fpv));
+					}
 				}
 			}
 			toMap.clear();
 			toMap.putAll(nc);
+			setFieldPathValues(fvs);
+			return changed;
 		}
 
 		/**
@@ -2079,21 +2128,35 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Map} that synchronization
 		 *            will derive from
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncCollectionValuesFromObservable(
+		private boolean syncCollectionValuesFromObservable(
 				final Collection<Object> toCol,
 				final ObservableMap<Object, Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
+			final List<FieldPathValue> fvs = new ArrayList<>();
+			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			final List<Object> nc = new ArrayList<>();
 			for (final Map.Entry<Object, Object> item : oc.entrySet()) {
 				if (item != null && item.getValue() != null) {
-					fpv = updateCollectionItemProperty(++i, item.getValue());
+					missing = !toCol.contains(item.getValue());
+					changed = !changed ? missing : changed;
+					fp = updateCollectionItemBean(++i, null, item.getValue());
+					fpv = fp == null ? item.getValue() : fp.getBean();
 					nc.add(fpv);
+					if (missing && fieldPathValue != null) {
+						fvs.add(newSyncCollectionFieldPathValue(fp, fpv));
+					}
 				}
 			}
 			toCol.clear();
 			toCol.addAll(nc);
+			setFieldPathValues(fvs);
+			return changed;
 		}
 
 		/**
@@ -2105,21 +2168,75 @@ public class BeanPathAdapter<B> {
 		 * @param oc
 		 *            the {@link Observable} {@link Collection} that
 		 *            synchronization will derive from
+		 * @return true when the synchronization resulted in a change to the
+		 *         {@link Collection}/{@link Map}
 		 */
-		private void syncCollectionValuesFromObservable(
+		private boolean syncCollectionValuesFromObservable(
 				final Map<Object, Object> toMap,
 				final ObservableMap<Object, Object> oc) {
+			boolean changed = false;
+			boolean missing = false;
+			final List<FieldPathValue> fvs = new ArrayList<>();
+			FieldProperty<?, ?, ?> fp;
 			Object fpv;
 			int i = -1;
 			final Map<Object, Object> nc = new HashMap<>();
 			for (final Map.Entry<Object, Object> item : oc.entrySet()) {
 				if (item != null && item.getValue() != null) {
-					fpv = updateCollectionItemProperty(++i, item.getValue());
+					missing = !toMap.containsKey(item.getValue())
+							|| !item.getValue()
+									.equals(toMap.get(item.getKey()));
+					changed = !changed ? missing : changed;
+					fp = updateCollectionItemBean(++i, null, item.getValue());
+					fpv = fp == null ? item.getValue() : fp.getBean();
 					nc.put(i, fpv);
+					if (missing && fieldPathValue != null) {
+						fvs.add(newSyncCollectionFieldPathValue(fp, fpv));
+					}
 				}
 			}
 			toMap.clear();
 			toMap.putAll(nc);
+			setFieldPathValues(fvs);
+			return changed;
+		}
+
+		/**
+		 * Creates a new {@link FieldPathValue} using specified
+		 * {@link FieldProperty} or the current {@link FieldProperty} when the
+		 * specified {@link FieldProperty} is null.
+		 * 
+		 * @param fp
+		 *            the {@link FieldProperty} (optional)
+		 * @param fpv
+		 *            the {@link FieldProperty#getValue()}
+		 * @return the {@link FieldPathValue}
+		 */
+		protected FieldPathValue newSyncCollectionFieldPathValue(
+				final FieldProperty<?, ?, ?> fp, final Object fpv) {
+			if (fp == null) {
+				return new FieldPathValue(fullPath, getBean(), fpv,
+						itemMaster != null);
+			} else {
+				return new FieldPathValue(fp.fullPath, fp.getBean(), fpv,
+						itemMaster != null);
+			}
+		}
+
+		/**
+		 * Sets a {@link Collection} of {@link FieldPathValue}(s) on the
+		 * {@link #fieldPathValue}
+		 * 
+		 * @param fieldPathValues
+		 *            the {@link Collection} of {@link FieldPathValue}(s) to set
+		 */
+		protected void setFieldPathValues(
+				final Collection<FieldPathValue> fieldPathValues) {
+			if (fieldPathValue != null) {
+				for (final FieldPathValue o : fieldPathValues) {
+					fieldPathValue.set(o);
+				}
+			}
 		}
 
 		/**

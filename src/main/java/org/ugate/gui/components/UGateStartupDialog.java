@@ -67,9 +67,9 @@ public enum UGateStartupDialog {
 	 * @param controlBar
 	 *            the {@link ControlBar}
 	 */
-	public void start(final StartupHandler startupHandler, final Application application, final Stage stage, final ControlBar controlBar) {
+	public void start(final StartupHandler startupHandler, final Application application, final Stage stage) {
 		final String appVersion = RS.rbLabel(KEY.APP_VERSION);
-		if (hasAutoLogin(startupHandler, stage, controlBar, appVersion)) {
+		if (hasAutoLogin(startupHandler, stage, appVersion)) {
 			return;
 		}
 		// if there are no users then the user needs to be prompted for a username/password
@@ -138,17 +138,17 @@ public enum UGateStartupDialog {
 									host.setComBaud(wirelessBaud.getValue());
 									host.setComAddress(wirelessHostAddy.getText());
 									host.setMailUserName(username.getText());
-									host.setMailPassword(password.getText());
+									//host.setMailPassword(password.getText());
 									host.getRemoteNodes().iterator().next().setAddress(wirelessRemoteNodeAddy.getText());
 									host.getRemoteNodes().iterator().next().setWorkingDir(
 											wirelessRemoteNodeDirBox.getTextField().getText());
-									final String hvm = controlBar.validate(host);
+									final String hvm = startupHandler.getControlBar().validate(host);
 									if (hvm != null && hvm.length() > 0) {
 										throw new ValidationException(hvm);
 									}
 									final Actor a = ActorType.newActor(username.getText(), password.getText(), 
 											host, RoleType.ADMIN.newRole());
-									final String avm = controlBar.validate(a);
+									final String avm = startupHandler.getControlBar().validate(a);
 									if (avm != null && avm.length() > 0) {
 										throw new ValidationException(avm);
 									}
@@ -157,7 +157,7 @@ public enum UGateStartupDialog {
 									if (actor == null) {
 										throw new IllegalArgumentException("Unable to add user " + username.getText());
 									}
-									controlBar.setDefaultActor(autoActor.isSelected(), false);
+									startupHandler.getControlBar().setDefaultActor(autoActor.isSelected(), false);
 								}
 								Platform.runLater(new Runnable() {
 									@Override
@@ -194,10 +194,11 @@ public enum UGateStartupDialog {
 			}
 		}, null, closeBtn, wirelessPort, wirelessBaud, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, 
 		username, password, passwordVerify, autoActor);
-		dialogService.getStage().addEventFilter(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
+		dialogService.getStage().addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(final WindowEvent event) {
-				application.notifyPreloader(new ProgressNotification(1d));
+				application.notifyPreloader(new ProgressNotification(0.9d));
+				dialogService.getStage().removeEventHandler(WindowEvent.WINDOW_SHOWN, this);
 			}
 		});
 		if (closeBtn != null) {
@@ -221,15 +222,13 @@ public enum UGateStartupDialog {
 	 *            detected
 	 * @param stage
 	 *            the {@link Stage}
-	 * @param controlBar
-	 *            the {@link ControlBar}
 	 * @param appVersion
 	 *            the {@link AppInfo#getVersion()}
 	 * @return true when auto-login has been detected and
 	 *         {@link StartupHandler#handle(Stage, Actor)} will be called
 	 */
 	private boolean hasAutoLogin(final StartupHandler startupHandler,
-			final Stage stage, final ControlBar controlBar,
+			final Stage stage, 
 			final String appVersion) {
 		final AppInfo appInfo = ServiceProvider.IMPL.getCredentialService()
 				.addAppInfoIfNeeded(appVersion);
@@ -243,7 +242,7 @@ public enum UGateStartupDialog {
 				@Override
 				public void run() {
 					startupHandler.handle(stage, appInfo.getDefaultActor());
-					controlBar.setDefaultActor(true, false);
+					startupHandler.getControlBar().setDefaultActor(true, false);
 				}
 			});
 			return true;
@@ -267,5 +266,10 @@ public enum UGateStartupDialog {
 		 *            the authenticated {@link Actor}
 		 */
 		public void handle(final Stage stage, final Actor actor);
+
+		/**
+		 * @return the {@link ControlBar} used in the {@link Application}
+		 */
+		public ControlBar getControlBar();
 	}
 }

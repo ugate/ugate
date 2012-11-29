@@ -36,6 +36,7 @@
 	<logger name="com.atomikos" level="WARN"/>
 	<logger name="com.rapplogic" level="WARN"/>
 	<logger name="org.rxtx" level="WARN"/>
+	<logger name="org.apache.openjpa" level="WARN"/>
 	<logger name="org.ugate.UGateUtil" additivity="false">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="MSGOUT" />

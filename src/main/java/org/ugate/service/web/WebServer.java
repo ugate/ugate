@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
-import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Actor;
@@ -64,7 +63,6 @@ public class WebServer {
 	public static final String[] PROTOCOL_INCLUDE = new String[] {
 		"TLSv1", "TLSv1.1", "TLSv1.2"
 	};
-	private final int actorId;
 	private Server server;
 	private HostKeyStore hostKeyStore;
 	private final SignatureAlgorithm sa;
@@ -72,36 +70,33 @@ public class WebServer {
 	/**
 	 * Constructor
 	 * 
-	 * @param actorId
-	 *            the {@linkplain Actor#getId()} of the {@link WebServer} owner
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return the started {@linkplain WebServer}
 	 */
-	private WebServer(final int actorId, final SignatureAlgorithm sa) {
-		this.actorId = actorId;
+	private WebServer(final SignatureAlgorithm sa) {
 		this.sa = sa;
 	}
 
 	/**
 	 * Starts the {@linkplain WebServer} in a new {@linkplain Thread}
 	 * 
-	 * @param actorId
-	 *            the {@linkplain Actor#getId()} of the {@link WebServer} owner
+	 * @param actor
+	 *            the {@linkplain Actor} (owner) of the {@link WebServer}
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return the started {@linkplain WebServer}
 	 */
-	public static final WebServer start(final int actorId, final SignatureAlgorithm sa) {
-		final WebServer webServer = new WebServer(actorId, sa);
+	public static final WebServer start(final Actor actor, final SignatureAlgorithm sa) {
+		final WebServer webServer = new WebServer(sa);
 		final Thread webServerAgent = new Thread(Thread.currentThread()
 				.getThreadGroup(), new Runnable() {
 			@Override
 			public void run() {
 				try {
-					webServer.startServer();
+					webServer.startServer(actor);
 				} catch (final Throwable t) {
 					log.error("Failed to start web server", t);
 				}
@@ -115,7 +110,7 @@ public class WebServer {
 	/**
 	 * Starts the {@linkplain WebServer}
 	 */
-	protected final void startServer() {
+	protected final void startServer(final Actor actor) {
 		try {
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
 					Type.WEB_INITIALIZE, false));
@@ -125,9 +120,14 @@ public class WebServer {
 			// final XmlConfiguration configuration = new
 			// XmlConfiguration(serverXml.getInputStream());
 			// server = (Server) configuration.configure();
-			final Actor actor = ServiceProvider.IMPL.getCredentialService()
-					.getActorById(getActorId());
-			
+			if (actor == null || actor.getId() <= 0) {
+				throw new NullPointerException(Actor.class.getName()
+						+ " cannot be null");
+			} else if (actor.getId() <= 0) {
+				throw new IllegalArgumentException(String.format(
+						"%1$s#%2$s cannot be %3$s", Actor.class.getName(),
+						ActorType.ID.getKey(), actor.getId()));
+			}
 			server = new Server();
 			server.addLifeCycleListener(new LifeCycle.Listener() {
 				@Override
@@ -324,12 +324,5 @@ public class WebServer {
 	 */
 	public final boolean isRunning() {
 		return server != null && server.isRunning();
-	}
-
-	/**
-	 * @return the {@linkplain Actor#getId()} of the web server
-	 */
-	public int getActorId() {
-		return actorId;
 	}
 }

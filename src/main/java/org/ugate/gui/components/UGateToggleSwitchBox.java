@@ -145,6 +145,9 @@ public class UGateToggleSwitchBox<T extends Model> extends HBox {
 			}
 		}
 		beanPathAdapter.bindBidirectional(modelKey.getKey(), valueProperty());
+		// update the image with the composite value instead of the individual
+		// item image created during construction
+		setValue(getValue());
 	}
 	
 	/**

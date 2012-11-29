@@ -15,6 +15,7 @@ import org.ugate.resources.RS.KEY;
 public class ValueType<T extends Model, V> {
 	private final IModelType<T> type;
 	private final V value;
+	private String desciption;
 	private final Map<KEY, V> optionValues;
 
 	/**
@@ -68,5 +69,22 @@ public class ValueType<T extends Model, V> {
 	 */
 	public Map<KEY, V> getOptionValues() {
 		return optionValues;
+	}
+
+	/**
+	 * @return a description of the {@link ValueType}
+	 */
+	public String getDesciption() {
+		return desciption;
+	}
+
+	/**
+	 * Sets a description of the {@link ValueType}
+	 * 
+	 * @param desciption
+	 *            a description of the {@link ValueType}
+	 */
+	public void setDesciption(final String desciption) {
+		this.desciption = desciption;
 	}
 }

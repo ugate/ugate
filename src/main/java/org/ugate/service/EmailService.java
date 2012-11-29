@@ -1,5 +1,6 @@
 package org.ugate.service;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -185,15 +186,20 @@ public class EmailService {
 	/**
 	 * Sends an email
 	 * 
-	 * @param subject the subject of the email
-	 * @param message the email message
-	 * @param from who the email is from
-	 * @param to the recipients of the email
-	 * @param fileNames file name paths to any attachments (optional)
+	 * @param subject
+	 *            the subject of the email
+	 * @param message
+	 *            the email message
+	 * @param from
+	 *            who the email is from
+	 * @param to
+	 *            the recipients of the email
+	 * @param paths
+	 *            file name {@link Path}(s) to any attachments (optional)
 	 */
-	public void send(String subject, String message, String from, String[] to, String... fileNames) {
+	public void send(String subject, String message, String from, String[] to, Path... paths) {
 		if (emailAgent != null) {
-			emailAgent.send(subject, message, from, to, fileNames);
+			emailAgent.send(subject, message, from, to, paths);
 		} else {
 			log.warn("Unable to send email... no connection established");
 		}
