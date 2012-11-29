@@ -250,16 +250,15 @@ public class EmailHostConnection extends VBox {
 						mrr[mrr.length - 1] = ms[(int) i];
 					}
 					ServiceProvider.IMPL.getCredentialService().mergeHost(
-							cb.getActor().getHost(), mrr);
+							cb.getActor().getHost());
 				} catch (final Throwable e) {
 					log.info(String.format(
 							"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
 							rmaddys, cb.getActor().getHost().getId()), e);
-					cb.setHelpText(RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
 					cb.getActor().getHost().getMailRecipients().clear();
 					cb.getActor().getHost().getMailRecipients().addAll(Arrays.asList(ms));
 					cb.getActorPA().setBean(cb.getActor());
-					
+					cb.setHelpText(RS.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
 				}
 			}
 		});

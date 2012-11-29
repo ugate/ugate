@@ -67,7 +67,7 @@ public class WirelessService {
 		if (xbee != null) {
 			return true;
 		}
-		log.info("Initializing local XBee");
+		log.debug("Initializing local XBee");
 		// ensure that the needed RXTX is installed (if not install it)
 		requiresRestart = RS.initComm();
 		if (requiresRestart) {
@@ -116,7 +116,7 @@ public class WirelessService {
 		} catch (final Throwable t) {
 			final String errorMsg = String.format("Unable to establish a connection to the local XBee at address %1$s using port %2$s and baud rate %3$s", 
 					host.getComAddress(), host.getComPort(), host.getComBaud());
-			log.error(errorMsg, t);
+			log.warn(errorMsg, t);
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 					this, UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED, false, errorMsg, t.getMessage()));
 			if (t instanceof XBeeException) {

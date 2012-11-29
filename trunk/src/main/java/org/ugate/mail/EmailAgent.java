@@ -1,5 +1,6 @@
 package org.ugate.mail;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,7 +42,8 @@ import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.imap.IMAPStore;
 
 /**
- * Email agent service provider that will listen for incoming emails for {@linkplain Command}(s) to execute. 
+ * Email agent service provider that will listen for incoming emails for
+ * {@linkplain Command}(s) to execute.
  */
 public class EmailAgent implements Runnable {
 
@@ -173,9 +175,10 @@ public class EmailAgent implements Runnable {
 		
 		this.runIt = true;
 	}
-	
+
 	/**
-	 * The email thread that is automatically started when a new {@linkplain EmailAgent} is created
+	 * The email thread that is automatically started when a new
+	 * {@linkplain EmailAgent} is created
 	 */
 	@Override
 	public void run() {
@@ -291,8 +294,10 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Disconnects from the email service
 	 * 
-	 * @param store the {@linkplain IMAPStore}
-	 * @param mainFolder the {@linkplain IMAPFolder}
+	 * @param store
+	 *            the {@linkplain IMAPStore}
+	 * @param mainFolder
+	 *            the {@linkplain IMAPFolder}
 	 */
 	private void disconnect(final IMAPStore store, final IMAPFolder mainFolder) {		
 		try {
@@ -312,13 +317,18 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Sends a message
 	 * 
-	 * @param subject the subject of the message
-	 * @param message the message body
-	 * @param from the email address whom the email is from
-	 * @param to the email address(es) that the email will be sent to
-	 * @param fileNames the file path(s)/name(s) that will be attached to the email
+	 * @param subject
+	 *            the subject of the message
+	 * @param message
+	 *            the message body
+	 * @param from
+	 *            the email address whom the email is from
+	 * @param to
+	 *            the email address(es) that the email will be sent to
+	 * @param paths
+	 *            the file {@link Path}(s) that will be attached to the email (if any)
 	 */
-	public void send(final String subject, final String message, final String from, final String[] to, final String... fileNames) {
+	public void send(final String subject, final String message, final String from, final String[] to, final Path... paths) {
 		try {
 			log.info("Sending message...");
 			final Session session = Session.getInstance(props);
@@ -336,10 +346,10 @@ public class EmailAgent implements Runnable {
 			final MimeBodyPart mbp1 = new MimeBodyPart();
 			mbp1.setText(message);
 			mp.addBodyPart(mbp1);
-			if (fileNames != null && fileNames.length > 0) {
-				for (String fileName : fileNames) {
+			if (paths != null && paths.length > 0) {
+				for (final Path path : paths) {
 					final MimeBodyPart mbp = new MimeBodyPart();
-					final FileDataSource fds = new FileDataSource(fileName);
+					final FileDataSource fds = new FileDataSource(path.toFile());
 					mbp.setDataHandler(new DataHandler(fds));
 					mbp.setFileName(fds.getName());
 					mp.addBodyPart(mbp);
@@ -362,8 +372,10 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Connects to the SMTP transport and send the message
 	 * 
-	 * @param session the email session
-	 * @param msg the message to send
+	 * @param session
+	 *            the email session
+	 * @param msg
+	 *            the message to send
 	 */
 	protected void send(final Session session, final MimeMessage msg) {
 		try {
@@ -383,8 +395,10 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Sends a reply email
 	 * 
-	 * @param originalMessage the original message
-	 * @param replyMessage the reply message
+	 * @param originalMessage
+	 *            the original message
+	 * @param replyMessage
+	 *            the reply message
 	 */
 	protected void sendReply(final MimeMessage originalMessage, final String replyMessage) {
 		try {
@@ -395,12 +409,15 @@ public class EmailAgent implements Runnable {
 			log.error("Unable to send reply message", e);
 		}
 	}
-	
+
 	/**
 	 * Extracts the to destinations from the email message subject (if any)
 	 * 
-	 * @param msg the message to extract commands from
-	 * @param invalidCommandErrors <code>\n</code> delimited buffer to add error messages to (if they occur)
+	 * @param msg
+	 *            the message to extract commands from
+	 * @param invalidCommandErrors
+	 *            <code>\n</code> delimited buffer to add error messages to (if
+	 *            they occur)
 	 * @return the set of to destinations
 	 */
 	protected Set<String> getValidCommandDestinations(final MimeMessage msg, final StringBuffer invalidCommandErrors) {
@@ -421,10 +438,14 @@ public class EmailAgent implements Runnable {
 	}
 	
 	/**
-	 * Extracts any valid commands from an email message body (delimited by {@linkplain HostSettings#MAIL_COMMAND_DELIMITER})
+	 * Extracts any valid commands from an email message body (delimited by
+	 * {@linkplain HostSettings#MAIL_COMMAND_DELIMITER})
 	 * 
-	 * @param msg the message to extract commands from
-	 * @param invalidCommandErrors <code>\n</code> delimited buffer to add error messages to (if they occur)
+	 * @param msg
+	 *            the message to extract commands from
+	 * @param invalidCommandErrors
+	 *            <code>\n</code> delimited buffer to add error messages to (if
+	 *            they occur)
 	 * @return the list of valid commands
 	 */
 	protected List<Command> getValidCommands(final MimeMessage msg, final StringBuffer invalidCommandErrors) {
@@ -466,11 +487,12 @@ public class EmailAgent implements Runnable {
 		}
 		return validCommands;
 	}
-	
+
 	/**
 	 * Determines if the addresses have permission to execute commands
 	 * 
-	 * @param addresses the addresses to check for
+	 * @param addresses
+	 *            the addresses to check for
 	 * @return true when the addresses have permission to execute commands
 	 */
 	protected boolean hasCommandPermission(final Address... addresses) {
@@ -485,29 +507,32 @@ public class EmailAgent implements Runnable {
 		}
 		return hasPermission;
 	}
-	
+
 	/**
 	 * Adds an email listener
 	 * 
-	 * @param listener the listener
+	 * @param listener
+	 *            the listener
 	 */
 	public void addListener(final IEmailListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	/**
 	 * Removes an email listener
 	 * 
-	 * @param listener the listener
+	 * @param listener
+	 *            the listener
 	 */
 	public void removeListener(final IEmailListener listener) {
 		listeners.remove(listener);
 	}
-	
+
 	/**
 	 * Gets a thread name for internally spawned threads
 	 * 
-	 * @param postfix the name appended to the end of the thread name
+	 * @param postfix
+	 *            the name appended to the end of the thread name
 	 * @return the thread name
 	 */
 	private static String getThreadName(final String postfix) {
@@ -517,7 +542,8 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Dispatches an email event
 	 * 
-	 * @param type the {@linkplain EmailEvent.Type}
+	 * @param type
+	 *            the {@linkplain EmailEvent.Type}
 	 */
 	private void dispatchEmailEvent(final EmailEvent.Type type, final String threadName) {
 		new Thread(getThreadName(threadName)) {
@@ -536,7 +562,8 @@ public class EmailAgent implements Runnable {
 	}
 
 	/**
-	 * Internal connection listener used to spawn new threads for external email listeners
+	 * Internal connection listener used to spawn new threads for external email
+	 * listeners
 	 */
 	class InternalConnectionListener implements ConnectionListener {
 		

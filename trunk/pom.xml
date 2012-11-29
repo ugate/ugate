@@ -46,6 +46,8 @@
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
 		<ugate.plugin.surefire.version>2.5</ugate.plugin.surefire.version>
+		<ugate.db.tx.timeout>60000</ugate.db.tx.timeout>
+		<ugate.db.sql.timeout>5000</ugate.db.sql.timeout>
 		<!-- see http://www.h2database.com/html/features.html -->
 		<ugate.db.version>1.3.168</ugate.db.version>
 		<!-- <ugate.db.version>5.1.19</ugate.db.version> -->

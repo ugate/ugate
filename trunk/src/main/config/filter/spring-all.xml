@@ -76,7 +76,7 @@
 		<property name="forceShutdown" value="true" />
 	</bean>
 	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
-		<property name="transactionTimeout" value="6000" />
+		<property name="transactionTimeout" value="${ugate.db.tx.timeout}" />
 	</bean>
 	<!-- =========================================================== -->
 	<!-- JPA configuration -->

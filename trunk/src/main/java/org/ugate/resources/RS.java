@@ -1181,6 +1181,8 @@ public class RS {
 		WEB_PORT_LOCAL_DESC("wireless.web.port.local.desc"),
 		MAIL_ALARM_NOTIFY(RemoteNodeType.MAIL_ALERT_ON.getKey()),
 		MAIL_ALARM_NOTIFY_DESC(RemoteNodeType.MAIL_ALERT_ON.getKey() + ".desc"),
+		MAIL_ALARM_NOFITY_SUBJECT("mail.alarm.notify.subject", 1),
+		MAIL_ALARM_NOFITY_BODY("mail.alarm.notify.body", 2),
 		MAIL_ALARM_NOFITY_EMAILS("mail.alarm.notify.emails"),
 		MAIL_ALARM_NOTIFY_EMAILS_DESC("mail.alarm.notify.emails.desc"),
 		MAIL_ALARM_NOTIFY_EMAILS_REMOVE("mail.alarm.notify.emails.remove"),

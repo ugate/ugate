@@ -10,6 +10,11 @@ import java.util.Set;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectPropertyBase;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -43,6 +48,7 @@ import org.ugate.gui.components.BeanPathAdapter.FieldPathValue;
 
 public class BeanPathAdapterTest extends Application {
 
+	int dumpCnt = 0;
 	ChoiceBox<String> pBox;
 	TextArea pojoTA = new TextArea();
 	public static final String[] STATES = new String[] { "AK", "AL", "AR",
@@ -121,14 +127,89 @@ public class BeanPathAdapterTest extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle(BeanPathAdapter.class.getSimpleName() + " TEST");
-		primaryStage.setOnShowing(new EventHandler<WindowEvent>() {
+		primaryStage.setOnShown(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent event) {
-				dumpPojo(personPA);
+				dumpPojo(null, personPA);
 			}
 		});
 		primaryStage.setScene(new Scene(createRoot()));
 		primaryStage.show();
+		personPA.fieldPathValueProperty().addListener(
+				new ChangeListener<FieldPathValue>() {
+					@Override
+					public void changed(
+							ObservableValue<? extends FieldPathValue> observable,
+							FieldPathValue oldValue,
+							FieldPathValue newValue) {
+						dumpPojo(String.format(
+								"Change from %1$s to %2$s", oldValue,
+								newValue), personPA);
+					}
+				});
+	}
+
+	public static class GlobalTest {
+		private final Object v1;
+		private final Object v2;
+
+		public GlobalTest(Object v1, Object v2) {
+			super();
+			this.v1 = v1;
+			this.v2 = v2;
+		}
+
+		public Object getV1() {
+			return v1;
+		}
+
+		public Object getV2() {
+			return v2;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((v1 == null) ? 0 : v1.hashCode());
+			result = prime * result + ((v2 == null) ? 0 : v2.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			GlobalTest other = (GlobalTest) obj;
+			if (v1 == null) {
+				if (other.v1 != null) {
+					return false;
+				}
+			} else if (!v1.equals(other.v1)) {
+				return false;
+			}
+			if (v2 == null) {
+				if (other.v2 != null) {
+					return false;
+				}
+			} else if (!v2.equals(other.v2)) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "GlobalTest [v1=" + v1 + ", v2=" + v2 + "]";
+		}
+
 	}
 
 	public Parent createRoot() {
@@ -153,6 +234,37 @@ public class BeanPathAdapterTest extends Application {
 		personBox.setPadding(new Insets(10, 10, 10, 50));
 		VBox beanPane = new VBox(10);
 		beanPane.setPadding(new Insets(10, 10, 10, 10));
+
+		final ReadOnlyObjectWrapper<GlobalTest> other = new ReadOnlyObjectWrapper<>();
+		final TextField tf = new TextField();
+		ObjectPropertyBase<String> sp = new ObjectPropertyBase<String>() {
+			@Override
+			public void set(String paramT) {
+				super.set(paramT);
+				other.set(new GlobalTest(tf.getHeight(), paramT));
+			}
+
+			@Override
+			public Object getBean() {
+				return null;
+			}
+
+			@Override
+			public String getName() {
+				return null;
+			};
+		};
+		Bindings.bindBidirectional(tf.textProperty(), sp);
+		other.getReadOnlyProperty().addListener(new ChangeListener<Object>() {
+			@Override
+			public void changed(
+					ObservableValue<? extends Object> paramObservableValue,
+					Object paramT1, Object paramT2) {
+				System.out.println(String.format("Change from %1$s to %2$s",
+						paramT1, paramT2));
+			}
+		});
+		personBox.getChildren().add(tf);
 		final Text title = new Text(
 				"Person POJO using auto-generated JavaFX properties. "
 						+ "Duplicate field controls exist to demo multiple control binding");
@@ -161,8 +273,8 @@ public class BeanPathAdapterTest extends Application {
 				ListView.class, null, HOBBY_OVERWRITE);
 		HBox langBox = beanTF("allLanguages", "languages", null, String.class,
 				0, ListView.class, null, shouldNeverAppear);
-		final HBox stBox = beanTF("address.location.state", null, null, null, 2,
-				ComboBox.class, "[a-zA-z]", STATES);
+		final HBox stBox = beanTF("address.location.state", null, null, null,
+				2, ComboBox.class, "[a-zA-z]", STATES);
 		personBox.getChildren().addAll(
 				beanTF("name", null, null, null, 50, null, "[a-zA-z0-9\\s]*"),
 				beanTF("age", null, null, null, 100, Slider.class, null),
@@ -203,7 +315,7 @@ public class BeanPathAdapterTest extends Application {
 			@Override
 			public void handle(MouseEvent event) {
 				personPA.getBean().setName(pojoNameTF.getText());
-				dumpPojo(personPA);
+				dumpPojo(null, personPA);
 			}
 		});
 		VBox pojoBox = new VBox(10);
@@ -219,15 +331,6 @@ public class BeanPathAdapterTest extends Application {
 				updateListView(langBox, "Language"),
 				updateListView(hobbyBox, "Hobby"), new Separator(),
 				new Label("POJO Dump:"), pojoTA);
-		personPA.fieldPathValueProperty().addListener(
-				new ChangeListener<FieldPathValue>() {
-					@Override
-					public void changed(
-							ObservableValue<? extends FieldPathValue> observable,
-							FieldPathValue oldValue, FieldPathValue newValue) {
-						dumpPojo(personPA);
-					}
-				});
 		SplitPane pojoSplit = new SplitPane();
 		pojoSplit.getItems().addAll(beanPane, pojoBox);
 		VBox beanBox = new VBox(10);
@@ -289,7 +392,8 @@ public class BeanPathAdapterTest extends Application {
 	}
 
 	@SafeVarargs
-	public final void dumpPojo(final BeanPathAdapter<Person>... ps) {
+	public final void dumpPojo(final String addDump,
+			final BeanPathAdapter<Person>... ps) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -327,6 +431,11 @@ public class BeanPathAdapterTest extends Application {
 									.getBean().getDob().getTime()) : null)
 							+ "}\n";
 				}
+				if (addDump != null) {
+					System.out.println(addDump);
+				}
+				System.out.println(String.format("POJO (count=%1$s): %2$s",
+						++dumpCnt, dump));
 				pojoTA.setText(dump);
 			}
 		});

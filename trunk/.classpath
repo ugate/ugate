@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="libs/org/rxtx/rxtx/2.1.7"/>
 	<classpathentry kind="lib" path="C:/java/maven/repository/com/rapplogic/xbee-api/0.9/xbee-api-0.9.jar"/>
-	<classpathentry kind="lib" path="C:/java/jdk/jre/lib/jfxrt.jar" sourcepath="C:/java/jdk/src.zip">
+	<classpathentry kind="lib" path="C:/java/jdk/jre/lib/jfxrt.jar" sourcepath="C:/java/fx-source/jfxrt.src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://docs.oracle.com/javafx/2/api"/>
 		</attributes>
