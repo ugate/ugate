@@ -404,28 +404,35 @@ public class RS {
 	 * @return true when RXTX was installed and the application needs to be restarted
 	 */
 	public static boolean initComm() {
+		// TODO : Bundle JVM with RXTX within application
 		ManagementFactory.getRuntimeMXBean().getName();
 		try {
 			getSerialPorts();
 			return false;
 		} catch (final NoClassDefFoundError e) {
-			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
-					e.getClass().getName()));
 			// ClassNotFoundException
-			installComm();
-			return true;
+//			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
+//					e.getClass().getName()));
+//			installComm();
+//			return true;
+			throw new IllegalStateException(
+					"RXTX needs to be installed. See http://rxtx.qbang.org/wiki/index.php/Installation",
+					e);
 		} catch (final UnsatisfiedLinkError e) {
-			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
-					e.getClass().getName()));
-			installComm();
-			return true;
+//			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
+//					e.getClass().getName()));
+//			installComm();
+//			return true;
+			throw new IllegalStateException(
+					"RXTX needs to be installed. See http://rxtx.qbang.org/wiki/index.php/Installation",
+					e);
 		}
 	}
 	
 	/**
 	 * Installs RXTX to the working JVM
 	 */
-	private static void installComm() {
+	protected static void installComm() {
 		Path tempZip = null;
 		FileSystem fs = null;
 		FileSystem zipFs = null;
