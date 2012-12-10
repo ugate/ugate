@@ -10,11 +10,6 @@ import java.util.Set;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectPropertyBase;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -121,6 +116,7 @@ public class BeanPathAdapterTest extends Application {
 		// demo uses hobbies property of person to demo hobby selections
 		person1.setHobbies(new LinkedHashSet<Hobby>());
 		person1.getHobbies().add(HOBBY1);
+		//person1.getHobbies().add(HOBBY2);
 		person1.getHobbies().add(HOBBY3);
 	}
 
@@ -130,86 +126,19 @@ public class BeanPathAdapterTest extends Application {
 		primaryStage.setOnShown(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent event) {
-				dumpPojo(null, personPA);
+				personPA.fieldPathValueProperty().addListener(
+						new ChangeListener<FieldPathValue>() {
+							@Override
+							public void changed(
+									ObservableValue<? extends FieldPathValue> observable,
+									FieldPathValue oldValue, FieldPathValue newValue) {
+								dumpPojo(oldValue, newValue, personPA);
+							}
+						});
 			}
 		});
 		primaryStage.setScene(new Scene(createRoot()));
 		primaryStage.show();
-		personPA.fieldPathValueProperty().addListener(
-				new ChangeListener<FieldPathValue>() {
-					@Override
-					public void changed(
-							ObservableValue<? extends FieldPathValue> observable,
-							FieldPathValue oldValue,
-							FieldPathValue newValue) {
-						dumpPojo(String.format(
-								"Change from %1$s to %2$s", oldValue,
-								newValue), personPA);
-					}
-				});
-	}
-
-	public static class GlobalTest {
-		private final Object v1;
-		private final Object v2;
-
-		public GlobalTest(Object v1, Object v2) {
-			super();
-			this.v1 = v1;
-			this.v2 = v2;
-		}
-
-		public Object getV1() {
-			return v1;
-		}
-
-		public Object getV2() {
-			return v2;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((v1 == null) ? 0 : v1.hashCode());
-			result = prime * result + ((v2 == null) ? 0 : v2.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			GlobalTest other = (GlobalTest) obj;
-			if (v1 == null) {
-				if (other.v1 != null) {
-					return false;
-				}
-			} else if (!v1.equals(other.v1)) {
-				return false;
-			}
-			if (v2 == null) {
-				if (other.v2 != null) {
-					return false;
-				}
-			} else if (!v2.equals(other.v2)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "GlobalTest [v1=" + v1 + ", v2=" + v2 + "]";
-		}
-
 	}
 
 	public Parent createRoot() {
@@ -234,37 +163,6 @@ public class BeanPathAdapterTest extends Application {
 		personBox.setPadding(new Insets(10, 10, 10, 50));
 		VBox beanPane = new VBox(10);
 		beanPane.setPadding(new Insets(10, 10, 10, 10));
-
-		final ReadOnlyObjectWrapper<GlobalTest> other = new ReadOnlyObjectWrapper<>();
-		final TextField tf = new TextField();
-		ObjectPropertyBase<String> sp = new ObjectPropertyBase<String>() {
-			@Override
-			public void set(String paramT) {
-				super.set(paramT);
-				other.set(new GlobalTest(tf.getHeight(), paramT));
-			}
-
-			@Override
-			public Object getBean() {
-				return null;
-			}
-
-			@Override
-			public String getName() {
-				return null;
-			};
-		};
-		Bindings.bindBidirectional(tf.textProperty(), sp);
-		other.getReadOnlyProperty().addListener(new ChangeListener<Object>() {
-			@Override
-			public void changed(
-					ObservableValue<? extends Object> paramObservableValue,
-					Object paramT1, Object paramT2) {
-				System.out.println(String.format("Change from %1$s to %2$s",
-						paramT1, paramT2));
-			}
-		});
-		personBox.getChildren().add(tf);
 		final Text title = new Text(
 				"Person POJO using auto-generated JavaFX properties. "
 						+ "Duplicate field controls exist to demo multiple control binding");
@@ -314,8 +212,8 @@ public class BeanPathAdapterTest extends Application {
 		pojoNameBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				personPA.getBean().setName(pojoNameTF.getText());
-				dumpPojo(null, personPA);
+				//personPA.getBean().setName(pojoNameTF.getText());
+				dumpPojo(null, null, personPA);
 			}
 		});
 		VBox pojoBox = new VBox(10);
@@ -392,8 +290,8 @@ public class BeanPathAdapterTest extends Application {
 	}
 
 	@SafeVarargs
-	public final void dumpPojo(final String addDump,
-			final BeanPathAdapter<Person>... ps) {
+	public final void dumpPojo(final FieldPathValue oldValue,
+			final FieldPathValue newValue, final BeanPathAdapter<Person>... ps) {
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
@@ -431,8 +329,11 @@ public class BeanPathAdapterTest extends Application {
 									.getBean().getDob().getTime()) : null)
 							+ "}\n";
 				}
-				if (addDump != null) {
-					System.out.println(addDump);
+				if (oldValue != null) {
+					System.out.println(String.format("OLD: %1$s", oldValue));
+				}
+				if (newValue != null) {
+					System.out.println(String.format("NEW: %1$s", newValue));
 				}
 				System.out.println(String.format("POJO (count=%1$s): %2$s",
 						++dumpCnt, dump));
