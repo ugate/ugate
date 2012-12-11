@@ -1885,14 +1885,7 @@ public class BeanPathAdapter<B> {
 						oc.add(fpv);
 					}
 				} else {
-					// call later to give items a chance to update
-					final Object fpvt = fpv;
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							collectionSelectionModel.select(fpvt);
-						}
-					});
+					selectCollectionValue(fpv);
 				}
 				if (missing && fieldPathValue != null) {
 					fieldPathValue
@@ -1930,14 +1923,7 @@ public class BeanPathAdapter<B> {
 				if (collectionSelectionModel == null) {
 					oc.put(i, fpv);
 				} else {
-					// call later to give items a chance to update
-					final Object fpvt = fpv;
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							collectionSelectionModel.select(fpvt);
-						}
-					});
+					selectCollectionValue(fpv);
 				}
 				if (missing && fieldPathValue != null) {
 					fieldPathValue
@@ -1979,14 +1965,7 @@ public class BeanPathAdapter<B> {
 						oc.add(fpv);
 					}
 				} else {
-					// call later to give items a chance to update
-					final Object fpvt = fpv;
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							collectionSelectionModel.select(fpvt);
-						}
-					});
+					selectCollectionValue(fpv);
 				}
 				if (missing && fieldPathValue != null) {
 					fieldPathValue
@@ -2024,14 +2003,7 @@ public class BeanPathAdapter<B> {
 				if (collectionSelectionModel == null) {
 					oc.put(i, fpv);
 				} else {
-					// call later to give items a chance to update
-					final Object fpvt = fpv;
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							collectionSelectionModel.select(fpvt);
-						}
-					});
+					selectCollectionValue(fpv);
 				}
 				if (missing && fieldPathValue != null) {
 					fieldPathValue
@@ -2039,6 +2011,27 @@ public class BeanPathAdapter<B> {
 				}
 			}
 			return changed;
+		}
+
+		/**
+		 * Calls the {@link SelectionModel#select(Object)} the specified value
+		 * 
+		 * @param value
+		 *            the value to select
+		 */
+		private void selectCollectionValue(final Object value) {
+			if (collectionSelectionModel == null) {
+				return;
+			}
+			// TODO : collection selections are called later to give items a
+			// chance to update, but this causes change notification timing to
+			// be sightly off
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					collectionSelectionModel.select(value);
+				}
+			});
 		}
 
 		/**
@@ -2271,8 +2264,6 @@ public class BeanPathAdapter<B> {
 					throw new NullPointerException(
 							"Both itemBeanValue and itemBeanPropertyValue cannot be null");
 				}
-				// TODO : Prevent unneeded instantiation of beans when checking
-				// for existing references
 				Object value = itemBeanPropertyValue;
 				Object bean = itemBeanValue == null ? collectionType
 						.newInstance() : itemBeanValue;

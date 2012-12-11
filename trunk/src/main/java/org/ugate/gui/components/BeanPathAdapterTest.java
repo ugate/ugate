@@ -74,6 +74,13 @@ public class BeanPathAdapterTest extends Application {
 		HOBBY_ALL.add(HOBBY1);
 		HOBBY_ALL.add(HOBBY2);
 		HOBBY_ALL.add(HOBBY3);
+		Hobby h;
+		for (int i = HOBBY_ALL.size() + 1; i <= 100; i++) {
+			h = new Hobby();
+			h.setName("Hobby " + i);
+			h.setDescription("Hobby Desc " + i);
+			HOBBY_ALL.add(h);
+		}
 	}
 	private static final String LANG1 = "Language 1";
 	private static final String LANG2 = "Language 2";
@@ -116,7 +123,7 @@ public class BeanPathAdapterTest extends Application {
 		// demo uses hobbies property of person to demo hobby selections
 		person1.setHobbies(new LinkedHashSet<Hobby>());
 		person1.getHobbies().add(HOBBY1);
-		//person1.getHobbies().add(HOBBY2);
+		// person1.getHobbies().add(HOBBY2);
 		person1.getHobbies().add(HOBBY3);
 	}
 
@@ -131,7 +138,8 @@ public class BeanPathAdapterTest extends Application {
 							@Override
 							public void changed(
 									ObservableValue<? extends FieldPathValue> observable,
-									FieldPathValue oldValue, FieldPathValue newValue) {
+									FieldPathValue oldValue,
+									FieldPathValue newValue) {
 								dumpPojo(oldValue, newValue, personPA);
 							}
 						});
@@ -212,7 +220,7 @@ public class BeanPathAdapterTest extends Application {
 		pojoNameBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				//personPA.getBean().setName(pojoNameTF.getText());
+				// personPA.getBean().setName(pojoNameTF.getText());
 				dumpPojo(null, null, personPA);
 			}
 		});
@@ -741,6 +749,12 @@ public class BeanPathAdapterTest extends Application {
 
 		public void setDescription(String description) {
 			this.description = description;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("Hobby@%1$s [name=%2$s, description=%3$s]",
+					hashCode(), name, description);
 		}
 
 	}
