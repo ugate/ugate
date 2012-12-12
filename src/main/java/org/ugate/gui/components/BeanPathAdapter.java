@@ -1084,7 +1084,7 @@ public class BeanPathAdapter<B> {
 		 *            the <code>.</code> separated field names
 		 * @param fieldPathValueProperty
 		 *            the {@link ReadOnlyObjectWrapper} that will be set when a
-		 *            {@link FieldProperty#set(String)} is performed
+		 *            {@link FieldProperty#set(Object)} is performed
 		 * @param propertyValueClass
 		 *            the class of the {@link Property} value type (only needed
 		 *            when binding)
@@ -1611,7 +1611,7 @@ public class BeanPathAdapter<B> {
 
 		/**
 		 * Flags the {@link Property} value as dirty and calls
-		 * {@link #set(String)}
+		 * {@link #set(Object)}
 		 * 
 		 * @param v
 		 *            the value to set
