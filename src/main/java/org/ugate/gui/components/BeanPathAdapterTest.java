@@ -133,6 +133,7 @@ public class BeanPathAdapterTest extends Application {
 		primaryStage.setOnShown(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent event) {
+				dumpPojo(null, null, personPA);
 				personPA.fieldPathValueProperty().addListener(
 						new ChangeListener<FieldPathValue>() {
 							@Override
@@ -220,7 +221,7 @@ public class BeanPathAdapterTest extends Application {
 		pojoNameBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// personPA.getBean().setName(pojoNameTF.getText());
+				personPA.getBean().setName(pojoNameTF.getText());
 				dumpPojo(null, null, personPA);
 			}
 		});
