@@ -298,7 +298,7 @@ import javafx.util.StringConverter;
  * 
  * </li>
  * <li>
- * <b>Listening for global field value changes:</b>
+ * <b>Listening for global changes:</b>
  * 
  * <pre>
  * final BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
