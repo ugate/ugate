@@ -74,13 +74,13 @@ public class BeanPathAdapterTest extends Application {
 		HOBBY_ALL.add(HOBBY1);
 		HOBBY_ALL.add(HOBBY2);
 		HOBBY_ALL.add(HOBBY3);
-		// Hobby h;
-		// for (int i = HOBBY_ALL.size() + 1; i <= 100; i++) {
-		// h = new Hobby();
-		// h.setName("Hobby " + i);
-		// h.setDescription("Hobby Desc " + i);
-		// HOBBY_ALL.add(h);
-		// }
+		Hobby h;
+		for (int i = HOBBY_ALL.size() + 1; i <= 100; i++) {
+			h = new Hobby();
+			h.setName("Hobby " + i);
+			h.setDescription("Hobby Desc " + i);
+			HOBBY_ALL.add(h);
+		}
 	}
 	private static final String LANG1 = "Language 1";
 	private static final String LANG2 = "Language 2";
