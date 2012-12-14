@@ -302,14 +302,16 @@ import javafx.util.StringConverter;
  * 
  * <pre>
  * final BeanPathAdapter&lt;Person&gt; personPA = new BeanPathAdapter&lt;&gt;(person);
+ * // use the following to eliminate unwanted notifications
+ * // personPA.removeFieldPathValueTypes(FieldPathValueType.BEAN_CHANGE, ...)
  * personPA.fieldPathValueProperty().addListener(
  * 		new ChangeListener&lt;FieldPathValue&gt;() {
  * 			&#064;Override
  * 			public void changed(
  * 					final ObservableValue&lt;? extends FieldPathValue&gt; observable,
  * 					final FieldPathValue oldValue, final FieldPathValue newValue) {
- * 				System.out.println(&quot;Value changed from path: &quot; + oldValue
- * 						+ &quot; to path: &quot; + newValue);
+ * 				System.out.println(&quot;Value changed from: &quot; + oldValue + &quot; to: &quot;
+ * 						+ newValue);
  * 			}
  * 		});
  * </pre>
