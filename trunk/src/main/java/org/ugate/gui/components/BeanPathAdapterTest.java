@@ -74,13 +74,13 @@ public class BeanPathAdapterTest extends Application {
 		HOBBY_ALL.add(HOBBY1);
 		HOBBY_ALL.add(HOBBY2);
 		HOBBY_ALL.add(HOBBY3);
-		Hobby h;
-		for (int i = HOBBY_ALL.size() + 1; i <= 100; i++) {
-			h = new Hobby();
-			h.setName("Hobby " + i);
-			h.setDescription("Hobby Desc " + i);
-			HOBBY_ALL.add(h);
-		}
+		// Hobby h;
+		// for (int i = HOBBY_ALL.size() + 1; i <= 100; i++) {
+		// h = new Hobby();
+		// h.setName("Hobby " + i);
+		// h.setDescription("Hobby Desc " + i);
+		// HOBBY_ALL.add(h);
+		// }
 	}
 	private static final String LANG1 = "Language 1";
 	private static final String LANG2 = "Language 2";
@@ -266,20 +266,35 @@ public class BeanPathAdapterTest extends Application {
 		@SuppressWarnings("unchecked")
 		final ListView<String> listView = (ListView<String>) langBox
 				.getChildren().get(1);
-		final TextField addTF = new TextField();
-		addTF.setPromptText(label + " to add");
+		final TextField addRemTF = new TextField();
+		addRemTF.setPromptText(label + " to add");
 		Button addBtn = new Button("Add " + label);
 		addBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				if (addTF.getText().isEmpty()) {
+				if (addRemTF.getText().isEmpty()) {
 					return;
 				}
-				listView.getItems().add(addTF.getText());
+				listView.getItems().add(addRemTF.getText());
 			}
 		});
-		Button remBtn = new Button("Remove Selected " + label + "(s)");
+		Button remBtn = new Button("Remove " + label);
 		remBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if (addRemTF.getText().isEmpty()) {
+					return;
+				}
+				for (final String item : listView.getItems()) {
+					if (item.equalsIgnoreCase(addRemTF.getText())) {
+						listView.getItems().remove(item);
+						return;
+					}
+				}
+			}
+		});
+		Button remSelBtn = new Button("Remove Selected " + label + "(s)");
+		remSelBtn.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
 				// need to extract an array because the selected items
@@ -292,9 +307,9 @@ public class BeanPathAdapterTest extends Application {
 			}
 		});
 		HBox btnBox = new HBox();
-		btnBox.getChildren().addAll(addBtn, remBtn);
+		btnBox.getChildren().addAll(addBtn, remBtn, remSelBtn);
 		VBox box = new VBox();
-		box.getChildren().addAll(addTF, btnBox);
+		box.getChildren().addAll(addRemTF, btnBox);
 		return box;
 	}
 
@@ -386,7 +401,7 @@ public class BeanPathAdapterTest extends Application {
 		} else if (controlType == ComboBox.class) {
 			ComboBox<T> cb = new ComboBox<>(
 					FXCollections.observableArrayList(choices));
-			cb.setPromptText("Select State");
+			cb.setPromptText("Select");
 			cb.setPrefWidth(100d);
 			// POJO binding magic (due to erasure of T in
 			// ObjectProperty<T> of cb.valueProperty() we need
