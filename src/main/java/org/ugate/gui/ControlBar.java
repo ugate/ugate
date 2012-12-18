@@ -6,8 +6,6 @@ import java.util.Set;
 
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -280,19 +278,20 @@ public class ControlBar extends ToolBar {
 					ServiceProvider.IMPL.getCredentialService().mergeHost(
 							getActor().getHost());
 				} else if (event.getType() == UGateEvent.Type.APP_DATA_LOADED) {
+					getActorPA().fieldPathValueProperty().addListener(new ChangeListener<FieldPathValue>() {
+						@Override
+						public void changed(final ObservableValue<? extends FieldPathValue> observable,
+								final FieldPathValue oldValue, final FieldPathValue newValue) {
+							// save changes to the Actor any time that a change is made to it's values
+							saveOrUpdateActor(oldValue, newValue);
+						}
+					});
 					getRemoteNodePA().fieldPathValueProperty().addListener(new ChangeListener<FieldPathValue>() {
 						@Override
 						public void changed(final ObservableValue<? extends FieldPathValue> observable,
 								final FieldPathValue oldValue, final FieldPathValue newValue) {
 							// save changes to the remote node any time that a change is made to it's values
 							saveOrUpdateRemoteNode(oldValue, newValue);
-						}
-					});
-					getRemoteNodePA().fieldPathValueProperty().addListener(new InvalidationListener() {
-						
-						@Override
-						public void invalidated(final Observable paramObservable) {
-							System.err.println(paramObservable);
 						}
 					});
 					if (getActor().getHost().getComOnAtAppStartup() == 1) {
@@ -303,6 +302,27 @@ public class ControlBar extends ToolBar {
 				handleSound(event);
 			}
 		});
+	}
+
+	/**
+	 * Saves/Updates the {@link #getActor()}
+	 * 
+	 * @param oldValue
+	 *            the old {@link FieldPathValue} (null when not from a changed
+	 *            value)
+	 * @param newValue
+	 *            the new {@link FieldPathValue} (null when not from a changed
+	 *            value)
+	 */
+	public void saveOrUpdateActor(final FieldPathValue oldValue, final FieldPathValue newValue) {
+		try {
+			ServiceProvider.IMPL.getCredentialService().mergeActor(getActor());
+		} catch (final Throwable t) {
+			log.warn(String.format(
+					"Unable to save changes to user %1$s (value change from: %2$s to: %3$s)", 
+					getActor().getUsername(), oldValue, newValue), t);
+			setHelpText(RS.rbLabel(KEY.USER_SAVE_FAILED, getActor().getUsername()));
+		}
 	}
 
 	/**
