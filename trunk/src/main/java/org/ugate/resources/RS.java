@@ -989,6 +989,7 @@ public class RS {
 				+ ".desc"),
 		CAM_ACTION_QVGA("cam.take.qvga"),
 		CAM_ACTION_VGA("cam.take.vga"),
+		USER_SAVE_FAILED("user.save.failed", 1),
 		SETTINGS_SAVE("settings.save"),
 		SETTINGS_SAVE_FAILED("settings.save.failed", 1),
 		SETTINGS_SEND("settings.send"),
