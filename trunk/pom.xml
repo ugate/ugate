@@ -22,7 +22,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<skipTests>true</skipTests>
 		<ugate.log.level>INFO</ugate.log.level>
 		<!-- NOTE: Java 8 will have JavaFX in class path by default and will not 
 			require system dependencies -->
@@ -54,7 +53,7 @@
 		<ugate.plugin.dependency.version>2.6</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
-		<ugate.plugin.surefire.version>2.5</ugate.plugin.surefire.version>
+		<ugate.plugin.surefire.version>2.12.4</ugate.plugin.surefire.version>
 		<ugate.db.tx.timeout>60000</ugate.db.tx.timeout>
 		<ugate.db.sql.timeout>5000</ugate.db.sql.timeout>
 		<!-- see http://www.h2database.com/html/features.html -->
@@ -82,6 +81,9 @@
 		<ugate.db.listeners>${ugate.db.entity.package}.UGateJdbcListener</ugate.db.listeners>
 		<ugate.main>${project.groupId}.gui.UGateGUI</ugate.main>
 		<ugate.preloader>${project.groupId}.gui.components.StartupPreloader</ugate.preloader>
+		<ugate.repo>${basedir}/libs</ugate.repo>
+		<ugate.javafx.ant.jar>${java.home}/../lib/ant-javafx.jar</ugate.javafx.ant.jar>
+		<ugate.deploy.dir>${project.build.directory}/bin</ugate.deploy.dir>
 	</properties>
 
 	<repositories>
@@ -89,7 +91,7 @@
 			public repository -->
 		<repository>
 			<id>project-repo</id>
-			<url>file://${basedir}/libs</url>
+			<url>file://${ugate.repo}</url>
 		</repository>
 	</repositories>
 
@@ -117,6 +119,11 @@
 				<filtering>true</filtering>
 				<targetPath>${basedir}/src/main/java/WEB-INF</targetPath>
 			</resource>
+<!-- 			<resource> -->
+<!-- 				<directory>src/main/config/native-tools</directory> -->
+<!-- 				<filtering>true</filtering> -->
+<!-- 				<targetPath>${ugate.deploy.dir}</targetPath> -->
+<!-- 			</resource> -->
 			<!-- Make sure that any other resources like CSS, images, sounds, etc. 
 				are included -->
 			<resource>
@@ -130,6 +137,12 @@
 				<filtering>false</filtering>
 			</resource>
 		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
 		<pluginManagement>
 			<plugins>
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
@@ -140,6 +153,22 @@
 					<configuration>
 						<lifecycleMappingMetadata>
 							<pluginExecutions>
+								<!-- m2e can ignore setting the native build tool path (mvn package on command-line only) -->
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>exec-maven-plugin</artifactId>
+										<versionRange>[${ugate.plugin.exec.version},)</versionRange>
+										<goals>
+											<goal>exec</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
 								<!-- m2e can ignore unpacking/copying dependencies (mvn package on command-line only) -->
 								<pluginExecution>
 									<pluginExecutionFilter>
@@ -200,27 +229,28 @@
 					<target>1.7</target>
 					<showDeprecation>true</showDeprecation>
 					<showWarnings>true</showWarnings>
-					<fork>true</fork>
 				</configuration>
 			</plugin>
-			<!-- OpenJPA enhanement (m2e support see lifecycle-mapping [http://openjpa.apache.org/enhancingwithmaven.html doesn't work, nor does openjpa-maven-plugin])  -->
+			<!-- OpenJPA enhanement (m2e support see lifecycle-mapping [http://openjpa.apache.org/enhancingwithmaven.html 
+				doesn't work, nor does openjpa-maven-plugin]) -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>${ugate.plugin.exec.version}</version>
 				<executions>
+					<!-- JPA build time enhancements -->
 					<execution>
 						<id>enhance</id>
 						<phase>process-classes</phase>
 						<goals>
 							<goal>java</goal>
 						</goals>
+						<configuration>
+							<includeProjectDependencies>true</includeProjectDependencies>
+							<mainClass>org.apache.openjpa.enhance.PCEnhancer</mainClass>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<includeProjectDependencies>true</includeProjectDependencies>
-					<mainClass>org.apache.openjpa.enhance.PCEnhancer</mainClass>
-				</configuration>
 			</plugin>
 			<!-- Add the class path to the JARs manifest -->
 			<plugin>
@@ -310,15 +340,24 @@
 									<artifactId>${project.artifactId}</artifactId>
 									<version>${project.version}</version>
 								</artifactItem>
+								<!-- JavaFX native packaging tools need to reside under the same directory 
+									that the build id running under -->
+								<artifactItem>
+									<groupId>org.wix</groupId>
+									<artifactId>wix</artifactId>
+									<type>zip</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${ugate.deploy.dir}</outputDirectory>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			<!-- Need to run the JavaFX ant task so that the JavaFX launcher can detect 
-				the JavaFX runtime on the client. The unpacked dependencies and the classes/files 
-				from the project will be included in a final JAR located in the ${project.build.directory}/bin 
-				Deploying as web start may also need to use http://maven.apache.org/plugins/maven-jarsigner-plugin/plugin-info.html -->
+		<!-- Need to run the JavaFX ant task so that the JavaFX launcher can detect 
+			the JavaFX runtime on the client. The unpacked dependencies and the classes/files 
+			from the project will be included in a final JAR located in the ${ugate.deploy.dir} 
+			Deploying as web start may also need to use http://maven.apache.org/plugins/maven-jarsigner-plugin/plugin-info.html -->
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>${ugate.plugin.antrun.version}</version>
@@ -332,10 +371,11 @@
 						<configuration>
 							<!-- JavaFX Packager -->
 							<target>
+								<echo message="Packaging JavaFX JAR"/>
 								<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar"
 									classpathref="maven.plugin.classpath" />
 								<jar 
-									destfile="${project.build.directory}/bin/${project.build.finalName}.${project.packaging}">
+									destfile="${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}">
 									<application mainClass="${ugate.main}"
 										preloaderClass="${ugate.preloader}" />
 									<fileset dir="${project.build.directory}/dependency"
@@ -346,20 +386,7 @@
 										<attribute name="JavaFX-Class-Path" value="." />
 									</manifest>
 								</jar>
-								<!-- <taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
-								<!-- classpathref="maven.plugin.classpath" /> -->
-								<!-- <jfxdeploy width="900" height="800" -->
-								<!-- outdir="${project.build.directory}/deploy" outfile="${project.build.finalName}"> -->
-								<!-- <info title="${project.name}" /> -->
-								<!-- <application name="${project.name}" mainClass="${ugate.main}" 
-									/> -->
-								<!-- <resources> -->
-								<!-- <fileset dir="${project.build.directory}" includes="*.jar" /> -->
-								<!-- <fileset dir="${project.build.directory}/dependency" includes="*.jar"/> -->
-								<!-- </resources> -->
-								<!-- </jfxdeploy> -->
 							</target>
-							<!-- OpenJPA Enhancment -->
 						</configuration>
 					</execution>
 				</executions>
@@ -369,7 +396,7 @@
 						<artifactId>ant-javafx</artifactId>
 						<version>${ugate.javafx.version}</version>
 						<scope>system</scope>
-						<systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
+						<systemPath>${ugate.javafx.ant.jar}</systemPath>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -380,7 +407,7 @@
 					<escapeString>^</escapeString>
 				</configuration>
 			</plugin>
-			<!-- Configure test plugin to find *TestSuite classes. -->
+			<!-- Configure unit tests -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -390,8 +417,51 @@
 						<include>**/*Test.java</include>
 						<include>**/*TestSuite.java</include>
 					</includes>
-					<skipTests>${skipTests}</skipTests>
 				</configuration>
+			</plugin>
+			<!-- Configure integration tests -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>${ugate.plugin.surefire.version}</version>
+				<configuration>
+					<includes>
+						<include>**/*IT.java</include>
+						<include>**/*ITSuite.java</include>
+					</includes>
+					<workingDirectory>${ugate.deploy.dir}</workingDirectory>
+					<systemPropertyVariables>
+						<buildFile>${project.build.testOutputDirectory}/jfx-build.xml</buildFile>
+						<buildClassPath>${maven.plugin.classpath}</buildClassPath>
+					</systemPropertyVariables>
+				</configuration>
+				<!-- JavaFX native installer build done via test as a workaround for lack 
+					of feature to pass in path to the native tool in JavaFX packager (or changing 
+					user.dir for maven-antrun-plugin) -->
+				<executions>
+					<execution>
+						<id>integration-tests</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>**/*Build.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.oracle.javafx</groupId>
+						<artifactId>ant-javafx</artifactId>
+						<version>${ugate.javafx.version}</version>
+						<scope>system</scope>
+						<systemPath>${ugate.javafx.ant.jar}</systemPath>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
@@ -425,6 +495,13 @@
 			<groupId>org.rxtx</groupId>
 			<artifactId>rxtx</artifactId>
 			<version>${ugate.rxtx.version}</version>
+			<scope>provided</scope>
+			<type>zip</type>
+		</dependency>
+		<dependency>
+			<groupId>org.wix</groupId>
+			<artifactId>wix</artifactId>
+			<version>3.7</version>
 			<scope>provided</scope>
 			<type>zip</type>
 		</dependency>
@@ -639,7 +716,46 @@
 			<artifactId>junit</artifactId>
 			<version>${ugate.junit.version}</version>
 			<scope>test</scope>
-			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.8.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.oracle.javafx</groupId>
+			<artifactId>ant-javafx</artifactId>
+			<version>${ugate.javafx.version}</version>
+			<scope>system</scope>
+			<systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
 		</dependency>
 	</dependencies>
+	<!-- Native packaging profiles -->
+	<profiles>
+		<profile>
+			<id>win-build</id> 
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+		</profile>
+		<profile>
+			<id>mac-build</id> 
+			<activation>
+				<os>
+					<family>mac</family> 
+				</os>
+			</activation>
+		</profile>
+		<profile>
+			<id>linux-build</id> 
+			<activation>
+				<os>
+					<family>Linux</family>
+				</os>
+			</activation>
+		</profile>
+	</profiles>
 </project>
