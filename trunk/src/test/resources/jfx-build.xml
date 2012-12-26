@@ -1,7 +1,27 @@
-<project name="JavaFX" default="jfx-native-bundle" basedir="."
+<project name="JavaFX" default="jfx-jar" basedir="."
          xmlns:fx="javafx:com.sun.javafx.tools.ant">
+	<target name="jfx-jar">
+		<echo message="Packaging JavaFX JAR"/>
+		<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar" />
+		<jar 
+			destfile="${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}">
+			<application mainClass="${ugate.main}"
+				preloaderClass="${ugate.preloader}" />
+			<fileset dir="${project.build.directory}/dependency"
+				includes="**/*" />
+			<!-- <fileset dir="${project.build.outputDirectory}" -->
+			<!-- includes="**/*" /> -->
+		     <fileset dir="${project.build.directory}"> 
+				<include name="${project.build.finalName}.${project.packaging}"/> 
+		     </fileset>
+			<manifest>
+				<attribute name="JavaFX-Class-Path" value="." />
+			</manifest>
+		</jar>
+		<echo message="Packaged JavaFX JAR: ${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}"/>
+	</target>
     <target name="jfx-native-bundle">
-    	<echo message="Packaging Native Installers (user.dir = ^${user.dir})"/>
+    	<echo message="Packaging Native Bundles (user.dir = ^${user.dir})"/>
 		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask"
 			classpath="^${maven.plugin.classpath}" />
 <!-- 		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
@@ -14,7 +34,7 @@
 <!-- 				<jvmarg value="-Duser.dir=^${ugate.deploy.dir}" /> -->
 <!-- 			</platform> -->
 			<info title="${project.name}" vendor="${project.artifactId}">
-				<icon href="default.png" />
+<!--				<icon href="default.png" /> -->
 			</info>
 			<preferences shortcut="true" />
 			<application name="${project.artifactId}" mainClass="${ugate.main}" />
@@ -22,5 +42,6 @@
 				<fileset dir="${ugate.deploy.dir}" includes="*.jar" />
 			</resources>
 		</jfxdeploy>
+    	<echo message="Packaged Native Bundles: ${ugate.deploy.dir}"/>
     </target>
 </project>
