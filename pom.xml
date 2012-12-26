@@ -4,10 +4,9 @@
 			    http://maven.apache.org/maven-v4_0_0.xsd">
 	<!-- ================================= NOTE: ================================= 
 		m2e ( http://download.eclipse.org/technology/m2e/releases ) supported, but 
-		1) Packaging should only occur via Maven command-line "mvn clean package" 
-		2) RXTX installation will have to be done manually using: Windows ( http://rxtx.qbang.org/wiki/index.php/Installation_for_Windows 
-		), Mac ( http://rxtx.qbang.org/wiki/index.php/Installation_on_MacOS_X ), 
-		Linux ( http://rxtx.qbang.org/wiki/index.php/Installation_on_Linux ) -->
+		1) Proper Maven installation needs to be performed: http://maven.apache.org/download.html#Installation
+		1) Packaging should only occur via Maven command-line "mvn clean package verify"
+		========================================================================== -->
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -26,9 +25,7 @@
 		<!-- NOTE: Java 8 will have JavaFX in class path by default and will not 
 			require system dependencies -->
 		<ugate.javafx.version>2.2</ugate.javafx.version>
-		<!-- RXTX will be automatically installed in the appropriate Java directories 
-			(if not already installed). To run from within IDE ensure the RXTX ZIP archive 
-			is added to the projects source path (along with the other dependencies). -->
+		<!-- RXTX will be copied to the appropriate bundled JRE directories -->
 		<ugate.rxtx.version>2.1.7</ugate.rxtx.version>
 		<ugate.xbee-api.version>0.9</ugate.xbee-api.version>
 		<ugate.openjpa.version>2.2.1</ugate.openjpa.version>
@@ -46,6 +43,8 @@
 		<ugate.cglib.version>2.2.2</ugate.cglib.version>
 		<ugate.bouncycastle.version>1.47</ugate.bouncycastle.version>
 		<ugate.junit.version>4.9</ugate.junit.version>
+		<ugate.ant.version>1.8.3</ugate.ant.version>
+		<ugate.wix.version>3.7.RC</ugate.wix.version>
 		<ugate.plugin.compiler.version>3.0</ugate.plugin.compiler.version>
 		<ugate.plugin.exec.version>1.2.1</ugate.plugin.exec.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
@@ -82,6 +81,8 @@
 		<ugate.main>${project.groupId}.gui.UGateGUI</ugate.main>
 		<ugate.preloader>${project.groupId}.gui.components.StartupPreloader</ugate.preloader>
 		<ugate.repo>${basedir}/libs</ugate.repo>
+		<!-- TODO : Once the JavaFX Ant tool is in the central Maven repo the path 
+			can be removed (java.home should point to the JDK root directory) -->
 		<ugate.javafx.ant.jar>${java.home}/../lib/ant-javafx.jar</ugate.javafx.ant.jar>
 		<ugate.deploy.dir>${project.build.directory}/bin</ugate.deploy.dir>
 	</properties>
@@ -321,8 +322,6 @@
 								<artifactItem>
 									<groupId>org.rxtx</groupId>
 									<artifactId>rxtx</artifactId>
-									<type>zip</type>
-									<overWrite>false</overWrite>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -343,10 +342,8 @@
 								<!-- JavaFX native packaging tools need to reside under the same directory 
 									that the build id running under -->
 								<artifactItem>
-									<groupId>org.wix</groupId>
-									<artifactId>wix</artifactId>
-									<type>zip</type>
-									<overWrite>false</overWrite>
+									<groupId>org.wixtoolset</groupId>
+									<artifactId>wix-toolset</artifactId>
 									<outputDirectory>${ugate.deploy.dir}</outputDirectory>
 								</artifactItem>
 							</artifactItems>
@@ -358,48 +355,48 @@
 			the JavaFX runtime on the client. The unpacked dependencies and the classes/files 
 			from the project will be included in a final JAR located in the ${ugate.deploy.dir} 
 			Deploying as web start may also need to use http://maven.apache.org/plugins/maven-jarsigner-plugin/plugin-info.html -->
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>${ugate.plugin.antrun.version}</version>
-				<executions>
-					<execution>
-						<id>javafx-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<!-- JavaFX Packager -->
-							<target>
-								<echo message="Packaging JavaFX JAR"/>
-								<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar"
-									classpathref="maven.plugin.classpath" />
-								<jar 
-									destfile="${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}">
-									<application mainClass="${ugate.main}"
-										preloaderClass="${ugate.preloader}" />
-									<fileset dir="${project.build.directory}/dependency"
-										includes="**/*" />
-									<!-- <fileset dir="${project.build.outputDirectory}" -->
-									<!-- includes="**/*" /> -->
-									<manifest>
-										<attribute name="JavaFX-Class-Path" value="." />
-									</manifest>
-								</jar>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>com.oracle.javafx</groupId>
-						<artifactId>ant-javafx</artifactId>
-						<version>${ugate.javafx.version}</version>
-						<scope>system</scope>
-						<systemPath>${ugate.javafx.ant.jar}</systemPath>
-					</dependency>
-				</dependencies>
-			</plugin>
+<!-- 			<plugin> -->
+<!-- 				<artifactId>maven-antrun-plugin</artifactId> -->
+<!-- 				<version>${ugate.plugin.antrun.version}</version> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<id>javafx-jar</id> -->
+<!-- 						<phase>package</phase> -->
+<!-- 						<goals> -->
+<!-- 							<goal>run</goal> -->
+<!-- 						</goals> -->
+<!-- 						<configuration> -->
+<!-- 							JavaFX Packager -->
+<!-- 							<target> -->
+<!-- 								<echo message="Packaging JavaFX JAR"/> -->
+<!-- 								<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar" -->
+<!-- 									classpathref="maven.plugin.classpath" /> -->
+<!-- 								<jar  -->
+<!-- 									destfile="${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}"> -->
+<!-- 									<application mainClass="${ugate.main}" -->
+<!-- 										preloaderClass="${ugate.preloader}" /> -->
+<!-- 									<fileset dir="${project.build.directory}/dependency" -->
+<!-- 										includes="**/*" /> -->
+<!-- 									<fileset dir="${project.build.outputDirectory}" -->
+<!-- 									includes="**/*" /> -->
+<!-- 									<manifest> -->
+<!-- 										<attribute name="JavaFX-Class-Path" value="." /> -->
+<!-- 									</manifest> -->
+<!-- 								</jar> -->
+<!-- 							</target> -->
+<!-- 						</configuration> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 				<dependencies> -->
+<!-- 					<dependency> -->
+<!-- 						<groupId>com.oracle.javafx</groupId> -->
+<!-- 						<artifactId>ant-javafx</artifactId> -->
+<!-- 						<version>${ugate.javafx.version}</version> -->
+<!-- 						<scope>system</scope> -->
+<!-- 						<systemPath>${ugate.javafx.ant.jar}</systemPath> -->
+<!-- 					</dependency> -->
+<!-- 				</dependencies> -->
+<!-- 			</plugin> -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>${ugate.plugin.resources.version}</version>
@@ -418,50 +415,29 @@
 						<include>**/*TestSuite.java</include>
 					</includes>
 				</configuration>
-			</plugin>
-			<!-- Configure integration tests -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>${ugate.plugin.surefire.version}</version>
-				<configuration>
-					<includes>
-						<include>**/*IT.java</include>
-						<include>**/*ITSuite.java</include>
-					</includes>
-					<workingDirectory>${ugate.deploy.dir}</workingDirectory>
-					<systemPropertyVariables>
-						<buildFile>${project.build.testOutputDirectory}/jfx-build.xml</buildFile>
-						<buildClassPath>${maven.plugin.classpath}</buildClassPath>
-					</systemPropertyVariables>
-				</configuration>
-				<!-- JavaFX native installer build done via test as a workaround for lack 
-					of feature to pass in path to the native tool in JavaFX packager (or changing 
-					user.dir for maven-antrun-plugin) -->
 				<executions>
+					<!-- JavaFX native installer build done via test as a workaround for lack 
+						of feature to pass in path to the native tool in JavaFX packager (or changing 
+						user.dir for maven-antrun-plugin) -->
 					<execution>
-						<id>integration-tests</id>
-						<phase>pre-integration-test</phase>
+						<id>jfx-ant</id>
+						<phase>package</phase>
 						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
+							<goal>test</goal>
 						</goals>
 						<configuration>
 							<includes>
 								<include>**/*Build.java</include>
 							</includes>
+							<workingDirectory>${ugate.deploy.dir}</workingDirectory>
+							<systemPropertyVariables>
+								<buildFile>${project.build.testOutputDirectory}/jfx-build.xml</buildFile>
+								<buildClassPath>${maven.plugin.classpath}</buildClassPath>
+								<buildTargets>jfx-jar,jfx-native-bundle</buildTargets>
+							</systemPropertyVariables>
 						</configuration>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>com.oracle.javafx</groupId>
-						<artifactId>ant-javafx</artifactId>
-						<version>${ugate.javafx.version}</version>
-						<scope>system</scope>
-						<systemPath>${ugate.javafx.ant.jar}</systemPath>
-					</dependency>
-				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
@@ -489,21 +465,7 @@
 			<groupId>org.rxtx</groupId>
 			<artifactId>rxtx</artifactId>
 			<version>${ugate.rxtx.version}</version>
-			<!-- <scope>provided</scope> -->
-		</dependency>
-		<dependency>
-			<groupId>org.rxtx</groupId>
-			<artifactId>rxtx</artifactId>
-			<version>${ugate.rxtx.version}</version>
-			<scope>provided</scope>
-			<type>zip</type>
-		</dependency>
-		<dependency>
-			<groupId>org.wix</groupId>
-			<artifactId>wix</artifactId>
-			<version>3.7</version>
-			<scope>provided</scope>
-			<type>zip</type>
+<!-- 			<scope>provided</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
@@ -516,11 +478,6 @@
 			<artifactId>h2</artifactId>
 			<version>${ugate.db.version}</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>mysql</groupId> -->
-		<!-- <artifactId>mysql-connector-java</artifactId> -->
-		<!-- <version>${ugate.db.version}</version> -->
-		<!-- </dependency> -->
 		<!-- JTA -->
 		<dependency>
 			<groupId>javax.transaction</groupId>
@@ -634,44 +591,6 @@
 			<artifactId>jetty-servlet</artifactId>
 			<version>${ugate.jetty.version}</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
-		<!-- <artifactId>jetty-servlet</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- <classifier>sources</classifier> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
-		<!-- <artifactId>jetty-webapp</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
-		<!-- <artifactId>jetty-webapp</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- <classifier>sources</classifier> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
-		<!-- <artifactId>jetty-websocket</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty.aggregate</groupId> -->
-		<!-- <artifactId>jetty-websocket</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- <classifier>sources</classifier> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty</groupId> -->
-		<!-- <artifactId>jetty-xml</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.eclipse.jetty</groupId> -->
-		<!-- <artifactId>jetty-util</artifactId> -->
-		<!-- <version>${ugate.jetty.version}</version> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
@@ -720,7 +639,7 @@
 		<dependency>
 			<groupId>org.apache.ant</groupId>
 			<artifactId>ant</artifactId>
-			<version>1.8.3</version>
+			<version>${ugate.ant.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -728,10 +647,13 @@
 			<artifactId>ant-javafx</artifactId>
 			<version>${ugate.javafx.version}</version>
 			<scope>system</scope>
-			<systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
+			<systemPath>${ugate.javafx.ant.jar}</systemPath>
 		</dependency>
 	</dependencies>
-	<!-- Native packaging profiles -->
+	<!-- Native packaging profiles RXTX dependencies will be copied to the appropriate 
+		JRE directories in the bundled JRE: Windows ( http://rxtx.qbang.org/wiki/index.php/Installation_for_Windows 
+		), Mac ( http://rxtx.qbang.org/wiki/index.php/Installation_on_MacOS_X ), 
+		Linux ( http://rxtx.qbang.org/wiki/index.php/Installation_on_Linux ) -->
 	<profiles>
 		<profile>
 			<id>win-build</id> 
@@ -740,6 +662,15 @@
 					<family>Windows</family>
 				</os>
 			</activation>
+			<!-- JavaFX WIX (for MSI installer) -->
+			<dependencies>
+				<dependency>
+					<groupId>org.wixtoolset</groupId>
+					<artifactId>wix-toolset</artifactId>
+					<version>${ugate.wix.version}</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
 		</profile>
 		<profile>
 			<id>mac-build</id> 
