@@ -72,27 +72,33 @@
 			<contains string="${os.family}" substring="linux" casesensitive="false" />
 		</condition>
 		<echo>NOTE: ${os.family} RXTX bundled in ${registerSize}-Bit JVM found at ${jfxBuildJavaHome} (working JVM dir: ${ugate.deploy.jre.dir})</echo>
-		<copy file="${ugate.deploy.dir}/rxtx-${ugate.rxtx.version}.jar" tofile="${ugate.deploy.jre.dir}/lib/ext/RXTXcomm.jar" overwrite="true" />
+		<copy file="${ugate.deploy.dir}/rxtx-${ugate.rxtx.version}.jar" tofile="${ugate.deploy.jre.dir}/lib/ext/RXTXcomm.jar" verbose="true" />
 		<antcall target="win-natives" inheritall="true" />
 		<antcall target="mac-natives" inheritall="true" />
 		<antcall target="linux-natives" inheritall="true" />
 	</target>
 	<target name="win-natives" if="isWin">
 		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
-		<copy file="${project.build.testOutputDirectory}/rxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.dll" tofile="${ugate.deploy.jre.dir}/bin/rxtxSerial.dll" overwrite="true" />
-		<copy file="${project.build.testOutputDirectory}/logo128x128.ico" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.ico" overwrite="true" />
+		<!-- If the native library isn't copied to the JVM 1st JFX won't copy it to the bundled JVM -->
+		<copy file="${project.build.testOutputDirectory}/rxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.dll" tofile="${jfxBuildJavaHome}/bin/rxtxSerial.dll" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/rxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.dll" tofile="${ugate.deploy.jre.dir}/bin/rxtxSerial.dll" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128.ico" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.ico" verbose="true" />
 	</target>
 	<target name="mac-natives" if="isMac">
 		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
-		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.jnilib" tofile="${ugate.deploy.jre.dir}/lib/librxtxSerial.jnilib" overwrite="true" />
-		<copy file="${project.build.testOutputDirectory}/logo128x128.icns" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.icns" overwrite="true" />
+		<!-- If the native library isn't copied to the JVM 1st JFX won't copy it to the bundled JVM -->
+		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.jnilib" tofile="${jfxBuildJavaHome}/lib/librxtxSerial.jnilib" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.jnilib" tofile="${ugate.deploy.jre.dir}/lib/librxtxSerial.jnilib" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128.icns" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.icns" verbose="true" />
 	</target>
 	<target name="linux-natives" if="isLinux">
 		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
-		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.so" tofile="${ugate.deploy.jre.dir}/lib/i386/librxtxSerial.so" overwrite="true" />
-		<copy file="${project.build.testOutputDirectory}/logo128x128x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}128x128x32.png" overwrite="true" />
-		<copy file="${project.build.testOutputDirectory}/logo48x48x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}48x48x32.png" overwrite="true" />
-		<copy file="${project.build.testOutputDirectory}/logo32x32x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}32x32x32.png" overwrite="true" />
-		<copy file="${project.build.testOutputDirectory}/logo16x16x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}16x16x32.png" overwrite="true" />
+		<!-- If the native library isn't copied to the JVM 1st JFX won't copy it to the bundled JVM -->
+		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.so" tofile="${jfxBuildJavaHome}/lib/i386/librxtxSerial.so" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.so" tofile="${ugate.deploy.jre.dir}/lib/i386/librxtxSerial.so" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}128x128x32.png" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo48x48x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}48x48x32.png" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo32x32x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}32x32x32.png" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo16x16x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}16x16x32.png" verbose="true" />
 	</target>
 </project>
