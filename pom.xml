@@ -153,6 +153,10 @@
 					<exclude>**/*.dll</exclude>
 					<exclude>**/*.jnilib</exclude>
 					<exclude>**/*.so</exclude>
+					<exclude>**/*.ico</exclude>
+					<exclude>**/*.icns</exclude>
+					<exclude>**/*.hqx</exclude>
+					<exclude>**/*.png</exclude>
 				</excludes>
 			</testResource>
 			<testResource>
@@ -161,6 +165,10 @@
 					<include>**/*.dll</include>
 					<include>**/*.jnilib</include>
 					<include>**/*.so</include>
+					<include>**/*.ico</include>
+					<include>**/*.icns</include>
+					<include>**/*.hqx</include>
+					<include>**/*.png</include>
 				</includes>
 			</testResource>
 		</testResources>
@@ -632,7 +640,7 @@
 		Linux ( http://rxtx.qbang.org/wiki/index.php/Installation_on_Linux ) -->
 	<profiles>
 		<profile>
-			<id>win-build</id> 
+			<id>win-build</id>
 			<activation>
 				<os>
 					<family>windows</family>
@@ -651,7 +659,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>mac-build</id> 
+			<id>mac-build</id>
 			<activation>
 				<os>
 					<family>mac</family> 
@@ -662,7 +670,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>linux-build</id> 
+			<id>linux-build</id>
 			<activation>
 				<os>
 					<family>linux</family>

@@ -11,20 +11,29 @@ import org.junit.Test;
  * Runs an Ant build as a {@link Test}
  */
 public class AntBuild {
-	
-//	public static void main(final String[] args) {
-//		System.setProperty("buildFile", "C:\\eclipse-juno-workspace\\ugate\\src\\test\\resources\\test.xml");
-//		System.setProperty("buildTargets", "check-bitness");
-//		new AntBuild().antRun();
-//	}
 
+	/**
+	 * The Ant build file name that will be
+	 * {@link Project#executeTarget(String)} (in order)
+	 */
+	public static final String BUILD_FILE_NAME = "buildFile";
+
+	/**
+	 * The Ant target(s) to run in the {@link #BUILD_FILE_NAME}
+	 */
+	public static final String BUILD_TARGETS = "buildTargets";
+
+	/**
+	 * Runs
+	 */
 	@Test
 	public void antRun() {
-		final String buildFileStr = System.getProperty("buildFile");
+		final String buildFileStr = System.getProperty(BUILD_FILE_NAME);
 		final String buildTargetStr = System.getProperty("buildTargets");
-		System.out.println("Executing Ant Build for buildFile=" + buildFileStr
-				+ ", buildTargets=" + buildTargetStr + ", user.dir="
-				+ System.getProperty("user.dir"));
+		System.out.println(String.format(
+				"Executing Ant Build for %1$s=%2$s, %3$s=%4$s, user.dir=%5$s",
+				BUILD_FILE_NAME, buildFileStr, BUILD_TARGETS, buildTargetStr,
+				System.getProperty("user.dir")));
 
 		// add console logger so ant echo will show up in test
 		final DefaultLogger consoleLogger = new DefaultLogger();
@@ -35,7 +44,7 @@ public class AntBuild {
 		// execute ant build
 		final File buildFile = new File(buildFileStr);
 		final Project p = new Project();
-		//p.setCoreLoader(getClass().getClassLoader());
+		// p.setCoreLoader(getClass().getClassLoader());
 		p.addBuildListener(consoleLogger);
 		p.setUserProperty("ant.file", buildFile.getAbsolutePath());
 		p.init();
