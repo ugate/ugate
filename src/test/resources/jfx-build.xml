@@ -1,47 +1,98 @@
-<project name="JavaFX" default="jfx-jar" basedir="."
-         xmlns:fx="javafx:com.sun.javafx.tools.ant">
+<project name="JavaFX" default="jfx-jar" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
 	<target name="jfx-jar">
-		<echo message="Packaging JavaFX JAR"/>
+		<echo message="Packaging JavaFX JAR" />
 		<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar" />
-		<jar 
-			destfile="${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}">
-			<application mainClass="${ugate.main}"
-				preloaderClass="${ugate.preloader}" />
-			<fileset dir="${project.build.directory}/dependency"
-				includes="**/*" />
-			<!-- <fileset dir="${project.build.outputDirectory}" -->
-			<!-- includes="**/*" /> -->
-		     <fileset dir="${project.build.directory}"> 
-				<include name="${project.build.finalName}.${project.packaging}"/> 
-		     </fileset>
+		<jar destfile="${ugate.deploy.jar.dir}/${project.build.finalName}.${project.packaging}" verbose="true">
+			<application id="${project.artifactId}" name="${project.name}" mainClass="${ugate.main}" />
+			<!-- <application id="${project.artifactId}" name="${project.name}" -->
+			<!-- mainClass="${ugate.main}" preloaderClass="${ugate.preloader}" /> -->
+			<!-- <resources id="${project.artifactId}Res"> -->
+			<!-- <fileset dir="${project.build.directory}" requiredFor="preloader" -->
+			<!-- includes="${project.build.finalName}.${project.packaging}" /> -->
+			<!-- </resources> -->
+			<fileset dir="${project.build.directory}/dependency" includes="**/*" />
+			<!-- JDK 7u11 will allow JAR updates https://blogs.oracle.com/talkingjavadeployment/entry/packaging_improvements_in_jdk_7 -->
+			<!--			<fileset dir="${project.build.directory}"> -->
+			<!--				<include name="${project.build.finalName}.${project.packaging}" /> -->
+			<!--			</fileset> -->
 			<manifest>
-				<attribute name="JavaFX-Class-Path" value="." />
+				<attribute name="Implementation-Vendor" value="${project.groupId}" />
+				<attribute name="Implementation-Title" value="${project.name}" />
+				<attribute name="Implementation-Version" value="${project.version}" />
+				<!-- use following when classes are flat file dir in jfx jar -->
+				<!-- <attribute name="JavaFX-Class-Path" value="." /> -->
+				<!-- use following when classes are jar within jfx jar -->
+				<!-- 				<attribute name="JavaFX-Class-Path" -->
+				<!-- 					value="${project.build.finalName}.${project.packaging}" /> -->
 			</manifest>
 		</jar>
-		<echo message="Packaged JavaFX JAR: ${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}"/>
+		<echo message="Packaged JavaFX JAR: ${ugate.deploy.jar.dir}/${project.build.finalName}.${project.packaging}" />
 	</target>
-    <target name="jfx-native-bundle">
-    	<echo message="Packaging Native Bundles (user.dir = ^${user.dir})"/>
-		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask"
-			classpath="^${maven.plugin.classpath}" />
-<!-- 		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
-<!-- 			classpathref="maven.plugin.classpath" /> -->
-		<jfxdeploy width="900" height="800" nativeBundles="all"
-			outdir="${ugate.deploy.dir}" outfile="${project.artifactId}">
-<!-- 			<platform basedir="${java.home}" /> -->
-<!-- 			<platform> -->
-<!-- 				<property name="user.dir" value="^${ugate.deploy.dir}" /> -->
-<!-- 				<jvmarg value="-Duser.dir=^${ugate.deploy.dir}" /> -->
-<!-- 			</platform> -->
+	<target name="jfx-deploy">
+		<echo message="Packaging Native Bundles (user.dir = ^${user.dir} java.home = ^${java.home})" />
+		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" classpath="^${maven.plugin.classpath}" />
+		<!-- <taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
+		<!-- classpathref="maven.plugin.classpath" /> -->
+		<jfxdeploy width="900" height="800" nativeBundles="all" verbose="true" outdir="${ugate.deploy.native.dir}" outfile="${project.artifactId}">
+			<!-- next JVM release the JVM can be specified -->
+			<!-- <platform basedir="${jfxBuildJavaHome}" /> -->
+			<!-- <platform> -->
+			<!-- <property name="user.dir" value="^${ugate.deploy.dir}" /> -->
+			<!-- <jvmarg value="-Duser.dir=^${ugate.deploy.dir}" /> -->
+			<!-- </platform> -->
 			<info title="${project.name}" vendor="${project.artifactId}">
-<!--				<icon href="default.png" /> -->
+				<icon href="${project.build.testOutputDirectory}/logo128x128x32.png" />
 			</info>
 			<preferences shortcut="true" />
-			<application name="${project.artifactId}" mainClass="${ugate.main}" />
+			<application id="${project.artifactId}" name="${project.name}" mainClass="${ugate.main}" />
 			<resources>
-				<fileset dir="${ugate.deploy.dir}" includes="*.jar" />
+				<fileset dir="${ugate.deploy.jar.dir}">
+					<include name="**/*.jar" />
+				</fileset>
 			</resources>
 		</jfxdeploy>
-    	<echo message="Packaged Native Bundles: ${ugate.deploy.dir}"/>
-    </target>
+	</target>
+	<target name="jfx-copy-natives">
+		<condition property="x64">
+			<contains string="${os.arch}" substring="64" casesensitive="false" />
+		</condition>
+		<condition property="registerSize" value="64" else="32">
+			<isset property="x64" />
+		</condition>
+		<condition property="is64">
+			<equals arg1="${registerSize}" arg2="64" />
+		</condition>
+		<condition property="isWin">
+			<contains string="${os.family}" substring="windows" casesensitive="false" />
+		</condition>
+		<condition property="isMac">
+			<contains string="${os.family}" substring="mac" casesensitive="false" />
+		</condition>
+		<condition property="isLinux">
+			<contains string="${os.family}" substring="linux" casesensitive="false" />
+		</condition>
+		<echo>NOTE: ${os.family} RXTX bundled in ${registerSize}-Bit JVM found at ${jfxBuildJavaHome} (working JVM dir: ${ugate.deploy.jre.dir})</echo>
+		<copy file="${ugate.deploy.dir}/rxtx-${ugate.rxtx.version}.jar" tofile="${ugate.deploy.jre.dir}/lib/ext/RXTXcomm.jar" overwrite="true" />
+		<antcall target="win-natives" inheritall="true" />
+		<antcall target="mac-natives" inheritall="true" />
+		<antcall target="linux-natives" inheritall="true" />
+	</target>
+	<target name="win-natives" if="isWin">
+		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
+		<copy file="${project.build.testOutputDirectory}/rxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.dll" tofile="${ugate.deploy.jre.dir}/bin/rxtxSerial.dll" overwrite="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128.ico" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.ico" overwrite="true" />
+	</target>
+	<target name="mac-natives" if="isMac">
+		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
+		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.jnilib" tofile="${ugate.deploy.jre.dir}/lib/librxtxSerial.jnilib" overwrite="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128.icns" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.icns" overwrite="true" />
+	</target>
+	<target name="linux-natives" if="isLinux">
+		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
+		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.so" tofile="${ugate.deploy.jre.dir}/lib/i386/librxtxSerial.so" overwrite="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}128x128x32.png" overwrite="true" />
+		<copy file="${project.build.testOutputDirectory}/logo48x48x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}48x48x32.png" overwrite="true" />
+		<copy file="${project.build.testOutputDirectory}/logo32x32x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}32x32x32.png" overwrite="true" />
+		<copy file="${project.build.testOutputDirectory}/logo16x16x32.png" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}16x16x32.png" overwrite="true" />
+	</target>
 </project>

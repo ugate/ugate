@@ -1,0 +1,33 @@
+<project name="CheckJVM" default="check-bitness" basedir=".">
+	<target name="check-bitness">
+		<exec executable="java" outputproperty="jvmVersion">
+			<arg value="-version" />
+		</exec>
+		<condition property="x64">
+			<matches string="${jvmVersion}" pattern="\b64-Bit\b" />
+		</condition>
+		<condition property="registerSize" value="64" else="32">
+			<isset property="x64" />
+		</condition>
+		<condition property="is64">
+			<equals arg1="${registerSize}" arg2="64" />
+		</condition>
+		<condition property="isWin">
+			<contains string="windows" substring="windows" casesensitive="false" />
+		</condition>
+		<condition property="isMac">
+			<contains string="${os.family}" substring="mac" casesensitive="false" />
+		</condition>
+		<condition property="isLinux">
+			<contains string="${os.family}" substring="linux" casesensitive="false" />
+		</condition>
+		<echo>NOTE: ${os.arch} Native build will bundle ${registerSize}-Bit JVM found at ${java.home}</echo>
+		<copy file="C:\java\maven\repository\org\rxtx\rxtx\2.1.7\rxtx-2.1.7.jar" tofile="C:\eclipse-juno-workspace\ugate\target\dist\package\runtime\jre\lib/ext/RXTXcomm2.jar" />
+		<antcall target="win-natives" inheritall="true" />
+	</target>
+	<target name="win-natives" if="isWin">
+		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />
+		<copy file="rxtxSerial-2.1.7.windows.${registerSize}.dll" tofile="C:\eclipse-juno-workspace\ugate\target\dist\package\runtime\jre/bin/rxtxSerial2.dll" />
+		<copy file="logo128x128.ico" tofile="C:\eclipse-juno-workspace\ugate\target\dist\package/windows/UGate Console2.ico" />
+	</target>
+</project>
