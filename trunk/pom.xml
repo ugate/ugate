@@ -52,7 +52,7 @@
 		<ugate.plugin.dependency.version>2.6</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
-		<ugate.plugin.surefire.version>2.12.4</ugate.plugin.surefire.version>
+		<ugate.plugin.surefire.version>2.13</ugate.plugin.surefire.version>
 		<ugate.db.tx.timeout>60000</ugate.db.tx.timeout>
 		<ugate.db.sql.timeout>5000</ugate.db.sql.timeout>
 		<!-- see http://www.h2database.com/html/features.html -->
@@ -84,7 +84,13 @@
 		<!-- TODO : Once the JavaFX Ant tool is in the central Maven repo the path 
 			can be removed (java.home should point to the JDK root directory) -->
 		<ugate.javafx.ant.jar>${java.home}/../lib/ant-javafx.jar</ugate.javafx.ant.jar>
-		<ugate.deploy.dir>${project.build.directory}/bin</ugate.deploy.dir>
+		<ugate.deploy.dir>${project.build.directory}/dist</ugate.deploy.dir>
+		<ugate.deploy.jar.dir>${ugate.deploy.dir}/jfx-jar</ugate.deploy.jar.dir>
+		<ugate.deploy.native.dir>${ugate.deploy.dir}/jfx-native</ugate.deploy.native.dir>
+		<ugate.deploy.package.dir>${ugate.deploy.dir}/package</ugate.deploy.package.dir>
+		<ugate.deploy.jre.dir>${ugate.deploy.package.dir}/runtime/jre</ugate.deploy.jre.dir>
+		<jfxBuildJavaHome>${java.home}</jfxBuildJavaHome>
+		<jfxBuildTargets>jfx-copy-natives,jfx-jar,jfx-deploy</jfxBuildTargets>
 	</properties>
 
 	<repositories>
@@ -120,10 +126,11 @@
 				<filtering>true</filtering>
 				<targetPath>${basedir}/src/main/java/WEB-INF</targetPath>
 			</resource>
+			<!-- http://iconverticons.com/online/ -->
 <!-- 			<resource> -->
-<!-- 				<directory>src/main/config/native-tools</directory> -->
+<!-- 				<directory>src/main/config/icons</directory> -->
 <!-- 				<filtering>true</filtering> -->
-<!-- 				<targetPath>${ugate.deploy.dir}</targetPath> -->
+<!-- 				<targetPath>${ugate.deploy.dir}/icons</targetPath> -->
 <!-- 			</resource> -->
 			<!-- Make sure that any other resources like CSS, images, sounds, etc. 
 				are included -->
@@ -142,6 +149,19 @@
 			<testResource>
 				<directory>src/test/resources</directory>
 				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/*.dll</exclude>
+					<exclude>**/*.jnilib</exclude>
+					<exclude>**/*.so</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>**/*.dll</include>
+					<include>**/*.jnilib</include>
+					<include>**/*.so</include>
+				</includes>
 			</testResource>
 		</testResources>
 		<pluginManagement>
@@ -262,7 +282,7 @@
 						<index>true</index>
 						<manifestEntries>
 							<Main-Class>${ugate.main}</Main-Class>
-							<Class-Path>./${ugate.javafx.jar.path}</Class-Path>
+							<Class-Path>.</Class-Path>
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -304,26 +324,26 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- Copy unpack dependencies to ${project.build.directory}/dependency 
-				to be included in the final JAR (TODO : there may be a more efficient way 
-				to do this) -->
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>${ugate.plugin.dependency.version}</version>
 				<executions>
 					<execution>
-						<id>copy-rxtx-zip</id>
-						<phase>process-resources</phase>
+						<id>copy-rxtx-jar</id>
+						<phase>prepare-package</phase>
 						<goals>
 							<goal>copy</goal>
 						</goals>
 						<configuration>
 							<artifactItems>
+								<!-- Copy RXTX for inclusion in JFX bundled JVM -->
 								<artifactItem>
 									<groupId>org.rxtx</groupId>
 									<artifactId>rxtx</artifactId>
+									<version>${ugate.rxtx.version}</version>
 								</artifactItem>
 							</artifactItems>
+							<outputDirectory>${ugate.deploy.dir}</outputDirectory>
 						</configuration>
 					</execution>
 					<execution>
@@ -334,6 +354,8 @@
 						</goals>
 						<configuration>
 							<artifactItems>
+								<!-- Unpack shaded JAR to ${project.build.directory}/dependency to be included 
+									in final JFX JAR (TODO : JDK 7u11 will allow JAR updates https://blogs.oracle.com/talkingjavadeployment/entry/packaging_improvements_in_jdk_7) -->
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>${project.artifactId}</artifactId>
@@ -351,52 +373,6 @@
 					</execution>
 				</executions>
 			</plugin>
-		<!-- Need to run the JavaFX ant task so that the JavaFX launcher can detect 
-			the JavaFX runtime on the client. The unpacked dependencies and the classes/files 
-			from the project will be included in a final JAR located in the ${ugate.deploy.dir} 
-			Deploying as web start may also need to use http://maven.apache.org/plugins/maven-jarsigner-plugin/plugin-info.html -->
-<!-- 			<plugin> -->
-<!-- 				<artifactId>maven-antrun-plugin</artifactId> -->
-<!-- 				<version>${ugate.plugin.antrun.version}</version> -->
-<!-- 				<executions> -->
-<!-- 					<execution> -->
-<!-- 						<id>javafx-jar</id> -->
-<!-- 						<phase>package</phase> -->
-<!-- 						<goals> -->
-<!-- 							<goal>run</goal> -->
-<!-- 						</goals> -->
-<!-- 						<configuration> -->
-<!-- 							JavaFX Packager -->
-<!-- 							<target> -->
-<!-- 								<echo message="Packaging JavaFX JAR"/> -->
-<!-- 								<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar" -->
-<!-- 									classpathref="maven.plugin.classpath" /> -->
-<!-- 								<jar  -->
-<!-- 									destfile="${ugate.deploy.dir}/${project.build.finalName}.${project.packaging}"> -->
-<!-- 									<application mainClass="${ugate.main}" -->
-<!-- 										preloaderClass="${ugate.preloader}" /> -->
-<!-- 									<fileset dir="${project.build.directory}/dependency" -->
-<!-- 										includes="**/*" /> -->
-<!-- 									<fileset dir="${project.build.outputDirectory}" -->
-<!-- 									includes="**/*" /> -->
-<!-- 									<manifest> -->
-<!-- 										<attribute name="JavaFX-Class-Path" value="." /> -->
-<!-- 									</manifest> -->
-<!-- 								</jar> -->
-<!-- 							</target> -->
-<!-- 						</configuration> -->
-<!-- 					</execution> -->
-<!-- 				</executions> -->
-<!-- 				<dependencies> -->
-<!-- 					<dependency> -->
-<!-- 						<groupId>com.oracle.javafx</groupId> -->
-<!-- 						<artifactId>ant-javafx</artifactId> -->
-<!-- 						<version>${ugate.javafx.version}</version> -->
-<!-- 						<scope>system</scope> -->
-<!-- 						<systemPath>${ugate.javafx.ant.jar}</systemPath> -->
-<!-- 					</dependency> -->
-<!-- 				</dependencies> -->
-<!-- 			</plugin> -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>${ugate.plugin.resources.version}</version>
@@ -433,7 +409,7 @@
 							<systemPropertyVariables>
 								<buildFile>${project.build.testOutputDirectory}/jfx-build.xml</buildFile>
 								<buildClassPath>${maven.plugin.classpath}</buildClassPath>
-								<buildTargets>jfx-jar,jfx-native-bundle</buildTargets>
+								<buildTargets>${jfxBuildTargets}</buildTargets>
 							</systemPropertyVariables>
 						</configuration>
 					</execution>
@@ -659,10 +635,9 @@
 			<id>win-build</id> 
 			<activation>
 				<os>
-					<family>Windows</family>
+					<family>windows</family>
 				</os>
 			</activation>
-			<!-- JavaFX WIX (for MSI installer) -->
 			<dependencies>
 				<dependency>
 					<groupId>org.wixtoolset</groupId>
@@ -671,6 +646,9 @@
 					<scope>provided</scope>
 				</dependency>
 			</dependencies>
+			<properties>
+				<os.family>windows</os.family>
+			</properties>
 		</profile>
 		<profile>
 			<id>mac-build</id> 
@@ -679,14 +657,20 @@
 					<family>mac</family> 
 				</os>
 			</activation>
+			<properties>
+				<os.family>mac</os.family>
+			</properties>
 		</profile>
 		<profile>
 			<id>linux-build</id> 
 			<activation>
 				<os>
-					<family>Linux</family>
+					<family>linux</family>
 				</os>
 			</activation>
+			<properties>
+				<os.family>linux</os.family>
+			</properties>
 		</profile>
 	</profiles>
 </project>
