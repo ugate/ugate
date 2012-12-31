@@ -5,7 +5,7 @@
 	<!-- ================================= NOTE: ================================= 
 		m2e ( http://download.eclipse.org/technology/m2e/releases ) supported, but 
 		1) Proper Maven installation needs to be performed: http://maven.apache.org/download.html#Installation
-		1) Packaging should only occur via Maven command-line "mvn clean package verify"
+		1) Packaging should only occur via Maven command-line "mvn clean package"
 		========================================================================== -->
 
 	<modelVersion>4.0.0</modelVersion>
