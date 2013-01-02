@@ -54,7 +54,7 @@ public class HostConnection extends VBox {
 		
 		final StatusIcon wirelessIcon = new StatusIcon(
 				RS.imgView(RS.IMG_WIRELESS_ICON), GuiUtil.COLOR_OFF);
-		cb.addServiceBehavior(wirelessIcon, null, ServiceProvider.Type.WEB, KEY.WIRELESS_CONNECT_DESC);
+		cb.addServiceBehavior(wirelessIcon, null, ServiceProvider.Type.WIRELESS, KEY.WIRELESS_CONNECT_DESC);
 		final StatusIcon webIcon = new StatusIcon(
 				RS.imgView(RS.IMG_WEB_ICON), GuiUtil.COLOR_OFF);
 		cb.addServiceBehavior(webIcon, null, ServiceProvider.Type.WEB, KEY.WIRELESS_WEB_START_STOP_DESC);
