@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,8 +40,6 @@ import javax.imageio.stream.ImageInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
-import org.ugate.service.entity.IModelType;
-import org.ugate.service.entity.Model;
 import org.ugate.service.entity.RemoteNodeReadingType;
 import org.ugate.service.entity.RemoteNodeType;
 
@@ -63,9 +60,10 @@ public class RS {
 	public static final String HTML_SERVO_NAV = "nav.html";
 	public static final String CSS_MAIN = "main.css";
 	public static final String CSS_DISPLAY_SHELF = "displayshelf.css";
-	public static final String IMG_LOGO_128 = "logo128x128.png";
-	public static final String IMG_LOGO_64 = "logo64x64.png";
-	public static final String IMG_LOGO_16 = "logo16x16.png";
+	public static final String IMG_LOGO_128 = "logo128x128x32.png";
+	public static final String IMG_LOGO_48 = "logo48x48x32.png";
+	public static final String IMG_LOGO_32 = "logo32x32x32.png";
+	public static final String IMG_LOGO_16 = "logo16x16x32.png";
 	public static final String IMG_SKIN_MIN = "ugskin-btn-min32x10.png";
 	public static final String IMG_SKIN_MAX = "ugskin-btn-max25x10.png";
 	public static final String IMG_SKIN_RESTORE = "ugskin-btn-res25x10.png";
@@ -133,7 +131,10 @@ public class RS {
 	public static final AudioClip mediaPlayerBlip = RS.audioClip("x_blip.wav");
 	private static final Map<String, Image> IMGS = new HashMap<String, Image>();
 	private static final Pattern htmlBodyRegex = Pattern.compile("(.*)<body([^>]*)>(.*)</body>(.*)", Pattern.DOTALL);
-	
+
+	/**
+	 * Constructor
+	 */
 	private RS() {
 	}
 	
@@ -247,58 +248,6 @@ public class RS {
 	 */
 	public static String path(final String fileName) {
 		return RS.class.getResource(fileName).toExternalForm();
-	}
-
-	public static <T extends Model> String getEscapedResource(
-			final String fileName) {
-		return getEscapedResource(fileName, null, null, null);
-	}
-	/**
-	 * Gets an escaped resource path
-	 * 
-	 * @param fileName the resource file name
-	 * @return the resource path
-	 */
-	public static <T extends Model> String getEscapedResource(
-			final String fileName, final String replaceWithContent,
-			final T model, final IModelType<T>[] types) {
-		try (final InputStream is = RS.class.getResourceAsStream(fileName)) {
-			try (final Scanner sr = new Scanner(is)) {
-				return getEscapedContent(sr.useDelimiter("\\A").next(),
-						replaceWithContent, model, types);
-			}
-		} catch (final Throwable t) {
-			return null;
-		}
-	}
-
-
-	public static <T extends Model> String getEscapedContent(
-			final String content, final String replaceWithContent,
-			final T model, final IModelType<T>[] types) {
-		String str = content;
-		if (model != null) {
-			String rp = "", rv = "";
-			Object val;
-			for (final IModelType<T> type : types) {
-				//str = str.replaceAll("__.*__", "");
-				rp = "__" + type.name() + "__";
-				try {
-					val = type.getValue(model);
-					rv = val != null ? val.toString() : "";
-					str = str.replaceAll(rp, rv);
-					log.info(String.format(
-							"Replaced %1$s with extracted value %2$s from %3$s",
-							rp, rv, model));
-				} catch (final Throwable t) {
-					log.warn(String.format(
-									"Unable to replace %1$s with extracted value from %2$s due to %3$s: %4$s",
-									rp, model, t.getClass().getName(),
-									t.getMessage()));
-				}
-			}
-		}
-		return str;
 	}
 
 	/**

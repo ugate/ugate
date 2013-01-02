@@ -45,8 +45,10 @@ public class AppFrame extends StackPane {
 	public static final double LEFT_BORDER_WIDTH = 1;
 	public static final double RIGHT_BORDER_WIDTH = 1;
 	public static final double TOP_MIN_MAX_CLOSE_ADJUSTMENT = 5;
-	public static final double LOGO_X = 20;
-	public static final double LOGO_Y = 0;
+	// Icon frame is 5 pixels from the left edge of the title bar
+	public static final double LOGO_X_OFFSET = 5d;
+	// Icon frame has a diameter of 64 pixels. Therefore, offset is 64/4
+	public static final double LOGO_Y_OFFSET = -16d;
 	private final HBox titleBarCenter;
 	private Rectangle2D backupWindowBounds;
     private double mouseDragOffsetX = 0;
@@ -81,11 +83,13 @@ public class AppFrame extends StackPane {
 				stage.getScene().getStylesheets().add(cssPath);
 			}
 		}
-	    
-	    // logo
-	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_64);
-	    logoView.setTranslateX(LOGO_X);
-	    logoView.setTranslateY(LOGO_Y);
+
+//	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_128);
+//	    logoView.setTranslateX(LOGO_X_OFFSET + logoView.getImage().getWidth() / 2d);
+//	    logoView.setTranslateY(LOGO_Y_OFFSET + logoView.getImage().getHeight() / 2d);
+	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_128, 64d, 64d, true, true);
+	    logoView.setTranslateX(LOGO_X_OFFSET + logoView.getImage().getRequestedWidth() / 4d);
+	    logoView.setTranslateY(LOGO_Y_OFFSET + logoView.getImage().getRequestedHeight() / 4d);
 //	    final ScaleTransition logoViewEffect = new ScaleTransition(Duration.seconds(4), logoView);
 //	    logoViewEffect.setByX(0.5f);
 //	    logoViewEffect.setByY(0.5f);
