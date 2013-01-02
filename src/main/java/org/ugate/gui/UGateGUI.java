@@ -169,7 +169,9 @@ public class UGateGUI extends Application {
 			log.debug("Starting GUI...");
 			notifyPreloader(new ProgressNotification(0.1d));
 			
-			stage.getIcons().addAll(RS.img(RS.IMG_LOGO_16), RS.img(RS.IMG_LOGO_64), RS.img(RS.IMG_LOGO_128));
+			stage.getIcons().addAll(RS.img(RS.IMG_LOGO_128),
+					RS.img(RS.IMG_LOGO_48), RS.img(RS.IMG_LOGO_32),
+					RS.img(RS.IMG_LOGO_16));
 			stage.setTitle(RS.rbLabel(KEY.APP_TITLE));
 
 			log.debug("Iniitializing Services...");

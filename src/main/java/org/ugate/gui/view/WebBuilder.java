@@ -160,17 +160,6 @@ public class WebBuilder extends BorderPane {
 		}
 		return true;
 	}
-
-	protected String getContent(final boolean justBodyContent) {
-		String content = RS.getEscapedResource("index.html", null,
-				cb.getRemoteNode(), RemoteNodeType.values());
-		content = RS.getEscapedContent(content, null, cb.getActor(),
-				ActorType.values());
-		if (justBodyContent) {
-			content = RS.getHtmlBodyContent(content);
-		}
-		return content;
-	}
 	
 	protected String getCurrentPageSource() {
         try {

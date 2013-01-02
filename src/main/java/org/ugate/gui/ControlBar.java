@@ -25,6 +25,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.DropShadowBuilder;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -84,7 +85,7 @@ public class ControlBar extends ToolBar {
 	
 	private static final Logger log = LoggerFactory.getLogger(ControlBar.class);
 	private static final double CONNECTION_STATUS_SIZE = 32d;
-	public static final Color ATTENTION_COLOR = Color.YELLOW;
+	public static final Color ATTENTION_COLOR = Color.GOLD;
 	public static final int HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT = 8;
 	public static final double CHILD_SPACING = 10d;
 	public static final double CHILD_PADDING = 5d;
@@ -111,18 +112,19 @@ public class ControlBar extends ToolBar {
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
 		final DropShadow settingsDS = new DropShadow();
-		this.settingsSetTimeline = GuiUtil.createDropShadowColorIndicatorTimeline(
+		this.settingsSetTimeline = GuiUtil.createShadowColorIndicatorTimeline(
 				settingsDS, ATTENTION_COLOR, Color.BLACK, Timeline.INDEFINITE);
 		// help view
-		final DropShadow helpTextDropShadow = new DropShadow();
-		helpTextDropShadow.setRadius(50d);
-		final Timeline helpTextTimeline = GuiUtil.createDropShadowColorIndicatorTimeline(
-				helpTextDropShadow, ATTENTION_COLOR, Color.BLACK.brighter(), HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
+		final InnerShadow helpTextEffect = new InnerShadow();
+		helpTextEffect.setRadius(10d);
+		final Timeline helpTextTimeline = GuiUtil.createShadowColorIndicatorTimeline(
+				helpTextEffect, ATTENTION_COLOR, Color.BLACK.brighter(), 
+				HELP_TEXT_COLOR_CHANGE_CYCLE_COUNT);
 		helpTextPane = new ScrollPane();
 		helpTextPane.getStyleClass().add("text-area-help");
 		//helpTextPane.setPrefHeight(40d);
 		helpTextPane.setPrefWidth(300d);
-		helpTextPane.setEffect(helpTextDropShadow);
+		helpTextPane.setEffect(helpTextEffect);
 		helpText = new Label(RS.rbLabel(UGateUtil.HELP_TEXT_DEFAULT_KEY));
 		helpText.setWrapText(true);
 		helpText.setPrefWidth(helpTextPane.getPrefWidth() - 35d);

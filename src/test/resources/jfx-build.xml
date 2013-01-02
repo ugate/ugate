@@ -29,7 +29,7 @@
 		<echo message="Packaged JavaFX JAR: ${ugate.deploy.jar.dir}/${project.build.finalName}.${project.packaging}" />
 	</target>
 	<target name="jfx-deploy">
-		<echo message="Packaging Native Bundles (user.dir = ^${user.dir} java.home = ^${java.home})" />
+		<echo message="Packaging Native Bundles (user.dir = ^${user.dir} jfxBuildJavaHome = ^${jfxBuildJavaHome})" />
 		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" classpath="^${maven.plugin.classpath}" />
 		<!-- <taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
 		<!-- classpathref="maven.plugin.classpath" /> -->
@@ -89,7 +89,7 @@
 		<!-- If the native library isn't copied to the JVM 1st JFX won't copy it to the bundled JVM -->
 		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.jnilib" tofile="${jfxBuildJavaHome}/lib/librxtxSerial.jnilib" verbose="true" />
 		<copy file="${project.build.testOutputDirectory}/librxtxSerial-${ugate.rxtx.version}.${os.family}.${registerSize}.jnilib" tofile="${ugate.deploy.jre.dir}/lib/librxtxSerial.jnilib" verbose="true" />
-		<copy file="${project.build.testOutputDirectory}/logo128x128.icns" tofile="${ugate.deploy.package.dir}/${os.family}/${project.name}.icns" verbose="true" />
+		<copy file="${project.build.testOutputDirectory}/logo128x128.icns" tofile="${ugate.deploy.package.dir}/macosx/${project.name}.icns" verbose="true" />
 	</target>
 	<target name="linux-natives" if="isLinux">
 		<echo message="Copying ${os.family} ${registerSize}-Bit RXTX binaries to the bundled JRE" />

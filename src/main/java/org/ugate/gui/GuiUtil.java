@@ -23,6 +23,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.ColorAdjustBuilder;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
@@ -401,10 +402,11 @@ public class GuiUtil {
 	
 	/**
 	 * Creates a {@linkplain Timeline} that will alternate the
-	 * {@linkplain Color}s of the {@linkplain DropShadow} when played
+	 * {@linkplain Color}s of the {@linkplain InnerShadow} or {@link DropShadow}
+	 * when played
 	 * 
-	 * @param ds
-	 *            the {@linkplain DropShadow}
+	 * @param effect
+	 *            the {@linkplain InnerShadow} or {@link DropShadow}
 	 * @param onColor
 	 *            the on {@linkplain Color}
 	 * @param offColor
@@ -413,22 +415,36 @@ public class GuiUtil {
 	 *            the {@linkplain Timeline#getCycleCount()}
 	 * @return the {@linkplain Timeline}
 	 */
-	public static Timeline createDropShadowColorIndicatorTimeline(final DropShadow ds, 
+	public static Timeline createShadowColorIndicatorTimeline(final Effect effect, 
 			final Color onColor, final Color offColor, final int cycleCount) {
-		ds.setColor(offColor);
+		if (effect instanceof DropShadow) {
+			((DropShadow) effect).setColor(offColor);
+		} else {
+			((InnerShadow) effect).setColor(offColor);
+		}
 		final Timeline timeline = new Timeline();
 		timeline.setCycleCount(cycleCount <=0 ? Timeline.INDEFINITE : cycleCount);
 		timeline.setAutoReverse(true);
 		final KeyFrame kf = new KeyFrame(Duration.millis(500), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
-				ds.setColor(ds.getColor().equals(offColor) ? onColor : offColor);
+				if (effect instanceof DropShadow) {
+					((DropShadow) effect).setColor(
+							((DropShadow) effect).getColor().equals(offColor) ? onColor : offColor);
+				} else {
+					((InnerShadow) effect).setColor(
+							((InnerShadow) effect).getColor().equals(offColor) ? onColor : offColor);
+				}
 			}
 		});
 		timeline.setOnFinished(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
-				ds.setColor(offColor);
+				if (effect instanceof DropShadow) {
+					((DropShadow) effect).setColor(offColor);
+				} else {
+					((InnerShadow) effect).setColor(offColor);
+				}
 			}
 		});
 		timeline.getKeyFrames().add(kf);
