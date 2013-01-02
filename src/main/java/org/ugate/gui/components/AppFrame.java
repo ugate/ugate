@@ -46,7 +46,7 @@ public class AppFrame extends StackPane {
 	public static final double RIGHT_BORDER_WIDTH = 1;
 	public static final double TOP_MIN_MAX_CLOSE_ADJUSTMENT = 5;
 	// Icon frame is 5 pixels from the left edge of the title bar
-	public static final double LOGO_X_OFFSET = 5d;
+	public static final double LOGO_X_OFFSET = 3d;
 	// Icon frame has a diameter of 64 pixels. Therefore, offset is 64/4
 	public static final double LOGO_Y_OFFSET = -16d;
 	private final HBox titleBarCenter;
@@ -84,7 +84,7 @@ public class AppFrame extends StackPane {
 			}
 		}
 
-//	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_128);
+//	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_48);
 //	    logoView.setTranslateX(LOGO_X_OFFSET + logoView.getImage().getWidth() / 2d);
 //	    logoView.setTranslateY(LOGO_Y_OFFSET + logoView.getImage().getHeight() / 2d);
 	    final ImageView logoView = RS.imgView(RS.IMG_LOGO_128, 64d, 64d, true, true);
