@@ -337,24 +337,6 @@
 				<version>${ugate.plugin.dependency.version}</version>
 				<executions>
 					<execution>
-						<id>copy-rxtx-jar</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<!-- Copy RXTX for inclusion in JFX bundled JVM -->
-								<artifactItem>
-									<groupId>org.rxtx</groupId>
-									<artifactId>rxtx</artifactId>
-									<version>${ugate.rxtx.version}</version>
-								</artifactItem>
-							</artifactItems>
-							<outputDirectory>${ugate.deploy.dir}</outputDirectory>
-						</configuration>
-					</execution>
-					<execution>
 						<id>unpack-shade-for-fx</id>
 						<phase>package</phase>
 						<goals>
@@ -371,11 +353,11 @@
 								</artifactItem>
 								<!-- JavaFX native packaging tools need to reside under the same directory 
 									that the build id running under -->
-								<artifactItem>
-									<groupId>org.wixtoolset</groupId>
-									<artifactId>wix-toolset</artifactId>
-									<outputDirectory>${ugate.deploy.dir}</outputDirectory>
-								</artifactItem>
+<!-- 								<artifactItem> -->
+<!-- 									<groupId>org.wixtoolset</groupId> -->
+<!-- 									<artifactId>wix-toolset</artifactId> -->
+<!-- 									<outputDirectory>${ugate.deploy.dir}</outputDirectory> -->
+<!-- 								</artifactItem> -->
 							</artifactItems>
 						</configuration>
 					</execution>
@@ -646,6 +628,34 @@
 					<family>windows</family>
 				</os>
 			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>${ugate.plugin.dependency.version}</version>
+						<executions>
+							<execution>
+								<id>unpack-wix-for-fx</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>unpack</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<!-- JavaFX native packaging tools need to reside under the same directory 
+											that the build id running under -->
+										<artifactItem>
+											<groupId>org.wixtoolset</groupId>
+											<artifactId>wix-toolset</artifactId>
+											<outputDirectory>${ugate.deploy.dir}</outputDirectory>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 			<dependencies>
 				<dependency>
 					<groupId>org.wixtoolset</groupId>

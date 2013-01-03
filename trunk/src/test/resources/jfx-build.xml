@@ -1,7 +1,7 @@
 <project name="JavaFX" default="jfx-jar" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
 	<target name="jfx-jar">
 		<echo message="Packaging JavaFX JAR" />
-		<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar" />
+		<taskdef name="jar" classname="com.sun.javafx.tools.ant.FXJar" classpath="^${maven.plugin.classpath}" />
 		<jar destfile="${ugate.deploy.jar.dir}/${project.build.finalName}.${project.packaging}" verbose="true">
 			<application id="${project.artifactId}" name="${project.name}" mainClass="${ugate.main}" />
 			<!-- <application id="${project.artifactId}" name="${project.name}" -->
@@ -29,8 +29,8 @@
 		<echo message="Packaged JavaFX JAR: ${ugate.deploy.jar.dir}/${project.build.finalName}.${project.packaging}" />
 	</target>
 	<target name="jfx-deploy">
-		<echo message="Packaging Native Bundles (user.dir = ^${user.dir} jfxBuildJavaHome = ^${jfxBuildJavaHome})" />
-		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" classpath="^${maven.plugin.classpath}" />
+		<echo message="Packaging Native Bundles (user.dir = ^${user.dir} jfxBuildJavaHome = ${jfxBuildJavaHome})" />
+		<taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" classpath=".:^${maven.plugin.classpath}" />
 		<!-- <taskdef name="jfxdeploy" classname="com.sun.javafx.tools.ant.DeployFXTask" -->
 		<!-- classpathref="maven.plugin.classpath" /> -->
 		<jfxdeploy width="900" height="800" nativeBundles="all" verbose="true" outdir="${ugate.deploy.native.dir}" outfile="${project.artifactId}">
@@ -72,7 +72,9 @@
 			<contains string="${os.family}" substring="linux" casesensitive="false" />
 		</condition>
 		<echo>NOTE: ${os.family} RXTX bundled in ${registerSize}-Bit JVM found at ${jfxBuildJavaHome} (working JVM dir: ${ugate.deploy.jre.dir})</echo>
-		<copy file="${ugate.deploy.dir}/rxtx-${ugate.rxtx.version}.jar" tofile="${ugate.deploy.jre.dir}/lib/ext/RXTXcomm.jar" verbose="true" />
+		<!-- <copy file="${ugate.deploy.dir}/rxtx-${ugate.rxtx.version}.jar" tofile="${ugate.deploy.jre.dir}/lib/ext/RXTXcomm.jar" verbose="true" /> -->
+		<!-- JCE provider needed for HTTPS connections -->
+		<copy file="${jfxBuildJavaHome}/lib/ext/sunjce_provider.jar" tofile="${ugate.deploy.jre.dir}/lib/ext/sunjce_provider.jar" verbose="true" />
 		<antcall target="win-natives" inheritall="true" />
 		<antcall target="mac-natives" inheritall="true" />
 		<antcall target="linux-natives" inheritall="true" />
