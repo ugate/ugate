@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
@@ -847,7 +848,26 @@ public class RS {
 	public static String rbLabel(final KEY key, final Object... formatArguments) {
 		return rbLabel(Locale.getAvailableLocales()[0], key, formatArguments);
 	}
-	
+
+	/**
+	 * Gets the first available locale and the label resource bundles value for
+	 * the specified key and generates a {@link URI} from it
+	 * 
+	 * @param key
+	 *            the {@linkplain KEY} of the resource bundle value
+	 * @param formatArguments
+	 *            the {@linkplain String#format(Locale, String, Object...)}
+	 *            arguments
+	 * @return the {@link URI}
+	 */
+	public static URI rbURI(final KEY key, final Object... formatArguments) {
+		try {
+			return new URI(rbLabel(Locale.getAvailableLocales()[0], key, formatArguments));
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
 	/**
 	 * Gets the a label resource bundles value for the specified key
 	 * 

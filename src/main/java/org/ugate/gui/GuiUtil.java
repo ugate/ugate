@@ -1,5 +1,9 @@
 package org.ugate.gui;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -16,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBuilder;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.LabelBuilder;
 import javafx.scene.control.ProgressBarBuilder;
@@ -77,6 +82,36 @@ public class GuiUtil {
 	 * Private utility constructor
 	 */
 	private GuiUtil() {
+	}
+
+	/**
+	 * Creates an external {@link Hyperlink} that will open in the default
+	 * browser (if supported)
+	 * 
+	 * @param text
+	 *            the {@link Hyperlink#getText()} (when null the {@link URI}
+	 *            will be used)
+	 * @param uri
+	 *            the {@link URI} of the {@link Hyperlink}
+	 * @return the external {@link Hyperlink}
+	 */
+	public static Hyperlink externalHyperlink(final String text, final URI uri) {
+		final Hyperlink a = new Hyperlink();
+		a.setText(text == null ? uri.toString() : text);
+		a.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop.getDesktop().browse(uri);
+					} catch (IOException e) {
+						throw new RuntimeException(String.format(
+								"Unable to open %1$s/%2$s", text, uri), e);
+					}
+				}
+			}
+		});
+		return a;
 	}
 
 	/**

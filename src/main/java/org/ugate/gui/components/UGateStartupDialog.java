@@ -15,7 +15,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckBoxBuilder;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ComboBoxBuilder;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.PasswordFieldBuilder;
 import javafx.scene.control.TextField;
@@ -31,6 +30,7 @@ import org.slf4j.Logger;
 import org.ugate.UGateUtil;
 import org.ugate.gui.ControlBar;
 import org.ugate.gui.GuiUtil;
+import org.ugate.gui.GuiUtil.DialogService;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
@@ -193,8 +193,8 @@ public enum UGateStartupDialog {
 					}
 				};
 			}
-		}, null, closeBtn, new Hyperlink(RS.rbLabel(KEY.APP_DIALOG_SETUP_LINK)), wirelessPort, wirelessBaud, wirelessHostAddy, 
-		wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify, autoActor);
+		}, null, closeBtn, GuiUtil.externalHyperlink(null, RS.rbURI(KEY.APP_DIALOG_SETUP_LINK)), wirelessPort, wirelessBaud, 
+		wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify, autoActor);
 		dialogService.getStage().addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(final WindowEvent event) {
