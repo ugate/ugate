@@ -50,26 +50,26 @@
 	<!-- =========================================================== -->
 	<New id="xaDataSource" class="org.eclipse.jetty.plus.jndi.Resource">
 		<Arg></Arg>
-		<Arg>jdbc/ugateDS</Arg>
+		<Arg>${ugate.db.jta.ds.name}</Arg>
 		<Arg>
 			<New id="atomikosDS" class="com.atomikos.jdbc.AtomikosDataSourceBean">
 				<Set name="minPoolSize">2</Set>
 				<Set name="maxPoolSize">50</Set>
-				<Set name="xaDataSourceClassName">org.h2.jdbcx.JdbcDataSource</Set>
-				<Set name="UniqueResourceName">jdbc/ugateDS</Set>
-				<Set name="testQuery">SELECT 1 and SELECT 1 FROM DUAL</Set>
+				<Set name="xaDataSourceClassName">${ugate.db.jta.ds.xa}</Set>
+				<Set name="UniqueResourceName">${ugate.db.jta.ds.name}</Set>
+				<Set name="testQuery">${ugate.db.test.query}</Set>
 				<Get name="xaProperties">
 					<Call name="setProperty">
 						<Arg>URL</Arg>
-						<Arg>jdbc:h2:~/ugate/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0</Arg>
+						<Arg>${ugate.db.connection.url}</Arg>
 					</Call>
 					<Call name="setProperty">
 						<Arg>user</Arg>
-						<Arg>sa</Arg>
+						<Arg>${ugate.db.username}</Arg>
 					</Call>
 					<Call name="setProperty">
 						<Arg>password</Arg>
-						<Arg>sa</Arg>
+						<Arg>${ugate.db.password}</Arg>
 					</Call>
 				</Get>
 			</New>
@@ -96,8 +96,8 @@
 		<Arg>
 			<Ref id='Server' />
 		</Arg>
-		<Arg>jdbc/ugateDS</Arg>
-		<Arg>jdbc/ugateDS</Arg>
+		<Arg>${ugate.db.jta.ds.name}</Arg>
+		<Arg>${ugate.db.jta.ds.name}</Arg>
 	</New>
 	<!-- =========================================================== -->
 	<!-- Define server transaction aware JTA implementation -->

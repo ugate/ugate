@@ -68,7 +68,7 @@ public class WirelessService {
 			return true;
 		}
 		log.debug("Initializing local XBee");
-		// ensure that the needed RXTX is installed (if not install it)
+		// ensure that the needed RXTX is installed/loaded (if not install/load it)
 		requiresRestart = RS.initComm();
 		if (requiresRestart) {
 			return false;

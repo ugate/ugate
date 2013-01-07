@@ -14,10 +14,23 @@
 	<artifactId>ugate</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0</version>
-	<name>UGate Console</name>
+	<name>UGate</name>
+	<url>http://${project.artifactId}.org</url>
 	<description>
 		${project.name} interface that facilitates access and maintainability of remote micro-controller node(s) used for security surveillance.
 	</description>
+	<organization>
+		<name>${project.name}</name>
+		<url>${project.url}</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>${ugate.license.name}</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A ${project.organization.name} business-friendly OSS license</comments>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -81,6 +94,7 @@
 		<ugate.main>${project.groupId}.gui.UGateGUI</ugate.main>
 		<ugate.preloader>${project.groupId}.gui.components.StartupPreloader</ugate.preloader>
 		<ugate.repo>${basedir}/libs</ugate.repo>
+		<ugate.license.name>The Apache Software License, Version 2.0</ugate.license.name>
 		<!-- TODO : Once the JavaFX Ant tool is in the central Maven repo the path 
 			can be removed (java.home should point to the JDK root directory) -->
 		<ugate.javafx.ant.jar>${java.home}/../lib/ant-javafx.jar</ugate.javafx.ant.jar>
@@ -90,6 +104,7 @@
 		<ugate.deploy.package.dir>${ugate.deploy.dir}/package</ugate.deploy.package.dir>
 		<ugate.deploy.jre.dir>${ugate.deploy.package.dir}/runtime/jre</ugate.deploy.jre.dir>
 		<jfxBuildJavaHome>${java.home}</jfxBuildJavaHome>
+		<jfxBuildVerbose>true</jfxBuildVerbose>
 		<jfxBuildTargets>jfx-copy-natives,jfx-jar,jfx-deploy</jfxBuildTargets>
 	</properties>
 
@@ -107,31 +122,18 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-			</resource>
-			<!-- Make sure that any resources that belong in src/main/java are filtered 
-				and copied (eases IDE use by only requiring java source directory with filtered 
-				resources- requires Maven to be run at least 1x before running in IDE) -->
-			<resource>
-				<directory>src/main/config/filter</directory>
-				<filtering>true</filtering>
-				<targetPath>${basedir}/src/main/java</targetPath>
+				<excludes>
+					<exclude>**/*build.xml</exclude>
+				</excludes>
 			</resource>
 			<resource>
-				<directory>src/main/config/META-INF</directory>
+				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
-				<targetPath>${basedir}/src/main/java/META-INF</targetPath>
+				<includes>
+					<include>**/*build.xml</include>
+				</includes>
+				<targetPath>${ugate.deploy.dir}</targetPath>
 			</resource>
-			<resource>
-				<directory>src/main/config/WEB-INF</directory>
-				<filtering>true</filtering>
-				<targetPath>${basedir}/src/main/java/WEB-INF</targetPath>
-			</resource>
-			<!-- http://iconverticons.com/online/ -->
-<!-- 			<resource> -->
-<!-- 				<directory>src/main/config/icons</directory> -->
-<!-- 				<filtering>true</filtering> -->
-<!-- 				<targetPath>${ugate.deploy.dir}/icons</targetPath> -->
-<!-- 			</resource> -->
 			<!-- Make sure that any other resources like CSS, images, sounds, etc. 
 				are included -->
 			<resource>
@@ -145,6 +147,7 @@
 				<filtering>false</filtering>
 			</resource>
 		</resources>
+		<!-- http://iconverticons.com/online/ -->
 		<testResources>
 			<testResource>
 				<directory>src/test/resources</directory>
@@ -397,9 +400,10 @@
 							</includes>
 							<workingDirectory>${ugate.deploy.dir}</workingDirectory>
 							<systemPropertyVariables>
-								<buildFile>${project.build.testOutputDirectory}/jfx-build.xml</buildFile>
+								<buildFile>jfx-build.xml</buildFile>
 								<buildClassPath>${maven.plugin.classpath}</buildClassPath>
 								<buildTargets>${jfxBuildTargets}</buildTargets>
+								<buildVerbose>${jfxBuildVerbose}</buildVerbose>
 							</systemPropertyVariables>
 						</configuration>
 					</execution>
@@ -628,34 +632,34 @@
 					<family>windows</family>
 				</os>
 			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<version>${ugate.plugin.dependency.version}</version>
-						<executions>
-							<execution>
-								<id>unpack-wix-for-fx</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>unpack</goal>
-								</goals>
-								<configuration>
-									<artifactItems>
-										<!-- JavaFX native packaging tools need to reside under the same directory 
-											that the build id running under -->
-										<artifactItem>
-											<groupId>org.wixtoolset</groupId>
-											<artifactId>wix-toolset</artifactId>
-											<outputDirectory>${ugate.deploy.dir}</outputDirectory>
-										</artifactItem>
-									</artifactItems>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
+<!-- 			<build> -->
+<!-- 				<plugins> -->
+<!-- 					<plugin> -->
+<!-- 						<artifactId>maven-dependency-plugin</artifactId> -->
+<!-- 						<version>${ugate.plugin.dependency.version}</version> -->
+<!-- 						<executions> -->
+<!-- 							<execution> -->
+<!-- 								<id>unpack-wix-for-fx</id> -->
+<!-- 								<phase>prepare-package</phase> -->
+<!-- 								<goals> -->
+<!-- 									<goal>unpack</goal> -->
+<!-- 								</goals> -->
+<!-- 								<configuration> -->
+<!-- 									<artifactItems> -->
+<!-- 										JavaFX native packaging tools need to reside under the same directory -->
+<!-- 											that the build id running under --> 
+<!-- 										<artifactItem> -->
+<!-- 											<groupId>org.wixtoolset</groupId> -->
+<!-- 											<artifactId>wix-toolset</artifactId> -->
+<!-- 											<outputDirectory>${ugate.deploy.dir}</outputDirectory> -->
+<!-- 										</artifactItem> -->
+<!-- 									</artifactItems> -->
+<!-- 								</configuration> -->
+<!-- 							</execution> -->
+<!-- 						</executions> -->
+<!-- 					</plugin> -->
+<!-- 				</plugins> -->
+<!-- 			</build> -->
 			<dependencies>
 				<dependency>
 					<groupId>org.wixtoolset</groupId>
