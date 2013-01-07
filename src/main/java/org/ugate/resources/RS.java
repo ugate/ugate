@@ -32,6 +32,7 @@ import javafx.scene.CacheHint;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.AudioClip;
+import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -229,7 +230,17 @@ public class RS {
 			return img;
 		}
 	}
-	
+
+	/**
+	 * Adds the application icon {@link Image}(s) to the specified {@link Stage}
+	 * 
+	 * @param stage
+	 *            the {@link Stage}
+	 */
+	public static void img(final Stage stage) {
+		stage.getIcons().add(img(RS.IMG_LOGO_128));
+	}
+
 	/**
 	 * Gets a resource stream
 	 * 
@@ -896,6 +907,7 @@ public class RS {
 		APP_CAPTURE_DESC("app.capture.desc"),
 		APP_WEB_TOOL_DESC("app.web.tool.desc"),
 		APP_DIALOG_SETUP("app.dialog.setup"),
+		APP_DIALOG_SETUP_LINK("app.dialog.setup.link"),
 		APP_DIALOG_SETUP_ERROR("app.dialog.setup.error", 1),
 		APP_DIALOG_SETUP_ERROR_PWD_MISMATCH(
 				"app.dialog.setup.error.password.mismatch"),

@@ -289,7 +289,7 @@ public class GuiUtil {
 				stage.initModality(Modality.APPLICATION_MODAL);
 			}
 			stage.initStyle(StageStyle.TRANSPARENT);
-			stage.getIcons().add(RS.img(RS.IMG_LOGO_16));
+			RS.img(stage);
 			if (titleKey != null) {
 				stage.setTitle(RS.rbLabel(titleKey));
 			}
