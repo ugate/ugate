@@ -15,6 +15,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckBoxBuilder;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ComboBoxBuilder;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.PasswordFieldBuilder;
 import javafx.scene.control.TextField;
@@ -101,7 +102,7 @@ public enum UGateStartupDialog {
 				RS.rbLabel(KEY.APP_DIALOG_PWD_VERIFY)).build();
 		final CheckBox autoActor = CheckBoxBuilder.create().text(RS.rbLabel(KEY.APP_DIALOG_DEFAULT_USER)).build();
 		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEY.CLOSE)).build();
-		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEY.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 400d, new Service<Void>() {
+		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEY.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 500d, new Service<Void>() {
 			@Override
 			protected Task<Void> createTask() {
 				return new Task<Void>() {
@@ -192,8 +193,8 @@ public enum UGateStartupDialog {
 					}
 				};
 			}
-		}, null, closeBtn, wirelessPort, wirelessBaud, wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, 
-		username, password, passwordVerify, autoActor);
+		}, null, closeBtn, new Hyperlink(RS.rbLabel(KEY.APP_DIALOG_SETUP_LINK)), wirelessPort, wirelessBaud, wirelessHostAddy, 
+		wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify, autoActor);
 		dialogService.getStage().addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(final WindowEvent event) {
