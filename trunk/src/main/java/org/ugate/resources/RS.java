@@ -342,46 +342,93 @@ public class RS {
 	}
 	
 	/**
-	 * <p>Ensures that the needed RXTX is installed. If RXTX cannot be detected an 
-	 * attempt will be made to install it.</p>
-	 * <p><code>Ubuntu {@linkplain https://launchpad.net/ubuntu/+search?text=rxtx}, 
+	 * <p>
+	 * Ensures that the needed RXTX is loaded/installed. If RXTX cannot be
+	 * detected an attempt will be made to load/install it.
+	 * </p>
+	 * <p>
+	 * <code>Ubuntu {@linkplain https://launchpad.net/ubuntu/+search?text=rxtx}, 
 	 * Debian {@linkplain http://packages.debian.org/lenny/librxtx-java}, and 
 	 * Fedora {@linkplain https://admin.fedoraproject.org/pkgdb/acls/name/rxtx?_csrf_token=f10460d886559c3a4e824f14b13302dff6cb1511}
-	 * </code> all should have RXTX already installed 
-	 * from the distributions</p>
+	 * </code>
+	 * all should have RXTX already installed from the distributions
+	 * </p>
 	 * 
-	 * @return true when RXTX was installed and the application needs to be restarted
+	 * @return true when RXTX was installed and the application needs to be
+	 *         restarted
 	 */
 	public static boolean initComm() {
-		// TODO : Bundle JVM with RXTX within application
-		ManagementFactory.getRuntimeMXBean().getName();
+		log.info(String.format("Checking for RXTX native libs for JVM %1$s",
+				ManagementFactory.getRuntimeMXBean().getName()));
 		try {
 			getSerialPorts();
-			return false;
 		} catch (final NoClassDefFoundError e) {
 			// ClassNotFoundException
-//			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
-//					e.getClass().getName()));
-//			installComm();
-//			return true;
-			throw new IllegalStateException(
-					"RXTX needs to be installed. See http://rxtx.qbang.org/wiki/index.php/Installation",
-					e);
+			log.warn(String.format("RXTX not installed/loaded... attempting to install/load (from %1$s)", 
+					e.getClass().getName()), e);
+			loadComm();
+//			return installComm(); 
 		} catch (final UnsatisfiedLinkError e) {
-//			log.info(String.format("RXTX not installed... attempting to install (from %1$s)", 
-//					e.getClass().getName()));
-//			installComm();
-//			return true;
-			throw new IllegalStateException(
-					"RXTX needs to be installed. See http://rxtx.qbang.org/wiki/index.php/Installation",
-					e);
+			log.warn(String.format("RXTX not installed/loaded... attempting to install/load (from %1$s)", 
+					e.getClass().getName()), e);
+			loadComm();
+//			return installComm();
+		}
+		return false;
+	}
+
+	/**
+	 * {@link System#loadLibrary(String)} the native RXTX library.
+	 */
+	protected static void loadComm() {
+		try {
+			String rxtxFileName = rbLabel(KEY.RXTX_FILE_PREFIX);
+			String libName = null;
+			String suffix = "";
+			if (UGateUtil.isWindows()) {
+				libName = "rxtxSerial";
+				suffix = ".dll";
+				rxtxFileName += (".windows." + UGateUtil.getBitness() + suffix);
+			} else if (UGateUtil.isMac()) {
+				libName = "librxtxSerial";
+				suffix = ".jnilib";
+				rxtxFileName += (".mac." + UGateUtil.getBitness() + suffix);
+			} else if (UGateUtil.isLinux()) {
+				libName = "librxtxSerial";
+				suffix = ".so";
+				rxtxFileName += (".linux." + UGateUtil.getBitness() + suffix);
+			}
+			log.info(String
+					.format("Loading RXTX native libary %1$s for file %2$s", libName, rxtxFileName));
+			final Path commLibPath = Paths.get(RS.class.getProtectionDomain().getCodeSource().getLocation().getPath(), 
+					rxtxFileName);
+			final Path tempLibPath = Files.createTempFile(libName, suffix);
+			try {
+				Files.copy(commLibPath, tempLibPath, StandardCopyOption.REPLACE_EXISTING);
+				System.load(tempLibPath.toAbsolutePath().toString());
+				System.loadLibrary(libName);
+				// test
+				getSerialPorts();
+			} finally {
+				try {
+					Files.deleteIfExists(tempLibPath);
+				} catch (final Throwable t) {
+					// ignore
+				}
+			}
+		} catch (final Throwable t) {
+			throw new IllegalStateException("Unable to dynamically load Serial COM support. " + 
+					"RXTX needs to be installed in bundled JVM under the application's installation directory. " + 
+					"See http://rxtx.qbang.org/wiki/index.php/Installation", t);
 		}
 	}
-	
+
 	/**
 	 * Installs RXTX to the working JVM
+	 * 
+	 * @return true when the install was successful
 	 */
-	protected static void installComm() {
+	protected static boolean installComm() {
 		Path tempZip = null;
 		FileSystem fs = null;
 		FileSystem zipFs = null;
@@ -498,6 +545,7 @@ public class RS {
 			});
 			Files.deleteIfExists(tempZip);
 			//restartApplication();
+			return true;
 		} catch (final Throwable t) {
 			throw new IllegalStateException("RXTX Install: Unable to install the required files needed for " + 
 					"Serial/Parallel communications! To install manually goto " + 
@@ -830,6 +878,7 @@ public class RS {
 	public enum KEY {
 		MAIN_CLASS("main.class"),
 		RXTX_VERSION("rxtx.version"),
+		RXTX_FILE_PREFIX("rxtx.file.prefix"),
 		RXTX_FILE_NAME("rxtx.file.name"),
 		APP_ID("app.id"),
 		APP_VERSION("app.version"),

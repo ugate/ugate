@@ -2,10 +2,10 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	version="3.0">
-	<display-name>UGate Console</display-name>
+	<display-name>${project.name}</display-name>
 <!-- 	<servlet> -->
 <!-- 		<servlet-name>DefaultServlet</servlet-name> -->
-<!-- 		<servlet-class>org.ugate.service.web.DefaultServlet</servlet-class> -->
+<!-- 		<servlet-class>${ugate.web.package}.DefaultServlet</servlet-class> -->
 <!-- 		<init-param> -->
 <!-- 			<param-name>debug</param-name> -->
 <!-- 			<param-value>0</param-value> -->
@@ -22,7 +22,7 @@
 <!-- 	</servlet-mapping> -->
 	<resource-ref>
 		<description>Application Database Resource</description>
-		<res-ref-name>jdbc/ugateDS</res-ref-name>
+		<res-ref-name>${ugate.db.jta.ds.name}</res-ref-name>
 		<res-type>javax.sql.DataSource</res-type>
 		<res-auth>Container</res-auth>
 		<res-sharing-scope>Shareable</res-sharing-scope>

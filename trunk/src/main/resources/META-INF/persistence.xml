@@ -9,22 +9,22 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence 
         http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
 	version="2.0">
-	<persistence-unit name="ugate" transaction-type="JTA">
+	<persistence-unit name="${project.artifactId}" transaction-type="JTA">
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
-		<jta-data-source>jdbc/ugateDS</jta-data-source>
-<!-- 		<non-jta-data-source>jdbc/UnmannagedugateDS</non-jta-data-source> -->
-		<class>org.ugate.service.entity.jpa.AppInfo</class>
-		<class>org.ugate.service.entity.jpa.Actor</class>
-		<class>org.ugate.service.entity.jpa.Role</class>
-		<class>org.ugate.service.entity.jpa.Host</class>
-		<class>org.ugate.service.entity.jpa.MailRecipient</class>
-		<class>org.ugate.service.entity.jpa.RemoteNode</class>
-		<class>org.ugate.service.entity.jpa.RemoteNodeReading</class>
+		<jta-data-source>${ugate.db.jta.ds.name}</jta-data-source>
+<!-- 		<non-jta-data-source>${ugate.db.jta.ds.name.unmanaged}</non-jta-data-source> -->
+		<class>${ugate.db.jpa.package}.AppInfo</class>
+		<class>${ugate.db.jpa.package}.Actor</class>
+		<class>${ugate.db.jpa.package}.Role</class>
+		<class>${ugate.db.jpa.package}.Host</class>
+		<class>${ugate.db.jpa.package}.MailRecipient</class>
+		<class>${ugate.db.jpa.package}.RemoteNode</class>
+		<class>${ugate.db.jpa.package}.RemoteNodeReading</class>
 		<validation-mode>CALLBACK</validation-mode>
 		<properties>
 <!-- 			<property name="openjpa.Log" value="slf4j"/> -->
 			<property name="openjpa.Log" value="DefaultLevel=WARN, Enhance=INFO, MetaData=INFO, Query=INFO, DataCache=WARN, JDBC=WARN, Tool=INFO, SQL=WARN"/>
-<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="org.ugate.service.entity.UGateJdbcListener"/> -->
+<!-- 			<property name="openjpa.jdbc.JDBCListeners" value="${ugate.db.listeners}"/> -->
 			
 			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(SchemaAction=add,ForeignKeys=true)"/>
 <!-- 			<property name="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/> -->
@@ -33,8 +33,8 @@
 			<property name="openjpa.DynamicEnhancementAgent" value="false"/>
 <!-- 			<property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72" /> -->
 
-			<property name="openjpa.LockTimeout" value="60000" />
-			<property name="openjpa.ConnectionFactoryProperties" value="QueryTimeout=5000" />
+			<property name="openjpa.LockTimeout" value="${ugate.db.tx.timeout}" />
+			<property name="openjpa.ConnectionFactoryProperties" value="QueryTimeout=${ugate.db.sql.timeout}" />
 			<property name="openjpa.ConnectionFactoryMode" value="managed" />
 			<property name="openjpa.TransactionMode" value="managed" />
 			<property name="openjpa.ManagedRuntime"
@@ -42,10 +42,10 @@
 <!-- 			<property name="openjpa.ManagedRuntime" value="jndi(TransactionManagerName=UserTransaction)" /> -->
 <!-- 			<property name="openjpa.jdbc.UpdateManager" value="operation-order" /> -->
 		<!-- use OpenJPA's built-in DataSource for unmanaged connections (can use non-jta-data-source for JNDI lookup instead) -->
-<!-- 			<property name="openjpa.Connection2URL" value="jdbc:h2:~/ugate/ugate;AUTO_SERVER=TRUE;FILE_LOCK=SOCKET;TRACE_LEVEL_FILE=0;TRACE_LEVEL_SYSTEM_OUT=0" /> -->
-<!-- 			<property name="openjpa.Connection2DriverName" value="org.h2.Driver" /> -->
-<!-- 			<property name="openjpa.Connection2UserName" value="sa" /> -->
-<!-- 			<property name="openjpa.Connection2Password" value="sa" /> -->
+<!-- 			<property name="openjpa.Connection2URL" value="${ugate.db.connection.url}" /> -->
+<!-- 			<property name="openjpa.Connection2DriverName" value="${ugate.db.driver.name}" /> -->
+<!-- 			<property name="openjpa.Connection2UserName" value="${ugate.db.username}" /> -->
+<!-- 			<property name="openjpa.Connection2Password" value="${ugate.db.password}" /> -->
 		</properties>
 	</persistence-unit>
 </persistence>

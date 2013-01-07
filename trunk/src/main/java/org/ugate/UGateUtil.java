@@ -312,6 +312,7 @@ public class UGateUtil {
 	 * @return the processor bit
 	 */
 	public static int getBitness() {
-		return Integer.parseInt(System.getProperty("sun.arch.data.model"));
+		return System.getProperty("os.arch").indexOf("64") > -1 ? 64 : 32;
+		//return Integer.parseInt(System.getProperty("sun.arch.data.model"));
 	}
 }
