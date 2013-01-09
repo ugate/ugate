@@ -62,6 +62,8 @@ public class EmailService {
 		final String username = host.getMailUserName();
 		final String password = host.getMailPassword();
 		final String mainFolderName = host.getMailInboxName();
+		final boolean useSSL = host.getMailUseSSL() >= 1;
+		final boolean useTLS = host.getMailUseTLS() >= 1;
 		try {
 			msg = RS.rbLabel(KEY.MAIL_CONNECTING);
 			log.info(msg);
@@ -132,8 +134,22 @@ public class EmailService {
 			for (final MailRecipient mr : host.getMailRecipients()) {
 				authEmails.add(mr.getEmail());
 			}
-			this.emailAgent = EmailAgent.start(smtpHost, String.valueOf(smtpPort), imapHost, String.valueOf(imapPort), 
-					username, password, mainFolderName, authEmails, listeners.toArray(new IEmailListener[0]));
+			this.emailAgent = EmailAgent.start(smtpHost,
+					String.valueOf(smtpPort), imapHost,
+					String.valueOf(imapPort), username, password,
+					mainFolderName, useSSL, useTLS, false,
+					new EmailAgent.AuthorizationOptions() {
+						@Override
+						public boolean isCommandAuthorized(final String email) {
+							for (final MailRecipient mr : host
+									.getMailRecipients()) {
+								if (mr.getEmail().equalsIgnoreCase(email)) {
+									return true;
+								}
+							}
+							return false;
+						}
+					}, listeners.toArray(new IEmailListener[0]));
 			return true;
 		} catch (final Throwable t) {
 			msg = RS.rbLabel(KEY.MAIL_CONNECT_FAILED, 

@@ -31,7 +31,7 @@ public class CredentialService {
 			.getLogger(CredentialService.class);
 	// TODO : Until browsers support SHA-256 http://tools.ietf.org/html/rfc5843 we have to use MD5
 	private static final String ALGORITHM = "MD5"; // "SHA-256";
-	public static final String SALT = "Authorization";
+	public static final String SALT = "AuthorizationOptions";
 
 	@Resource
 	private CredentialDao credentialDao;

@@ -63,7 +63,8 @@ public class EmailAgent implements Runnable {
 	private final URLName smtpUrlName;
 	private final URLName imapUrlName;
 	private final String mainFolderName;
-	private final List<String> authEmails;
+	private final boolean debug;
+	private final AuthorizationOptions authorizationOptions;
 	private final Properties props;
 	
 //	private volatile IMAPFolder mainFolder;
@@ -82,16 +83,24 @@ public class EmailAgent implements Runnable {
 	 * @param mainFolderName
 	 *            the top-level email folder that will be listened to for new
 	 *            incoming emails
-	 * @param authEmails
-	 *            the emails that are authorized to send commands
+	 * @param isSSL
+	 *            true to use an SSL connection
+	 * @param useTLS
+	 *            true to use TLS
+	 * @param authorizationOptions
+	 *            the {@link AuthorizationOptions}
 	 * @param listeners
 	 *            any email listeners
 	 * @return the created/started email agent
 	 */
-	public static EmailAgent start(final String username, final String password, final String mainFolderName, 
-			final List<String> authEmails, final IEmailListener... listeners) {
-		return start(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST, GMAIL_IMAP_PORT, 
-				username, password, mainFolderName, authEmails, listeners);
+	public static EmailAgent start(final String username,
+			final String password, final String mainFolderName,
+			final boolean isSSL, final boolean useTLS, final boolean debug,
+			final AuthorizationOptions authorizationOptions,
+			final IEmailListener... listeners) {
+		return start(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST,
+				GMAIL_IMAP_PORT, username, password, mainFolderName, isSSL,
+				useTLS, debug, authorizationOptions, listeners);
 	}
 	
 	/**
@@ -112,18 +121,30 @@ public class EmailAgent implements Runnable {
 	 * @param mainFolderName
 	 *            the top-level email folder that will be listened to for new
 	 *            incoming emails
-	 * @param authEmails
-	 *            the emails that are authorized to send commands
+	 * @param isSSL
+	 *            true to use an SSL connection
+	 * @param useTLS
+	 *            true to use TLS
+	 * @param debug
+	 *            true to turn on debugging to the console
+	 * @param authorizationOptions
+	 *            the {@link AuthorizationOptions}
 	 * @param listeners
 	 *            any email listeners
 	 * @return the created/started email agent
 	 */
-	public static EmailAgent start(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
-			final String username, final String password, final String mainFolderName, final List<String> authEmails, 
+	public static EmailAgent start(final String smtpHost,
+			final String smtpPort, final String imapHost,
+			final String imapPort, final String username,
+			final String password, final String mainFolderName,
+			final boolean isSSL, final boolean useTLS, final boolean debug,
+			final AuthorizationOptions authorizationOptions,
 			final IEmailListener... listeners) {
-		final EmailAgent emailAgent = new EmailAgent(smtpHost, smtpPort, imapHost, imapPort, username, 
-				password, mainFolderName, authEmails, listeners);
-		final Thread emailAgentThread = new Thread(Thread.currentThread().getThreadGroup(), emailAgent, getThreadName("main"));
+		final EmailAgent emailAgent = new EmailAgent(smtpHost, smtpPort,
+				imapHost, imapPort, username, password, mainFolderName, isSSL,
+				useTLS, debug, authorizationOptions, listeners);
+		final Thread emailAgentThread = new Thread(Thread.currentThread()
+				.getThreadGroup(), emailAgent, getThreadName("main"));
 		emailAgentThread.setDaemon(true);
 		emailAgentThread.start();
 		return emailAgent;
@@ -147,29 +168,47 @@ public class EmailAgent implements Runnable {
 	 * @param mainFolderName
 	 *            the top-level email folder that will be listened to for new
 	 *            incoming emails
-	 * @param authEmails
-	 *            the emails that are authorized to send commands
+	 * @param isSSL
+	 *            true to use an SSL connection
+	 * @param useTLS
+	 *            true to use TLS
+	 * @param debug
+	 *            true to turn on debugging to the console
+	 * @param authorizationOptions
+	 *            the {@link AuthorizationOptions}
 	 * @param listeners
 	 *            any email listeners
 	 */
-	public EmailAgent(final String smtpHost, final String smtpPort, final String imapHost, final String imapPort, 
-			final String username, final String password, final String mainFolderName, final List<String> authEmails, 
+	public EmailAgent(final String smtpHost, final String smtpPort,
+			final String imapHost, final String imapPort,
+			final String username, final String password,
+			final String mainFolderName, final boolean isSSL,
+			final boolean useTLS, final boolean debug,
+			final AuthorizationOptions authorizationOptions,
 			final IEmailListener... listeners) {
-		if (authEmails == null || authEmails.isEmpty()) {
-			throw new IllegalArgumentException("Authorized emails are required");
+		if (authorizationOptions == null) {
+			throw new IllegalArgumentException(String.format(
+					"%1$s is required", AuthorizationOptions.class.getName()));
 		}
+		// connect using TLS
+		final String smtpStr = isSSL ? "smtps" : "smtp";
+		final String imapStr = isSSL ? "imaps" : "imap";
 		// wirelessBtn using TLS
 		this.props = new Properties();
-		props.put("mail.smtps.auth", "true");
-		props.put("mail.smtps.user", username);
-		props.put("mail.smtps.host", smtpHost);
-		props.put("mail.smtps.port", smtpPort);
-		props.put("mail.smtps.starttls.enable", "true");
-		props.setProperty("mail.imaps.starttls.enable", "true");
-		this.smtpUrlName = new URLName("smtps", smtpHost, Integer.parseInt(smtpPort), null, username, password);
-		this.imapUrlName = new URLName("imaps", imapHost, Integer.parseInt(imapPort), null, username, password);
+		props.put("mail." + smtpStr + ".auth", "true");
+		props.put("mail." + smtpStr + ".user", username);
+		props.put("mail." + smtpStr + ".host", smtpHost);
+		props.put("mail." + smtpStr + ".port", smtpPort);
+		if (useTLS) {
+			props.put("mail." + smtpStr + ".starttls.enable", "true");
+			props.setProperty("mail." + imapStr + ".starttls.enable", "true");
+		}
+		this.smtpUrlName = new URLName(smtpStr, smtpHost, Integer.parseInt(smtpPort), null, username, password);
+		this.imapUrlName = new URLName(imapStr, imapHost, Integer.parseInt(imapPort), null, username, password);
+		
 		this.mainFolderName = mainFolderName == null || mainFolderName.isEmpty() ? DEFAULT_INBOX_FOLDER_NAME : mainFolderName;
-		this.authEmails = authEmails;
+		this.authorizationOptions = authorizationOptions;
+		this.debug = debug;
 
 		this.listeners.addAll(Arrays.asList(listeners));
 		
@@ -188,7 +227,7 @@ public class EmailAgent implements Runnable {
 				
 				log.info("Connecting to store/floder...");
 				final Session session = Session.getInstance(props);
-				session.setDebug(log.isDebugEnabled());
+				session.setDebug(debug);
 	
 				store = (IMAPStore) session.getStore(imapUrlName);
 	
@@ -500,7 +539,7 @@ public class EmailAgent implements Runnable {
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {
 			inernetAddress = (InternetAddress) from;
-			if (authEmails.contains(inernetAddress.getAddress())) {
+			if (authorizationOptions.isCommandAuthorized(inernetAddress.getAddress())) {
 				hasPermission = true;
 				break;
 			}
@@ -559,6 +598,18 @@ public class EmailAgent implements Runnable {
 				}
 			}
 		}.start();
+	}
+
+	/**
+	 * AuthorizationOptions interface
+	 */
+	public static interface AuthorizationOptions {
+
+		/**
+		 * @return true when the email is authorized to execute command via the
+		 *         {@link EmailAgent}
+		 */
+		public boolean isCommandAuthorized(final String email);
 	}
 
 	/**

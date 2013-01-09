@@ -96,6 +96,12 @@ public class Host implements Model {
 	@Email
 	@Column(name="MAIL_USER_NAME", length=100)
 	private String mailUserName;
+	
+	@Column(name="MAIL_USE_SSL")
+	private int mailUseSSL;
+
+	@Column(name="MAIL_USE_TLS")
+	private int mailUseTLS;
 
 	@Column(name="USE_METRIC", nullable=false)
 	private boolean useMetric;
@@ -325,6 +331,22 @@ public class Host implements Model {
 
 	public void setMailUserName(String mailUserName) {
 		this.mailUserName = mailUserName;
+	}
+
+	public int getMailUseSSL() {
+		return mailUseSSL;
+	}
+
+	public void setMailUseSSL(int mailUseSSL) {
+		this.mailUseSSL = mailUseSSL;
+	}
+
+	public int getMailUseTLS() {
+		return mailUseTLS;
+	}
+
+	public void setMailUseTLS(int mailUseTLS) {
+		this.mailUseTLS = mailUseTLS;
 	}
 
 	public boolean getUseMetric() {
