@@ -33,6 +33,8 @@ public enum ActorType implements IModelType<Actor> {
 	MAIL_INBOX_NAME("host.mailInboxName"),
 	MAIL_USERNAME("host.mailUserName"),
 	MAIL_PASSWORD("host.mailPassword"),
+	MAIL_USE_SSL("host.mailUseSSL"),
+	MAIL_USE_TLS("host.mailUseTLS"),
 	WEB_ON_AT_COM_STARTUP("host.webOnAtComStartup"),
 	WEB_HOST("host.webHost"),
 	WEB_PORT("host.webPort"),
@@ -165,6 +167,8 @@ public enum ActorType implements IModelType<Actor> {
 		host.setMailImapPort(993);
 		host.setMailUserName("myemail@gmail.com");
 		host.setMailInboxName("Inbox");
+		host.setMailUseSSL(1);
+		host.setMailUseTLS(1);
 		host.setWebHost("0.0.0.0");
 		host.setWebPort(443);
 		host.setWebHostLocal("127.0.0.1");

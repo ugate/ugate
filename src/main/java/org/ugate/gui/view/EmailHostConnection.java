@@ -49,6 +49,8 @@ public class EmailHostConnection extends VBox {
 	public final UGateCtrlBox<Actor, Model, Void> inboxFolder;
 	public final TextField recipient;
 	public final UGateCtrlBox<Actor, MailRecipient, String> recipients;
+	public final UGateToggleSwitchBox<Actor> useSSL;
+	public final UGateToggleSwitchBox<Actor> useTLS;
 	public final UGateToggleSwitchBox<Actor> emailOnAtStartSwitch;
 	public final Button emailConnectBtn;
 	public final ControlBar cb;
@@ -114,6 +116,20 @@ public class EmailHostConnection extends VBox {
 		final HBox recipientFuncBox = new HBox(5);
 		recipientFuncBox.getChildren().addAll(recipient, recipientAdd,
 				recipientRem);
+		useSSL = new UGateToggleSwitchBox<>(controlBar.getActorPA(),
+				ActorType.MAIL_USE_SSL, null, null,
+				RS.rbLabel(KEY.MAIL_USE_SSL_ON),
+				RS.rbLabel(KEY.MAIL_USE_SSL_OFF));
+		controlBar.addHelpTextTrigger(useSSL,
+				RS.rbLabel(KEY.MAIL_USE_SSL_DESC));
+		useTLS = new UGateToggleSwitchBox<>(controlBar.getActorPA(),
+				ActorType.MAIL_USE_TLS, null, null,
+				RS.rbLabel(KEY.MAIL_USE_TLS_ON),
+				RS.rbLabel(KEY.MAIL_USE_TLS_OFF));
+		controlBar.addHelpTextTrigger(useTLS,
+				RS.rbLabel(KEY.MAIL_USE_TLS_DESC));
+		final HBox encryptBox = new HBox(5);
+		encryptBox.getChildren().addAll(useSSL, useTLS);
 		recipients = new UGateCtrlBox<>(controlBar.getActorPA(),
 				ActorType.MAIL_RECIPIENTS, MailRecipientType.EMAIL,
 				MailRecipient.class, RS.rbLabel(KEY.MAIL_ALARM_NOFITY_EMAILS),
@@ -154,8 +170,9 @@ public class EmailHostConnection extends VBox {
 		connectionGrid.add(username, 0, 2);
 		connectionGrid.add(password, 1, 2);
 		connectionGrid.add(inboxFolder, 0, 3, 2, 1);
-		connectionGrid.add(recipients, 0, 4, 2, 1);
-		connectionGrid.add(recipientFuncBox, 0, 5, 2, 1);
+		connectionGrid.add(encryptBox, 0, 4, 2, 1);
+		connectionGrid.add(recipients, 0, 5, 2, 1);
+		connectionGrid.add(recipientFuncBox, 0, 6, 2, 1);
 
 		grid.add(toggleView, 0, 0);
 		grid.add(connectionGrid, 1, 0);
