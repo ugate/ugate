@@ -201,13 +201,18 @@ public class EmailService extends ExtractorService<Actor> {
 				}
 
 				@Override
-				public boolean useImapTls() {
+				public boolean useTls() {
 					return extract().getHost().getMailUseTLS() >= 1;
 				}
 
 				@Override
 				public boolean useStartTls() {
 					return extract().getHost().getMailUseTLS() >= 1;
+				}
+
+				@Override
+				public boolean isDebug() {
+					return log.isDebugEnabled();
 				}
 			}, listeners.toArray(new IEmailListener[0]));
 			return true;
