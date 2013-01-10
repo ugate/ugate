@@ -55,6 +55,7 @@ import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.EntityExtractor;
 import org.ugate.service.entity.RemoteNodeType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -144,8 +145,19 @@ public class UGateGUI extends Application {
 	 */
 	private void initServices() {
 		try {
-			if (!ServiceProvider.IMPL.init() && 
-					ServiceProvider.IMPL.getWirelessService().isRequiresRestart()) {
+			controlBar = new ControlBar(actorPA, remoteNodePA);
+			final boolean srvcSuccess = ServiceProvider.IMPL
+					.init(new EntityExtractor<Actor>() {
+
+						@Override
+						public Actor extract() {
+							// dynamic extraction of current actor
+							return actorPA.getBean();
+						}
+					});
+			if (!srvcSuccess
+					&& ServiceProvider.IMPL.getWirelessService()
+							.isRequiresRestart()) {
 				initErrorHeader = RS.rbLabel(KEY.APP_TITLE_ACTION_REQUIRED);
 				addInitError(RS.rbLabel(KEY.APP_SERVICE_COM_RESTART_REQUIRED));
 			}
@@ -226,7 +238,7 @@ public class UGateGUI extends Application {
 	 *            the primary {@link Stage}
 	 */
 	protected void primaryStageBuild(final Stage stage) {
-		controlBar = new ControlBar(stage, actorPA, remoteNodePA);
+		controlBar.setStage(stage);
 		final BorderPane content = new BorderPane();
 		content.setId("main-content");
 		content.setEffect(new InnerShadow());

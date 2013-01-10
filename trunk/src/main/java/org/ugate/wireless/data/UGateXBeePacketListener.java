@@ -127,7 +127,7 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 			return null;
 		}
 		// TODO : RemoteNode should not be queried every time a response is received when multi-chunking data (like image) 
-		final RemoteNode rn = ServiceProvider.IMPL.getWirelessService().findRemoteNodeByAddress(remoteAddress);
+		final RemoteNode rn = ServiceProvider.IMPL.getRemoteNodeService().findByAddress(remoteAddress);
 		if (rn == null) {
 			log.error(String .format("Received data from an unknown address %1$s... Discarding response...", 
 					remoteAddress));

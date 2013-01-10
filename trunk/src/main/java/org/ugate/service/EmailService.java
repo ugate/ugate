@@ -14,7 +14,9 @@ import org.ugate.mail.IEmailListener;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
 import org.ugate.service.entity.Command;
+import org.ugate.service.entity.EntityExtractor;
 import org.ugate.service.entity.RemoteNodeType;
+import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Host;
 import org.ugate.service.entity.jpa.MailRecipient;
 import org.ugate.service.entity.jpa.RemoteNode;
@@ -22,16 +24,21 @@ import org.ugate.service.entity.jpa.RemoteNode;
 /**
  * Email service
  */
-public class EmailService {
+public class EmailService extends ExtractorService<Actor> {
 
 	private final Logger log = UGateUtil.getLogger(EmailService.class);
 	private EmailAgent emailAgent;
 	private boolean isEmailConnected;
 
 	/**
-	 * Only {@linkplain ServiceProvider} constructor
+	 * Constructor
+	 * 
+	 * @param extractor
+	 *            the {@link EntityExtractor} for the {@link Actor} used by the
+	 *            {@link EmailService}
 	 */
-	EmailService() {
+	EmailService(final EntityExtractor<Actor> extractor) {
+		super(extractor);
 	}
 	
 	/**
@@ -39,7 +46,7 @@ public class EmailService {
 	 * 
 	 * @param host the {@linkplain Host}
 	 */
-	public boolean connect(final Host host) {
+	public boolean connect() {
 		// test email connection
 //		isEmailConnected = true;
 //		if (true) {
@@ -47,7 +54,8 @@ public class EmailService {
 //		}
 		// wirelessBtn to email
 		//emailDisconnect();
-		if (host == null || host.getId() <= 0) {
+		if (extract() == null || extract().getHost() == null
+				|| extract().getHost().getId() <= 0) {
 			return false;
 		}
 		if (isEmailConnected) {
@@ -55,15 +63,6 @@ public class EmailService {
 		}
 		String msg;
 		UGateEvent<EmailService, Void> event;
-		final String smtpHost = host.getMailSmtpHost();
-		final int smtpPort = host.getMailImapPort();
-		final String imapHost = host.getMailImapHost();
-		final int imapPort = host.getMailImapPort();
-		final String username = host.getMailUserName();
-		final String password = host.getMailPassword();
-		final String mainFolderName = host.getMailInboxName();
-		final boolean useSSL = host.getMailUseSSL() >= 1;
-		final boolean useTLS = host.getMailUseTLS() >= 1;
 		try {
 			msg = RS.rbLabel(KEY.MAIL_CONNECTING);
 			log.info(msg);
@@ -82,7 +81,7 @@ public class EmailService {
 							// send command to all the nodes defined in the email
 							for (final String toAddress : event.toAddresses) {
 								commandMsgs.clear();
-								rn = ServiceProvider.IMPL.getWirelessService().findRemoteNodeByAddress(toAddress);
+								rn = ServiceProvider.IMPL.getRemoteNodeService().findByAddress(toAddress);
 								for (final Command command : event.commands) {
 									try {
 										if (rn == null) {
@@ -120,43 +119,104 @@ public class EmailService {
 									RemoteNodeType.WIRELESS_ADDRESS, null, null, event.commands, msg));
 						}
 					} else if (event.type == EmailEvent.Type.CONNECT) {
-						notifyListeners(UGateEvent.Type.EMAIL_CONNECTED, KEY.MAIL_CONNECTED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_CONNECTED, event.commands, KEY.MAIL_CONNECTED,
+								emailAgent.getOptions());
 					} else if (event.type == EmailEvent.Type.DISCONNECT) {
-						notifyListeners(UGateEvent.Type.EMAIL_DISCONNECTED, KEY.MAIL_DISCONNECTED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_DISCONNECTED, event.commands, KEY.MAIL_DISCONNECTED,
+								emailAgent.getOptions());
 					} else if (event.type == EmailEvent.Type.CLOSED) {
-						notifyListeners(UGateEvent.Type.EMAIL_CLOSED, KEY.MAIL_CLOSED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_CLOSED, event.commands, KEY.MAIL_CLOSED,
+								emailAgent.getOptions());
 					} else if (event.type == EmailEvent.Type.AUTH_FAILED) {
-						notifyListeners(UGateEvent.Type.EMAIL_AUTH_FAILED, KEY.MAIL_AUTH_FAILED, event.commands);
+						notifyListeners(UGateEvent.Type.EMAIL_AUTH_FAILED,event.commands, KEY.MAIL_AUTH_FAILED,
+								emailAgent.getOptions());
 					}
 				}
 			});
-			List<String> authEmails = new ArrayList<>(host.getMailRecipients().size());
-			for (final MailRecipient mr : host.getMailRecipients()) {
-				authEmails.add(mr.getEmail());
-			}
-			this.emailAgent = EmailAgent.start(smtpHost,
-					String.valueOf(smtpPort), imapHost,
-					String.valueOf(imapPort), username, password,
-					mainFolderName, useSSL, useTLS, false,
-					new EmailAgent.AuthorizationOptions() {
-						@Override
-						public boolean isCommandAuthorized(final String email) {
-							for (final MailRecipient mr : host
-									.getMailRecipients()) {
-								if (mr.getEmail().equalsIgnoreCase(email)) {
-									return true;
-								}
-							}
-							return false;
+			this.emailAgent = EmailAgent.start(new EmailAgent.Options() {
+				@Override
+				public boolean isCommandAuthorized(final String email) {
+					for (final MailRecipient mr : extract().getHost()
+							.getMailRecipients()) {
+						if (mr.getEmail().equalsIgnoreCase(email)) {
+							return true;
 						}
-					}, listeners.toArray(new IEmailListener[0]));
+					}
+					return false;
+				}
+
+				@Override
+				public String getSmtpUsername() {
+					return extract().getHost().getMailUserName();
+				}
+
+				@Override
+				public String getSmtpPassword() {
+					return extract().getHost().getMailPassword();
+				}
+
+				@Override
+				public String getSmtpHost() {
+					return extract().getHost().getMailSmtpHost();
+				}
+
+				@Override
+				public int getSmtpPort() {
+					return extract().getHost().getMailSmtpPort();
+				}
+
+				@Override
+				public String getImapUsername() {
+					return extract().getHost().getMailUserName();
+				}
+
+				@Override
+				public String getImapPassword() {
+					return extract().getHost().getMailPassword();
+				}
+
+				@Override
+				public String getImapHost() {
+					return extract().getHost().getMailImapHost();
+				}
+
+				@Override
+				public int getImapPort() {
+					return extract().getHost().getMailImapPort();
+				}
+
+				@Override
+				public String getImapFolder() {
+					return extract().getHost().getMailInboxName();
+				}
+
+				@Override
+				public boolean useSmtpSsl() {
+					return extract().getHost().getMailUseSSL() >= 1;
+				}
+
+				@Override
+				public boolean useImapSsl() {
+					return extract().getHost().getMailUseSSL() >= 1;
+				}
+
+				@Override
+				public boolean useImapTls() {
+					return extract().getHost().getMailUseTLS() >= 1;
+				}
+
+				@Override
+				public boolean useStartTls() {
+					return extract().getHost().getMailUseTLS() >= 1;
+				}
+			}, listeners.toArray(new IEmailListener[0]));
 			return true;
 		} catch (final Throwable t) {
-			msg = RS.rbLabel(KEY.MAIL_CONNECT_FAILED, 
-					smtpHost, smtpPort, imapHost, imapPort, username, mainFolderName);
+			msg = RS.rbLabel(KEY.MAIL_CONNECT_FAILED,
+					this.emailAgent.getOptions());
 			log.error(msg, t);
-			event = new UGateEvent<>(
-					this, UGateEvent.Type.EMAIL_CONNECT_FAILED, false);
+			event = new UGateEvent<>(this,
+					UGateEvent.Type.EMAIL_CONNECT_FAILED, false);
 			event.addMessage(msg);
 			event.addMessage(t.getMessage());
 			UGateKeeper.DEFAULT.notifyListeners(event);
@@ -170,19 +230,24 @@ public class EmailService {
 	 * 
 	 * @param type
 	 *            the {@linkplain UGateEvent.Type}
+	 * @param commands
+	 *            any {@linkplain Command}s associated with the notification
 	 * @param messageKey
 	 *            the {@linkplain KEY} for the message associated with the
 	 *            notification
-	 * @param commands
-	 *            any {@linkplain Command}s associated with the notification
+	 * @param messageParameters
+	 *            the {@link KEY} message parameters
 	 */
 	protected void notifyListeners(final UGateEvent.Type type,
-			final KEY messageKey, final List<Command> commands) {
+			final List<Command> commands, final KEY messageKey,
+			final Object... messageParameters) {
 		isEmailConnected = false;
-		final String msg = RS.rbLabel(messageKey);
+		final String msg = messageParameters.length > 0 ? RS.rbLabel(
+				messageKey, messageParameters) : RS.rbLabel(messageKey);
 		log.info(msg);
-		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<EmailService, List<Command>>(
-				this, type, false, null, null, null, commands, msg));
+		UGateKeeper.DEFAULT
+				.notifyListeners(new UGateEvent<EmailService, List<Command>>(
+						this, type, false, null, null, null, commands, msg));
 	}
 
 	/**
@@ -226,5 +291,12 @@ public class EmailService {
 	 */
 	public boolean isConnected() {
 		return isEmailConnected;
+	}
+
+	/**
+	 * @return email options used for the email connection (if any)
+	 */
+	public String getOptions() {
+		return emailAgent != null ? emailAgent.getOptions().toString() : "";
 	}
 }

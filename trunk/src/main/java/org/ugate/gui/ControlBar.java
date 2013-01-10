@@ -91,24 +91,21 @@ public class ControlBar extends ToolBar {
 	public static final double CHILD_PADDING = 5d;
 	public static final Insets PADDING_INSETS = new Insets(CHILD_PADDING, CHILD_PADDING, 0, CHILD_PADDING);
 
-	private final Stage stage;
+	private Stage stage;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param stage
-	 *            the {@linkplain Stage}
 	 * @param actorPA
 	 *            the {@linkplain BeanPathAdapter} for the {@linkplain Actor}
 	 * @param remoteNodePA
 	 *            the {@linkplain BeanPathAdapter} for the
 	 *            {@linkplain RemoteNode}
 	 */
-	public ControlBar(final Stage stage, final BeanPathAdapter<Actor> actorPA, 
+	public ControlBar(final BeanPathAdapter<Actor> actorPA,
 			final BeanPathAdapter<RemoteNode> remoteNodePA) {
 		validationFactory = Validation.buildDefaultValidatorFactory();
 		setId("control-bar");
-		this.stage = stage;
 		this.actorPA = actorPA;
 		this.remoteNodePA = remoteNodePA;
 		final DropShadow settingsDS = new DropShadow();
@@ -573,7 +570,7 @@ public class ControlBar extends ToolBar {
 						case EMAIL:
 							try {
 								// establish wireless connection (blocking)
-								ServiceProvider.IMPL.getEmailService().connect(getActor().getHost());
+								ServiceProvider.IMPL.getEmailService().connect();
 								return true;
 							} catch (final Throwable t) {
 								setHelpText(RS.rbLabel(KEY.SERVICE_EMAIL_FAILED));
@@ -587,8 +584,7 @@ public class ControlBar extends ToolBar {
 										.isRunning()) {
 									ServiceProvider.IMPL.getWebService().stop();
 								} else {
-									ServiceProvider.IMPL.getWebService().start(
-											getActor(), null);
+									ServiceProvider.IMPL.getWebService().start(null);
 								}
 								return true;
 							} catch (final Throwable t) {
@@ -599,8 +595,7 @@ public class ControlBar extends ToolBar {
 						case WIRELESS:
 							try {
 								// establish wireless connection (blocking)
-								ServiceProvider.IMPL.getWirelessService().connect(
-										getActor().getHost(), getRemoteNode());
+								ServiceProvider.IMPL.getWirelessService().connect();
 								return true;
 							} catch (final Throwable t) {
 								setHelpText(RS.rbLabel(KEY.SERVICE_WIRELESS_FAILED));
@@ -930,5 +925,22 @@ public class ControlBar extends ToolBar {
 		} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_RX_MULTIPART && event.getNewValue() instanceof ImageCapture) {
 			RS.mediaPlayerCam.play();
 		}
+	}
+
+	/**
+	 * @return the {@link Stage} used by the {@link ControlBar}
+	 */
+	public Stage getStage() {
+		return stage;
+	}
+
+	/**
+	 * Sets the {@link Stage} used by the {@link ControlBar}
+	 * 
+	 * @param stage
+	 *            the {@link Stage}
+	 */
+	public void setStage(final Stage stage) {
+		this.stage = stage;
 	}
 }

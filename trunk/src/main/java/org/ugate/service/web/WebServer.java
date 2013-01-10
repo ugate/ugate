@@ -35,6 +35,7 @@ import org.ugate.UGateEvent;
 import org.ugate.UGateEvent.Type;
 import org.ugate.UGateKeeper;
 import org.ugate.service.entity.ActorType;
+import org.ugate.service.entity.EntityExtractor;
 import org.ugate.service.entity.RoleType;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.web.ui.WebApplication;
@@ -66,37 +67,45 @@ public class WebServer {
 	private Server server;
 	private HostKeyStore hostKeyStore;
 	private final SignatureAlgorithm sa;
+	private final EntityExtractor<Actor> actorExtractor;
 
 	/**
 	 * Constructor
 	 * 
+	 * @param actorExtractor
+	 *            the {@link EntityExtractor} for the {@link Actor}
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return the started {@linkplain WebServer}
 	 */
-	private WebServer(final SignatureAlgorithm sa) {
+	private WebServer(final EntityExtractor<Actor> actorExtractor,
+			final SignatureAlgorithm sa) {
+		this.actorExtractor = actorExtractor;
 		this.sa = sa;
 	}
 
 	/**
 	 * Starts the {@linkplain WebServer} in a new {@linkplain Thread}
 	 * 
-	 * @param actor
-	 *            the {@linkplain Actor} (owner) of the {@link WebServer}
+	 * @param actorExtractor
+	 *            the {@link EntityExtractor} for the {@link Actor} (owner) of
+	 *            the {@link WebServer}
 	 * @param sa
 	 *            the {@linkplain SignatureAlgorithm} to use when the
 	 *            {@linkplain X509Certificate} needs to be created/signed
 	 * @return the started {@linkplain WebServer}
 	 */
-	public static final WebServer start(final Actor actor, final SignatureAlgorithm sa) {
-		final WebServer webServer = new WebServer(sa);
+	public static final WebServer start(
+			final EntityExtractor<Actor> actorExtractor,
+			final SignatureAlgorithm sa) {
+		final WebServer webServer = new WebServer(actorExtractor, sa);
 		final Thread webServerAgent = new Thread(Thread.currentThread()
 				.getThreadGroup(), new Runnable() {
 			@Override
 			public void run() {
 				try {
-					webServer.startServer(actor);
+					webServer.startServer();
 				} catch (final Throwable t) {
 					log.error("Failed to start web server", t);
 				}
@@ -110,7 +119,7 @@ public class WebServer {
 	/**
 	 * Starts the {@linkplain WebServer}
 	 */
-	protected final void startServer(final Actor actor) {
+	protected final void startServer() {
 		try {
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<>(WebServer.this,
 					Type.WEB_INITIALIZE, false));
@@ -120,13 +129,15 @@ public class WebServer {
 			// final XmlConfiguration configuration = new
 			// XmlConfiguration(serverXml.getInputStream());
 			// server = (Server) configuration.configure();
-			if (actor == null || actor.getId() <= 0) {
+			if (actorExtractor.extract() == null
+					|| actorExtractor.extract().getId() <= 0) {
 				throw new NullPointerException(Actor.class.getName()
 						+ " cannot be null");
-			} else if (actor.getId() <= 0) {
-				throw new IllegalArgumentException(String.format(
-						"%1$s#%2$s cannot be %3$s", Actor.class.getName(),
-						ActorType.ID.getKey(), actor.getId()));
+			} else if (actorExtractor.extract().getId() <= 0) {
+				throw new IllegalArgumentException(
+						String.format("%1$s#%2$s cannot be %3$s",
+								Actor.class.getName(), ActorType.ID.getKey(),
+								actorExtractor.extract().getId()));
 			}
 			server = new Server();
 			server.addLifeCycleListener(new LifeCycle.Listener() {
@@ -160,7 +171,7 @@ public class WebServer {
 			
 			// X.509 Setup
 			// TODO : Add password control to the key store
-			hostKeyStore = HostKeyStore.loadOrCreate(actor.getHost(), "", sa);
+			hostKeyStore = HostKeyStore.loadOrCreate(actorExtractor.extract().getHost(), "", sa);
 			final SslContextFactory sslCnxt = new SslContextFactory();
 			//sslCnxt.setCertAlias(hostKeyStore.getAlias());
 			sslCnxt.setKeyStore(hostKeyStore.getKeyStore());
@@ -169,15 +180,15 @@ public class WebServer {
 			sslCnxt.setIncludeProtocols(PROTOCOL_INCLUDE);
 			sslCnxt.setTrustAll(false);
 			final SslSelectChannelConnector sslCnct = new SslSelectChannelConnector(sslCnxt);
-			sslCnct.setPort(actor.getHost().getWebPort());
-			sslCnct.setHost(actor.getHost().getWebHost());
+			sslCnct.setPort(actorExtractor.extract().getHost().getWebPort());
+			sslCnct.setHost(actorExtractor.extract().getHost().getWebHost());
 //			final SslSocketConnector sslCnct = new SslSocketConnector(sslCnxt);
 //			sslCnct.setPort(getHost().getWebPort());
 			// Do not use an HTTP channel selector in addition to the SslSocketConnector or else 
 			// requests will fail with "no cipher suites in common"
 			final SelectChannelConnector httpCnct = new SelectChannelConnector();
-			httpCnct.setPort(actor.getHost().getWebPortLocal());
-			httpCnct.setHost(actor.getHost().getWebHostLocal());
+			httpCnct.setPort(actorExtractor.extract().getHost().getWebPortLocal());
+			httpCnct.setHost(actorExtractor.extract().getHost().getWebHostLocal());
 			
 			server.setConnectors(new Connector[] { httpCnct, sslCnct });
 
@@ -197,7 +208,7 @@ public class WebServer {
 			context.setContextPath("/");
 			final FilterHolder fh = new FilterHolder(WebFilter.class);
 			// let the filter know who to use to auto authenticate against when accessed by host machine
-			fh.setInitParameter(ActorType.ID.name(), String.valueOf(actor.getId()));
+			fh.setInitParameter(ActorType.ID.name(), String.valueOf(actorExtractor.extract().getId()));
 			context.addFilter(fh, "/*", dispatchers);
 			final ServletHolder sh = new ServletHolder(UGateWebSocketServlet.class);
 			context.addServlet(sh, "/" + UGateWebSocketServlet.class.getSimpleName());
@@ -324,5 +335,13 @@ public class WebServer {
 	 */
 	public final boolean isRunning() {
 		return server != null && server.isRunning();
+	}
+
+	/**
+	 * @return the {@link EntityExtractor} for the {@link Actor} (owner) of the
+	 *         {@link WebServer}
+	 */
+	public EntityExtractor<Actor> getActorExtractor() {
+		return actorExtractor;
 	}
 }

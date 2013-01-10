@@ -1,6 +1,7 @@
 package org.ugate.service;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +54,10 @@ public class RemoteNodeService {
 	 * @return the {@link RemoteNode}
 	 */
 	public RemoteNode findByAddress(final String address) {
-		return remoteNodeDao.findByAddress(address);
+		if (address != null && !address.isEmpty()) {
+			return remoteNodeDao.findByAddress(address);
+		}
+		return null;
 	}
 
 	/**
@@ -65,7 +69,10 @@ public class RemoteNodeService {
 	 * @return the {@linkplain RemoteNode}(s)
 	 */
 	public List<RemoteNode> findForHost(final int hostId) {
-		return remoteNodeDao.findByHostId(hostId);
+		if (hostId > 0) {
+			return remoteNodeDao.findByHostId(hostId);
+		}
+		return Collections.emptyList();
 	}
 
 	/**

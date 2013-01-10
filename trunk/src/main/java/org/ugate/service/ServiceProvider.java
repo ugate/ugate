@@ -5,6 +5,9 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.ugate.service.entity.EntityExtractor;
+import org.ugate.service.entity.jpa.Actor;
+import org.ugate.service.entity.jpa.Host;
 
 /**
  * Renders application services
@@ -15,26 +18,32 @@ public enum ServiceProvider {
 
 	private final Logger log = LoggerFactory.getLogger(ServiceProvider.class);
 	private ClassPathXmlApplicationContext appContext;
-	private final WirelessService wirelessService;
-	private final EmailService emailService;
-	private final WebService webService;
+	private EntityExtractor<Actor> actorExtractor;
+	private WirelessService wirelessService;
+	private EmailService emailService;
+	private WebService webService;
 	
 	/**
 	 * Creates/Initializes a new {@linkplain ServiceProvider}
 	 */
 	private ServiceProvider() {
-		wirelessService = new WirelessService();
-		emailService = new EmailService();
-		webService = new WebService();
 	}
 
 	/**
 	 * Initializes the underlying services
 	 * 
+	 * @param hostExtractor
+	 *            the {@link EntityExtractor} used by the
+	 *            {@link ServiceProvider} for a global {@link Host}
 	 * @return true when the {@linkplain WirelessService} successfully connected
 	 *         to the local device
 	 */
-	public boolean init() {
+	public boolean init(final EntityExtractor<Actor> actorExtractor) {
+		disconnect();
+		this.actorExtractor = actorExtractor;
+		wirelessService = new WirelessService(this.actorExtractor);
+		emailService = new EmailService(this.actorExtractor);
+		webService = new WebService(this.actorExtractor);
 		if (appContext == null) {
 			appContext = new ClassPathXmlApplicationContext(new String[] { "spring-all.xml" });
 			appContext.start();
@@ -46,28 +55,43 @@ public enum ServiceProvider {
 	 * Stops all underlying services
 	 */
 	public void disconnect() {
+		boolean hasDisconnected = false;
 		try {
-			getWebService().stop();
+			if (getWebService() != null) {
+				getWebService().stop();
+				hasDisconnected = true;
+			}
 		} catch (final Exception e) {
 			log.error("Unable to stop web server", e);
 		}
 		try {
-			getEmailService().disconnect();
+			if (getEmailService() != null) {
+				getEmailService().disconnect();
+				hasDisconnected = true;
+			}
 		} catch (final Exception e) {
 			log.error("Unable to disconnect from email", e);
 		}
 		try {
-			getWirelessService().disconnect();
+			if (getWirelessService() != null) {
+				getWirelessService().disconnect();
+				hasDisconnected = true;
+			}
 		} catch (final Exception e) {
 			log.error("Unable to disconnect wireless connection", e);
 		}
 		try {
-			appContext.close();
+			if (appContext != null) {
+				appContext.close();
+				hasDisconnected = true;
+			}
 		} catch (final Exception e) {
 			log.error("Unable to close application service context", e);
 		}
-		log.info(String.format("%1$s closed", 
-				ServiceProvider.class.getSimpleName()));
+		if (hasDisconnected) {
+			log.info(String.format("%1$s disconnected", 
+					ServiceProvider.class.getSimpleName()));
+		}
 	}
 
 	/**
