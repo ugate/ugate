@@ -502,7 +502,9 @@ public class EmailAgent implements Runnable {
 	 * {@link EmailAgent} Options interface. See <a href=
 	 * "http://javamail.kenai.com/nonav/javadocs/com/sun/mail/imap/package-summary.html"
 	 * >the IMAP package summary</a> for more details concerning some of the
-	 * parameters used.
+	 * parameters used. Also, see <a
+	 * href="http://www.oracle.com/technetwork/java/sslnotes-150073.txt">the SSL
+	 * notes</a>
 	 */
 	public static abstract class Options {
 
@@ -522,9 +524,14 @@ public class EmailAgent implements Runnable {
 		public abstract String getSmtpHost();
 
 		/**
-		 * @return the outgoing SMTP port
+		 * @return the outgoing SMTP port (defaults to <b>587</b> for
+		 *         {@link #useSmtpSsl()} and {@link #useTls()} <b>true</b>,
+		 *         <b>465</b> for just {@link #useSmtpSsl()} <b>true</b>, and
+		 *         <b>25</b> for everything else)
 		 */
-		public abstract int getSmtpPort();
+		public int getSmtpPort() {
+			return useSmtpSsl() && useTls() ? 587 : useTls() ? 465 : 25;
+		}
 
 		/**
 		 * @return the incoming IMAP user name
@@ -542,9 +549,15 @@ public class EmailAgent implements Runnable {
 		public abstract String getImapHost();
 
 		/**
-		 * @return the incoming IMAP port
+		 * @return the incoming IMAP port (defaults to <b>993</b> for
+		 *         {@link #useImapSsl()} and {@link #useTls()} <b>true</b>,
+		 *         <b>585</b> for just {@link #useImapSsl()} <b>true</b>, and
+		 *         <b>143</b> for everything else)
 		 */
-		public abstract int getImapPort();
+		public int getImapPort() {
+			return useImapSsl() && useTls() ? 993 : useImapSsl() ? 585
+					: 143;
+		}
 
 		/**
 		 * @return true when the email is authorized to execute command via the
@@ -563,26 +576,9 @@ public class EmailAgent implements Runnable {
 		public abstract boolean useImapSsl();
 
 		/**
-		 * @return true to use TLS for IMAP connections
+		 * @return true to use TLS for connections
 		 */
-		public abstract boolean useImapTls();
-
-		/**
-		 * The IMAP and SMTP protocols supports the use of the STARTTLS command
-		 * (see RFC 2487 and RFC 3501) to switch the connection to be secured by
-		 * TLS. Use of the STARTTLS command is preferred in cases where the
-		 * server supports both SSL and non-SSL connections.
-		 * 
-		 * @return true to use the STARTTLS command for the connection
-		 */
-		public abstract boolean useStartTls();
-
-		/**
-		 * @return true to turn on debugging to the console
-		 */
-		public boolean isDebug() {
-			return false;
-		}
+		public abstract boolean useTls();
 
 		/**
 		 * @return the IMAP folder to listen on for incoming messages (defaults
@@ -601,6 +597,23 @@ public class EmailAgent implements Runnable {
 		 */
 		public String getImapTrust() {
 			return null;
+		}
+
+		/**
+		 * The IMAP and SMTP protocols supports the use of the STARTTLS command
+		 * (see RFC 2487 and RFC 3501) to switch the connection to be secured by
+		 * TLS. Use of the STARTTLS command is preferred in cases where the
+		 * server supports both SSL and non-SSL connections.
+		 * 
+		 * @return true to use the STARTTLS command for the connection
+		 */
+		public abstract boolean useStartTls();
+
+		/**
+		 * @return true to turn on debugging to the console (defaults to false)
+		 */
+		public boolean isDebug() {
+			return false;
 		}
 
 		/**
@@ -667,7 +680,7 @@ public class EmailAgent implements Runnable {
 					+ "useImapTls=%10$s, useStartTls=%11$s", getClass()
 					.getSimpleName(), getSmtpUsername(), getImapUsername(),
 					getSmtpHost(), getSmtpPort(), getImapHost(), getImapPort(),
-					useSmtpSsl(), useImapSsl(), useImapTls(), useStartTls());
+					useSmtpSsl(), useImapSsl(), useTls(), useStartTls());
 		}
 	}
 
@@ -688,15 +701,6 @@ public class EmailAgent implements Runnable {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public final int getSmtpPort() {
-			// SSL = 465, TLS = 587
-			return 465;
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
 		public final String getImapHost() {
 			return "imap.gmail.com";
 		}
@@ -705,8 +709,24 @@ public class EmailAgent implements Runnable {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public final int getImapPort() {
-			return 993;
+		public final boolean useSmtpSsl() {
+			return true;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final boolean useImapSsl() {
+			return true;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final boolean useStartTls() {
+			return true;
 		}
 	}
 
