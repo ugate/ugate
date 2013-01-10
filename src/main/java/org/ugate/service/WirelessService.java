@@ -1,24 +1,18 @@
 package org.ugate.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.slf4j.Logger;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.ugate.ByteUtils;
 import org.ugate.UGateEvent;
 import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
-import org.ugate.service.dao.RemoteNodeDao;
 import org.ugate.service.entity.Command;
+import org.ugate.service.entity.EntityExtractor;
 import org.ugate.service.entity.RemoteNodeType;
-import org.ugate.service.entity.jpa.Host;
+import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.RemoteNode;
 import org.ugate.wireless.data.RxData;
 import org.ugate.wireless.data.RxTxRemoteNodeDTO;
@@ -38,9 +32,17 @@ import com.rapplogic.xbee.api.wpan.TxStatusResponse;
 /**
  * Wireless service
  */
-@Service
-@Transactional(readOnly = true, propagation = Propagation.NOT_SUPPORTED)
-public class WirelessService {
+public class WirelessService extends ExtractorService<Actor> {
+
+	/**
+	 * Constructor
+	 * 
+	 * @param extractor
+	 *            the {@link #getExtractor()}
+	 */
+	WirelessService(final EntityExtractor<Actor> extractor) {
+		super(extractor);
+	}
 
 	private final Logger log = UGateUtil.getLogger(WirelessService.class);
 	public static final int DEFAULT_WAIT_MILISECONDS = 12000;
@@ -48,15 +50,6 @@ public class WirelessService {
 	private UGateXBeePacketListener packetListener;
 	private boolean requiresRestart;
 	private boolean isListening;
-	
-	@Resource
-	private RemoteNodeDao remoteNodeDao;
-
-	/**
-	 * Only {@linkplain ServiceProvider} constructor
-	 */
-	WirelessService() {
-	}
 
 	/**
 	 * Connects to the local wireless device
@@ -86,36 +79,43 @@ public class WirelessService {
 	}
 	
 	/**
-	 * Connects to the wireless network
-	 * 
-	 * @param host
-	 *            the {@linkplain Host} to wirelessBtn to
+	 * Connects to the wireless network using the 
 	 */
-	public boolean connect(final Host host, final RemoteNode remoteNode) {
+	public boolean connect() {
 		if (xbee == null) {
 			init();
 		}
 		if (isListening()) {
 			disconnect();
 		}
+		if (extract() == null || extract().getHost() == null
+				|| extract().getHost().getId() <= 0) {
+			return false;
+		}
 		log.info("Connecting to local XBee");
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 				this, UGateEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
-			xbee.open(host.getComPort(), host.getComBaud());
+			xbee.open(extract().getHost().getComPort(), extract().getHost()
+					.getComBaud());
 			if (!isListening()) {
 				xbee.addPacketListener(packetListener);
 				isListening = true;
 			}
-			log.info(String.format("Connected to local XBee using port %1$s and baud rate %2$s", 
-					host.getComAddress(), host.getComBaud()));
+			log.info(String
+					.format("Connected to local XBee using port %1$s and baud rate %2$s",
+							extract().getHost().getComAddress(),
+							extract().getHost().getComBaud()));
 			// XBee connection is blocking so notification can be sent here
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 					this, UGateEvent.Type.WIRELESS_HOST_CONNECTED, false));
 			return true;
 		} catch (final Throwable t) {
-			final String errorMsg = String.format("Unable to establish a connection to the local XBee at address %1$s using port %2$s and baud rate %3$s", 
-					host.getComAddress(), host.getComPort(), host.getComBaud());
+			final String errorMsg = String.format(
+					"Unable to establish a connection to the local XBee at address %1$s using port %2$s and baud rate %3$s", 
+					extract().getHost().getComAddress(), 
+					extract().getHost().getComPort(), 
+					extract().getHost().getComBaud());
 			log.warn(errorMsg, t);
 			UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 					this, UGateEvent.Type.WIRELESS_HOST_CONNECT_FAILED, false, errorMsg, t.getMessage()));
@@ -173,34 +173,6 @@ public class WirelessService {
 			}
 			log.info("Disconnected from XBee");
 		}
-	}
-
-	/**
-	 * Gets {@linkplain RemoteNode}s for a given {@linkplain Host}
-	 * 
-	 * @param host
-	 *            the {@linkplain Host}
-	 * @return a {@linkplain List} for the service {@linkplain Host}
-	 */
-	public List<RemoteNode> findRemoteNodesByHost(final Host host) {
-		if (host != null && host.getId() > 0) {
-			return remoteNodeDao.findByHostId(host.getId());
-		}
-		return new ArrayList<>();
-	}
-
-	/**
-	 * Gets {@linkplain RemoteNode} for a given {@linkplain RemoteNode#getAddress()}
-	 * 
-	 * @param address
-	 *            the {@linkplain RemoteNode#getAddress()}
-	 * @return a {@linkplain RemoteNode}
-	 */
-	public RemoteNode findRemoteNodeByAddress(final String address) {
-		if (address != null && !address.isEmpty()) {
-			return remoteNodeDao.findByAddress(address);
-		}
-		return null;
 	}
 
 	/**

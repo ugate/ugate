@@ -49,23 +49,12 @@ public class EmailAgent implements Runnable {
 
 	private static final Logger log = LoggerFactory.getLogger(EmailAgent.class);
 	public static final Pattern SUBJECT_LINE_PATTERN = Pattern.compile("(?:\\[?(?:[Ff][Ww][Dd]?|[Rr][Ee])(?:\\s*[:;-]+\\s*\\]?))+");
-	public static final String DEFAULT_INBOX_FOLDER_NAME = "Inbox";
-	public static final String GMAIL_SMTP_HOST = "smtp.gmail.com";
-	public static final String GMAIL_IMAP_HOST = "imap.gmail.com";
-	public static final String GMAIL_STMP_TLS_PORT = "587";
-	public static final String GMAIL_STMP_SSL_PORT = "465";
-	public static final String GMAIL_IMAP_PORT = "993";
 
 //	private static final List<IEmailListener> LISTENERS = new CopyOnWriteArrayList<IEmailListener>();
 	private final List<IEmailListener> listeners = new ArrayList<IEmailListener>();
 //	private static final AtomicBoolean runIt = new AtomicBoolean(true);
 	private boolean runIt = true;
-	private final URLName smtpUrlName;
-	private final URLName imapUrlName;
-	private final String mainFolderName;
-	private final boolean debug;
-	private final AuthorizationOptions authorizationOptions;
-	private final Properties props;
+	private final Options options;
 	
 //	private volatile IMAPFolder mainFolder;
 //	private volatile IMAPStore store;
@@ -73,76 +62,17 @@ public class EmailAgent implements Runnable {
 	private IMAPStore store;
 	
 	/**
-	 * Creates/Starts an email agent service using <a
-	 * href="http://mail.google.com">gmail</a>.
-	 * 
-	 * @param username
-	 *            the email user name that the service will use
-	 * @param password
-	 *            the email password that the service will use
-	 * @param mainFolderName
-	 *            the top-level email folder that will be listened to for new
-	 *            incoming emails
-	 * @param isSSL
-	 *            true to use an SSL connection
-	 * @param useTLS
-	 *            true to use TLS
-	 * @param authorizationOptions
-	 *            the {@link AuthorizationOptions}
-	 * @param listeners
-	 *            any email listeners
-	 * @return the created/started email agent
-	 */
-	public static EmailAgent start(final String username,
-			final String password, final String mainFolderName,
-			final boolean isSSL, final boolean useTLS, final boolean debug,
-			final AuthorizationOptions authorizationOptions,
-			final IEmailListener... listeners) {
-		return start(GMAIL_SMTP_HOST, GMAIL_STMP_SSL_PORT, GMAIL_IMAP_HOST,
-				GMAIL_IMAP_PORT, username, password, mainFolderName, isSSL,
-				useTLS, debug, authorizationOptions, listeners);
-	}
-	
-	/**
 	 * Creates/Starts an email agent service
 	 * 
-	 * @param smtpHost
-	 *            the SMTP host
-	 * @param smtpPort
-	 *            the SMTP port
-	 * @param imapHost
-	 *            the IMAP host
-	 * @param imapPort
-	 *            the IMAP port
-	 * @param username
-	 *            the email user name that the service will use
-	 * @param password
-	 *            the email password that the service will use
-	 * @param mainFolderName
-	 *            the top-level email folder that will be listened to for new
-	 *            incoming emails
-	 * @param isSSL
-	 *            true to use an SSL connection
-	 * @param useTLS
-	 *            true to use TLS
-	 * @param debug
-	 *            true to turn on debugging to the console
-	 * @param authorizationOptions
-	 *            the {@link AuthorizationOptions}
+	 * @param options
+	 *            the {@link Options} or {@link GmailOptions}
 	 * @param listeners
-	 *            any email listeners
+	 *            any {@link IEmailListener}(s)
 	 * @return the created/started email agent
 	 */
-	public static EmailAgent start(final String smtpHost,
-			final String smtpPort, final String imapHost,
-			final String imapPort, final String username,
-			final String password, final String mainFolderName,
-			final boolean isSSL, final boolean useTLS, final boolean debug,
-			final AuthorizationOptions authorizationOptions,
+	public static EmailAgent start(final Options options,
 			final IEmailListener... listeners) {
-		final EmailAgent emailAgent = new EmailAgent(smtpHost, smtpPort,
-				imapHost, imapPort, username, password, mainFolderName, isSSL,
-				useTLS, debug, authorizationOptions, listeners);
+		final EmailAgent emailAgent = new EmailAgent(options, listeners);
 		final Thread emailAgentThread = new Thread(Thread.currentThread()
 				.getThreadGroup(), emailAgent, getThreadName("main"));
 		emailAgentThread.setDaemon(true);
@@ -153,65 +83,21 @@ public class EmailAgent implements Runnable {
 	/**
 	 * Creates an email agent service
 	 * 
-	 * @param smtpHost
-	 *            the SMTP host
-	 * @param smtpPort
-	 *            the SMTP port
-	 * @param imapHost
-	 *            the IMAP host
-	 * @param imapPort
-	 *            the IMAP port
-	 * @param username
-	 *            the email user name that the service will use
-	 * @param password
-	 *            the email password that the service will use
-	 * @param mainFolderName
-	 *            the top-level email folder that will be listened to for new
-	 *            incoming emails
-	 * @param isSSL
-	 *            true to use an SSL connection
-	 * @param useTLS
-	 *            true to use TLS
-	 * @param debug
-	 *            true to turn on debugging to the console
-	 * @param authorizationOptions
-	 *            the {@link AuthorizationOptions}
+	 * @param options
+	 *            the {@link Options}
 	 * @param listeners
-	 *            any email listeners
+	 *            any {@link IEmailListener}(s)
 	 */
-	public EmailAgent(final String smtpHost, final String smtpPort,
-			final String imapHost, final String imapPort,
-			final String username, final String password,
-			final String mainFolderName, final boolean isSSL,
-			final boolean useTLS, final boolean debug,
-			final AuthorizationOptions authorizationOptions,
+	protected EmailAgent(final Options options,
 			final IEmailListener... listeners) {
-		if (authorizationOptions == null) {
+		if (options == null) {
 			throw new IllegalArgumentException(String.format(
-					"%1$s is required", AuthorizationOptions.class.getName()));
+					"%1$s is required", Options.class.getName()));
 		}
-		// connect using TLS
-		final String smtpStr = isSSL ? "smtps" : "smtp";
-		final String imapStr = isSSL ? "imaps" : "imap";
-		// wirelessBtn using TLS
-		this.props = new Properties();
-		props.put("mail." + smtpStr + ".auth", "true");
-		props.put("mail." + smtpStr + ".user", username);
-		props.put("mail." + smtpStr + ".host", smtpHost);
-		props.put("mail." + smtpStr + ".port", smtpPort);
-		if (useTLS) {
-			props.put("mail." + smtpStr + ".starttls.enable", "true");
-			props.setProperty("mail." + imapStr + ".starttls.enable", "true");
-		}
-		this.smtpUrlName = new URLName(smtpStr, smtpHost, Integer.parseInt(smtpPort), null, username, password);
-		this.imapUrlName = new URLName(imapStr, imapHost, Integer.parseInt(imapPort), null, username, password);
-		
-		this.mainFolderName = mainFolderName == null || mainFolderName.isEmpty() ? DEFAULT_INBOX_FOLDER_NAME : mainFolderName;
-		this.authorizationOptions = authorizationOptions;
-		this.debug = debug;
+		this.options = options;
 
 		this.listeners.addAll(Arrays.asList(listeners));
-		
+
 		this.runIt = true;
 	}
 
@@ -226,15 +112,16 @@ public class EmailAgent implements Runnable {
 				disconnect(store, mainFolder);
 				
 				log.info("Connecting to store/floder...");
-				final Session session = Session.getInstance(props);
-				session.setDebug(debug);
+				final Session session = Session.getInstance(options.genProperties());
+				session.setDebug(options.isDebug());
 	
+				final URLName imapUrlName = options.genImapUrlName();
 				store = (IMAPStore) session.getStore(imapUrlName);
 	
 				final InternalConnectionListener connectionListener = new InternalConnectionListener();
 				//store.addConnectionListener(connectionListener);
 				store.connect(imapUrlName.getHost(), imapUrlName.getPort(), imapUrlName.getUsername(), imapUrlName.getPassword());
-				mainFolder = (IMAPFolder) store.getFolder(mainFolderName);
+				mainFolder = (IMAPFolder) store.getFolder(options.getImapFolder());
 				mainFolder.addConnectionListener(connectionListener);
 				mainFolder.open(Folder.READ_ONLY);
 				mainFolder.addMessageCountListener(new MessageCountAdapter() {
@@ -370,7 +257,7 @@ public class EmailAgent implements Runnable {
 	public void send(final String subject, final String message, final String from, final String[] to, final Path... paths) {
 		try {
 			log.info("Sending message...");
-			final Session session = Session.getInstance(props);
+			final Session session = Session.getInstance(options.genProperties());
 			final MimeMessage msg = new MimeMessage(session);
 			msg.setFrom(new InternetAddress(from));
 			final InternetAddress[] addresses = new InternetAddress[to.length];
@@ -418,16 +305,18 @@ public class EmailAgent implements Runnable {
 	 */
 	protected void send(final Session session, final MimeMessage msg) {
 		try {
+			final URLName smtpUrlName = options.genSmtpUrlName();
 			log.debug("Opening transport to: " + smtpUrlName);
 			final Transport transport = session.getTransport(smtpUrlName);
-			transport.connect(smtpUrlName.getHost(), smtpUrlName.getPort(), smtpUrlName.getUsername(), smtpUrlName.getPassword());
+			transport.connect(smtpUrlName.getHost(), smtpUrlName.getPort(),
+					smtpUrlName.getUsername(), smtpUrlName.getPassword());
 			transport.sendMessage(msg, msg.getAllRecipients());
 			transport.close();
 			log.info("Message sent");
 		} catch (Exception e) {
 			log.error("Unable to send message", e);
 		} finally {
-			//readyToListen();
+			// readyToListen();
 		}
 	}
 	
@@ -439,11 +328,13 @@ public class EmailAgent implements Runnable {
 	 * @param replyMessage
 	 *            the reply message
 	 */
-	protected void sendReply(final MimeMessage originalMessage, final String replyMessage) {
+	protected void sendReply(final MimeMessage originalMessage,
+			final String replyMessage) {
 		try {
-			final MimeMessage replyMsg = (MimeMessage) originalMessage.reply(false);
+			final MimeMessage replyMsg = (MimeMessage) originalMessage
+					.reply(false);
 			replyMsg.setFrom(originalMessage.getFrom()[0]);
-			send(Session.getInstance(props), replyMsg);
+			send(Session.getInstance(options.genProperties()), replyMsg);
 		} catch (Exception e) {
 			log.error("Unable to send reply message", e);
 		}
@@ -539,7 +430,7 @@ public class EmailAgent implements Runnable {
 		InternetAddress inernetAddress;
 		for (Address from : addresses) {
 			inernetAddress = (InternetAddress) from;
-			if (authorizationOptions.isCommandAuthorized(inernetAddress.getAddress())) {
+			if (options.isCommandAuthorized(inernetAddress.getAddress())) {
 				hasPermission = true;
 				break;
 			}
@@ -601,15 +492,222 @@ public class EmailAgent implements Runnable {
 	}
 
 	/**
-	 * AuthorizationOptions interface
+	 * @return the {@link Options} used by the {@link EmailAgent}
 	 */
-	public static interface AuthorizationOptions {
+	public Options getOptions() {
+		return options;
+	}
+
+	/**
+	 * {@link EmailAgent} Options interface. See <a href=
+	 * "http://javamail.kenai.com/nonav/javadocs/com/sun/mail/imap/package-summary.html"
+	 * >the IMAP package summary</a> for more details concerning some of the
+	 * parameters used.
+	 */
+	public static abstract class Options {
+
+		/**
+		 * @return the outgoing SMTP user name
+		 */
+		public abstract String getSmtpUsername();
+
+		/**
+		 * @return the outgoing SMTP password
+		 */
+		public abstract String getSmtpPassword();
+
+		/**
+		 * @return the outgoing SMTP host
+		 */
+		public abstract String getSmtpHost();
+
+		/**
+		 * @return the outgoing SMTP port
+		 */
+		public abstract int getSmtpPort();
+
+		/**
+		 * @return the incoming IMAP user name
+		 */
+		public abstract String getImapUsername();
+
+		/**
+		 * @return the incoming IMAP password
+		 */
+		public abstract String getImapPassword();
+
+		/**
+		 * @return the incoming IMAP host
+		 */
+		public abstract String getImapHost();
+
+		/**
+		 * @return the incoming IMAP port
+		 */
+		public abstract int getImapPort();
 
 		/**
 		 * @return true when the email is authorized to execute command via the
 		 *         {@link EmailAgent}
 		 */
-		public boolean isCommandAuthorized(final String email);
+		public abstract boolean isCommandAuthorized(final String email);
+
+		/**
+		 * @return true to use SSL for SMTP connections
+		 */
+		public abstract boolean useSmtpSsl();
+
+		/**
+		 * @return true to use SSL for IMAP connections
+		 */
+		public abstract boolean useImapSsl();
+
+		/**
+		 * @return true to use TLS for IMAP connections
+		 */
+		public abstract boolean useImapTls();
+
+		/**
+		 * The IMAP and SMTP protocols supports the use of the STARTTLS command
+		 * (see RFC 2487 and RFC 3501) to switch the connection to be secured by
+		 * TLS. Use of the STARTTLS command is preferred in cases where the
+		 * server supports both SSL and non-SSL connections.
+		 * 
+		 * @return true to use the STARTTLS command for the connection
+		 */
+		public abstract boolean useStartTls();
+
+		/**
+		 * @return true to turn on debugging to the console
+		 */
+		public boolean isDebug() {
+			return false;
+		}
+
+		/**
+		 * @return the IMAP folder to listen on for incoming messages (defaults
+		 *         to "Inbox")
+		 */
+		public String getImapFolder() {
+			return "Inbox";
+		}
+
+		/**
+		 * @return the incoming IMAP trust (When set to "*", all hosts are
+		 *         trusted. If set to a whitespace separated list of hosts,
+		 *         those hosts are trusted. Otherwise, trust depends on the
+		 *         certificate the server presents. Only applicable when
+		 *         {@link #useImapSsl()} is true)
+		 */
+		public String getImapTrust() {
+			return null;
+		}
+
+		/**
+		 * @return the {@link URLName} for outgoing SMTP messages
+		 */
+		private final URLName genSmtpUrlName() {
+			return new URLName(genSmtpProtocol(), getSmtpHost(), getSmtpPort(),
+					null, getSmtpUsername(), getSmtpPassword());
+		}
+
+		/**
+		 * @return the {@link URLName} for incoming IMAP messages
+		 */
+		private final URLName genImapUrlName() {
+			return new URLName(genImapProtocol(), getImapHost(), getImapPort(),
+					null, getImapUsername(), getImapPassword());
+		}
+
+		/**
+		 * @return the outgoing SMTP protocol
+		 */
+		private final String genSmtpProtocol() {
+			return useSmtpSsl() ? "smtps" : "smtp";
+		}
+
+		/**
+		 * @return the incoming IMAP protocol
+		 */
+		private final String genImapProtocol() {
+			return useImapSsl() ? "imaps" : "imap";
+		}
+
+		/**
+		 * @return the {@link Properties} required for the {@link EmailAgent}
+		 */
+		private final Properties genProperties() {
+			final String smtpStr = useSmtpSsl() ? "smtps" : "smtp";
+			final String imapStr = useImapSsl() ? "imaps" : "imap";
+			final Properties props = new Properties();
+			props.put("mail." + smtpStr + ".auth", "true");
+			props.put("mail." + smtpStr + ".user", getSmtpUsername());
+			props.put("mail." + smtpStr + ".host", getSmtpHost());
+			props.put("mail." + smtpStr + ".port",
+					String.valueOf(getSmtpPort()));
+			if (useImapSsl() && getImapTrust() != null) {
+				props.put("mail." + imapStr + ".ssl.trust", getImapTrust());
+			}
+			if (useStartTls()) {
+				props.put("mail." + smtpStr + ".starttls.enable", "true");
+				props.setProperty("mail." + imapStr + ".starttls.enable",
+						"true");
+			}
+			return props;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String toString() {
+			return String.format("%1$s smtpUsername=%2$s, imapUsername=%3$s, "
+					+ "smtpHost=%4$s, smtpPort=%5$s, imapHost=%6$s, "
+					+ "imapPort=%7$s, useSmtpSsl=%8$s, useImapSsl=%9$s, "
+					+ "useImapTls=%10$s, useStartTls=%11$s", getClass()
+					.getSimpleName(), getSmtpUsername(), getImapUsername(),
+					getSmtpHost(), getSmtpPort(), getImapHost(), getImapPort(),
+					useSmtpSsl(), useImapSsl(), useImapTls(), useStartTls());
+		}
+	}
+
+	/**
+	 * GMail convenience {@link Options}
+	 */
+	public abstract class GmailOptions extends Options {
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final String getSmtpHost() {
+			return "smtp.gmail.com";
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final int getSmtpPort() {
+			// SSL = 465, TLS = 587
+			return 465;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final String getImapHost() {
+			return "imap.gmail.com";
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final int getImapPort() {
+			return 993;
+		}
 	}
 
 	/**
