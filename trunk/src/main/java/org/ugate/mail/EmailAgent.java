@@ -524,13 +524,13 @@ public class EmailAgent implements Runnable {
 		public abstract String getSmtpHost();
 
 		/**
-		 * @return the outgoing SMTP port (defaults to <b>587</b> for
+		 * @return the outgoing SMTP port (defaults to <b>465</b> for
 		 *         {@link #useSmtpSsl()} and {@link #useTls()} <b>true</b>,
-		 *         <b>465</b> for just {@link #useSmtpSsl()} <b>true</b>, and
+		 *         <b>587</b> for just {@link #useSmtpSsl()} <b>true</b>, and
 		 *         <b>25</b> for everything else)
 		 */
 		public int getSmtpPort() {
-			return useSmtpSsl() && useTls() ? 587 : useTls() ? 465 : 25;
+			return useSmtpSsl() && useTls() ? 465 : useTls() ? 587 : 25;
 		}
 
 		/**
