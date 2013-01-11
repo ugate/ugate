@@ -34,6 +34,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<ugate.log.level>INFO</ugate.log.level>
 		<!-- NOTE: Java 8 will have JavaFX in class path by default and will not 
 			require system dependencies -->
@@ -42,7 +43,7 @@
 		<ugate.rxtx.version>2.1.7</ugate.rxtx.version>
 		<ugate.xbee-api.version>0.9</ugate.xbee-api.version>
 		<ugate.openjpa.version>2.2.1</ugate.openjpa.version>
-		<ugate.validation.version>1.1</ugate.validation.version>
+		<ugate.validation.version>1.0.0.GA</ugate.validation.version>
 		<ugate.bval.version>0.5</ugate.bval.version>
 		<ugate.mail.version>1.4.5</ugate.mail.version>
 		<ugate.slf4j.version>1.6.6</ugate.slf4j.version>
@@ -218,7 +219,7 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
-								<!-- m2e needs to execute OpenJPA enhancment -->
+								<!-- m2e needs to execute OpenJPA enhancement -->
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>org.codehaus.mojo</groupId>
@@ -294,6 +295,12 @@
 						<manifestEntries>
 							<Main-Class>${ugate.main}</Main-Class>
 							<Class-Path>.</Class-Path>
+							<Product-Company>${project.organization.name}</Product-Company>
+							<Product-Name>${project.name}</Product-Name>
+							<Product-Version>${project.version}</Product-Version>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Build-OS>${os.name}</Build-OS>
+							<Build-By>${user.name}</Build-By>
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -527,7 +534,7 @@
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>1.0.0.GA</version>
+			<version>${ugate.validation.version}</version>
 		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.apache.geronimo.specs</groupId> -->
