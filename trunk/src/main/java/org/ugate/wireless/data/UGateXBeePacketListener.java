@@ -282,9 +282,11 @@ public abstract class UGateXBeePacketListener implements PacketListener {
 		final Thread eventThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				handleEvent(new UGateEvent<RemoteNode, V>(
-						remoteNode, type, true, null,
-						command, null, data, messages));
+				if (remoteNode != null) {
+					handleEvent(new UGateEvent<RemoteNode, V>(
+							remoteNode, type, true, null,
+							command, null, data, messages));
+				}
 			}
 		}, UGateXBeePacketListener.class.getSimpleName() + "-event");
 		eventThread.setDaemon(true);

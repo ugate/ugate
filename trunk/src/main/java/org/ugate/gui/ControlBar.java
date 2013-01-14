@@ -246,7 +246,7 @@ public class ControlBar extends ToolBar {
 							validateRemoteNodeSynchronization();
 						}
 					}
-				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS) {
+				} else if (event.getType() == UGateEvent.Type.WIRELESS_DATA_TX_SUCCESS) {
 					final RemoteNode rn = (RemoteNode) event.getSource();
 					if (rn.getAddress().equalsIgnoreCase(getRemoteNode().getAddress())) {
 						settingsSetTimeline.stop();

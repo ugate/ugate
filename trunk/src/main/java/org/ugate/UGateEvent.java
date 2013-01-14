@@ -371,14 +371,6 @@ public class UGateEvent<S, V> extends EventObject implements Cloneable {
 		WIRELESS_DATA_TX_STATUS_RESPONSE_SUCCESS,
 		/** Event when wireless data has been sent and an error response has been received by a {@linkplain RemoteNode}(s). {@linkplain UGateEvent#getNewValue()} will contain {@linkplain RxRawData} */
 		WIRELESS_DATA_TX_STATUS_RESPONSE_FAILED,
-		/** Event when wireless data has been sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) and a sent acknowledgment has been received for each {@linkplain RemoteNode} from the LOCAL node */
-		WIRELESS_DATA_ALL_TX_ACK,
-		/** Event when wireless data has been sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) and an acknowledgment from ANY number of {@linkplain RemoteNode}(s) were never received by the LOCAL node */
-		WIRELESS_DATA_ALL_TX_ACK_FAILED,
-		/** Event when wireless data has been sent to {@linkplain RemoteNode}(s) and ALL THE SPECIFIED of the {@linkplain RemoteNode} successfully responded to the sent data */
-		WIRELESS_DATA_ALL_TX_SUCCESS,
-		/** Event when wireless data has been sent to ALL THE SPECIFIED {@linkplain RemoteNode}(s) and at least one of the {@linkplain RemoteNode}(s) responded with a failure to the sent data */
-		WIRELESS_DATA_ALL_TX_FAILED,
 		/** Event when wireless data has been received by a {@linkplain RemoteNode} that requires multiple transmissions. {@linkplain UGateEvent#getNewValue()} will contain a partial {@linkplain RxData} */
 		WIRELESS_DATA_RX_MULTIPART,
 		/** Event when wireless data has been received by a {@linkplain RemoteNode} without any failures. {@linkplain UGateEvent#getNewValue()} will contain {@linkplain RxData} */

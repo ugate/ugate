@@ -134,7 +134,6 @@ public class HostConnection extends VBox {
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.WIRELESS_HOST_CONNECTED) {
 					wirelessBtn.setDisable(false);
-					wirelessBtn.setText(null);
 					log.debug("Turning ON email connection icon");
 					wirelessIcon.setStatusFill(GuiUtil.COLOR_ON);
 					Platform.runLater(new Runnable() {
