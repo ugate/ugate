@@ -39,9 +39,10 @@ public abstract class RxData {
 	@Override
 	public String toString() {
 		return String
-				.format("NODE INDEX %4$s, STATUS: %1$s, SIGNAL STRENGTH: %2$s, CREATED: %3$s",
+				.format("NODE ADDRESS %4$s, STATUS: %1$s, SIGNAL STRENGTH: %2$s, CREATED: %3$s",
 						getStatus(), getSignalStrength(), UGateUtil
-								.calFormat(getCreatedTime()), getRemoteNode()
+								.calFormat(getCreatedTime()),
+						getRemoteNode() == null ? "N/A" : getRemoteNode()
 								.getAddress());
 	}
 

@@ -1,7 +1,5 @@
 package org.ugate.gui.view;
 
-import java.util.Arrays;
-
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -200,7 +198,6 @@ public class EmailHostConnection extends VBox {
 							Timeline.INDEFINITE);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECTED) {
 					emailConnectBtn.setDisable(false);
-					emailConnectBtn.setText(null);
 					emailIcon.setStatusFill(GuiUtil.COLOR_ON);
 				} else if (event.getType() == UGateEvent.Type.EMAIL_CONNECT_FAILED) {
 					emailConnectBtn.setDisable(false);
@@ -220,8 +217,6 @@ public class EmailHostConnection extends VBox {
 						@Override
 						public void run() {
 							emailConnectBtn.setDisable(false);
-							emailConnectBtn.setText(RS
-									.rbLabel(KEY.MAIL_CONNECT));
 							emailIcon.setStatusFill(GuiUtil.COLOR_OFF);
 						}
 					});
@@ -245,12 +240,12 @@ public class EmailHostConnection extends VBox {
 								.getSelectedItems().isEmpty()) {
 							return;
 						}
-						final MailRecipient[] ms = cb.getActor().getHost()
-								.getMailRecipients()
-								.toArray(new MailRecipient[] {});
-						final Object[] rmaddyi = recipients.getListView()
-								.getSelectionModel().getSelectedIndices()
-								.toArray(new Object[] {});
+//						final MailRecipient[] ms = cb.getActor().getHost()
+//								.getMailRecipients()
+//								.toArray(new MailRecipient[] {});
+//						final Object[] rmaddyi = recipients.getListView()
+//								.getSelectionModel().getSelectedIndices()
+//								.toArray(new Object[] {});
 						final java.util.List<String> rmaddys = recipients
 								.getListView()
 								.getSelectionModel()
@@ -261,26 +256,28 @@ public class EmailHostConnection extends VBox {
 												.getSelectionModel()
 												.getSelectedItems().size());
 						try {
-							recipients.getListView().getItems()
-									.removeAll(rmaddys);
-							// need to manually remove the mail recipients due
-							// to many-to-many relationship
-							final MailRecipient[] mrr = new MailRecipient[rmaddyi.length];
-							for (final Object i : rmaddyi) {
-								mrr[mrr.length - 1] = ms[(int) i];
-							}
-							ServiceProvider.IMPL.getCredentialService()
-									.mergeHost(cb.getActor().getHost());
+//							recipients.getListView().getItems()
+//									.removeAll(rmaddys);
+//							// need to manually remove the mail recipients due
+//							// to many-to-many relationship
+//							final MailRecipient[] mrr = new MailRecipient[rmaddyi.length];
+//							for (final Object i : rmaddyi) {
+//								mrr[mrr.length - 1] = ms[(int) i];
+//							}
+//							ServiceProvider.IMPL.getCredentialService()
+//									.mergeHost(cb.getActor().getHost());
+							recipients.getListView().getItems().removeAll(rmaddys);
 						} catch (final Throwable e) {
 							log.info(
 									String.format(
 											"Unable to remove mail recipient(s) \"%1$s\" in host with ID = %2$s",
 											rmaddys, cb.getActor().getHost()
 													.getId()), e);
-							cb.getActor().getHost().getMailRecipients().clear();
-							cb.getActor().getHost().getMailRecipients()
-									.addAll(Arrays.asList(ms));
-							cb.getActorPA().setBean(cb.getActor());
+							recipients.getListView().getItems().addAll(rmaddys);
+//							cb.getActor().getHost().getMailRecipients().clear();
+//							cb.getActor().getHost().getMailRecipients()
+//									.addAll(Arrays.asList(ms));
+//							cb.getActorPA().setBean(cb.getActor());
 							cb.setHelpText(RS
 									.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_REMOVE_FAILED));
 						}
@@ -302,10 +299,8 @@ public class EmailHostConnection extends VBox {
 					return;
 				}
 				final String raddy = recipient.getText();
-				recipients.getListView().getItems().add(raddy);
 				try {
-					ServiceProvider.IMPL.getCredentialService().mergeHost(
-							cb.getActor().getHost());
+					recipients.getListView().getItems().add(raddy);
 				} catch (final Throwable e) {
 					for (Throwable t = e.getCause(); t != null; t = t
 							.getCause()) {
@@ -317,7 +312,7 @@ public class EmailHostConnection extends VBox {
 									raddy, cb.getActor().getHost().getId()), e);
 					cb.setHelpText(RS
 							.rbLabel(KEY.MAIL_ALARM_NOTIFY_EMAILS_ADD_FAILED));
-					recipients.getListView().getItems().remove(raddy);
+					//recipients.getListView().getItems().remove(raddy);
 				}
 			}
 		});

@@ -92,7 +92,11 @@ public class WirelessService extends ExtractorService<Actor> {
 				|| extract().getHost().getId() <= 0) {
 			return false;
 		}
-		log.info("Connecting to local XBee");
+		if (log.isInfoEnabled()) {
+			log.info(String.format("Connecting to local XBee @ %1$s/%2$s",
+					extract().getHost().getComPort(), extract().getHost()
+							.getComBaud()));
+		}
 		UGateKeeper.DEFAULT.notifyListeners(new UGateEvent<WirelessService, Void>(
 				this, UGateEvent.Type.WIRELESS_HOST_CONNECTING, false));
 		try {
@@ -103,7 +107,7 @@ public class WirelessService extends ExtractorService<Actor> {
 				isListening = true;
 			}
 			log.info(String
-					.format("Connected to local XBee using port %1$s and baud rate %2$s",
+					.format("Connected to local XBee using address %1$s and baud rate %2$s",
 							extract().getHost().getComAddress(),
 							extract().getHost().getComBaud()));
 			// XBee connection is blocking so notification can be sent here
@@ -171,7 +175,6 @@ public class WirelessService extends ExtractorService<Actor> {
 							msg, t.getMessage()));
 				}
 			}
-			log.info("Disconnected from XBee");
 		}
 	}
 
@@ -299,9 +302,7 @@ public class WirelessService extends ExtractorService<Actor> {
 			}
 		}
 		int i = 0;
-		int successCount = 0;
 		int failureCount = 0;
-		UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_ALL_TX, i));
 		try {
 			// bytes header command and status/failure code
 			final int[] bytesHeader = new int[] { event.getCommand().getKey(), RxData.Status.NORMAL.ordinal() };
@@ -318,7 +319,6 @@ public class WirelessService extends ExtractorService<Actor> {
 					timeout <= 0 ? DEFAULT_WAIT_MILISECONDS : timeout);
 			if (response.isSuccess()) {
 				// packet was delivered successfully
-				successCount++;
 				message = RS.rbLabel(KEY.SERVICE_WIRELESS_ACK_SUCCESS, bytes, event.getSource().getAddress(), response.getStatus());
 				log.info(message);
 				UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_ACK, i, message));
@@ -351,15 +351,6 @@ public class WirelessService extends ExtractorService<Actor> {
 				log.error(message, t);
 			}
 			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_TX_FAILED, i, message));
-		}
-		if (failureCount <= 0) {
-			message = RS.rbLabel(KEY.SERVICE_WIRELESS_SUCCESS, successCount);
-			log.info(message);
-			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_ALL_TX_SUCCESS, i, message));
-		} else {
-			message = RS.rbLabel(KEY.SERVICE_WIRELESS_TX_BATCH_FAILED, failureCount);
-			log.error(message);
-			UGateKeeper.DEFAULT.notifyListeners(event.clone(UGateEvent.Type.WIRELESS_DATA_ALL_TX_FAILED, i, message));
 		}
 		return failureCount == 0;
 	}

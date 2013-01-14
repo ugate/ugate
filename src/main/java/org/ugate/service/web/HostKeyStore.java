@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.ugate.UGateUtil;
 import org.ugate.resources.RS;
 import org.ugate.resources.RS.KEY;
-import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.Host;
 
 /**
@@ -129,7 +128,7 @@ public class HostKeyStore {
 			final ByteArrayOutputStream ksByteStream = new ByteArrayOutputStream();
 			getKeyStore().store(ksByteStream, keyStorePassword.toCharArray());
 			host.setWebKeyStore(ksByteStream.toByteArray());
-			ServiceProvider.IMPL.getCredentialService().mergeHost(host);
+			//ServiceProvider.IMPL.getCredentialService().mergeHost(host);
 			return true;
 		} catch (final Throwable t) {
 			log.error("Unable to persist self signed certificate key store", t);
