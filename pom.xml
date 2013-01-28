@@ -56,7 +56,7 @@
 		<ugate.spring.version>3.2.0.RELEASE</ugate.spring.version>
 		<ugate.cglib.version>2.2.2</ugate.cglib.version>
 		<ugate.bouncycastle.version>1.47</ugate.bouncycastle.version>
-		<ugate.junit.version>4.9</ugate.junit.version>
+		<ugate.junit.version>4.11</ugate.junit.version>
 		<ugate.ant.version>1.8.3</ugate.ant.version>
 		<ugate.wix.version>3.7.RC</ugate.wix.version>
 		<ugate.plugin.compiler.version>3.0</ugate.plugin.compiler.version>

@@ -55,11 +55,6 @@ public class RS {
 	public static final String RXTX_MAC_SERIAL_FILE_NAME = "librxtxSerial.jnilib";
 	public static final String RXTX_LINUX_PARALLEL_FILE_NAME = "librxtxParallel.so";
 	public static final String RXTX_LINUX_SERIAL_FILE_NAME = "librxtxSerial.so";
-	public static final String WIRELESS_PREFERENCE_FILE_EXTENSION = ".properties";
-	public static final String WIRELESS_HOST_SETTINGS_FILE = "host";
-	private static final String WIRELESS_PREFERENCE_FILE_PREFIX = "remote-node-";
-	public static final String WIRELESS_PREFERENCE_HISTORY_FILE = "history";
-	public static final String HTML_SERVO_NAV = "nav.html";
 	public static final String CSS_MAIN = "main.css";
 	public static final String CSS_DISPLAY_SHELF = "displayshelf.css";
 	public static final String IMG_LOGO_128 = "logo128x128x32.png";
@@ -720,7 +715,7 @@ public class RS {
 	 *            true to close the {@linkplain FileSystem}
 	 * @return the {@linkplain Path} to the resource
 	 */
-	private static Path resourcePath(final boolean validate, final String resourceName, final boolean closeFileSystem) {
+	public static Path resourcePath(final boolean validate, final String resourceName, final boolean closeFileSystem) {
 		try {
 			final Path resourcePath = Paths.get(RS.class.getResource(resourceName).toURI());
 			log.debug("Extracting application resource path: " + resourcePath);
@@ -795,43 +790,6 @@ public class RS {
 					"%1$s (with optional sub directory: %2$s) must be an accessible/writable directory (optional file name: %3$s)", 
 					workingPath, subDirectory, fileName), t);
 		}
-	}
-	
-	/**
-	 * @return the {@linkplain RS#WIRELESS_HOST_SETTINGS_FILE} {@linkplain Path}
-	 */
-	public static Path hostDefaultPropertiesPath() {
-		return resourcePath(true, hostPropertiesFileName(), true);
-	}
-	
-	/**
-	 * @return the {@linkplain Path} to the {@linkplain RS#WIRELESS_HOST_SETTINGS_FILE}
-	 */
-	public static Path hostPropertiesFilePath() {
-		return workingDirectoryPath(null, hostPropertiesFileName());
-	}
-	
-	/**
-	 * @return the file name of the {@linkplain RS#WIRELESS_HOST_SETTINGS_FILE}
-	 */
-	public static String hostPropertiesFileName() {
-		return WIRELESS_HOST_SETTINGS_FILE + WIRELESS_PREFERENCE_FILE_EXTENSION;
-	}
-	
-	/**
-	 * @param nodeIndex the index of the remote node
-	 * @return the file name of the remote node
-	 */
-	public static String remotePropertiesFileName(final int nodeIndex) {
-		return WIRELESS_PREFERENCE_FILE_PREFIX + nodeIndex + WIRELESS_PREFERENCE_FILE_EXTENSION;
-	}
-	
-	/**
-	 * @param nodeIndex the index of the remote node
-	 * @return the {@linkplain Path} to the remote node
-	 */
-	public static Path remotePropertiesFilePath(final int nodeIndex) {
-		return workingDirectoryPath(null, remotePropertiesFileName(nodeIndex));
 	}
 	
 	/**
