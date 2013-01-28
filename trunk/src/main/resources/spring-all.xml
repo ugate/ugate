@@ -66,16 +66,72 @@
 	<!-- =========================================================== -->
 	<!-- Atomikos JTA configuration -->
 	<!-- =========================================================== -->
+	<bean id="atomikosSetSystemProps"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<!-- System.getProperties() -->
+			<bean
+				class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+				<property name="targetClass" value="java.lang.System" />
+				<property name="targetMethod" value="getProperties" />
+			</bean>
+		</property>
+		<property name="targetMethod" value="putAll" />
+		<property name="arguments">
+			<props>
+				<prop key="com.atomikos.icatch.output_dir">
+					^${user.home}/${project.artifactId}/atomikos
+				</prop>
+				<prop key="com.atomikos.icatch.log_base_dir">
+					^${user.home}/${project.artifactId}/atomikos
+				</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- DEBUG TX with log administrator console -->
+<!-- 	<bean id="atomikosLogAdministrator" class="com.atomikos.icatch.admin.imp.LocalLogAdministrator" /> -->
+	<bean id="atomikosUserTransactionService" depends-on="atomikosSetSystemProps"
+		class="com.atomikos.icatch.config.UserTransactionServiceImp"
+		init-method="init" destroy-method="shutdownForce">
+		<constructor-arg>
+			<!-- IMPORTANT: specify all Atomikos properties here -->
+			<props>
+				<prop key="com.atomikos.icatch.service">
+					com.atomikos.icatch.standalone.UserTransactionServiceFactory
+				</prop>
+				<prop key="com.atomikos.icatch.max_timeout">
+					${ugate.db.tx.timeout}
+				</prop>
+				<prop key="com.atomikos.icatch.default_jta_timeout">
+					${ugate.db.tx.timeout}
+				</prop>
+				<prop key="com.atomikos.icatch.console_log_level">
+					WARN
+				</prop>
+				<prop key="com.atomikos.icatch.enable_logging">
+					false
+				</prop>
+			</props>
+		</constructor-arg>
+<!-- 		<property name="initialLogAdministrators"> -->
+<!-- 			<list> -->
+<!-- 				<ref bean="atomikosLogAdministrator" /> -->
+<!-- 			</list> -->
+<!-- 		</property> -->
+	</bean>
 	<bean id="transactionManager" depends-on="dataSource"
 		class="org.springframework.transaction.jta.JtaTransactionManager">
 		<property name="transactionManager" ref="atomikosTransactionManager" />
 		<property name="userTransaction" ref="atomikosUserTransaction" />
 	</bean>
-	<bean id="atomikosTransactionManager" class="com.atomikos.icatch.jta.UserTransactionManager"
-		init-method="init" destroy-method="close">
+	<bean id="atomikosTransactionManager" depends-on="atomikosUserTransactionService"
+		class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init"
+		destroy-method="close">
 		<property name="forceShutdown" value="true" />
+		<property name="startupTransactionService" value="false" />
 	</bean>
-	<bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp">
+	<bean id="atomikosUserTransaction" depends-on="atomikosUserTransactionService"
+		class="com.atomikos.icatch.jta.UserTransactionImp">
 		<property name="transactionTimeout" value="${ugate.db.tx.timeout}" />
 	</bean>
 	<!-- =========================================================== -->
