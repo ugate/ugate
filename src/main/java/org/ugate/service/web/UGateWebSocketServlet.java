@@ -11,8 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.util.ajax.JSON;
 import org.eclipse.jetty.util.ajax.JSONObjectConvertor;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketServlet;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ugate.UGateEvent;
@@ -38,7 +39,7 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	private static final long serialVersionUID = 6841946295927734658L;
 	private static final Logger log = LoggerFactory
 			.getLogger(UGateWebSocketServlet.class);
-	private final Set<DefaultWebSocket> members = new CopyOnWriteArraySet<>();
+	final static Set<UGateWebSocket> members = new CopyOnWriteArraySet<>();
 	private JSON jsonRemoteNode;
 	private JSON jsonRemoteNodeReading;
 	private UGateListener uiListener;
@@ -111,9 +112,9 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 		if (jsonData == null || jsonData.isEmpty()) {
 			return;
 		}
-		for (final DefaultWebSocket member : members) {
+		for (final UGateWebSocket member : members) {
 			try {
-				member.sendMessage(jsonData);
+				member.getRemote().sendString(jsonData);
 			} catch (final Throwable t) {
 				log.warn(String.format("Unable to send message %1$s to %2$s",
 						jsonData, member), t);
@@ -238,61 +239,10 @@ public class UGateWebSocketServlet extends WebSocketServlet {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public WebSocket doWebSocketConnect(final HttpServletRequest request,
-			final String protocol) {
-		return new DefaultWebSocket();
-	}
-
-	/**
-	 * Default {@link WebSocket.OnTextMessage}
-	 */
-	class DefaultWebSocket implements WebSocket.OnTextMessage {
-
-		private Connection connection;
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void onOpen(Connection connection) {
-			this.connection = connection;
-			members.add(this);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void onClose(int closeCode, String message) {
-			members.remove(this);
-		}
-
-		/**
-		 * Sends a message using {@link Connection#sendMessage(String)}
-		 * 
-		 * @param message
-		 *            {@link Connection#sendMessage(String)}
-		 * @throws IOException
-		 *             from {@link Connection#sendMessage(String)}
-		 */
-		public void sendMessage(final String message) throws IOException {
-			connection.sendMessage(message);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void onMessage(String data) {
-			for (final DefaultWebSocket member : members) {
-				try {
-					member.connection.sendMessage(data);
-				} catch (final Throwable t) {
-					log.warn(String
-							.format("Unable to send message %1$s to %2$s",
-									data, member), t);
-				}
-			}
-		}
+	public void configure(final WebSocketServletFactory factory) {
+		// set a 10 second idle timeout
+		factory.getPolicy().setIdleTimeout(10000);
+		// register web socket
+		factory.register(UGateWebSocket.class);
 	}
 }

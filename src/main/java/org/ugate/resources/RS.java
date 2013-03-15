@@ -871,6 +871,8 @@ public class RS {
 		RXTX_FILE_NAME("rxtx.file.name"),
 		APP_ID("app.id"),
 		APP_VERSION("app.version"),
+		APP_LOGGER_NAME("app.logger.name"),
+		APP_LOGGER_LEVEL("app.logger.level"),
 		APP_DESC("app.desc"),
 		APP_TITLE("app.title"),
 		APP_TITLE_USER("app.title.user", 1),
