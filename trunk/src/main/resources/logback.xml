@@ -37,6 +37,7 @@
 	<logger name="com.rapplogic" level="WARN"/>
 	<logger name="org.rxtx" level="WARN"/>
 	<logger name="org.apache.openjpa" level="WARN"/>
+	<logger name="${project.groupId}" level="${ugate.log.level}"/>
 	<logger name="${project.groupId}.UGateUtil" additivity="false">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="MSGOUT" />

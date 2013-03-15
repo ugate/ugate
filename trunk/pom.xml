@@ -49,7 +49,7 @@
 		<ugate.slf4j.version>1.6.6</ugate.slf4j.version>
 		<ugate.logback.version>1.0.6</ugate.logback.version>
 		<ugate.thymeleaf.version>2.0.14</ugate.thymeleaf.version>
-		<ugate.jetty.version>8.1.8.v20121106</ugate.jetty.version>
+		<ugate.jetty.version>9.0.0.v20130308</ugate.jetty.version>
 		<ugate.servlet.version>3.0.1</ugate.servlet.version>
 		<ugate.jta.version>1.1</ugate.jta.version>
 		<ugate.atomikos.version>3.8.0</ugate.atomikos.version>
@@ -63,7 +63,7 @@
 		<ugate.plugin.exec.version>1.2.1</ugate.plugin.exec.version>
 		<ugate.plugin.jar.version>2.4</ugate.plugin.jar.version>
 		<ugate.plugin.shade.version>2.0</ugate.plugin.shade.version>
-		<ugate.plugin.dependency.version>2.6</ugate.plugin.dependency.version>
+		<ugate.plugin.dependency.version>2.7</ugate.plugin.dependency.version>
 		<ugate.plugin.antrun.version>1.7</ugate.plugin.antrun.version>
 		<ugate.plugin.resources.version>2.6</ugate.plugin.resources.version>
 		<ugate.plugin.surefire.version>2.13</ugate.plugin.surefire.version>
@@ -564,8 +564,18 @@
 			<version>${ugate.servlet.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty.aggregate</groupId>
+			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
+			<version>${ugate.jetty.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-server</artifactId>
+			<version>${ugate.jetty.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-util-ajax</artifactId>
 			<version>${ugate.jetty.version}</version>
 		</dependency>
 		<dependency>
