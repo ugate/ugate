@@ -2,13 +2,14 @@ package org.ugate.service.web;
 
 import java.io.IOException;
 
+import javax.naming.AuthenticationException;
+
 import org.eclipse.jetty.security.MappedLoginService;
 import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.util.security.Credential;
 import org.eclipse.jetty.util.security.Credential.MD5;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.ugate.service.CredentialService;
 import org.ugate.service.ServiceProvider;
 import org.ugate.service.entity.jpa.Actor;
 import org.ugate.service.entity.jpa.Role;
@@ -26,7 +27,8 @@ public class JPALoginService extends MappedLoginService {
 	public JPALoginService() {
 		// need to use the same salt for the Realm name for authentication
 		// or else authentication will not work using digest.
-		setName(CredentialService.SALT);
+		//setName(CredentialService.SALT);
+		setName(JPALoginService.class.getSimpleName());
 	}
 
 	/**
@@ -42,10 +44,17 @@ public class JPALoginService extends MappedLoginService {
 		try {
 			// get the user and roles from JPA (roles should be eagerly fetched or pre-fetched
 			// or a null pointer will be thrown)
+			if (username == null || username.isEmpty() || credentials == null
+					|| credentials.toString() == null
+					|| credentials.toString().isEmpty()) {
+				throw new IllegalArgumentException(String.format(
+						"Invalid username/password combination for %1$s",
+						username));
+			}
 			final Actor actor = ServiceProvider.IMPL.getCredentialService().authenticate(username,
 						credentials.toString());
 			if (actor == null) {
-				throw new NullPointerException(Actor.class.getName());
+				throw new AuthenticationException(Actor.class.getName() + ':' + username);
 			}
 			final String[] roles = new String[actor.getRoles().size()];
 			int i = -1;
@@ -57,8 +66,8 @@ public class JPALoginService extends MappedLoginService {
 			final Credential cred = Credential.getCredential(MD5.__TYPE + actor.getPassword());
 			return putUser(username, cred, roles);
 		} catch (final Throwable t) {
-			final String msg = String.format("Unable to %1$s %2$s",
-					(credentials == null ? "load" : "authenticate"), username);
+			final String msg = String.format("Unable to authenticate %1$s",
+					username);
 			if (log.isDebugEnabled()) {
 				log.debug(msg, t);
 			} else if (log.isInfoEnabled()) {

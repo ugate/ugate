@@ -91,9 +91,15 @@ public class EmailHostConnection extends VBox {
 				RS.rbLabel(KEY.MAIL_USERNAME), null);
 		controlBar.addHelpTextTrigger(username,
 				RS.rbLabel(KEY.MAIL_USERNAME_DESC));
-		password = new UGateCtrlBox<>(controlBar.getActorPA(),
-				ActorType.MAIL_PASSWORD, UGateCtrlBox.Type.PASSWORD,
-				RS.rbLabel(KEY.MAIL_PASSWORD), null);
+		password = new UGateCtrlBox<Actor, Model, Void>(
+				controlBar.getActorPA(), ActorType.MAIL_PASSWORD,
+				UGateCtrlBox.Type.PASSWORD, RS.rbLabel(KEY.MAIL_PASSWORD),
+				null, true) {
+			@Override
+			public String getEncryptPassphrase() {
+				return controlBar.getActor().getPassPhrase();
+			}
+		};
 		controlBar.addHelpTextTrigger(password,
 				RS.rbLabel(KEY.MAIL_PASSWORD_DESC));
 		inboxFolder = new UGateCtrlBox<>(controlBar.getActorPA(),

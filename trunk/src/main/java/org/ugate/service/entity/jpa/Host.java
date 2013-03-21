@@ -82,8 +82,8 @@ public class Host implements Model {
 	@Column(name="MAIL_INBOX_NAME", length=100)
 	private String mailInboxName;
 
-	@Column(name="MAIL_PASSWORD", length=100)
-	@Size(min=3, max=30)
+	@Column(name="MAIL_PASSWORD", length=1024)
+	@Size(min=4, max=1024)
 	private String mailPassword;
 
 	@Column(name="MAIL_SMTP_HOST", length=100)
