@@ -29,9 +29,9 @@ public class CredentialService {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(CredentialService.class);
-	// TODO : Until browsers support SHA-256 http://tools.ietf.org/html/rfc5843 we have to use MD5
-	private static final String ALGORITHM = "MD5"; // "SHA-256";
-	public static final String SALT = "Options";
+	// If using web DIGEST: Until browsers support SHA-256
+	// http://tools.ietf.org/html/rfc5843 we have to use MD5
+	private static final String ALGORITHM = "SHA-256"; // "MD5";
 
 	@Resource
 	private CredentialDao credentialDao;
@@ -65,7 +65,8 @@ public class CredentialService {
 	 *            the {@linkplain AppInfo#getVersion()}
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public boolean setDefaultActor(final Actor defaultActor, final String version) {
+	public boolean setDefaultActor(final Actor defaultActor,
+			final String version) {
 		final AppInfo appInfo = credentialDao.getAppInfo(version);
 		if (appInfo != null) {
 			appInfo.setDefaultActor(defaultActor);
@@ -104,7 +105,8 @@ public class CredentialService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Actor addUser(final Actor actor, final String appVersion)
 			throws UnsupportedOperationException {
-		actor.setPassword(generateHash(actor.getUsername(), actor.getPassword()));
+		actor.setPassword(generateHash(actor.getUsername(),
+				actor.getPassword(), actor.getPassPhrase()));
 		credentialDao.persistEntity(actor);
 		if (appVersion != null && appVersion.length() > 0) {
 			final AppInfo appInfo = credentialDao.getAppInfo(appVersion);
@@ -153,13 +155,15 @@ public class CredentialService {
 			}
 			final Actor actor = credentialDao.getActor(username);
 			if (actor != null) {
-				if (actor.getPassword().equals(password) || 
-						hasDigestMatch(username, actor.getPassword(), password)) {
+				if (actor.getPassword().equals(password)
+						|| hasDigestMatch(username, actor.getPassword(),
+								password, actor.getPassPhrase())) {
 					return actor;
 				}
 			} else if (log.isDebugEnabled()) {
-				log.debug(String.format("No %1$s exists with a login of %2$s and the supplied password",
-						Actor.class.getSimpleName(), username));
+				log.debug(String
+						.format("No %1$s exists with a login of %2$s and the supplied password",
+								Actor.class.getSimpleName(), username));
 			}
 		} catch (final Exception e) {
 			if (e instanceof NoResultException
@@ -214,7 +218,7 @@ public class CredentialService {
 	public void mergeActor(final Actor actor) {
 		credentialDao.mergeEntity(actor);
 	}
-	
+
 	/**
 	 * Merges the {@linkplain Host}
 	 * 
@@ -223,7 +227,7 @@ public class CredentialService {
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void mergeHost(final Host host) {
-		//credentialDao.deleteEntitiesById("email", mailRecipients);
+		// credentialDao.deleteEntitiesById("email", mailRecipients);
 		credentialDao.mergeEntity(host);
 	}
 
@@ -236,11 +240,10 @@ public class CredentialService {
 	 *            the {@linkplain RemoteNode}(s) to remove (if any)
 	 */
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void mergeHost(final Host host,
-			final RemoteNode remoteNodes) {
-       credentialDao.mergeEntity(host);
-       credentialDao.deleteEntitiesById(
-    		   RemoteNodeType.WIRELESS_ADDRESS.getKey(), remoteNodes);
+	public void mergeHost(final Host host, final RemoteNode remoteNodes) {
+		credentialDao.mergeEntity(host);
+		credentialDao.deleteEntitiesById(
+				RemoteNodeType.WIRELESS_ADDRESS.getKey(), remoteNodes);
 	}
 
 	/**
@@ -252,12 +255,16 @@ public class CredentialService {
 	 *            the hashed password
 	 * @param rawPassword
 	 *            the un-hashed password to compare to
+	 * @param salt
+	 *            the salt
 	 * @return true when the passwords match
 	 */
 	public static boolean hasDigestMatch(final String username,
-			final String hashedPassword, final String rawPassword) {
+			final String hashedPassword, final String rawPassword,
+			final String salt) {
 		final byte[] digest1 = getBytes(hashedPassword);
-		final byte[] digest2 = getBytes(generateHash(username, rawPassword));
+		final byte[] digest2 = getBytes(generateHash(username, rawPassword,
+				salt));
 		return MessageDigest.isEqual(digest2, digest1);
 	}
 
@@ -268,12 +275,14 @@ public class CredentialService {
 	 *            the login ID
 	 * @param password
 	 *            the password
+	 * @param salt
+	 *            the salt
 	 * @return the digested user name and password
 	 */
 	protected static String generateHash(final String username,
-			final String password) {
+			final String password, final String salt) {
 		try {
-			return toString(digestBytes(username, password), 16);
+			return toString(digestBytes(username, password, salt), 16);
 		} catch (final Exception e) {
 			log.warn("Unable to digest password for " + username, e);
 			return null;
@@ -287,13 +296,15 @@ public class CredentialService {
 	 *            the login ID
 	 * @param password
 	 *            the password
+	 * @param salt
+	 *            the salt
 	 * @return the digested user name and password bytes
 	 */
 	protected static byte[] digestBytes(final String username,
-			final String password) {
+			final String password, final String salt) {
 		try {
 			MessageDigest sha = MessageDigest.getInstance(ALGORITHM);
-			sha.update(getBytes(getSaltedPassword(username, password)));
+			sha.update(getBytes(getSaltedPassword(username, password, salt)));
 			return sha.digest();
 		} catch (final Exception e) {
 			log.warn("Unable to create message digest for " + ALGORITHM, e);
@@ -351,12 +362,32 @@ public class CredentialService {
 	 *            the login ID
 	 * @param password
 	 *            the password
+	 * @param salt
+	 *            the salt
 	 * @return the salted password
 	 */
 	protected static final String getSaltedPassword(final String username,
-			final String password) {
+			final String password, final String salt) {
 		// Do not change the salt generation below or web digest use will be
 		// rendered unusable!
-		return username + ':' + SALT + ':' + password;
+		return username + ':' + salt + ':' + password;
+	}
+
+	/**
+	 * Launch the application.
+	 * 
+	 * @param args
+	 *            the arguments
+	 */
+	public static void main(final String[] args) {
+		final int noa = args != null ? args.length : 0;
+		if (noa != 3) {
+			throw new IllegalArgumentException(
+					String.format(
+							"Expected Username, Password, Salt. Received %1$s arguments",
+							noa));
+		}
+		System.out.println("Generated Hash: "
+				+ generateHash(args[0], args[1], args[2]));
 	}
 }

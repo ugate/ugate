@@ -81,7 +81,8 @@ public enum ActorType implements IModelType<Actor> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ValueType<Actor, Object> newValueType(final Actor actor) throws Throwable {
+	public ValueType<Actor, Object> newValueType(final Actor actor)
+			throws Throwable {
 		return new ValueType<>(this, getValue(actor));
 	}
 
@@ -122,20 +123,23 @@ public enum ActorType implements IModelType<Actor> {
 	 * Creates a new {@linkplain Actor} with minimal information
 	 * 
 	 * @param username
-	 *            the {@linkplain Actor}'s login ID
+	 *            the {@linkplain Actor#getUsername()}
 	 * @param password
-	 *            the {@linkplain Actor}'s password
+	 *            the {@linkplain Actor#getPassword()}
+	 * @param passPhrase
+	 *            the {@link Actor#getPassPhrase()}
 	 * @param host
 	 *            the {@linkplain Host} that will be associated with the
 	 *            {@linkplain Actor}
 	 * @return a new {@linkplain Actor}
 	 */
 	public static Actor newActor(final String username, final String password,
-			final Host host, final Role... roles) {
+			final String passPhrase, final Host host, final Role... roles) {
 		final Actor actor = new Actor();
 		actor.setHost(host == null ? newDefaultHost() : host);
 		actor.setUsername(username);
 		actor.setPassword(password);
+		actor.setPassPhrase(passPhrase);
 		actor.setRoles(new HashSet<Role>(Arrays.asList(roles)));
 		return actor;
 	}

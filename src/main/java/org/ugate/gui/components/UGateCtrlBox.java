@@ -2,6 +2,10 @@ package org.ugate.gui.components;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -21,6 +25,7 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
 import org.ugate.gui.GuiUtil;
+import org.ugate.service.SecurityEncryptionProvider;
 import org.ugate.service.entity.IModelType;
 import org.ugate.service.entity.Model;
 
@@ -60,9 +65,13 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 	private final BeanPathAdapter<T> beanPathAdapter;
 	private final IModelType<T> modelKey;
 	private final IModelType<IT> modelItemKey;
+	private final boolean encryptResult;
+	private boolean encrypt = true;
+	private SecurityEncryptionProvider encryptionProvider;
 
 	/**
-	 * Creates a text field preference view
+	 * Creates a {@link TextField} / {@link PasswordField} version of a
+	 * {@linkplain UGateCtrlBox}
 	 * 
 	 * @param beanPathAdapter
 	 *            the {@linkplain BeanPathAdapter} to bind to
@@ -79,11 +88,38 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final String toolTip) {
 		this(beanPathAdapter, modelKey, null, null, type, null, null, null,
-				null, labelText, null, null, toolTip, null, null);
+				null, labelText, null, null, toolTip, null, null, false);
 	}
 
 	/**
-	 * Creates a text field preference view
+	 * Creates a {@link TextField} / {@link PasswordField} version of a
+	 * {@linkplain UGateCtrlBox}
+	 * 
+	 * @param beanPathAdapter
+	 *            the {@linkplain BeanPathAdapter} to bind to
+	 * @param modelKey
+	 *            the {@linkplain IModelType} of the field
+	 * @param type
+	 *            the {@linkplain Type}
+	 * @param labelText
+	 *            the label text
+	 * @param toolTip
+	 *            the tool tip
+	 * @param encryptResult
+	 *            the {@link #encryptResult()}
+	 */
+	public UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
+			final IModelType<T> modelKey, final Type type,
+			final String labelText, final String toolTip,
+			final boolean encryptResult) {
+		this(beanPathAdapter, modelKey, null, null, type, null, null, null,
+				null, labelText, null, null, toolTip, null, null,
+				encryptResult);
+	}
+
+	/**
+	 * Creates a {@link TextField} / {@link PasswordField} version of a
+	 * {@linkplain UGateCtrlBox}
 	 * 
 	 * @param beanPathAdapter
 	 *            the {@linkplain BeanPathAdapter} to bind to
@@ -101,13 +137,16 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 	 *            count)
 	 * @param toolTip
 	 *            the tool tip
+	 * @param encryptResult
+	 *            the {@link #encryptResult()}
 	 */
 	public UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final Type type,
 			final String labelText, final Number width, final Number height,
-			final String toolTip) {
+			final String toolTip, final boolean encryptPassphrase) {
 		this(beanPathAdapter, modelKey, null, null, type, null, null, null,
-				null, labelText, width, height, toolTip, null, null);
+				null, labelText, width, height, toolTip, null, null,
+				encryptPassphrase);
 	}
 
 	/**
@@ -138,7 +177,7 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 			final Number maxValue, final String labelText, final String toolTip) {
 		this(beanPathAdapter, modelKey, null, null, Type.NUMERIC_STEPPER,
 				numericStepperFormat, numericStepperColor, minValue, maxValue,
-				labelText, null, null, toolTip, null, null);
+				labelText, null, null, toolTip, null, null, false);
 	}
 
 	/**
@@ -177,7 +216,7 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 			final IVT[] items, final Class<IVT> itemValueType) {
 		this(beanPathAdapter, modelKey, modelItemKey, modelItemClassType,
 				Type.LIST_VIEW, null, null, null, null, labelText, width,
-				height, toolTip, items, itemValueType);
+				height, toolTip, items, itemValueType, false);
 	}
 
 	/**
@@ -220,6 +259,8 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 	 * @param itemValueType
 	 *            the type of items in the
 	 *            {@linkplain ListView#getItems()}
+	 * @param encryptResult
+	 *            the {@link #encryptResult()}
 	 */
 	protected UGateCtrlBox(final BeanPathAdapter<T> beanPathAdapter,
 			final IModelType<T> modelKey, final IModelType<IT> modelItemKey,
@@ -228,8 +269,9 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 			final Number minValue, final Number maxValue,
 			final String labelText, final Number width, final Number height,
 			final String toolTip, final IVT[] items,
-			final Class<IVT> itemValueType) {
+			final Class<IVT> itemValueType, final boolean encryptResult) {
 		super();
+		this.encryptResult = encryptResult;
 		this.beanPathAdapter = beanPathAdapter;
 		this.modelKey = modelKey;
 		this.modelItemKey = modelItemKey;
@@ -266,8 +308,7 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 				passwordField.setPrefHeight(height.doubleValue());
 			}
 			getChildren().addAll(label, passwordField);
-			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
-					passwordField.textProperty());
+			bindTextOrPasswordField(passwordField);
 		} else if (type == Type.TEXT_AREA) {
 			textField = null;
 			passwordField = null;
@@ -337,9 +378,12 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 				final UGateDirectory dir = new UGateDirectory(null);
 				textField = dir.getTextField();
 				getChildren().addAll(label, dir);
+				this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
+						textField.textProperty());
 			} else {
 				textField = new TextField();
 				getChildren().addAll(label, textField);
+				bindTextOrPasswordField(textField);
 			}
 			if (width != null) {
 				textField.setPrefWidth(width.doubleValue());
@@ -348,8 +392,6 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 				textField.setPrefHeight(height.doubleValue());
 			}
 			textField.setPromptText(labelText);
-			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
-					textField.textProperty());
 		}
 		// if (type != Type.NUMERIC_STEPPER) {
 		// setValue(textValue);
@@ -542,6 +584,100 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 		}
 	}
 
+	private void bindTextOrPasswordField(final TextField tf) {
+		if (!encryptResult) {
+			this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
+					tf.textProperty());
+		} else {
+			try {
+				final StringProperty msp = new SimpleStringProperty(
+						tf.getText()) {
+					@Override
+					public void set(final String value) {
+						super.set(value);
+						if (value == null || value.isEmpty()) {
+							tf.setText(value);
+							return;
+						}
+						encrypt = false;
+						try {
+							final String clearText = getEncryptionProvider()
+									.decrypt(value);
+							tf.setText(clearText);
+						} catch (final Throwable t) {
+							throw new RuntimeException("Unable to decrypt", t);
+						} finally {
+							encrypt = true;
+						}
+					}
+				};
+				this.beanPathAdapter.bindBidirectional(this.modelKey.getKey(),
+						msp);
+				tf.focusedProperty().addListener(new ChangeListener<Boolean>() {
+					private String ltv = tf.getText();
+					@Override
+					public void changed(
+							final ObservableValue<? extends Boolean> observable,
+							final Boolean oldValue, final Boolean newValue) {
+						if (encrypt && (newValue == null || !newValue)
+								&& tf.getText() != null
+								&& !tf.getText().isEmpty()
+								&& !tf.getText().equals(ltv)) {
+							try {
+								final String encrypted = getEncryptionProvider()
+										.encrypt(tf.getText());
+								ltv = tf.getText();
+								msp.set(encrypted);
+							} catch (final Throwable t) {
+								throw new RuntimeException("Unable to encrypt",
+										t);
+							}
+						}
+					}
+				});
+			} catch (final Throwable t) {
+				throw new RuntimeException("Unable to add ecryption", t);
+			}
+		}
+	}
+
+	/**
+	 * Gets the {@link SecurityEncryptionProvider} used by the
+	 * {@link UGateCtrlBox} when {@link #getEncryptPassphrase()} returns a valid
+	 * value and {@link #encryptPassphrase()} is <code>true</code>
+	 * 
+	 * @return the {@link SecurityEncryptionProvider}
+	 * @throws Exception
+	 *             thrown when unable to initialize the
+	 *             {@link SecurityEncryptionProvider}
+	 */
+	protected SecurityEncryptionProvider getEncryptionProvider() throws Exception {
+		if (encryptionProvider == null) {
+			encryptionProvider = new SecurityEncryptionProvider(getEncryptPassphrase());
+		}
+		return encryptionProvider;
+	}
+
+	/**
+	 * Override when {@link #encryptPassphrase()} is initialized as true
+	 * 
+	 * @return the password phrase used for encryption of the
+	 *         {@link UGateCtrlBox}
+	 */
+	public String getEncryptPassphrase() {
+		return null;
+	}
+
+	/**
+	 * @return true for {@link UGateCtrlBox}s that are a {@link TextField} or
+	 *         {@link PasswordField} encryption will occur when setting the
+	 *         bound {@link BeanPathAdapter} from the control and decryption
+	 *         when the value is coming from the {@link BeanPathAdapter} <b>must override </b>
+	 */
+	public boolean encryptPassphrase() {
+		return encryptResult;
+	}
+
 	/**
 	 * @return the value property
 	 */
@@ -583,6 +719,7 @@ public class UGateCtrlBox<T extends Model, IT extends Model, IVT> extends VBox {
 	public ListView<IVT> getListView() {
 		return listView;
 	}
+
 	/**
 	 * The type of text control
 	 */

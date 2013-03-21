@@ -896,6 +896,7 @@ public class RS {
 		APP_DIALOG_USERNAME("app.dialog.username"),
 		APP_DIALOG_PWD("app.dialog.password"),
 		APP_DIALOG_PWD_VERIFY("app.dialog.password.verify"),
+		APP_DIALOG_PASS_PHRASE("app.dialog.passphrase"),
 		APP_DIALOG_REQUIRED("app.dialog.required", 1),
 		APP_DIALOG_DEFAULT_USER("app.dialog.defaultuser"),
 		APP_SERVICE_STARTUP_DESC("app.service.startup.desc"),

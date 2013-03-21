@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
-import org.ugate.UGateKeeper;
 import org.ugate.UGateEvent;
+import org.ugate.UGateKeeper;
 import org.ugate.UGateUtil;
 import org.ugate.mail.EmailAgent;
 import org.ugate.mail.EmailEvent;
@@ -134,6 +134,8 @@ public class EmailService extends ExtractorService<Actor> {
 				}
 			});
 			this.emailAgent = EmailAgent.start(new EmailAgent.Options() {
+				String lpp;
+				SecurityEncryptionProvider sep;
 				@Override
 				public boolean isCommandAuthorized(final String email) {
 					for (final MailRecipient mr : extract().getHost()
@@ -152,7 +154,7 @@ public class EmailService extends ExtractorService<Actor> {
 
 				@Override
 				public String getSmtpPassword() {
-					return extract().getHost().getMailPassword();
+					return getPassword();
 				}
 
 				@Override
@@ -172,7 +174,7 @@ public class EmailService extends ExtractorService<Actor> {
 
 				@Override
 				public String getImapPassword() {
-					return extract().getHost().getMailPassword();
+					return getPassword();
 				}
 
 				@Override
@@ -213,6 +215,19 @@ public class EmailService extends ExtractorService<Actor> {
 				@Override
 				public boolean isDebug() {
 					return log.isDebugEnabled();
+				}
+
+				private String getPassword() {
+					try {
+						if (sep == null
+								|| !lpp.equals(extract().getPassPhrase())) {
+							lpp = extract().getPassPhrase();
+							sep = new SecurityEncryptionProvider(lpp);
+						}
+						return sep.decrypt(extract().getHost().getMailPassword());
+					} catch (final Throwable t) {
+						throw new IllegalStateException("Unable to connect to email", t);
+					}
 				}
 			}, listeners.toArray(new IEmailListener[0]));
 			return true;

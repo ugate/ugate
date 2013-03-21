@@ -105,6 +105,7 @@ public class UGateGUI extends Application {
 	 * Launch the application.
 	 * 
 	 * @param args
+	 *            the arguments
 	 */
 	public static void main(final String[] args) {
 		try {

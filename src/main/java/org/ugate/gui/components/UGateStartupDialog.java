@@ -100,6 +100,8 @@ public enum UGateStartupDialog {
 		final PasswordField password = PasswordFieldBuilder.create().promptText(RS.rbLabel(KEY.APP_DIALOG_PWD)).build();
 		final PasswordField passwordVerify = isAuth ? null : PasswordFieldBuilder.create().promptText(
 				RS.rbLabel(KEY.APP_DIALOG_PWD_VERIFY)).build();
+		final TextField passPhrase = isAuth ? null : TextFieldBuilder.create().promptText(
+				RS.rbLabel(KEY.APP_DIALOG_PASS_PHRASE)).build();
 		final CheckBox autoActor = CheckBoxBuilder.create().text(RS.rbLabel(KEY.APP_DIALOG_DEFAULT_USER)).build();
 		final Button closeBtn = ButtonBuilder.create().text(RS.rbLabel(KEY.CLOSE)).build();
 		final GuiUtil.DialogService dialogService = GuiUtil.dialogService(stage, KEY.APP_TITLE, dialogHeader, null, 550d, isAuth ? 200d : 500d, new Service<Void>() {
@@ -119,10 +121,12 @@ public enum UGateStartupDialog {
 						final boolean hasUsername = !username.getText().isEmpty();
 						final boolean hasPassword = !password.getText().isEmpty();
 						final boolean hasPasswordVerify = isAuth ? true : !passwordVerify.getText().isEmpty();
+						final boolean hasPassPhrase = isAuth ? true : !passPhrase.getText().isEmpty();
 						if (hasWirelessPort && hasWirelessBaud && hasWirelessRemoteNodeAddy && hasWirelessRemoteNodeDir && 
-								hasUsername && hasPassword && hasPasswordVerify) {
+								hasUsername && hasPassword && hasPasswordVerify && hasPassPhrase) {
 							try {
 								if (isAuth) {
+									// authenticate: setup has been completed prior to current session
 									actor = ServiceProvider.IMPL.getCredentialService().authenticate(
 											username.getText(), password.getText());
 									if (actor == null) {
@@ -130,6 +134,7 @@ public enum UGateStartupDialog {
 												username.getText()));
 									}
 								} else {
+									// setup: 1st time application has run or required info is missing
 									if (!password.getText().equals(passwordVerify.getText())) {
 										throw new InputMismatchException(RS.rbLabel(
 												KEY.APP_DIALOG_SETUP_ERROR_PWD_MISMATCH));
@@ -147,7 +152,7 @@ public enum UGateStartupDialog {
 									if (hvm != null && hvm.length() > 0) {
 										throw new ValidationException(hvm);
 									}
-									final Actor a = ActorType.newActor(username.getText(), password.getText(), 
+									final Actor a = ActorType.newActor(username.getText(), password.getText(), passPhrase.getText(),
 											host, RoleType.ADMIN.newRole());
 									final String avm = startupHandler.getControlBar().validate(a);
 									if (avm != null && avm.length() > 0) {
@@ -186,7 +191,8 @@ public enum UGateStartupDialog {
 									(!hasWirelessRemoteNodeDir ? wirelessRemoteNodeDirBox.getTextField().getPromptText() : "") +
 									(!hasUsername ? username.getPromptText() : "") + 
 									(!hasPassword ? password.getPromptText() : "") + 
-									(!hasPasswordVerify ? passwordVerify.getPromptText() : "");
+									(!hasPasswordVerify ? passwordVerify.getPromptText() : "") +
+									(!hasPassPhrase ? passPhrase.getPromptText() : "");
 							throw new RuntimeException(RS.rbLabel(KEY.APP_DIALOG_REQUIRED, invalidFields));
 						}
 						return null;
@@ -194,7 +200,7 @@ public enum UGateStartupDialog {
 				};
 			}
 		}, null, closeBtn, GuiUtil.externalHyperlink(null, RS.rbURI(KEY.APP_DIALOG_SETUP_LINK)), wirelessPort, wirelessBaud, 
-		wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify, autoActor);
+		wirelessHostAddy, wirelessRemoteNodeAddy, wirelessRemoteNodeDirBox, username, password, passwordVerify, passPhrase, autoActor);
 		dialogService.getStage().addEventHandler(WindowEvent.WINDOW_SHOWN, new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(final WindowEvent event) {

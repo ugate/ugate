@@ -53,8 +53,12 @@ public class Actor implements Model {
 	private String username;
 
 	@Column(nullable=false, length=64)
-	@Size(min=4)
+	@Size(min=4, max=64)
 	private String password;
+
+	@Column(nullable=false, length=1024)
+	@Size(min=32, max=1024)
+	private String passPhrase;
 	
 	//bi-directional many-to-one association to Host
     @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
@@ -180,6 +184,14 @@ public class Actor implements Model {
 		this.password = password;
 	}
 	
+	public String getPassPhrase() {
+		return passPhrase;
+	}
+
+	public void setPassPhrase(String passPhrase) {
+		this.passPhrase = passPhrase;
+	}
+
 	public Host getHost() {
 		return this.host;
 	}
