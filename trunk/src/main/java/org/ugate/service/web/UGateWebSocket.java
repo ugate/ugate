@@ -2,6 +2,7 @@ package org.ugate.service.web;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import org.eclipse.jetty.websocket.api.WebSocketTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,13 @@ public class UGateWebSocket extends WebSocketAdapter {
 	 */
 	@Override
 	public void onWebSocketError(final Throwable error) {
-		log.error(UGateWebSocket.class.getSimpleName() + " error", error);
+		if (WebSocketTimeoutException.class.isAssignableFrom(error.getClass())) {
+			if (log.isDebugEnabled()) {
+				log.debug("Timeout encountered", error);
+			}
+		} else {
+			log.error("Error: ", error);
+		}
 	}
 
 	/**
