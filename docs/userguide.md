@@ -30,24 +30,24 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/screen01.png">
+										<img src="screen01.png">
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/screen02.png">
+										<img src="screen02.png">
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/screen03.png">
+										<img src="screen03.png">
 									</td>
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/screen04.png">
+										<img src="screen04.png">
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/screen05.png">
+										<img src="screen05.png">
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/screen06.png">
+										<img src="screen06.png">
 									</td>
 								</tr>
 							</tbody>
@@ -529,7 +529,7 @@
 							<li>3/4 male NTP x female MT PVC swivel (Used for sonar/PIR armature) x
 								3 @ ~$1-2/each Home Depot, Lowes, etc.</li>
 							<li>
-								<a href="http://ugate.googlecode.com/files/cam-shaft-wire.jpg" rel="nofollow">A
+								<a href="cam-shaft-wire.jpg" rel="nofollow">A
 									wire necklace or 5" of 18 gauge wire</a>
 								(Used as a wire shaft for the camera tilt servo) ~$0.40-$3 Michaels
 								Arts &amp; Craft Store (necklace) or Home Depot/Lowes for wire
@@ -650,13 +650,13 @@
 								FREE
 							</li>
 							<li>
-								<a href="http://code.google.com/p/ugate/downloads/list" rel="nofollow">UGate
+								<a href="downloads/list" rel="nofollow">UGate
 									GUI (Java/JavaFX 2.0 based GUI for communications to/from Arduino)
 								</a>
 								FREE
 							</li>
 							<li>
-								<a href="http://code.google.com/p/ugate/downloads/list" rel="nofollow">UGate
+								<a href="downloads/list" rel="nofollow">UGate
 									Arduino Sketch (PDE/INO)</a>
 								FREE
 							</li>
@@ -682,7 +682,7 @@
 							peripherals. Like any Arduino
 							<i>sketch</i>
 							(PDE/INO) file the
-							<a href="http://code.google.com/p/ugate/downloads/list" rel="nofollow">ugate
+							<a href="downloads/list" rel="nofollow">ugate
 								sketch</a>
 							is easily compiled and uploaded to your Arduino using the
 							<a href="http://arduino.cc/en/Main/Software" rel="nofollow">Arduino IDE</a>
@@ -695,7 +695,7 @@
 							<a href="http://javafx.com/" rel="nofollow">JavaFX</a>
 							unless you plan on changing the source code for the GUI interaction
 							between your computer and the Arduino. The provided
-							<a href="http://code.google.com/p/ugate/downloads/list" rel="nofollow">ugate.jar
+							<a href="downloads/list" rel="nofollow">ugate.jar
 							</a>
 							can be ran just like any other executable file. If you adhere to the
 							following instructions you wont need any prior electronics knowledge.
@@ -711,7 +711,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir1.jpg">
+										<img src="ir1.jpg">
 											<p>
 												<b>Step 1:</b>
 												Determine how to wire the IR receiver pins. Here we used a spare
@@ -727,7 +727,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir2.jpg">
+										<img src="ir2.jpg">
 											<p>
 												<b>Step 2:</b>
 												We need to have a durable see-through enclosure to house our IR
@@ -738,7 +738,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir3.jpg">
+										<img src="ir3.jpg">
 											<p>
 												<b>Step 3:</b>
 												Next, determine the location where the camera dome and IR receiver
@@ -749,7 +749,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir4.jpg">
+										<img src="ir4.jpg">
 											<p>
 												<b>Step 4:</b>
 												Drill a hole with a 1 and 1/4 inch hole saw for the IR receiver
@@ -758,7 +758,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir5.jpg">
+										<img src="ir5.jpg">
 											<p>
 												<b>Step 5:</b>
 												Using an outdoor silicone based caulk... caulk the exterior seam
@@ -767,7 +767,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir06.jpg">
+										<img src="ir06.jpg">
 											<p>
 												<b>Step 6:</b>
 												Also caulk the interior seam between the junction box and the
@@ -779,7 +779,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir7.jpg">
+										<img src="ir7.jpg">
 											<p>
 												<b>Step 7:</b>
 												Next, cut a 3 and 1/2 inch portion of a 3/4 inch diameter
@@ -793,7 +793,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir8.jpg">
+										<img src="ir8.jpg">
 											<p>
 												<b>Step 8:</b>
 												Take a 2 and 1/4 inch screw (or a size that fits, but doesn't take
@@ -803,7 +803,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir9.jpg">
+										<img src="ir9.jpg">
 											<p>
 												<b>Step 9:</b>
 												Place the tubing into the spice jar to ensure the screw, tubing
@@ -814,7 +814,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/ir10.jpg">
+										<img src="ir10.jpg">
 											<p>
 												<b>Step 10:</b>
 												Run the wire/jumper cables that were previously soldered to the
@@ -844,7 +844,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 1:</b>
 												The camera comes in an enclosure that we will have to disassemble
@@ -854,7 +854,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam2.jpg">
+										<img src="cam2.jpg">
 											<p>
 												<b>Step 2:</b>
 												Using a small flat-head screwdriver gently pry open the enclosure
@@ -862,7 +862,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam3.jpg">
+										<img src="cam3.jpg">
 											<p>
 												<b>Step 3:</b>
 												Inside the camera enclosure you will see the camera circuit with
@@ -879,7 +879,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam4.jpg">
+										<img src="cam4.jpg">
 											<p>
 												<b>Step 4:</b>
 												Now that the camera circuit has been removed we are ready to place
@@ -889,7 +889,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam5.jpg">
+										<img src="cam5.jpg">
 											<p>
 												<b>Step 5:</b>
 												The brass insert needs to be removed so the servo can be placed in
@@ -899,7 +899,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam6.jpg">
+										<img src="cam6.jpg">
 											<p>
 												<b>Step 6:</b>
 												Once drilled ensure the round servo horn (came with your servo)
@@ -911,7 +911,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam7.jpg">
+										<img src="cam7.jpg">
 											<p>
 												<b>Step 7:</b>
 												To make space for the servo to be inserted into the bottom of the
@@ -925,7 +925,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam8.jpg">
+										<img src="cam8.jpg">
 											<p>
 												<b>Step 8:</b>
 												Flip the base over and place the round horn connection into the
@@ -934,7 +934,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam9.jpg">
+										<img src="cam9.jpg">
 											<p>
 												<b>Step 9:</b>
 												Your servo should have came with a black rubber ring and a small
@@ -951,7 +951,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam10.jpg">
+										<img src="cam10.jpg">
 											<p>
 												<b>Step 10:</b>
 												Place the camera dome assembly on top of the junction box next to
@@ -964,7 +964,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam11.jpg">
+										<img src="cam11.jpg">
 											<p>
 												<b>Step 11:</b>
 												Being careful not to cut the long side too far (needed to screw in
@@ -983,7 +983,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam12.jpg">
+										<img src="cam12.jpg">
 											<p>
 												<b>Step 12:</b>
 												Next, center the camera dome base on the mounted servo gear that
@@ -1006,7 +1006,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam13.jpg">
+										<img src="cam13.jpg">
 											<p>
 												<b>Step 13:</b>
 												Now we need to assemble the tilt servo. First we need to glue the
@@ -1031,7 +1031,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam15.jpg">
+										<img src="cam15.jpg">
 											<p>
 												<b>Step 14:</b>
 												Using the single arm servo horn, the two arm servo horn, and the
@@ -1057,7 +1057,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam16.jpg">
+										<img src="cam16.jpg">
 											<p>
 												<b>Step 15:</b>
 												Now That we have both the pan and tilt servos in place we need to
@@ -1075,7 +1075,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam-servo-cal.jpg">
+										<img src="cam-servo-cal.jpg">
 											<p>
 												<b>Step 16:</b>
 												We are now ready to setup our calibration test. Download the
@@ -1164,7 +1164,7 @@
 										</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam17.jpg">
+										<img src="cam17.jpg">
 											<p>
 												<b>Step 18:</b>
 												Repeat the same procedure we performed in
@@ -1187,7 +1187,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam18.jpg">
+										<img src="cam18.jpg">
 											<p>
 												<b>Step 19:</b>
 												If we leave the original screws in that hold the top camera
@@ -1200,7 +1200,7 @@
 												extend out into the dome insert. When the camera pans the wire
 												shaft will turn the dome insert while holding the top bracket onto
 												the bracket base. You can use either 18 gauge wire or
-												<a href="http://ugate.googlecode.com/files/cam-shaft-wire.jpg"
+												<a href="cam-shaft-wire.jpg"
 													rel="nofollow">a wire necklace from Michaels arts &amp; craft store</a>
 												bent/cut to size. Obviously, the stronger the wire the better. The
 												servos also came with a couple screw sleeves (shown above). We
@@ -1254,7 +1254,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/mw01.jpg">
+										<img src="mw01.jpg">
 											<p>
 												<b>Step 1:</b>
 												Due to the nature of X-Band microwave signals it can detect
@@ -1277,7 +1277,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/mw02.jpg">
+										<img src="mw02.jpg">
 											<p>
 												<b>Step 2:</b>
 												Next, using one of the servos and a marker, trace around the servo
@@ -1308,7 +1308,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/mw03.jpg">
+										<img src="mw03.jpg">
 											<p>
 												<b>Step 3:</b>
 												Now that we have the junction boxes joined and the servo in place
@@ -1346,7 +1346,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/mw04.jpg">
+										<img src="mw04.jpg">
 											<p>
 												<b>Step 4:</b>
 												Using some pliers to hold the base of the conduit hanger (opposite
@@ -1398,7 +1398,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar01.jpg">
+										<img src="pirsonar01.jpg">
 											<p>
 												<b>Step 1:</b>
 												Next we need an weather tight compartment for our PIR and Sonar
@@ -1411,7 +1411,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar02.jpg">
+										<img src="pirsonar02.jpg">
 											<p>
 												<b>Step 2:</b>
 												Remove the white PIR lens dome from the PIR sensor. The silver PIR
@@ -1432,7 +1432,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar03.jpg">
+										<img src="pirsonar03.jpg">
 											<p>
 												<b>Step 3:</b>
 												Now we want to do a similar thing to the Sonar PCB that we did to
@@ -1454,7 +1454,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar04.jpg">
+										<img src="pirsonar04.jpg">
 											<p>
 												<b>Step 4:</b>
 												Next take the PIR element that we removed from
@@ -1469,7 +1469,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar05.jpg">
+										<img src="pirsonar05.jpg">
 											<p>
 												<b>Step 5:</b>
 												Now we need to create a weatherproof cap that will fit in our
@@ -1500,7 +1500,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar06.jpg">
+										<img src="pirsonar06.jpg">
 											<p>
 												<b>Step 6:</b>
 												Next, take the exterior grade caulk and secure the PIR element
@@ -1514,7 +1514,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar07.jpg">
+										<img src="pirsonar07.jpg">
 											<p>
 												<b>Step 7:</b>
 												Now flip the plexiglass cutout over and caulk the black sonar
@@ -1524,7 +1524,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar08.jpg">
+										<img src="pirsonar08.jpg">
 											<p>
 												<b>Step 8:</b>
 												The floodlight holder is a little too long for our servos to
@@ -1549,7 +1549,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar09.jpg">
+										<img src="pirsonar09.jpg">
 											<p>
 												<b>Step 9:</b>
 												Next, take one of the micro servos and a single arm horn that came
@@ -1573,7 +1573,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar10.jpg">
+										<img src="pirsonar10.jpg">
 											<p>
 												<b>Step 10:</b>
 												Now we need to attach the panning servo to the tilting servo. Use
@@ -1592,7 +1592,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar11.jpg">
+										<img src="pirsonar11.jpg">
 											<p>
 												<b>Step 11:</b>
 												Remove the black and silver screw that secures the floodlight
@@ -1613,7 +1613,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar12.jpg">
+										<img src="pirsonar12.jpg">
 											<p>
 												<b>Step 12:</b>
 												Using a 1/16 inch drill bit, drill two holes through the knockout
@@ -1630,7 +1630,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar13.jpg">
+										<img src="pirsonar13.jpg">
 											<p>
 												<b>Step 10:</b>
 												Using an exterior grade caulk flip the knockout/servo over and
@@ -1640,13 +1640,13 @@
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar14.jpg">
+										<img src="pirsonar14.jpg">
 											<p>
 												<b>Step 11:</b>
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/pirsonar15.jpg">
+										<img src="pirsonar15.jpg">
 											<p>
 												<b>Step 12:</b>
 											</p>
@@ -1666,19 +1666,19 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 1:</b>
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 2:</b>
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 3:</b>
 											</p>
@@ -1686,19 +1686,19 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 4:</b>
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 5:</b>
 											</p>
 									</td>
 									<td>
-										<img src="http://ugate.googlecode.com/files/cam1.jpg">
+										<img src="cam1.jpg">
 											<p>
 												<b>Step 6:</b>
 											</p>
@@ -1715,7 +1715,7 @@
 						<p>
 							All of the hardware components work off of a single command interface
 							that is driven by the universal remote
-							<a href="http://code.google.com/p/ugate/#Command_Codes" rel="nofollow">Command
+							<a href="#Command_Codes" rel="nofollow">Command
 								Codes</a>
 							. Commands sent from the GUI, email, or IR remote will all correspond
 							to these codes. There are some command codes that are not available on
@@ -1745,7 +1745,7 @@
 							<tbody>
 								<tr>
 									<td>
-										<img src="http://ugate.googlecode.com/files/GE-24944.jpg">
+										<img src="GE-24944.jpg">
 									</td>
 									<td valign="top">
 										<p>
@@ -1932,7 +1932,7 @@
 									computer is offline at the time of the change the new access code
 									will only be valid until the host comes back online (the host sends a
 									restore
-									<a href="http://code.google.com/p/ugate/#Command_Codes" rel="nofollow">command
+									<a href="#Command_Codes" rel="nofollow">command
 									</a>
 									to the Arduino that will cause the access code to be overwritten with
 									the one stored on the host)
@@ -1940,12 +1940,12 @@
 								<li>
 									If your Arduino looses power or is disconnected for any reason, a
 									restore request
-									<a href="http://code.google.com/p/ugate/#Command_Codes" rel="nofollow">command
+									<a href="#Command_Codes" rel="nofollow">command
 									</a>
 									is made to the host computer every
 									<u>minute</u>
 									until the Arduino receives a restore response
-									<a href="http://code.google.com/p/ugate/#Command_Codes" rel="nofollow">command
+									<a href="#Command_Codes" rel="nofollow">command
 									</a>
 								</li>
 								<li>
@@ -1970,7 +1970,7 @@
 						<p>
 							Command codes are used to control some of the features of the device
 							when in close proximity. Most commands can be accessed from the
-							<a href="http://code.google.com/p/ugate/#UGate_GUI" rel="nofollow">GUI</a>
+							<a href="#UGate_GUI" rel="nofollow">GUI</a>
 							, but there are a limited number of commands that can be accessed from
 							the universal remote. The following outlines the available commands.
 							Values in
@@ -1988,7 +1988,7 @@
 								rel="nofollow">EEPROM</a>
 							(on-board memory). Each time the GUI application is started (or when
 							manually updated in the
-							<a href="http://code.google.com/p/ugate/#UGate_GUI" rel="nofollow">GUI</a>
+							<a href="#UGate_GUI" rel="nofollow">GUI</a>
 							) the preferences will be transferred to the Arduino using the
 							following commands.
 						</p>
@@ -2343,7 +2343,7 @@
 													<td>
 														Sends all of the settings from the Arduino to the host computer
 														(see
-														<a href="http://code.google.com/p/ugate/#Settings_Indexes"
+														<a href="#Settings_Indexes"
 															rel="nofollow">Settings Indexes</a>
 														for the order of the values)
 													</td>
@@ -2357,7 +2357,7 @@
 													<td>
 														Syncs all of the settings from the host computer to the Arduino
 														(see
-														<a href="http://code.google.com/p/ugate/#Settings_Indexes"
+														<a href="#Settings_Indexes"
 															rel="nofollow">Settings Indexes</a>
 														for the order of the values)
 													</td>
@@ -2378,7 +2378,7 @@
 							<font size="1">
 								<b>
 									0. Initiating command (from the
-									<a href="http://code.google.com/p/ugate/#Command_Codes" rel="nofollow">Command
+									<a href="#Command_Codes" rel="nofollow">Command
 										Codes</a>
 									)
 								</b>
@@ -2707,7 +2707,7 @@
 							is housed in a junction box and is not visible. Therefore, there is no
 							command that will pan the microwave sensor via the universal remote.
 							However, the
-							<a href="http://code.google.com/p/ugate/#UGate_GUI" rel="nofollow">GUI
+							<a href="#UGate_GUI" rel="nofollow">GUI
 								application</a>
 							has a visual aid to indicate the direction the sensor is pointing to
 							and can be adjusted accordingly.
