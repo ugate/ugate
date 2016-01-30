@@ -30,24 +30,24 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="screen01.png">
+										<img width="308" height="231" src="screen01.png">
 									</td>
 									<td>
-										<img src="screen02.png">
+										<img width="308" height="231" src="screen02.png">
 									</td>
 									<td>
-										<img src="screen03.png">
+										<img width="308" height="231" src="screen03.png">
 									</td>
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="screen04.png">
+										<img width="308" height="231" src="screen04.png">
 									</td>
 									<td>
-										<img src="screen05.png">
+										<img width="308" height="231" src="screen05.png">
 									</td>
 									<td>
-										<img src="screen06.png">
+										<img width="308" height="231" src="screen06.png">
 									</td>
 								</tr>
 							</tbody>
@@ -711,7 +711,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="ir1.jpg">
+										<img width="308" height="231" src="ir1.jpg">
 											<p>
 												<b>Step 1:</b>
 												Determine how to wire the IR receiver pins. Here we used a spare
@@ -727,7 +727,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="ir2.jpg">
+										<img width="308" height="231" src="ir2.jpg">
 											<p>
 												<b>Step 2:</b>
 												We need to have a durable see-through enclosure to house our IR
@@ -738,7 +738,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="ir3.jpg">
+										<img width="308" height="231" src="ir3.jpg">
 											<p>
 												<b>Step 3:</b>
 												Next, determine the location where the camera dome and IR receiver
@@ -749,7 +749,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="ir4.jpg">
+										<img width="308" height="231" src="ir4.jpg">
 											<p>
 												<b>Step 4:</b>
 												Drill a hole with a 1 and 1/4 inch hole saw for the IR receiver
@@ -758,7 +758,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="ir5.jpg">
+										<img width="308" height="231" src="ir5.jpg">
 											<p>
 												<b>Step 5:</b>
 												Using an outdoor silicone based caulk... caulk the exterior seam
@@ -767,7 +767,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="ir06.jpg">
+										<img width="308" height="231" src="ir06.jpg">
 											<p>
 												<b>Step 6:</b>
 												Also caulk the interior seam between the junction box and the
@@ -779,7 +779,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="ir7.jpg">
+										<img width="308" height="231" src="ir7.jpg">
 											<p>
 												<b>Step 7:</b>
 												Next, cut a 3 and 1/2 inch portion of a 3/4 inch diameter
@@ -793,7 +793,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="ir8.jpg">
+										<img width="308" height="231" src="ir8.jpg">
 											<p>
 												<b>Step 8:</b>
 												Take a 2 and 1/4 inch screw (or a size that fits, but doesn't take
@@ -803,7 +803,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="ir9.jpg">
+										<img width="308" height="231" src="ir9.jpg">
 											<p>
 												<b>Step 9:</b>
 												Place the tubing into the spice jar to ensure the screw, tubing
@@ -814,7 +814,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="ir10.jpg">
+										<img width="308" height="231" src="ir10.jpg">
 											<p>
 												<b>Step 10:</b>
 												Run the wire/jumper cables that were previously soldered to the
@@ -844,7 +844,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 1:</b>
 												The camera comes in an enclosure that we will have to disassemble
@@ -854,7 +854,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam2.jpg">
+										<img width="308" height="231" src="cam2.jpg">
 											<p>
 												<b>Step 2:</b>
 												Using a small flat-head screwdriver gently pry open the enclosure
@@ -862,7 +862,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam3.jpg">
+										<img width="308" height="231" src="cam3.jpg">
 											<p>
 												<b>Step 3:</b>
 												Inside the camera enclosure you will see the camera circuit with
@@ -879,7 +879,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam4.jpg">
+										<img width="308" height="231" src="cam4.jpg">
 											<p>
 												<b>Step 4:</b>
 												Now that the camera circuit has been removed we are ready to place
@@ -889,7 +889,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam5.jpg">
+										<img width="308" height="231" src="cam5.jpg">
 											<p>
 												<b>Step 5:</b>
 												The brass insert needs to be removed so the servo can be placed in
@@ -899,7 +899,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam6.jpg">
+										<img width="308" height="231" src="cam6.jpg">
 											<p>
 												<b>Step 6:</b>
 												Once drilled ensure the round servo horn (came with your servo)
@@ -911,7 +911,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam7.jpg">
+										<img width="308" height="231" src="cam7.jpg">
 											<p>
 												<b>Step 7:</b>
 												To make space for the servo to be inserted into the bottom of the
@@ -925,7 +925,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam8.jpg">
+										<img width="308" height="231" src="cam8.jpg">
 											<p>
 												<b>Step 8:</b>
 												Flip the base over and place the round horn connection into the
@@ -934,7 +934,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam9.jpg">
+										<img width="308" height="231" src="cam9.jpg">
 											<p>
 												<b>Step 9:</b>
 												Your servo should have came with a black rubber ring and a small
@@ -951,7 +951,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam10.jpg">
+										<img width="308" height="231" src="cam10.jpg">
 											<p>
 												<b>Step 10:</b>
 												Place the camera dome assembly on top of the junction box next to
@@ -964,7 +964,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam11.jpg">
+										<img width="308" height="231" src="cam11.jpg">
 											<p>
 												<b>Step 11:</b>
 												Being careful not to cut the long side too far (needed to screw in
@@ -983,7 +983,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam12.jpg">
+										<img width="308" height="231" src="cam12.jpg">
 											<p>
 												<b>Step 12:</b>
 												Next, center the camera dome base on the mounted servo gear that
@@ -1006,7 +1006,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam13.jpg">
+										<img width="308" height="231" src="cam13.jpg">
 											<p>
 												<b>Step 13:</b>
 												Now we need to assemble the tilt servo. First we need to glue the
@@ -1031,7 +1031,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam15.jpg">
+										<img width="308" height="231" src="cam15.jpg">
 											<p>
 												<b>Step 14:</b>
 												Using the single arm servo horn, the two arm servo horn, and the
@@ -1057,7 +1057,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="cam16.jpg">
+										<img width="308" height="231" src="cam16.jpg">
 											<p>
 												<b>Step 15:</b>
 												Now That we have both the pan and tilt servos in place we need to
@@ -1075,7 +1075,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam-servo-cal.jpg">
+										<img width="308" height="231" src="cam-servo-cal.jpg">
 											<p>
 												<b>Step 16:</b>
 												We are now ready to setup our calibration test. Download the
@@ -1164,7 +1164,7 @@
 										</p>
 									</td>
 									<td>
-										<img src="cam17.jpg">
+										<img width="308" height="231" src="cam17.jpg">
 											<p>
 												<b>Step 18:</b>
 												Repeat the same procedure we performed in
@@ -1187,7 +1187,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam18.jpg">
+										<img width="308" height="231" src="cam18.jpg">
 											<p>
 												<b>Step 19:</b>
 												If we leave the original screws in that hold the top camera
@@ -1254,7 +1254,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="mw01.jpg">
+										<img width="308" height="231" src="mw01.jpg">
 											<p>
 												<b>Step 1:</b>
 												Due to the nature of X-Band microwave signals it can detect
@@ -1277,7 +1277,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="mw02.jpg">
+										<img width="308" height="231" src="mw02.jpg">
 											<p>
 												<b>Step 2:</b>
 												Next, using one of the servos and a marker, trace around the servo
@@ -1308,7 +1308,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="mw03.jpg">
+										<img width="308" height="231" src="mw03.jpg">
 											<p>
 												<b>Step 3:</b>
 												Now that we have the junction boxes joined and the servo in place
@@ -1346,7 +1346,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="mw04.jpg">
+										<img width="308" height="231" src="mw04.jpg">
 											<p>
 												<b>Step 4:</b>
 												Using some pliers to hold the base of the conduit hanger (opposite
@@ -1398,7 +1398,7 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="pirsonar01.jpg">
+										<img width="308" height="231" src="pirsonar01.jpg">
 											<p>
 												<b>Step 1:</b>
 												Next we need an weather tight compartment for our PIR and Sonar
@@ -1411,7 +1411,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar02.jpg">
+										<img width="308" height="231" src="pirsonar02.jpg">
 											<p>
 												<b>Step 2:</b>
 												Remove the white PIR lens dome from the PIR sensor. The silver PIR
@@ -1432,7 +1432,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar03.jpg">
+										<img width="308" height="231" src="pirsonar03.jpg">
 											<p>
 												<b>Step 3:</b>
 												Now we want to do a similar thing to the Sonar PCB that we did to
@@ -1454,7 +1454,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="pirsonar04.jpg">
+										<img width="308" height="231" src="pirsonar04.jpg">
 											<p>
 												<b>Step 4:</b>
 												Next take the PIR element that we removed from
@@ -1469,7 +1469,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar05.jpg">
+										<img width="308" height="231" src="pirsonar05.jpg">
 											<p>
 												<b>Step 5:</b>
 												Now we need to create a weatherproof cap that will fit in our
@@ -1500,7 +1500,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar06.jpg">
+										<img width="308" height="231" src="pirsonar06.jpg">
 											<p>
 												<b>Step 6:</b>
 												Next, take the exterior grade caulk and secure the PIR element
@@ -1514,7 +1514,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="pirsonar07.jpg">
+										<img width="308" height="231" src="pirsonar07.jpg">
 											<p>
 												<b>Step 7:</b>
 												Now flip the plexiglass cutout over and caulk the black sonar
@@ -1524,7 +1524,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar08.jpg">
+										<img width="308" height="231" src="pirsonar08.jpg">
 											<p>
 												<b>Step 8:</b>
 												The floodlight holder is a little too long for our servos to
@@ -1549,7 +1549,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar09.jpg">
+										<img width="308" height="231" src="pirsonar09.jpg">
 											<p>
 												<b>Step 9:</b>
 												Next, take one of the micro servos and a single arm horn that came
@@ -1573,7 +1573,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="pirsonar10.jpg">
+										<img width="308" height="231" src="pirsonar10.jpg">
 											<p>
 												<b>Step 10:</b>
 												Now we need to attach the panning servo to the tilting servo. Use
@@ -1592,7 +1592,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar11.jpg">
+										<img width="308" height="231" src="pirsonar11.jpg">
 											<p>
 												<b>Step 11:</b>
 												Remove the black and silver screw that secures the floodlight
@@ -1613,7 +1613,7 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar12.jpg">
+										<img width="308" height="231" src="pirsonar12.jpg">
 											<p>
 												<b>Step 12:</b>
 												Using a 1/16 inch drill bit, drill two holes through the knockout
@@ -1630,7 +1630,7 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="pirsonar13.jpg">
+										<img width="308" height="231" src="pirsonar13.jpg">
 											<p>
 												<b>Step 10:</b>
 												Using an exterior grade caulk flip the knockout/servo over and
@@ -1640,13 +1640,13 @@
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar14.jpg">
+										<img width="308" height="231" src="pirsonar14.jpg">
 											<p>
 												<b>Step 11:</b>
 											</p>
 									</td>
 									<td>
-										<img src="pirsonar15.jpg">
+										<img width="308" height="231" src="pirsonar15.jpg">
 											<p>
 												<b>Step 12:</b>
 											</p>
@@ -1666,19 +1666,19 @@
 							<tbody>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 1:</b>
 											</p>
 									</td>
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 2:</b>
 											</p>
 									</td>
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 3:</b>
 											</p>
@@ -1686,19 +1686,19 @@
 								</tr>
 								<tr align="left" valign="top">
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 4:</b>
 											</p>
 									</td>
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 5:</b>
 											</p>
 									</td>
 									<td>
-										<img src="cam1.jpg">
+										<img width="308" height="231" src="cam1.jpg">
 											<p>
 												<b>Step 6:</b>
 											</p>
@@ -1745,7 +1745,7 @@
 							<tbody>
 								<tr>
 									<td>
-										<img src="GE-24944.jpg">
+										<img width="308" height="231" src="GE-24944.jpg">
 									</td>
 									<td valign="top">
 										<p>
