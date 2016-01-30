@@ -341,7 +341,7 @@
 								<a
 									href="http://shop.ebay.com/?_nkw=IR%20LED%20Board%20Plate&amp;rvr_id=247332209013&amp;clk_rvr_id=247332209013"
 									rel="nofollow">IR LED Board Plate</a>
-								(Used for night vision) ~$5/free shipping
+								(Used for night vision) ~$4/free shipping
 								<a
 									href="http://shop.ebay.com/?_nkw=IR%20LED%20Board%20Plate&amp;rvr_id=247332209013&amp;clk_rvr_id=247332209013"
 									rel="nofollow">EBay</a>
@@ -354,6 +354,8 @@
 								tripwire) x 2 @ ~$0.55/each
 								<a href="http://octopart.com/partsearch#search/requestData&amp;q=2N2222A"
 									rel="nofollow">Multiple Suppliers</a>
+								or <a http://www.ebay.com/sch/i.html?_nkw=2N2222A"
+									rel="nofollow">EBay</a>
 							</li>
 							<li>
 								<a
@@ -362,15 +364,14 @@
 								(Used to detect movement and measure distance- any ultrasonic sensor
 								will work, just make sure the range is far enough for your particular
 								application (example uses ~11ft max). If used outdoors you will also
-								need it to be weatherproof) ~$13/free shipping
-								<a
-									href="http://www.ebay.com/sch/i.html?_nkw=ultrasonic+sensor+module+waterproof"
+								need it to be weatherproof) ~$9/free shipping
+								<a	href="http://www.ebay.com/sch/i.html?_nkw=ultrasonic+sensor+module+waterproof"
 									rel="nofollow">EBay</a>
 							</li>
 							<li>
 								<a href="http://www.ebay.com/sch/i.html?_nkw=PIR+Module" rel="nofollow">PIR
 									(Passive Infrared) Module</a>
-								(Used to detect movement) ~$2/free shipping
+								(Used to detect movement) ~$1/free shipping
 								<a href="http://www.ebay.com/sch/i.html?_nkw=PIR+Module" rel="nofollow">EBay
 								</a>
 							</li>
