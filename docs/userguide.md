@@ -339,11 +339,11 @@
 							</li>
 							<li>
 								<a
-									href="http://www.ebay.com/sch/i.html?_nkw=Infrared+IR+Led+Illuminator+Board&_sacat=0"
+									href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=Infrared+IR+Led+Illuminator+Board&_sop=15"
 									rel="nofollow">Infrared IR Led Illuminator Board</a>
 								(Used for night vision) ~$1.50/free shipping
 								<a
-									href="http://shop.ebay.com/?_nkw=IR%20LED%20Board%20Plate&amp;rvr_id=247332209013&amp;clk_rvr_id=247332209013"
+									href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=Infrared+IR+Led+Illuminator+Board&_sop=15"
 									rel="nofollow">EBay</a>
 							</li>
 							<li>
@@ -351,28 +351,24 @@
 									href="http://datasheet.octopart.com/P2N2222AG-ON-Semiconductor-datasheet-5458885.pdf"
 									rel="nofollow">2N2222A NPN Switching transistors</a>
 								(Used to turn power on/off night vision for camera and to pulse Laser
-								tripwire) x 2 @ ~$0.55/each
-								<a href="http://octopart.com/partsearch#search/requestData&amp;q=2N2222A"
-									rel="nofollow">Multiple Suppliers</a>
-								or <a http://www.ebay.com/sch/i.html?_nkw=2N2222A"
-									rel="nofollow">EBay</a>
+								tripwire) x 2 @ ~$1/50pcs
+								or <a href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=2N2222A&_sop=15" rel="nofollow">EBay</a> or <a href="https://octopart.com/search?q=P2N2222A"
+									rel="nofollow">choose a local supplier</a>
 							</li>
 							<li>
 								<a
-									href="http://www.ebay.com/sch/i.html?_nkw=ultrasonic+sensor+module+waterproof"
+									href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=ultrasonic+sensor+module+waterproof&_sop=15"
 									rel="nofollow">Waterproof Ultrasonic Sensor</a>
 								(Used to detect movement and measure distance- any ultrasonic sensor
 								will work, just make sure the range is far enough for your particular
-								application (example uses ~11ft max). If used outdoors you will also
-								need it to be weatherproof) ~$9/free shipping
-								<a	href="http://www.ebay.com/sch/i.html?_nkw=ultrasonic+sensor+module+waterproof"
-									rel="nofollow">EBay</a>
+								application (example uses ~5m/16ft max) ~$9/free shipping
+								<a	href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=ultrasonic+sensor+module+waterproof&_sop=15" rel="nofollow">EBay</a>
 							</li>
 							<li>
-								<a href="http://www.ebay.com/sch/i.html?_nkw=PIR+Module" rel="nofollow">PIR
+								<a href="http://www.futurlec.com/Datasheet/Sensor/PIR_Module.pdf" rel="nofollow">HC-SR501 or DYP-ME003 PIR
 									(Passive Infrared) Module</a>
 								(Used to detect movement) ~$1/free shipping
-								<a href="http://www.ebay.com/sch/i.html?_nkw=PIR+Module" rel="nofollow">EBay
+								<a href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=PIR+Module&_sop=15" rel="nofollow">EBay
 								</a>
 							</li>
 							<li>
