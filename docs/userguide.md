@@ -365,8 +365,7 @@
 								<a	href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=ultrasonic+sensor+module+waterproof&_sop=15" rel="nofollow">EBay</a>
 							</li>
 							<li>
-								<a href="http://www.futurlec.com/Datasheet/Sensor/PIR_Module.pdf" rel="nofollow">HC-SR501 or DYP-ME003 PIR
-									(Passive Infrared) Module</a>
+								<a href="/datasheets/HC-SR501.pdf" rel="nofollow">HC-SR501 or DYP-ME003 PIR (Passive Infrared) Module</a>
 								(Used to detect movement) ~$1/free shipping
 								<a href="http://www.ebay.com/sch/i.html?LH_BIN=1&_nkw=PIR+Module&_sop=15" rel="nofollow">EBay
 								</a>
