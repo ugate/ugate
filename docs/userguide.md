@@ -339,9 +339,9 @@
 							</li>
 							<li>
 								<a
-									href="http://shop.ebay.com/?_nkw=IR%20LED%20Board%20Plate&amp;rvr_id=247332209013&amp;clk_rvr_id=247332209013"
-									rel="nofollow">IR LED Board Plate</a>
-								(Used for night vision) ~$4/free shipping
+									href="http://www.ebay.com/sch/i.html?_nkw=Infrared+IR+Led+Illuminator+Board&_sacat=0"
+									rel="nofollow">Infrared IR Led Illuminator Board</a>
+								(Used for night vision) ~$1.50/free shipping
 								<a
 									href="http://shop.ebay.com/?_nkw=IR%20LED%20Board%20Plate&amp;rvr_id=247332209013&amp;clk_rvr_id=247332209013"
 									rel="nofollow">EBay</a>
