@@ -380,7 +380,7 @@
 								<a href="http://www.edparadis.com/radar/" rel="nofollow">hot wheels radar gun
 								</a>
 								,
-								<a href="http://www.ebay.com/sch/i.html?_kw=microwave&amp;_kw=sensor"
+								<a href="http://www.ebay.com/sch/i.html?_sop=15&LH_BIN=1&_nkw=Microwave+Radar+Sensor"
 									rel="nofollow">buy just the microwave module for ~$9</a>
 								and interface the IF) ~$30
 								<a
